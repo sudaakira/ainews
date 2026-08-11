@@ -1,0 +1,50 @@
+name: New Service Scout
+
+on:
+  schedule:
+    # 08:30 and 17:30 JST (GitHub Actions cron is UTC)
+    - cron: "30 23,8 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: service-scout
+  cancel-in-progress: false
+
+jobs:
+  scout:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+      - run: pip install -r requirements.txt
+      - name: Collect, analyze, and send email
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          OPENAI_MODEL: ${{ vars.OPENAI_MODEL || 'gpt-4.1-mini' }}
+          AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+          AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
+          AZURE_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
+          MAIL_SENDER: ${{ secrets.MAIL_SENDER }}
+          MAIL_RECIPIENT: ${{ secrets.MAIL_RECIPIENT }}
+          RSS_FEEDS: ${{ vars.RSS_FEEDS }}
+          LOOKBACK_HOURS: "18"
+          RESULT_LIMIT: "3"
+          MIN_SCORE: "35"
+        run: python src/main.py
+      - name: Persist duplicate-detection state
+        run: |
+          if ! git diff --quiet -- data/seen.json; then
+            git config user.name "service-scout[bot]"
+            git config user.email "service-scout[bot]@users.noreply.github.com"
+            git add data/seen.json
+            git commit -m "chore: update service scout history [skip ci]"
+            git push
+          fi
