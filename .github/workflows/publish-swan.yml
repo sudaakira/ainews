@@ -23,7 +23,7 @@ jobs:
       - name: Prepare static site
         run: |
           mkdir -p _site/swan-2026
-          cp swan-2026/index.html _site/swan-2026/index.html
+          cp -a swan-2026/. _site/swan-2026/
           printf '%s\n' '<!doctype html><meta charset="utf-8"><meta http-equiv="refresh" content="0;url=./swan-2026/"><a href="./swan-2026/">スワンSシミュレーター</a>' > _site/index.html
           touch _site/.nojekyll
       - uses: actions/configure-pages@v5
