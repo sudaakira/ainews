@@ -86,7 +86,7 @@
 <div class="live-sim" id="live-sim">
  <div class="live-head"><strong>🏇 KYOTO 1400m OUTER｜3Dレースビュー</strong><span class="live-status" id="live-status">スタート待機</span></div>
  <div class="live-stats"><div class="live-stat"><span>レース経過（仮想）</span><b id="live-clock">00:00</b></div><div class="live-stat"><span>残り距離</span><b id="live-distance">1400m</b></div><div class="live-stat"><span>現在の区間</span><b id="live-section">発走前</b></div></div>
- <div class="camera-controls" id="camera-controls" style="display:none"><button data-camera="wide">🏟️ 京都競馬場・全景</button><button data-camera="gate">🚦 ゲート→追走</button><button data-camera="follow" class="cam-active">🎥 外ラチ側・追走</button><button data-camera="horse">🐎 馬体アップ</button><button data-camera="finish">🏁 ゴール前</button><button data-camera="2d">2D模式図</button><span id="three-status">3Dモデル読み込み中…</span></div><div class="live-screen">
+ <div class="camera-controls" id="camera-controls" style="display:none"><button data-camera="wide">🏟️ 京都競馬場・全景</button><button data-camera="gate">🚦 ゲートを見る</button><button data-camera="follow" class="cam-active">🎥 外ラチ側・追走</button><button data-camera="horse">🐎 馬体アップ</button><button data-camera="finish">🏁 ゴール前</button><button data-camera="2d">2D模式図</button><span id="three-status">3Dモデル読み込み中…</span></div><div class="live-screen">
  <div id="three-stage" style="display:none"><div class="track-broadcast"><b>京都 11R</b><span>スワンステークス GII｜芝1400m（外）</span></div><div class="track-broadcast-bottom">🏇 KYOTO RACECOURSE <span id="horse-model-version">MODEL LOADING</span></div>
  <div class="broadcast-clock" id="broadcast-clock">0:00.0</div>
  <div class="broadcast-course"><svg viewBox="0 0 210 78" aria-label="コース進行図"><rect x="5" y="6" width="200" height="66" rx="33" fill="#296e50" stroke="#d8efc9" stroke-width="4"/><rect x="17" y="17" width="176" height="44" rx="22" fill="#43875b" stroke="#9bdb6b" stroke-width="6"/><circle id="broadcast-dot" cx="23" cy="39" r="6" fill="#ffda57" stroke="#fff" stroke-width="2"/></svg><span id="broadcast-distance">残り 1400m</span></div>
@@ -469,7 +469,7 @@ window.KYOTO_RACE={HS,LIVE,route,routeLength,horseProgress};
  // Replace the original all-ellipsoid cartoon model with newly sculpted thoroughbreds.
  let horseV3Ready=false;
  try{
-  const horseV3=await import("./horse-v3.js?v=thoroughbred-20261012-v2");
+  const horseV3=await import("./horse-v3.js?v=thoroughbred-20261012-v4");
   for(const h of HS)models.push(horseV3.createRaceHorse(THREE,scene,h,silkColors[h.no-1]));
   horseV3Ready=models.length===18;
  }catch(e){
@@ -480,7 +480,11 @@ window.KYOTO_RACE={HS,LIVE,route,routeLength,horseProgress};
  // Full 18-stall starting gate, visible at the start and opening as the race begins.
  const start=offsetPoint(0,0,.1),end=offsetPoint(1,0,.1);
  const gateRoot=new THREE.Group();gateRoot.position.copy(start);
- const startDir=path(0);gateRoot.rotation.y=Math.atan2(startDir.dx,startDir.dz);scene.add(gateRoot);
+ const startDir=path(0);
+ // Keep the physical 18-stall gate behind the start line so the horses leave it in view.
+ gateRoot.position.x-=startDir.dx*5.5;
+ gateRoot.position.z-=startDir.dz*5.5;
+ gateRoot.rotation.y=Math.atan2(startDir.dx,startDir.dz);scene.add(gateRoot);
  const gateSteel=mat(0x347f79),gateWhite=mat(0xf4f6ee),gateDark=mat(0x1c514e),gateYellow=mat(0xf8d54f),gateNumberMat=mat(0x253b45);
  const stallWidth=1.51,stallDepth=4.9,stallCount=18,gateDoors=[];
  const beam=(parent,x,y,z,w,h,d,m)=>{let v=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),m);v.position.set(x,y,z);parent.add(v);return v};
@@ -520,6 +524,38 @@ window.KYOTO_RACE={HS,LIVE,route,routeLength,horseProgress};
   const swing=opening*1.30;
   for(const door of gateDoors)door.hinge.rotation.y=-door.side*swing;
  }
+ // Kyoto-inspired JRA goal board: freestanding pylons outside both rails,
+ // a high finish banner, and a distinctive ornamental crown over the line.
+ const goalRig=new THREE.Group();
+ goalRig.position.copy(end);
+ const goalDir=path(1);goalRig.rotation.y=Math.atan2(goalDir.dx,goalDir.dz);
+ scene.add(goalRig);
+ const goalTeal=mat(0x247e75),goalIvory=mat(0xf5f5ed),goalGold=mat(0xd9b65a),goalRed=mat(0xa53645);
+ for(const side of [-1,1]){
+  beam(goalRig,side*(half+2.4),4.45,0,1.12,8.9,1.1,goalIvory);
+  beam(goalRig,side*(half+2.4),9.0,0,1.55,.75,1.45,goalGold);
+  beam(goalRig,side*(half+2.4),2.0,.78,.28,3.2,.25,goalTeal);
+ }
+ beam(goalRig,0,8.6,0,half*2+5.9,1.9,1.3,goalTeal);
+ beam(goalRig,0,9.85,0,half*2+6.5,.35,1.7,goalGold);
+ const goalCanvas=document.createElement('canvas');goalCanvas.width=1024;goalCanvas.height=256;
+ const gc=goalCanvas.getContext('2d');
+ gc.fillStyle='#176f66';gc.fillRect(0,0,1024,256);
+ gc.fillStyle='#f4f6ed';gc.textAlign='center';gc.textBaseline='middle';
+ gc.font='bold 98px sans-serif';gc.fillText('KYOTO  •  GOAL',512,105);
+ gc.font='bold 48px sans-serif';gc.fillText('京都競馬場  JRA  ゴール',512,194);
+ const goalTex=new THREE.CanvasTexture(goalCanvas);goalTex.colorSpace=THREE.SRGBColorSpace;
+ const goalSign=new THREE.Mesh(new THREE.PlaneGeometry(half*2+4.4,1.7),new THREE.MeshBasicMaterial({map:goalTex,side:THREE.DoubleSide}));
+ goalSign.position.set(0,8.6,.70);goalRig.add(goalSign);
+ // Decorative finish crest floats above the banner, not in the racing lanes.
+ const crest=new THREE.Mesh(new THREE.TorusGeometry(3.25,.36,9,36,Math.PI),goalRed);
+ crest.position.set(0,10.25,.0);goalRig.add(crest);
+ const badgeCanvas=document.createElement('canvas');badgeCanvas.width=256;badgeCanvas.height=256;
+ const bg=badgeCanvas.getContext('2d');bg.fillStyle='#ffffff';bg.beginPath();bg.arc(128,128,118,0,Math.PI*2);bg.fill();
+ bg.fillStyle='#217b73';bg.textAlign='center';bg.textBaseline='middle';bg.font='bold 108px sans-serif';bg.fillText('JRA',128,135);
+ const badgeTex=new THREE.CanvasTexture(badgeCanvas);
+ const badge=new THREE.Mesh(new THREE.PlaneGeometry(3.3,3.3),new THREE.MeshBasicMaterial({map:badgeTex,transparent:true,side:THREE.DoubleSide}));
+ badge.position.set(0,11.35,.1);goalRig.add(badge);
  const finishGeo=new THREE.PlaneGeometry(half*2,1.0),finishMat=new THREE.MeshBasicMaterial({color:0xf2f5f3,side:THREE.DoubleSide});
  const finish=new THREE.Mesh(finishGeo,finishMat);finish.rotation.x=-Math.PI/2;finish.rotation.z=0;finish.position.copy(end);finish.position.y+=.05;scene.add(finish);
  for(let side of [-1,1]){let p=offsetPoint(1,side*(half+.8),.0);let pole=new THREE.Mesh(new THREE.CylinderGeometry(.15,.15,5,8),mat(0xf7f7f0));pole.position.copy(p);pole.position.y+=2.5;scene.add(pole)}
@@ -532,8 +568,8 @@ window.KYOTO_RACE={HS,LIVE,route,routeLength,horseProgress};
  }
  let mode='follow',lastMode='follow';
  controls.style.display='flex';stage.style.display='block';svg.classList.add('svg-hidden');status.textContent=!horseV3Ready?'⚠️ 新しい馬モデルを読み込めません（旧モデルで代替）':venueReady?'🐎 新3D馬モデル18頭・外ラチ側追走中':'⚠️ 簡易背景（3D施設の読込失敗）';
- document.getElementById('horse-model-version').textContent=horseV3Ready?'THOROUGHBRED v3 · 18 HORSES':'⚠️ OLD MODEL FALLBACK';
- window.KYOTO_RENDER_STATUS={model:horseV3Ready?'thoroughbred-v3':'fallback',venue:venueReady?'full':'fallback',horses:models.length,camera:mode};
+ document.getElementById('horse-model-version').textContent=horseV3Ready?'THOROUGHBRED v4 · 18 HORSES':'⚠️ OLD MODEL FALLBACK';
+ window.KYOTO_RENDER_STATUS={model:horseV3Ready?'thoroughbred-v4':'fallback',venue:venueReady?'full':'fallback',horses:models.length,camera:mode};
  controls.querySelectorAll('button').forEach(btn=>btn.onclick=()=>{
   mode=btn.dataset.camera;
   controls.querySelectorAll('button').forEach(b=>b.classList.toggle('cam-active',b===btn));
@@ -572,37 +608,33 @@ window.KYOTO_RACE={HS,LIVE,route,routeLength,horseProgress};
    m.root.position.set(d.x-d.dz*lane,d.y+.12,d.z+d.dx*lane);
    const size=.66+.34*Math.max(0,Math.min(1,clock/3.0));m.root.scale.setScalar(size);
    m.root.rotation.y=Math.atan2(d.dx,d.dz);
-   const cycle=LIVE.visualTime*10.8+h.no*.77;
+   const cycle=LIVE.visualTime*9.2+h.no*.77;
    // Four-beat gallop: reaching forelegs, tucking knees, pushing hind legs, airborne bounce.
    const stride=Math.sin(cycle),airborne=Math.max(0,Math.sin(cycle+.15));
-   m.anim.position.y=airborne*.27+.04*Math.sin(cycle*2);
-   m.anim.rotation.x=Math.sin(cycle+.45)*.085;
-   m.headRig.rotation.x=-.12*Math.sin(cycle+.85);
+   m.anim.position.y=airborne*.11+.02*Math.sin(cycle*2);
+   m.anim.rotation.x=Math.sin(cycle+.45)*.034;
+   m.headRig.rotation.x=-.045*Math.sin(cycle+.85);
    m.tailRig.rotation.x=.23*Math.sin(cycle+.8);
    m.tailRig.rotation.z=.16*Math.sin(cycle*.57+h.no);
    m.legs.forEach((leg,j)=>{
     const phase=cycle+(leg.front?0:2.05)+(leg.side>0?.56:0);
     const swing=Math.sin(phase);
-    leg.pivot.rotation.x=(leg.front?-.05:.12)+swing*(leg.front?.92:1.03);
-    leg.knee.rotation.x=(leg.front?1:-1)*(.16+Math.max(0,Math.cos(phase+.45))*.98);
+    leg.pivot.rotation.x=(leg.front?-.06:.09)+swing*(leg.front?.60:.72);
+    leg.knee.rotation.x=(leg.front?1:-1)*(.09+Math.max(0,Math.cos(phase+.45))*.64);
    });
    m.sprite.material.opacity=order.slice(0,3).some(x=>x.no===h.no)?1:.88;
   }
   updateGates(clock);
-  // Starting stalls must never obstruct the default outside-rail tracking view.
-  gateRoot.visible=mode==='gate';
+  // The starting gate remains a permanent 3D venue object, including in the outside camera.
+  gateRoot.visible=true;
   const lead=order[0],p=path(lead.p),aspect=camera.aspect;
-  // Starting-gate view automatically hands off to the outside tracking camera.
-  if(mode==='gate'&&clock>5){
-   mode='follow';
-   controls.querySelectorAll('button').forEach(b=>b.classList.toggle('cam-active',b.dataset.camera==='follow'));
-  }
+  // Gate camera is manually selectable at any race time; it never disappears after the break.
   if(mode==='wide'){
    desired.set(-15,aspect<.8?215:160,aspect<.8?-250:-192);look.set(-18,0,8);camera.fov=aspect<.8?66:55;
   }else if(mode==='gate'){
    const g=path(0);
-   desired.set(g.x+24,aspect<.8?16:12,g.z-(aspect<.8?41:35));
-   look.set(g.x+2,2.0,g.z);camera.fov=aspect<.8?57:51;
+   desired.set(g.x+g.dz*34-g.dx*4,aspect<.8?12:9,g.z-g.dx*34-g.dz*4);
+   look.set(g.x-g.dx*5.5,2.0,g.z-g.dz*5.5);camera.fov=aspect<.8?57:51;
   }else if(mode==='horse'){
    // Inspection angle: very close to the leading horse, unobstructed by exterior scenery.
    const d=path(lead.p),side=10.5,forward=2.5;
