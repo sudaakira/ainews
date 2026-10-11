@@ -1,63 +1,69 @@
-// Ground-contact gait engine v3. No canned pose frames or independent leg sine waves.
-// Each hoof follows a stance/swing trajectory, and a two-bone inverse-kinematics
-// solution drives the hip and knee. Fore/hind timing is an asymmetrical gallop.
+// Gallop v6: ground-constrained, four-beat racehorse gait.
+// +Z is forward; all joints rotate about X. Units match horse-v5.js.
+// Hooves move relative to the torso during stance; swing is an arced recovery.
+// Two-bone inverse kinematics prevents broken-looking limb lengths.
 export function updateGallop(model,raceTime,visualTime,number){
  const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
  const smooth=t=>{t=clamp(t,0,1);return t*t*(3-2*t)};
- const blend=smooth((raceTime-.12)/1.4);
- if(blend===0){
+ const mix=(a,b,t)=>a+(b-a)*t;
+ const blend=smooth((raceTime-.12)/1.25);
+ const legs=model.legs;
+ if(!blend){
   model.anim.position.y=0;model.anim.rotation.x=0;
   model.headRig.rotation.x=0;model.tailRig.rotation.x=0;model.tailRig.rotation.z=0;
-  for(const leg of model.legs){leg.pivot.rotation.x=0;leg.knee.rotation.x=0;}
+  for(const leg of legs){leg.pivot.rotation.x=0;leg.knee.rotation.x=0;}
   return;
  }
- // 1.25 strides/s, with the diagonal foreleg contact shortly after the leading hindleg.
- const stride=(visualTime*1.27+number*.023)%1;
- const wrap=v=>(v%1+1)%1;
- const stance=.47;
- // A hoof moves backwards relative to the body while grounded, then swings
- // forwards above the grass. This prevents the bicycle/paddling illusion.
- function hoofTrajectory(phase,front){
-  const p=wrap(stride+phase);
-  const reach=front?.57:.62;
-  if(p<stance){
-   const t=p/stance;
-   return {z:reach*(1-2*t),y:-1.22+0.055*Math.sin(Math.PI*t)};
+ // At roughly 1.65 strides/sec the stride reads as a race gallop on mobile.
+ // Every horse starts with a tiny phase offset to avoid mechanical synchronization.
+ const phase=((visualTime*1.65+number*.011)%1+1)%1;
+ const wrap=x=>(x%1+1)%1;
+ // Four separate contacts: trailing hind, leading hind, trailing fore, leading fore.
+ // In model order: fore(-), fore(+), hind(-), hind(+).
+ const offsets=[.49,.67,.04,.22];
+ const contact=.30;
+ const ease=smooth;
+ const contactPhases=[];
+ function target(p,front){
+  const span=front?.38:.40;
+  const ankleY=-1.265;
+  if(p<contact){
+   const t=p/contact;
+   // Foot is planted: relative motion comes from the torso advancing over it.
+   return {z:mix(span,-span,t),y:ankleY,stance:true};
   }
-  const t=(p-stance)/(1-stance);
-  const eased=smooth(t);
-  const height=(front?.44:.51)*Math.pow(Math.sin(Math.PI*t),1.2);
-  return {z:-reach+2*reach*eased,y:-1.22+height};
+  const t=(p-contact)/(1-contact);
+  const lift=Math.pow(Math.sin(Math.PI*t),1.4)*(front?.36:.40);
+  return {z:mix(-span,span,ease(t)),y:ankleY+lift,stance:false};
  }
- // Angles for two segments hanging along -Y, where negative X rotation
- // reaches forward (+Z). Hind hock folds the opposite way to a fore knee.
- function solveIK(z,y,upper,lower,front){
-  const d=clamp(Math.hypot(z,y),.08,upper+lower-.008);
-  const cosine=clamp((d*d-upper*upper-lower*lower)/(2*upper*lower),-1,1);
-  const bend=(front?1:-1)*Math.acos(cosine);
-  const theta=Math.atan2(-z,-y);
-  const hip=theta-Math.atan2(lower*Math.sin(bend),upper+lower*Math.cos(bend));
-  return [clamp(hip,-1.18,1.18),clamp(bend,-1.8,1.8)];
+ function ik(z,y,L1,L2,front){
+  // +X rotation drives a downward limb backwards (-Z).
+  // Fore knee bends rearward; hind hock bends forward.
+  const distance=clamp(Math.hypot(z,y),.05,L1+L2-.005);
+  const joint=(front?1:-1)*Math.acos(clamp((distance*distance-L1*L1-L2*L2)/(2*L1*L2),-1,1));
+  const heading=Math.atan2(-z,-y);
+  const hip=heading-Math.atan2(L2*Math.sin(joint),L1+L2*Math.cos(joint));
+  return {hip:clamp(hip,-1.35,1.35),joint:clamp(joint,-2.0,2.0)};
  }
- // Index order from model: fore-left, fore-right, hind-left, hind-right.
- // Asymmetric hoof contact: trailing hind, leading hind, trailing fore, leading fore.
- const phases=[.50,.58,.02,.13];
- let grounded=0;
- model.legs.forEach((leg,i)=>{
-  const front=leg.front;
-  const target=hoofTrajectory(phases[i],front);
-  const [hip,knee]=solveIK(target.z,target.y,front?.64:.59,.70,front);
-  leg.pivot.rotation.x=hip*blend;
-  leg.knee.rotation.x=knee*blend;
-  if(wrap(stride+phases[i])<stance)grounded++;
- });
- // The trunk pitches over the shoulder at touchdown and rises on push-off.
- // Keep motion restrained so the jockey remains in the saddle.
- const flight=grounded===0?1:0;
- const bounce=.025+.055*(1-Math.cos(2*Math.PI*stride))*.5+flight*.055;
- model.anim.position.y=bounce*blend;
- model.anim.rotation.x=blend*(.036*Math.sin(2*Math.PI*stride-.9));
- model.headRig.rotation.x=blend*(-.045*Math.sin(2*Math.PI*stride-1.25));
- model.tailRig.rotation.x=blend*(.08*Math.sin(2*Math.PI*stride+.3));
- model.tailRig.rotation.z=blend*(.045*Math.sin(2*Math.PI*stride*.6+number));
+ let contacts=0;
+ for(let i=0;i<legs.length;i++){
+  const leg=legs[i],p=wrap(phase+offsets[i]);
+  const point=target(p,leg.front);
+  if(point.stance)contacts++;
+  const solved=ik(point.z,point.y,leg.upper||.66,leg.lower||.68,leg.front);
+  leg.pivot.rotation.x=mix(0,solved.hip,blend);
+  leg.knee.rotation.x=mix(0,solved.joint,blend);
+  contactPhases.push(p);
+ }
+ // Suspension is a short interval with all four hooves off the ground.
+ // Pitch is tiny: a galloping horse flexes its back, not its whole torso like a seesaw.
+ const airborne=contacts===0?1:0;
+ const bodyWave=.5-.5*Math.cos(2*Math.PI*phase);
+ const vertical=.018+.052*bodyWave+.055*airborne;
+ model.anim.position.y=vertical*blend;
+ model.anim.rotation.x=blend*(.026*Math.sin(2*Math.PI*phase-.75));
+ model.headRig.rotation.x=blend*(-.038*Math.sin(2*Math.PI*phase-1.1));
+ model.tailRig.rotation.x=blend*(.055*Math.sin(2*Math.PI*phase+.6));
+ model.tailRig.rotation.z=blend*(.036*Math.sin(2*Math.PI*phase*.7+number));
+ if(model.shadow)model.shadow.material.opacity=.18-.07*airborne;
 }
