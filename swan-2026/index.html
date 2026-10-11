@@ -113,7 +113,7 @@
  <div class="result-head"><strong>🏆 レース順位 TOP 3</strong><span id="result-state">スタート待機</span></div>
  <div id="race" class="top3-results" aria-live="off"></div>
  <div class="live-leaders" id="live-leaders" style="margin-top:10px"></div>
- <p class="live-note">※JRA公式のコース資料を参考に、京都競馬場の外回り・内回り・ダート・スタンド・馬場内施設を3Dで模式的に再構成しています。実物の寸法・建物配置を完全再現した測量モデルではありません。内枠は内ラチ側、外枠は外ラチ側に配置。3Dの馬・騎手は日本のアニメ風の大きな瞳・ぽっちゃりした体型のデフォルメ立体モデル。観客席・観客・樹木は京都競馬場をイメージした演出です。16倍速でも脚の動きを滑らかに見せるよう再生速度と走行モーションを分離しています。走行位置・時計・順位は架空のレースで、実測GPS・実況映像・ライブ馬場データではありません。</p>
+ <p class="live-note">※JRA公式のコース資料を参考に、京都競馬場の外回り・内回り・ダート・スタンド・馬場内施設を3Dで模式的に再構成しています。実物の寸法・建物配置を完全再現した測量モデルではありません。内枠は内ラチ側、外枠は外ラチ側に配置。3Dの馬・騎手は日本のアニメ風の特大の瞳・大きな頭・短い脚・ぽっちゃりした体型のデフォルメ立体モデル。観客席・観客・樹木は京都競馬場をイメージした演出です。16倍速でも脚の動きを滑らかに見せるよう再生速度と走行モーションを分離しています。走行位置・時計・順位は架空のレースで、実測GPS・実況映像・ライブ馬場データではありません。</p>
 </div>
 </section></div><div class="grid"><aside><section class="card"><h2>シミュレーション設定</h2><label>展開 <span id="pacelabel">中立</span></label><input id="pace" type="range" min="-3" max="3" value="0"><p class="small">左：スロー前残り／右：ハイ差し</p><label>高速馬場 <span id="speedlabel">高速</span></label><input id="speed" type="range" min="0" max="3" value="2"><label>ばらつき <span id="vollabel">標準</span></label><input id="vol" type="range" min="6" max="16" value="10"><label>試行回数</label><select id="n"><option value="5000">5,000回</option><option value="20000" selected>20,000回</option><option value="50000">50,000回</option></select><button id="simulate">▶ 計算する</button><button id="one" style="background:#385d7d">🏁 1レース再生</button><button id="csv" style="background:#466b6e">CSV出力</button><div class="msg">重要：表示割合は仮説に基づくモデル内出現率。実際の的中確率として統計的に校正されていません。</div></section></aside><main><section class="card"><h2>全18頭の3着以内率｜<span id="count">—</span></h2><div id="bars"></div></section><section class="card"><h2>ワイド・馬連のモデル内同時好走率</h2><select id="a"></select><select id="b"></select><div class="runners"><div><small>ワイド</small><b id="wide">—</b></div><div><small>馬連</small><b id="quin">—</b></div><div><small>本命</small><b id="top">—</b></div></div><p class="small">配当は使用していません。購入推奨ではなく確率モデルの感度分析です。</p></section></main></div><section class="card"><h2>全18頭・状態／血統／近走／休養／弱点</h2><p class="small">状態は全馬共通項目で調査。詳細を開くと血統や近4走を確認できます。5代すべての枝・騎手の同コース複勝回収率は未検証です。</p><div class="horses" id="horses"></div></section><div class="card links"><h2>資料とモデル制約</h2><a href="https://www.jra.go.jp/JRADB/accessD.html?CNAME=pw01dde0108202604051120261012%2FDC">JRA公式出馬表・前4走</a> ｜ <a href="https://www.jra.go.jp/keiba/race/094/horse.html">JRA出走馬情報</a> ｜ <a href="https://race.netkeiba.com/race/oikiri.html?race_id=202608040511">調教一覧</a> ｜ <a href="https://keiba.sponichi.co.jp/news/20261007s00004000007000c">休養明け・厩舎コメント</a><p class="small">能力指数・展開補正・休養明けの状態補正は仮定。過去データへの校正なし、馬体重・当日芝レース結果の自動更新なし。ダート競走しか近走資料のない⑦の比較には特に注意。馬券の発売は行いません。</p></div></div>
 <script>
@@ -247,7 +247,7 @@ window.KYOTO_RACE={HS,LIVE,route,routeLength,horseProgress};
  // Wait for venue geometry before the first render; do not silently show the old empty turf.
  let venueReady=false;
  try{
-  const venue=await import("./scenery.js?v=full-kyoto-20261012");
+  const venue=await import("./scenery.js?v=kyoto-details-chibi-20261012");
   venue.buildScenery(THREE,scene,mat);
   venueReady=true;
  }catch(e){
@@ -296,34 +296,44 @@ window.KYOTO_RACE={HS,LIVE,route,routeLength,horseProgress};
   const palette=[0x996047,0xc38a5e,0x856356,0xe2b388,0x55433f,0xb87d59,0xa88a70,0x60504b,0xd7a06d,0x81655a,0xc89b75,0x94705f,0x594942,0xd6b28b,0xa78467,0x745b51,0xc6a07c,0x93725f];
   let coat=anime(palette[h.no-1]),coatDark=anime(new THREE.Color(palette[h.no-1]).multiplyScalar(.74)),mane=anime(h.no%3===0?0x6a4a3c:0x382e30),hoof=anime(0x36333d),skin=anime(0xf6c3a6),silk=anime(silkColors[h.no-1]),pants=anime(0xf8f4ed),helmet=anime(silkColors[h.no-1]),reins=anime(0x353038);
   // Anatomical shapes: rump, chest, shoulders, arched neck, muzzle and two ears
-  ellipsoid(anim,coat,0,1.63,0,.97,.88,1.13);
-  ellipsoid(anim,anime(0xeec6a5),0,1.22,.16,.72,.34,.81);
-  ellipsoid(anim,coat,0,1.64,.80,.75,.71,.67);
-  ellipsoid(anim,coat,0,1.6,-.91,.75,.71,.65);
+  ellipsoid(anim,coat,0,1.57,0,1.13,1.02,1.16);
+  ellipsoid(anim,anime(0xf0c8ac),0,1.14,.16,.85,.41,.87);
+  ellipsoid(anim,coat,0,1.58,.80,.83,.79,.75);
+  ellipsoid(anim,coat,0,1.56,-.91,.84,.77,.70);
   let neck=ellipsoid(anim,coat,0,2.11,1.14,.57,.71,.56);neck.rotation.x=-.36;
   // Friendly, oversized cartoon horse head: large eyes, expressive muzzle and ears.
-  const headRig=new THREE.Group();headRig.position.set(0,2.66,1.36);headRig.scale.set(1.30,1.25,1.22);anim.add(headRig);
+  const headRig=new THREE.Group();headRig.position.set(0,2.62,1.38);headRig.scale.set(1.47,1.38,1.36);anim.add(headRig);
   let head=ellipsoid(headRig,coat,0,.08,0,.67,.68,.62);head.rotation.x=.12;
-  ellipsoid(headRig,anime(0xf2bd9e),0,-.22,.51,.51,.35,.51);
+  ellipsoid(headRig,anime(0xffc7ad),0,-.22,.51,.56,.39,.53);
   ellipsoid(headRig,anime(0x78524b),0,-.40,.91,.23,.042,.075);
   for(let side of [-1,1]){
    let ear=ellipsoid(headRig,coat,side*.38,.75,-.12,.20,.38,.19);ear.rotation.z=-side*.15;
    let innerEar=ellipsoid(headRig,anime(0xffb4be),side*.40,.79,.018,.11,.25,.055);innerEar.rotation.z=-side*.15;
    // Japanese anime eye: huge white sclera, deep iris, pupil and two catchlights.
-   ellipsoid(headRig,anime(0xfffdf9),side*.54,.25,.34,.22,.26,.20);
-   ellipsoid(headRig,anime(0x514051),side*.675,.24,.41,.147,.193,.128);
-   ellipsoid(headRig,anime(0x191b31),side*.745,.25,.456,.096,.148,.087);
-   ellipsoid(headRig,anime(0xffffff),side*.792,.32,.495,.059,.070,.050);
-   ellipsoid(headRig,anime(0xffffff),side*.795,.17,.494,.025,.029,.026);
+   ellipsoid(headRig,anime(0xfffdf9),side*.54,.25,.34,.255,.285,.22);
+   ellipsoid(headRig,anime(0x514051),side*.69,.24,.41,.16,.205,.14);
+   ellipsoid(headRig,anime(0x191b31),side*.775,.25,.456,.104,.16,.092);
+   ellipsoid(headRig,anime(0xffffff),side*.827,.32,.495,.063,.074,.052);
+   ellipsoid(headRig,anime(0xffffff),side*.830,.17,.494,.029,.033,.028);
    // Blush, soft freckles, nostrils and raised anime eyebrows.
-   ellipsoid(headRig,anime(0xf69da7),side*.51,-.18,.43,.21,.105,.08);
+   ellipsoid(headRig,anime(0xff9fac),side*.53,-.18,.43,.24,.13,.09);
    ellipsoid(headRig,hoof,side*.30,-.26,.96,.064,.046,.038);
    ellipsoid(headRig,mane,side*.52,.56,.29,.22,.052,.08);
+   // Cute curved lashes, freckles and a shiny pink cheek.
+   for(let k=0;k<3;k++){
+    const lash=ellipsoid(headRig,mane,side*(.60+k*.085),.51-k*.018,.36,.037,.095,.033);
+    lash.rotation.z=side*(.32+k*.15);
+   }
+   for(let k=0;k<3;k++)ellipsoid(headRig,anime(0xc78077),side*(.34+k*.11),-.27+(k%2)*.07,.95-k*.09,.025,.026,.018);
   }
   for(let i=0;i<7;i++)ellipsoid(anim,mane,0,2.20+i*.11,1.03-i*.09,.18,.18,.19);
   // Large anime fringe, gently bouncing with the head.
   for(let i=0;i<5;i++){const fringe=ellipsoid(headRig,mane,(i-2)*.23,.59,.34,.18,.27,.20);fringe.rotation.z=(i-2)*.24;fringe.rotation.x=.23}
   ellipsoid(headRig,anime(0xfffaf0),0,.19,.62,.095,.24,.045);
+  // Forehead blaze and tiny white star, readable even at medium camera distance.
+  ellipsoid(headRig,anime(0xfffaf5),0,.42,.57,.17,.23,.05);
+  ellipsoid(headRig,anime(0xffffff),0,.61,.45,.13,.12,.055);
+  for(let side of [-1,1])ellipsoid(headRig,anime(0xfffaf5),side*.14,.61,.43,.12,.065,.048);
   // Anime sparkle stars and cute tiny smiling mouth on the muzzle.
   for(let side of [-1,1]){
    ellipsoid(headRig,anime(0xffffff),side*.73,.37,.475,.036,.062,.025);
@@ -332,17 +342,24 @@ window.KYOTO_RACE={HS,LIVE,route,routeLength,horseProgress};
   ellipsoid(headRig,anime(0x754f56),0,-.36,.993,.16,.032,.024);
   ellipsoid(headRig,anime(0xffe0e5),0,-.395,.996,.08,.019,.015);
   // Rounded, bouncy forehead tuft
-  for(let i=-1;i<=1;i++){let tuft=ellipsoid(headRig,mane,i*.21,.78,.24,.20,.24,.19);tuft.rotation.z=-i*.35}
-  const tailRig=new THREE.Group();tailRig.position.set(0,1.90,-1.30);anim.add(tailRig);
-  for(let i=0;i<5;i++){let tail=ellipsoid(tailRig,mane,Math.sin(i*.6)*.07,-i*.18,-i*.13,.20-i*.016,.25,.23-i*.018);tail.rotation.x=-.4}
+  for(let i=-1;i<=1;i++){let tuft=ellipsoid(headRig,mane,i*.21,.78,.24,.22,.29,.20);tuft.rotation.z=-i*.35}
+  // Soft, rounded ribbon on the forelock; alternates with each runner's silks.
+  const ribbon=anime(silkColors[h.no-1]);
+  for(let side of [-1,1]){
+   let bow=ellipsoid(headRig,ribbon,side*.18,.86,.35,.19,.12,.07);bow.rotation.z=side*.45;
+  }
+  ellipsoid(headRig,anime(0xfff4dc),0,.86,.41,.09,.10,.075);
+  const tailRig=new THREE.Group();tailRig.position.set(0,1.90,-1.35);anim.add(tailRig);
+  for(let i=0;i<5;i++){let tail=ellipsoid(tailRig,mane,Math.sin(i*.6)*.07,-i*.17,-i*.13,.25-i*.013,.27,.25-i*.014);tail.rotation.x=-.4}
+  ellipsoid(tailRig,mane,0,-.82,-.55,.29,.30,.29);
   // Articulated legs: independently animated joints and hoof geometry
   let legs=[];
   for(let front of [false,true])for(let side of [-1,1]){
-   let pivot=new THREE.Group();pivot.position.set(side*.56,1.31,front?.84:-.83);anim.add(pivot);
-   segment(pivot,coat,[0,0,0],[0,-.59,front?.14:-.10],.27,.19);
-   let knee=new THREE.Group();knee.position.set(0,-.59,front?.14:-.10);pivot.add(knee);
-   segment(knee,coatDark,[0,0,0],[0,-.66,.08],.19,.13);
-   box(.40,.24,.48,hoof,knee,0,-.68,.19);
+   let pivot=new THREE.Group();pivot.position.set(side*.65,1.19,front?.84:-.83);anim.add(pivot);
+   segment(pivot,coat,[0,0,0],[0,-.52,front?.14:-.10],.34,.25);
+   let knee=new THREE.Group();knee.position.set(0,-.52,front?.14:-.10);pivot.add(knee);
+   segment(knee,coatDark,[0,0,0],[0,-.59,.08],.25,.17);
+   box(.48,.28,.55,hoof,knee,0,-.60,.19);
    legs.push({pivot,knee,front,side});
   }
   // Saddlecloth with race number, jockey's silks, helmet and forward racing posture
@@ -356,8 +373,8 @@ window.KYOTO_RACE={HS,LIVE,route,routeLength,horseProgress};
    segment(anim,hoof,[side*.45,2.06,.42],[side*.44,1.85,.51],.10,.09);
    segment(anim,reins,[side*.35,2.58,.95],[side*.16,2.40,1.75],.018,.018);
   }
-  ellipsoid(anim,skin,0,3.21,.47,.30,.34,.29);
-  ellipsoid(anim,helmet,0,3.46,.43,.36,.27,.33);
+  ellipsoid(anim,skin,0,3.19,.47,.33,.36,.32);
+  ellipsoid(anim,helmet,0,3.46,.43,.39,.30,.36);
   box(.55,.055,.20,helmet,anim,0,3.36,.62);
   // Racing number billboard
   const cn=document.createElement('canvas');cn.width=128;cn.height=128;const ctx=cn.getContext('2d');
