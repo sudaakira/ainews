@@ -53,7 +53,7 @@
 }
 
 #three-stage{width:100%;height:clamp(420px,55vw,790px);position:relative;background:#2a6747}
-#three-stage canvas{display:block;width:100%;height:100%;touch-action:pan-y}
+#three-stage canvas{display:block;width:100%;height:100%;touch-action:pan-y;image-rendering:pixelated;image-rendering:crisp-edges}
 .track-broadcast{position:absolute;top:12px;left:12px;z-index:2;display:flex;gap:9px;align-items:center;flex-wrap:wrap;background:#142e43ce;color:white;border-radius:8px;padding:7px 11px;pointer-events:none;font-size:clamp(11px,1.4vw,17px);box-shadow:0 2px 12px #122f3b66}.track-broadcast b{font-size:1.15em}.track-broadcast-bottom{position:absolute;bottom:12px;right:12px;z-index:2;background:#122f3baf;color:white;border-radius:6px;padding:5px 9px;font-size:11px;letter-spacing:.05em;pointer-events:none}.track-broadcast-bottom span{color:#a4f0db}
 .broadcast-clock{position:absolute;top:12px;right:12px;z-index:3;padding:7px 13px;border-radius:8px;background:#142c45d9;color:#fff;font-size:clamp(17px,2.7vw,26px);font-weight:900;font-variant-numeric:tabular-nums;pointer-events:none}
 .broadcast-course{position:absolute;top:64px;left:12px;z-index:3;width:clamp(122px,17vw,200px);background:#132b3bcf;border-radius:10px;padding:5px 7px;color:#fff;pointer-events:none}
@@ -243,12 +243,12 @@ window.KYOTO_RACE={HS,LIVE,route,routeLength,horseProgress};
  const {HS,LIVE,route,routeLength,horseProgress}=api;
  const scene=new THREE.Scene();scene.background=new THREE.Color(0x9edbf7);scene.fog=new THREE.FogExp2(0xb9e1ee,.0015);
  const camera=new THREE.PerspectiveCamera(50,1,.1,1000);
- const renderer=new THREE.WebGLRenderer({antialias:true,powerPreference:'high-performance',alpha:false});
+ const renderer=new THREE.WebGLRenderer({antialias:false,powerPreference:'high-performance',alpha:false});
  // Fewer GPU pixels on phones preserve frame rate when all 18 animated horses are visible.
- renderer.setPixelRatio(Math.min(window.devicePixelRatio||1,window.innerWidth<800?1.0:1.4));
+ renderer.setPixelRatio(1); // Pixel-art presentation: intentionally render below display resolution.
  renderer.outputColorSpace=THREE.SRGBColorSpace;
- renderer.toneMapping=THREE.ACESFilmicToneMapping;
- renderer.toneMappingExposure=1.3;
+ renderer.toneMapping=THREE.NoToneMapping;
+ renderer.toneMappingExposure=1.0;
  stage.appendChild(renderer.domElement);
  scene.add(new THREE.HemisphereLight(0xffffff,0x56975d,2.1));
  const sun=new THREE.DirectionalLight(0xfff7d8,2.5);sun.position.set(-80,130,50);scene.add(sun);
@@ -470,7 +470,7 @@ window.KYOTO_RACE={HS,LIVE,route,routeLength,horseProgress};
  // Never silently show the old horse when the requested new model fails.
  let horseV3Ready=false,modelError='';
  try{
-  const horseV3=await import("./horse-pixel-v1.js?v=retro-sfc-pixel-20261012-v1");
+  const horseV3=await import("./horse-pixel-v1.js?v=retro-sfc-pixel-20261012-v2");
   for(const h of HS)models.push(horseV3.createRaceHorse(THREE,scene,h,silkColors[h.no-1]));
   horseV3Ready=models.length===18;
  }catch(e){
@@ -567,9 +567,9 @@ window.KYOTO_RACE={HS,LIVE,route,routeLength,horseProgress};
   let label=new THREE.Sprite(new THREE.SpriteMaterial({map:new THREE.CanvasTexture(cv)}));label.position.copy(p);label.position.y+=3.2;label.scale.set(4,2,1);scene.add(label);
  }
  let mode='follow',lastMode='follow';
- controls.style.display='flex';stage.style.display='block';svg.classList.add('svg-hidden');status.textContent=!horseV3Ready?'⚠️ 新しい馬モデルを読み込めません（旧モデルで代替）':venueReady?'🐴 PIXEL HORSE v10 読込成功・18頭':'⚠️ 簡易背景（3D施設の読込失敗）';
+ controls.style.display='flex';stage.style.display='block';svg.classList.add('svg-hidden');status.textContent=!horseV3Ready?'⚠️ 新しい馬モデルを読み込めません（旧モデルで代替）':venueReady?'🐴 PIXEL HORSE v11 · 52% RETRO 読込成功・18頭':'⚠️ 簡易背景（3D施設の読込失敗）';
  document.getElementById('horse-model-version').textContent=horseV3Ready?'PIXEL HORSE v10 · 18 HORSES':'⚠️ OLD MODEL FALLBACK';
- window.KYOTO_RENDER_STATUS={model:horseV3Ready?'pixel-horse-v10':'fallback',venue:venueReady?'full':'fallback',horses:models.length,camera:mode};
+ window.KYOTO_RENDER_STATUS={model:horseV3Ready?'pixel-horse-v11':'fallback',venue:venueReady?'full':'fallback',horses:models.length,camera:mode};
  controls.querySelectorAll('button').forEach(btn=>btn.onclick=()=>{
   mode=btn.dataset.camera;
   controls.querySelectorAll('button').forEach(b=>b.classList.toggle('cam-active',b===btn));
@@ -578,7 +578,7 @@ window.KYOTO_RACE={HS,LIVE,route,routeLength,horseProgress};
   else{stage.style.display='block';svg.classList.add('svg-hidden');lastMode=mode;resize()}
  });
  let cw=0,ch=0;
- function resize(){let w=stage.clientWidth,h=stage.clientHeight;if(!w||!h)return;if(w!==cw||h!==ch){cw=w;ch=h;renderer.setSize(w,h,false);camera.aspect=w/h;camera.updateProjectionMatrix()}}
+ function resize(){let w=stage.clientWidth,h=stage.clientHeight;if(!w||!h)return;if(w!==cw||h!==ch){cw=w;ch=h;renderer.setSize(Math.max(240,Math.round(w*.52)),Math.max(200,Math.round(h*.52)),false);camera.aspect=w/h;camera.updateProjectionMatrix()}}
  const tmp=new THREE.Vector3(),look=new THREE.Vector3(),desired=new THREE.Vector3();
  let first=true,lastFrame=0,frame=0,lastHud=0;
  const smoothLook=new THREE.Vector3();
