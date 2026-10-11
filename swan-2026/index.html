@@ -80,7 +80,7 @@
 <div class="live-sim" id="live-sim">
  <div class="live-head"><strong>🏇 KYOTO 1400m OUTER｜3Dレースビュー</strong><span class="live-status" id="live-status">スタート待機</span></div>
  <div class="live-stats"><div class="live-stat"><span>レース経過（仮想）</span><b id="live-clock">00:00</b></div><div class="live-stat"><span>残り距離</span><b id="live-distance">1400m</b></div><div class="live-stat"><span>現在の区間</span><b id="live-section">発走前</b></div></div>
- <div class="camera-controls" id="camera-controls" style="display:none"><button data-camera="follow" class="cam-active">🎥 前方斜め・アップ</button><button data-camera="wide">🗺️ 全景</button><button data-camera="finish">🏁 ゴール前</button><button data-camera="2d">2D模式図</button><span id="three-status">3Dモデル読み込み中…</span></div><div class="live-screen">
+ <div class="camera-controls" id="camera-controls" style="display:none"><button data-camera="wide" class="cam-active">🏟️ 京都競馬場・全景</button><button data-camera="follow">🎥 前方斜め・アップ</button><button data-camera="finish">🏁 ゴール前</button><button data-camera="2d">2D模式図</button><span id="three-status">3Dモデル読み込み中…</span></div><div class="live-screen">
  <div id="three-stage" style="display:none"><div class="track-broadcast"><b>京都 11R</b><span>スワンステークス GII｜芝1400m（外）</span></div><div class="track-broadcast-bottom">🏇 KYOTO RACECOURSE <span>3D SIMULATION</span></div></div>
  <svg id="kyoto-map" viewBox="0 0 860 555" role="img" aria-label="京都芝1400m外回りを模式化した競走馬18頭のリアルタイムレース再生">
   <defs><pattern id="mow" width="60" height="60" patternUnits="userSpaceOnUse"><rect width="60" height="60" fill="#347b51"/><rect width="30" height="60" fill="#2d714b"/></pattern><linearGradient id="laneGrass" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#76bd74"/><stop offset="1" stop-color="#499958"/></linearGradient></defs>
@@ -93,6 +93,12 @@
   <g stroke="#fff" stroke-width="5"><line x1="75" y1="365" x2="75" y2="461"/></g>
   <g fill="#fafafa" font-weight="900" font-size="13"><text x="24" y="352">GOAL</text><text x="50" y="85">START</text></g>
   <g stroke="#e5f0e3" stroke-width="2" opacity=".8"><line x1="75" y1="86" x2="75" y2="190"/></g>
+  <g opacity=".95"><rect x="102" y="485" width="490" height="48" rx="5" fill="#dfe7e8"/><rect x="112" y="478" width="470" height="10" fill="#a4b9c6"/><g fill="#5e8294"><rect x="112" y="490" width="470" height="15"/><rect x="112" y="511" width="470" height="8"/></g><g fill="#eff7f7" opacity=".85"><rect x="120" y="492" width="11" height="9"/><rect x="140" y="492" width="11" height="9"/><rect x="160" y="492" width="11" height="9"/><rect x="180" y="492" width="11" height="9"/><rect x="200" y="492" width="11" height="9"/><rect x="220" y="492" width="11" height="9"/><rect x="240" y="492" width="11" height="9"/><rect x="260" y="492" width="11" height="9"/><rect x="280" y="492" width="11" height="9"/><rect x="300" y="492" width="11" height="9"/><rect x="320" y="492" width="11" height="9"/><rect x="340" y="492" width="11" height="9"/><rect x="360" y="492" width="11" height="9"/><rect x="380" y="492" width="11" height="9"/><rect x="400" y="492" width="11" height="9"/><rect x="420" y="492" width="11" height="9"/><rect x="440" y="492" width="11" height="9"/><rect x="460" y="492" width="11" height="9"/><rect x="480" y="492" width="11" height="9"/><rect x="500" y="492" width="11" height="9"/><rect x="520" y="492" width="11" height="9"/><rect x="540" y="492" width="11" height="9"/><rect x="560" y="492" width="11" height="9"/></g><text x="155" y="527" font-size="11" fill="#183d48" font-weight="bold">京都競馬場・メインスタンド</text></g>
+  <path d="M75 413 C-55 413 -55 138 75 138" fill="none" stroke="#66ae70" stroke-width="95" opacity=".93"/>
+  <ellipse cx="370" cy="276" rx="262" ry="91" fill="none" stroke="#8fca88" stroke-width="38" opacity=".9"/>
+  <ellipse cx="370" cy="276" rx="220" ry="59" fill="none" stroke="#b48e6a" stroke-width="22" opacity=".92"/>
+  <ellipse cx="350" cy="276" rx="75" ry="21" fill="#75bfd2" opacity=".8"/>
+  <rect x="518" y="235" width="110" height="45" rx="3" fill="#173f55"/><text x="573" y="253" fill="white" font-size="13" font-weight="bold" text-anchor="middle">TURF</text><text x="573" y="270" fill="#ffde7a" font-size="12" font-weight="bold" text-anchor="middle">VISION</text>
   <text x="258" y="245" fill="#eff7e7" font-size="28" font-weight="900">京都競馬場</text>
   <text x="290" y="272" fill="#d3e9da" font-size="16">芝1400m 外回り｜右回り</text>
   <text x="340" y="300" fill="#e1f2de" font-size="14">高低差 4.3m</text>
@@ -107,7 +113,7 @@
  <div class="result-head"><strong>🏆 レース順位 TOP 3</strong><span id="result-state">スタート待機</span></div>
  <div id="race" class="top3-results" aria-live="off"></div>
  <div class="live-leaders" id="live-leaders" style="margin-top:10px"></div>
- <p class="live-note">※京都外回りの地形と距離を反映した模式図です。内枠は内ラチ側、外枠は外ラチ側に配置。3Dの馬・騎手は日本のアニメ風の大きな瞳・ぽっちゃりした体型のデフォルメ立体モデル。観客席・観客・樹木は京都競馬場をイメージした演出です。16倍速でも脚の動きを滑らかに見せるよう再生速度と走行モーションを分離しています。走行位置・時計・順位は架空のレースで、実測GPS・実況映像・ライブ馬場データではありません。</p>
+ <p class="live-note">※JRA公式のコース資料を参考に、京都競馬場の外回り・内回り・ダート・スタンド・馬場内施設を3Dで模式的に再構成しています。実物の寸法・建物配置を完全再現した測量モデルではありません。内枠は内ラチ側、外枠は外ラチ側に配置。3Dの馬・騎手は日本のアニメ風の大きな瞳・ぽっちゃりした体型のデフォルメ立体モデル。観客席・観客・樹木は京都競馬場をイメージした演出です。16倍速でも脚の動きを滑らかに見せるよう再生速度と走行モーションを分離しています。走行位置・時計・順位は架空のレースで、実測GPS・実況映像・ライブ馬場データではありません。</p>
 </div>
 </section></div><div class="grid"><aside><section class="card"><h2>シミュレーション設定</h2><label>展開 <span id="pacelabel">中立</span></label><input id="pace" type="range" min="-3" max="3" value="0"><p class="small">左：スロー前残り／右：ハイ差し</p><label>高速馬場 <span id="speedlabel">高速</span></label><input id="speed" type="range" min="0" max="3" value="2"><label>ばらつき <span id="vollabel">標準</span></label><input id="vol" type="range" min="6" max="16" value="10"><label>試行回数</label><select id="n"><option value="5000">5,000回</option><option value="20000" selected>20,000回</option><option value="50000">50,000回</option></select><button id="simulate">▶ 計算する</button><button id="one" style="background:#385d7d">🏁 1レース再生</button><button id="csv" style="background:#466b6e">CSV出力</button><div class="msg">重要：表示割合は仮説に基づくモデル内出現率。実際の的中確率として統計的に校正されていません。</div></section></aside><main><section class="card"><h2>全18頭の3着以内率｜<span id="count">—</span></h2><div id="bars"></div></section><section class="card"><h2>ワイド・馬連のモデル内同時好走率</h2><select id="a"></select><select id="b"></select><div class="runners"><div><small>ワイド</small><b id="wide">—</b></div><div><small>馬連</small><b id="quin">—</b></div><div><small>本命</small><b id="top">—</b></div></div><p class="small">配当は使用していません。購入推奨ではなく確率モデルの感度分析です。</p></section></main></div><section class="card"><h2>全18頭・状態／血統／近走／休養／弱点</h2><p class="small">状態は全馬共通項目で調査。詳細を開くと血統や近4走を確認できます。5代すべての枝・騎手の同コース複勝回収率は未検証です。</p><div class="horses" id="horses"></div></section><div class="card links"><h2>資料とモデル制約</h2><a href="https://www.jra.go.jp/JRADB/accessD.html?CNAME=pw01dde0108202604051120261012%2FDC">JRA公式出馬表・前4走</a> ｜ <a href="https://www.jra.go.jp/keiba/race/094/horse.html">JRA出走馬情報</a> ｜ <a href="https://race.netkeiba.com/race/oikiri.html?race_id=202608040511">調教一覧</a> ｜ <a href="https://keiba.sponichi.co.jp/news/20261007s00004000007000c">休養明け・厩舎コメント</a><p class="small">能力指数・展開補正・休養明けの状態補正は仮定。過去データへの校正なし、馬体重・当日芝レース結果の自動更新なし。ダート競走しか近走資料のない⑦の比較には特に注意。馬券の発売は行いません。</p></div></div>
 <script>
@@ -238,12 +244,25 @@ window.KYOTO_RACE={HS,LIVE,route,routeLength,horseProgress};
  scene.add(new THREE.HemisphereLight(0xffffff,0x56975d,2.1));
  const sun=new THREE.DirectionalLight(0xfff7d8,2.5);sun.position.set(-80,130,50);scene.add(sun);
  const mat=(c,rough=.83)=>new THREE.MeshStandardMaterial({color:c,roughness:rough,metalness:0});
- import("./scenery.js").then(m=>m.buildScenery(THREE,scene,mat)).catch(e=>console.warn("Scenery unavailable",e));
+ // Wait for venue geometry before the first render; do not silently show the old empty turf.
+ let venueReady=false;
+ try{
+  const venue=await import("./scenery.js?v=full-kyoto-20261012");
+  venue.buildScenery(THREE,scene,mat);
+  venueReady=true;
+ }catch(e){
+  console.error("Kyoto venue geometry failed to load",e);
+  // Always-visible backup grandstand when the scenery module is unavailable.
+  const stand=new THREE.Mesh(new THREE.BoxGeometry(175,22,28),mat(0xb5d4dc));
+  stand.position.set(-8,11,79);scene.add(stand);
+  const roof=new THREE.Mesh(new THREE.BoxGeometry(187,2,46),mat(0xf5f5ee));
+  roof.position.set(-8,23,75);scene.add(roof);
+ }
  const turf=mat(0x398353),turfAlt=mat(0x458e5b),white=mat(0xe5f0e0),darkRail=mat(0xced9d3),soil=mat(0x786748);
  const ground=new THREE.Mesh(new THREE.PlaneGeometry(580,450),mat(0x479958));ground.rotation.x=-Math.PI/2;ground.position.y=-.32;scene.add(ground);
  for(let i=-12;i<=12;i++){let strip=new THREE.Mesh(new THREE.PlaneGeometry(450,6),mat(i%2?0x388352:0x418958));strip.rotation.x=-Math.PI/2;strip.position.set(0,-.30,i*8);scene.add(strip)}
  const W=.245;
- function heightAt(t){let u=t<.28?0:t<.44?(t-.28)/.16:t<.72?1-(t-.44)/.28:0;return 2.9*(u*u*(3-2*u))}
+ function heightAt(t){let u=t<.28?0:t<.44?(t-.28)/.16:t<.72?1-(t-.44)/.28:0;return 4.3*(u*u*(3-2*u))}
  function path(t){let d=Math.max(0,Math.min(1,t))*routeLength,p=route.getPointAtLength(d),a=route.getPointAtLength(Math.max(0,d-2)),b=route.getPointAtLength(Math.min(routeLength,d+2));let dx=b.x-a.x,dz=b.y-a.y,l=Math.max(.01,Math.hypot(dx,dz));return {x:(p.x-430)*W,z:(p.y-277)*W,dx:dx/l,dz:dz/l,y:heightAt(t)}}
  const count=320,half=12.8;
  function offsetPoint(t,lane,yOffset=0){let p=path(t);return new THREE.Vector3(p.x-p.dz*lane,p.y+yOffset,p.z+p.dx*lane)}
@@ -360,8 +379,8 @@ window.KYOTO_RACE={HS,LIVE,route,routeLength,horseProgress};
   let cv=document.createElement('canvas');cv.width=128;cv.height=64;let c=cv.getContext('2d');c.fillStyle='#fafafa';c.fillRect(0,0,128,64);c.fillStyle='#1b514b';c.font='bold 40px sans-serif';c.textAlign='center';c.fillText(meters,64,45);
   let label=new THREE.Sprite(new THREE.SpriteMaterial({map:new THREE.CanvasTexture(cv)}));label.position.copy(p);label.position.y+=3.2;label.scale.set(4,2,1);scene.add(label);
  }
- let mode='follow',lastMode='follow';
- controls.style.display='flex';stage.style.display='block';svg.classList.add('svg-hidden');status.textContent='🏟️ 京都競馬場・アニメ3D';
+ let mode='wide',lastMode='wide';
+ controls.style.display='flex';stage.style.display='block';svg.classList.add('svg-hidden');status.textContent=venueReady?'🏟️ 全景3D表示中':'⚠️ 簡易背景（3D施設の読込失敗）';
  controls.querySelectorAll('button').forEach(btn=>btn.onclick=()=>{
   mode=btn.dataset.camera;
   controls.querySelectorAll('button').forEach(b=>b.classList.toggle('cam-active',b===btn));
@@ -401,7 +420,7 @@ window.KYOTO_RACE={HS,LIVE,route,routeLength,horseProgress};
   }
   const lead=order[0],p=path(lead.p),aspect=camera.aspect;
   if(mode==='wide'){
-   desired.set(0,aspect<.8?185:132,aspect<.8?128:103);look.set(0,0,0);camera.fov=aspect<.8?62:50;
+   desired.set(-15,aspect<.8?215:160,aspect<.8?-250:-192);look.set(-18,0,8);camera.fov=aspect<.8?66:55;
   }else if(mode==='finish'){
    const goal=path(1);desired.set(goal.x-21,11,goal.z-27);look.set(goal.x+17,2,goal.z+3);camera.fov=aspect<.8?64:50;
   }else{
