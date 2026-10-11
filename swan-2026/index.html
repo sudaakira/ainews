@@ -51,12 +51,22 @@
  .hero-race .live-buttons button,.hero-race .live-buttons select{font-size:12px;padding:10px 5px}
  .hero-race .live-leaders{font-size:11px}
 }
+
+#three-stage{width:100%;height:clamp(420px,55vw,790px);position:relative;background:#2a6747}
+#three-stage canvas{display:block;width:100%;height:100%;touch-action:pan-y}
+.camera-controls{display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin:10px 0}
+.camera-controls button{width:auto;min-width:0;flex:1;margin:0;padding:9px 8px;background:#31535d;font-size:13px;border:1px solid #638781}
+.camera-controls button.cam-active{background:#0b898c;border-color:#75c4b8}
+#three-status{color:#a8d6c7;font-size:11px}
+#kyoto-map.svg-hidden{display:none}
+@media(max-width:650px){#three-stage{height:clamp(420px,110vw,620px)}.camera-controls button{font-size:11px;padding:8px 5px}.camera-controls{gap:4px}}
 </style></head><body>
 <header><p>KYOTO 11R / 2026.10.12 / 芝1400m 外</p><h1>🏇 スワンS｜条件回帰ループ実験室</h1><p>人気・オッズ不使用 ｜ 全18頭状態カルテ × インタラクティブ着順シミュレーション</p></header><div class="wrap"><div class="hero-race"><section class="card"><h2>🏇 京都競馬場｜18頭レースシミュレーター</h2>
 <div class="live-sim" id="live-sim">
- <div class="live-head"><strong>🏇 KYOTO 1400m OUTER｜上空ビュー</strong><span class="live-status" id="live-status">スタート待機</span></div>
+ <div class="live-head"><strong>🏇 KYOTO 1400m OUTER｜3Dレースビュー</strong><span class="live-status" id="live-status">スタート待機</span></div>
  <div class="live-stats"><div class="live-stat"><span>レース経過（仮想）</span><b id="live-clock">00:00</b></div><div class="live-stat"><span>残り距離</span><b id="live-distance">1400m</b></div><div class="live-stat"><span>現在の区間</span><b id="live-section">発走前</b></div></div>
- <div class="live-screen">
+ <div class="camera-controls" id="camera-controls" style="display:none"><button data-camera="follow" class="cam-active">🎥 追走カメラ</button><button data-camera="wide">🗺️ 全景</button><button data-camera="finish">🏁 ゴール前</button><button data-camera="2d">2D模式図</button><span id="three-status">3Dモデル読み込み中…</span></div><div class="live-screen">
+ <div id="three-stage" style="display:none"></div>
  <svg id="kyoto-map" viewBox="0 0 860 555" role="img" aria-label="京都芝1400m外回りを模式化した競走馬18頭のリアルタイムレース再生">
   <defs><pattern id="mow" width="60" height="60" patternUnits="userSpaceOnUse"><rect width="60" height="60" fill="#347b51"/><rect width="30" height="60" fill="#2d714b"/></pattern><linearGradient id="laneGrass" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#76bd74"/><stop offset="1" stop-color="#499958"/></linearGradient></defs>
   <rect width="860" height="555" fill="url(#mow)"/>
@@ -80,7 +90,7 @@
  <input type="range" min="0" max="1000" value="0" id="live-scrub" aria-label="レースの再生位置"/>
  <div class="live-buttons"><button id="live-play">▶ スタート</button><button id="live-pause" style="background:#4c646b">⏸ 一時停止</button><button id="live-reset" style="background:#4c646b">↺ 新しいレース</button><select id="live-rate" aria-label="再生速度"><option value="1">1倍速</option><option value="2">2倍速</option><option value="4" selected>4倍速</option><option value="8">8倍速</option><option value="16">16倍速</option></select></div>
  <div class="live-leaders" id="live-leaders" style="margin-top:10px"></div>
- <p class="live-note">※京都外回りの地形と距離を反映した模式図です。馬の走行位置・時計・順位はモデルから生成した架空のレースで、実測GPS・実況映像・ライブ馬場データではありません。</p>
+ <p class="live-note">※京都外回りの地形と距離を反映した模式図です。内枠は内ラチ側、外枠は外ラチ側に配置。3Dの馬・騎手はブラウザ内で作成した立体モデルです。走行位置・時計・順位は架空のレースで、実測GPS・実況映像・ライブ馬場データではありません。</p>
 </div>
 <h2 style="margin-top:18px">仮想着順</h2><div class="race" id="race"></div></section></div><div class="grid"><aside><section class="card"><h2>シミュレーション設定</h2><label>展開 <span id="pacelabel">中立</span></label><input id="pace" type="range" min="-3" max="3" value="0"><p class="small">左：スロー前残り／右：ハイ差し</p><label>高速馬場 <span id="speedlabel">高速</span></label><input id="speed" type="range" min="0" max="3" value="2"><label>ばらつき <span id="vollabel">標準</span></label><input id="vol" type="range" min="6" max="16" value="10"><label>試行回数</label><select id="n"><option value="5000">5,000回</option><option value="20000" selected>20,000回</option><option value="50000">50,000回</option></select><button id="simulate">▶ 計算する</button><button id="one" style="background:#385d7d">🏁 1レース再生</button><button id="csv" style="background:#466b6e">CSV出力</button><div class="msg">重要：表示割合は仮説に基づくモデル内出現率。実際の的中確率として統計的に校正されていません。</div></section></aside><main><section class="card"><h2>全18頭の3着以内率｜<span id="count">—</span></h2><div id="bars"></div></section><section class="card"><h2>ワイド・馬連のモデル内同時好走率</h2><select id="a"></select><select id="b"></select><div class="runners"><div><small>ワイド</small><b id="wide">—</b></div><div><small>馬連</small><b id="quin">—</b></div><div><small>本命</small><b id="top">—</b></div></div><p class="small">配当は使用していません。購入推奨ではなく確率モデルの感度分析です。</p></section></main></div><section class="card"><h2>全18頭・状態／血統／近走／休養／弱点</h2><p class="small">状態は全馬共通項目で調査。詳細を開くと血統や近4走を確認できます。5代すべての枝・騎手の同コース複勝回収率は未検証です。</p><div class="horses" id="horses"></div></section><div class="card links"><h2>資料とモデル制約</h2><a href="https://www.jra.go.jp/JRADB/accessD.html?CNAME=pw01dde0108202604051120261012%2FDC">JRA公式出馬表・前4走</a> ｜ <a href="https://www.jra.go.jp/keiba/race/094/horse.html">JRA出走馬情報</a> ｜ <a href="https://race.netkeiba.com/race/oikiri.html?race_id=202608040511">調教一覧</a> ｜ <a href="https://keiba.sponichi.co.jp/news/20261007s00004000007000c">休養明け・厩舎コメント</a><p class="small">能力指数・展開補正・休養明けの状態補正は仮定。過去データへの校正なし、馬体重・当日芝レース結果の自動更新なし。ダート競走しか近走資料のない⑦の比較には特に注意。馬券の発売は行いません。</p></div></div>
 <script>
@@ -141,7 +151,7 @@ function drawLive(){
   let p=horseProgress(h.no,LIVE.clock),dist=routeLength*p;
   let pos=route.getPointAtLength(dist),prev=route.getPointAtLength(Math.max(0,dist-1)),next=route.getPointAtLength(Math.min(routeLength,dist+1));
   let dx=next.x-prev.x,dy=next.y-prev.y,len=Math.max(.1,Math.hypot(dx,dy));
-  let lateral=(h.no-9.5)*4.3, x=pos.x-dy/len*lateral,y=pos.y+dx/len*lateral;
+  let lateral=(9.5-h.no)*4.3, x=pos.x-dy/len*lateral,y=pos.y+dx/len*lateral;
   let g=el('horse-'+h.no);g.setAttribute('transform','translate('+x.toFixed(1)+' '+(y+Math.sin(LIVE.clock*8+h.no)*1.2).toFixed(1)+')');
   g.setAttribute('opacity',active.has(h.no)?'1':'.9');
   g.setAttribute('style','filter:drop-shadow(0 2px 2px #122c24);');
@@ -163,5 +173,168 @@ el('live-scrub').oninput=v=>{LIVE.clock=LIVE.duration*(+v.target.value)/1000;LIV
 const oldSim=el('simulate').onclick;el('simulate').onclick=()=>{oldSim();sampleLiveRace();};
 const oldOne=el('one').onclick;el('one').onclick=()=>{oldOne();sampleLiveRace();LIVE.playing=true;LIVE.last=0;el('live-status').textContent='● シミュレーション再生中';};
 sampleLiveRace();LIVE.raf=requestAnimationFrame(liveFrame);
+window.KYOTO_RACE={HS,LIVE,route,routeLength,horseProgress};
 
-</script></body></html>
+</script>
+<script type="module">
+/* True WebGL 3D horses and racecourse. CDN failure retains the self-contained SVG view. */
+(async()=>{
+ const stage=document.getElementById('three-stage'),svg=document.getElementById('kyoto-map'),controls=document.getElementById('camera-controls');
+ const status=document.getElementById('three-status');
+ let THREE;
+ try{THREE=await import('https://cdn.jsdelivr.net/npm/three@0.160.1/build/three.module.js')}
+ catch(err){status.textContent='3D読込不可・2Dで再生中';controls.style.display='flex';controls.querySelectorAll('button').forEach(b=>b.style.display=b.dataset.camera==='2d'?'':'none');return}
+ try{
+ const api=window.KYOTO_RACE;
+ if(!api)throw Error('Race state unavailable');
+ const {HS,LIVE,route,routeLength,horseProgress}=api;
+ const scene=new THREE.Scene();scene.background=new THREE.Color(0x9bc9cf);scene.fog=new THREE.FogExp2(0x9bc9cf,.0028);
+ const camera=new THREE.PerspectiveCamera(50,1,.1,1000);
+ const renderer=new THREE.WebGLRenderer({antialias:true,powerPreference:'high-performance',alpha:false});
+ renderer.setPixelRatio(Math.min(window.devicePixelRatio||1,1.65));
+ renderer.outputColorSpace=THREE.SRGBColorSpace;
+ renderer.toneMapping=THREE.ACESFilmicToneMapping;
+ renderer.toneMappingExposure=1.3;
+ stage.appendChild(renderer.domElement);
+ scene.add(new THREE.HemisphereLight(0xf8f6e7,0x365443,2.0));
+ const sun=new THREE.DirectionalLight(0xfff0c6,2.7);sun.position.set(-80,130,50);scene.add(sun);
+ const mat=(c,rough=.83)=>new THREE.MeshStandardMaterial({color:c,roughness:rough,metalness:0});
+ const turf=mat(0x398353),turfAlt=mat(0x458e5b),white=mat(0xe5f0e0),darkRail=mat(0xced9d3),soil=mat(0x786748);
+ const ground=new THREE.Mesh(new THREE.PlaneGeometry(450,350),mat(0x367e50));ground.rotation.x=-Math.PI/2;ground.position.y=-.32;scene.add(ground);
+ for(let i=-12;i<=12;i++){let strip=new THREE.Mesh(new THREE.PlaneGeometry(450,6),mat(i%2?0x388352:0x418958));strip.rotation.x=-Math.PI/2;strip.position.set(0,-.30,i*8);scene.add(strip)}
+ const W=.245;
+ function heightAt(t){let u=t<.28?0:t<.44?(t-.28)/.16:t<.72?1-(t-.44)/.28:0;return 2.9*(u*u*(3-2*u))}
+ function path(t){let d=Math.max(0,Math.min(1,t))*routeLength,p=route.getPointAtLength(d),a=route.getPointAtLength(Math.max(0,d-2)),b=route.getPointAtLength(Math.min(routeLength,d+2));let dx=b.x-a.x,dz=b.y-a.y,l=Math.max(.01,Math.hypot(dx,dz));return {x:(p.x-430)*W,z:(p.y-277)*W,dx:dx/l,dz:dz/l,y:heightAt(t)}}
+ const count=320,half=12.8;
+ function offsetPoint(t,lane,yOffset=0){let p=path(t);return new THREE.Vector3(p.x-p.dz*lane,p.y+yOffset,p.z+p.dx*lane)}
+ const verts=[],norm=[],uv=[],idx=[];
+ for(let i=0;i<=count;i++){let t=i/count;for(let side of [-1,1]){let p=offsetPoint(t,side*half,.015);verts.push(p.x,p.y,p.z);uv.push(side===-1?0:1,t*20)}}
+ for(let i=0;i<count;i++){let k=i*2;idx.push(k,k+1,k+2,k+1,k+3,k+2)}
+ let geo=new THREE.BufferGeometry();geo.setAttribute('position',new THREE.Float32BufferAttribute(verts,3));geo.setAttribute('uv',new THREE.Float32BufferAttribute(uv,2));geo.setIndex(idx);geo.computeVertexNormals();
+ const track=new THREE.Mesh(geo,turfAlt);track.material.side=THREE.DoubleSide;scene.add(track);
+ function tube(points,r,color){let curve=new THREE.CatmullRomCurve3(points);let mesh=new THREE.Mesh(new THREE.TubeGeometry(curve,Math.max(16,points.length*2),r,5,false),color);scene.add(mesh);return mesh}
+ for(let lane of [-half-.8,half+.8]){
+  let pts=[];for(let i=0;i<=count;i++)pts.push(offsetPoint(i/count,lane,.75));
+  tube(pts,.10,white);
+  for(let i=0;i<=count;i+=9){let p=offsetPoint(i/count,lane,.1);let post=new THREE.Mesh(new THREE.CylinderGeometry(.065,.075,.8,6),darkRail);post.position.copy(p).add(new THREE.Vector3(0,.33,0));scene.add(post)}
+ }
+ for(let lane of [-6.3,0,6.3]){
+  let pts=[];for(let i=0;i<=count;i++)pts.push(offsetPoint(i/count,lane,.035));
+  tube(pts,.025,mat(0xb5d59c));
+ }
+ function box(w,h,d,material,parent,x,y,z){let m=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),material);m.position.set(x,y,z);parent.add(m);return m}
+ function ellipsoid(parent,material,x,y,z,sx,sy,sz){let m=new THREE.Mesh(new THREE.SphereGeometry(1,12,9),material);m.scale.set(sx,sy,sz);m.position.set(x,y,z);parent.add(m);return m}
+ function segment(parent,material,from,to,r1,r2){let a=new THREE.Vector3(...from),b=new THREE.Vector3(...to),d=b.clone().sub(a);let m=new THREE.Mesh(new THREE.CylinderGeometry(r1,r2,d.length(),9),material);m.position.copy(a.add(b).multiplyScalar(.5));m.quaternion.setFromUnitVectors(new THREE.Vector3(0,1,0),d.normalize());parent.add(m);return m}
+ const horseColors=[0x6e3927,0x9e542b,0x4b2a24,0x9b6437,0x382a28,0x8c3d24,0x6d513c,0x342d2c,0x91542d,0x52382e,0x9d5d32,0x613b2c,0x3d302b,0xa06d42,0x684631,0x412b27,0x97572d,0x5d372a];
+ const silkColors=['#d63e3e','#e8e4df','#2670db','#edc33a','#dd63a5','#4ebbb0','#c7c7c7','#f2932f','#7144bd','#bda144','#db5e32','#62b55c','#e4edf4','#9c78d7','#5b9bd1','#c5a07c','#d6dc45','#cb5171'];
+ const models=[];
+ function horseModel(h){
+  const root=new THREE.Group(),anim=new THREE.Group();root.add(anim);
+  let coat=mat(horseColors[h.no-1]),coatDark=mat(new THREE.Color(horseColors[h.no-1]).multiplyScalar(.67)),mane=mat(0x28201c),hoof=mat(0x202224),skin=mat(0xd2a48a),silk=mat(silkColors[h.no-1],.68),pants=mat(0xf0f0e6),helmet=mat(silkColors[h.no-1],.45),reins=mat(0x26201d);
+  // Anatomical shapes: rump, chest, shoulders, arched neck, muzzle and two ears
+  ellipsoid(anim,coat,0,1.65,0,.52,.65,1.35);
+  ellipsoid(anim,coat,0,1.66,.82,.51,.56,.56);
+  ellipsoid(anim,coat,0,1.6,-.95,.53,.57,.55);
+  let neck=ellipsoid(anim,coat,0,2.15,1.16,.34,.71,.37);neck.rotation.x=-.35;
+  let head=ellipsoid(anim,coat,0,2.69,1.43,.27,.43,.37);head.rotation.x=.18;
+  ellipsoid(anim,coatDark,0,2.44,1.72,.30,.21,.32);
+  for(let side of [-1,1]){
+   let ear=ellipsoid(anim,coat,side*.18,3.09,1.26,.095,.24,.12);ear.rotation.z=-side*.17;
+   ellipsoid(anim,hoof,side*.235,2.77,1.64,.055,.048,.035);
+  }
+  for(let i=0;i<7;i++)ellipsoid(anim,mane,0,2.28+i*.09,1.02-i*.10,.12,.17,.15);
+  for(let i=0;i<4;i++){let tail=ellipsoid(anim,mane,Math.sin(i*.6)*.08,1.85-i*.17,-1.48-i*.17,.16,.22,.20);tail.rotation.x=-.25}
+  // Articulated legs: independently animated joints and hoof geometry
+  let legs=[];
+  for(let front of [false,true])for(let side of [-1,1]){
+   let pivot=new THREE.Group();pivot.position.set(side*.37,1.30,front?.91:-.91);anim.add(pivot);
+   segment(pivot,coat,[0,0,0],[0,-.62,front?.14:-.10],.18,.115);
+   let knee=new THREE.Group();knee.position.set(0,-.62,front?.14:-.10);pivot.add(knee);
+   segment(knee,coatDark,[0,0,0],[0,-.64,.08],.11,.075);
+   box(.22,.17,.38,hoof,knee,0,-.66,.18);
+   legs.push({pivot,knee,front,side});
+  }
+  // Saddlecloth with race number, jockey's silks, helmet and forward racing posture
+  box(.99,.09,.93,mat(0xf7f7f2),anim,0,2.18,-.19);
+  box(.9,.08,.65,mat(0x2c3b4e),anim,0,2.23,-.2);
+  const torso=ellipsoid(anim,silk,0,2.81,.15,.37,.48,.34);torso.rotation.x=.45;
+  ellipsoid(anim,pants,0,2.42,-.28,.41,.22,.39);
+  for(let side of [-1,1]){
+   segment(anim,silk,[side*.29,2.94,.25],[side*.44,2.60,.90],.14,.09);
+   segment(anim,pants,[side*.34,2.48,-.25],[side*.45,2.00,.45],.17,.11);
+   segment(anim,hoof,[side*.45,2.06,.42],[side*.44,1.85,.51],.10,.09);
+   segment(anim,reins,[side*.35,2.58,.95],[side*.16,2.40,1.75],.018,.018);
+  }
+  ellipsoid(anim,skin,0,3.21,.47,.21,.25,.22);
+  ellipsoid(anim,helmet,0,3.40,.43,.27,.19,.27);
+  box(.55,.055,.20,helmet,anim,0,3.36,.62);
+  // Racing number billboard
+  const cn=document.createElement('canvas');cn.width=128;cn.height=128;const ctx=cn.getContext('2d');
+  ctx.fillStyle=silkColors[h.no-1];ctx.beginPath();ctx.arc(64,64,55,0,Math.PI*2);ctx.fill();
+  ctx.lineWidth=7;ctx.strokeStyle='#ffffff';ctx.stroke();ctx.font='bold 67px system-ui';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillStyle='#172c34';ctx.fillText(String(h.no),64,67);
+  const texture=new THREE.CanvasTexture(cn),sprite=new THREE.Sprite(new THREE.SpriteMaterial({map:texture,depthTest:false,transparent:true}));sprite.position.set(0,4.35,0);sprite.scale.set(1.7,1.7,1);root.add(sprite);
+  scene.add(root);return {root,anim,legs,sprite};
+ }
+ HS.forEach(h=>models.push(horseModel(h)));
+ // Starting gates and finish-line markers
+ const start=offsetPoint(0,0,.1),end=offsetPoint(1,0,.1);
+ const finishGeo=new THREE.PlaneGeometry(half*2,1.0),finishMat=new THREE.MeshBasicMaterial({color:0xf2f5f3,side:THREE.DoubleSide});
+ const finish=new THREE.Mesh(finishGeo,finishMat);finish.rotation.x=-Math.PI/2;finish.rotation.z=0;finish.position.copy(end);finish.position.y+=.05;scene.add(finish);
+ for(let side of [-1,1]){let p=offsetPoint(1,side*(half+.8),.0);let pole=new THREE.Mesh(new THREE.CylinderGeometry(.15,.15,5,8),mat(0xf7f7f0));pole.position.copy(p);pole.position.y+=2.5;scene.add(pole)}
+ // Draw distance signposts: positions use nominal model progress
+ for(let meters of [1000,800,600,400,200]){
+  let t=1-meters/1400,p=offsetPoint(t,half+3,0);
+  let post=new THREE.Mesh(new THREE.CylinderGeometry(.12,.12,2.7,8),white);post.position.copy(p);post.position.y+=1.35;scene.add(post);
+  let cv=document.createElement('canvas');cv.width=128;cv.height=64;let c=cv.getContext('2d');c.fillStyle='#fafafa';c.fillRect(0,0,128,64);c.fillStyle='#1b514b';c.font='bold 40px sans-serif';c.textAlign='center';c.fillText(meters,64,45);
+  let label=new THREE.Sprite(new THREE.SpriteMaterial({map:new THREE.CanvasTexture(cv)}));label.position.copy(p);label.position.y+=3.2;label.scale.set(4,2,1);scene.add(label);
+ }
+ let mode='follow',lastMode='follow';
+ controls.style.display='flex';stage.style.display='block';svg.classList.add('svg-hidden');status.textContent='3D立体モデル';
+ controls.querySelectorAll('button').forEach(btn=>btn.onclick=()=>{
+  mode=btn.dataset.camera;
+  controls.querySelectorAll('button').forEach(b=>b.classList.toggle('cam-active',b===btn));
+  if(mode==='2d'){stage.style.display='none';svg.classList.remove('svg-hidden')}
+  else{stage.style.display='block';svg.classList.add('svg-hidden');lastMode=mode;resize()}
+ });
+ let cw=0,ch=0;
+ function resize(){let w=stage.clientWidth,h=stage.clientHeight;if(!w||!h)return;if(w!==cw||h!==ch){cw=w;ch=h;renderer.setSize(w,h,false);camera.aspect=w/h;camera.updateProjectionMatrix()}}
+ const tmp=new THREE.Vector3(),look=new THREE.Vector3(),desired=new THREE.Vector3();
+ let first=true,frame=0;
+ function animate(){
+  requestAnimationFrame(animate);
+  if(mode==='2d'||document.hidden)return;
+  resize();if(!LIVE.ready)return;
+  const clock=LIVE.clock,order=HS.map(h=>({no:h.no,p:horseProgress(h.no,clock)})).sort((a,b)=>b.p-a.p);
+  for(let i=0;i<HS.length;i++){
+   const h=HS[i],m=models[i],p=horseProgress(h.no,clock),d=path(p),lane=(9.5-h.no)*1.054;
+   m.root.position.set(d.x-d.dz*lane,d.y+.12,d.z+d.dx*lane);
+   m.root.rotation.y=Math.atan2(d.dx,d.dz);
+   const cycle=clock*11.5+h.no*.77;
+   m.anim.position.y=Math.sin(cycle*2)*.07;
+   m.legs.forEach((leg,j)=>{let phase=cycle+(leg.front?0:Math.PI)+(leg.side>0?1.0:0);leg.pivot.rotation.x=Math.sin(phase)*.48;leg.knee.rotation.x=Math.max(0,Math.cos(phase))*.58});
+   m.sprite.material.opacity=order.slice(0,3).some(x=>x.no===h.no)?1:.88;
+  }
+  const lead=order[0],p=path(lead.p),aspect=camera.aspect;
+  if(mode==='wide'){
+   desired.set(0,aspect<.8?185:132,aspect<.8?128:103);look.set(0,0,0);camera.fov=aspect<.8?62:50;
+  }else if(mode==='finish'){
+   const goal=path(1);desired.set(goal.x-21,11,goal.z-27);look.set(goal.x+17,2,goal.z+3);camera.fov=aspect<.8?64:50;
+  }else{
+   const behind=aspect<.8?29:22;
+   desired.set(p.x-p.dx*behind-p.dz*7,10.8,p.z-p.dz*behind+p.dx*7);
+   look.set(p.x+p.dx*9,1.6,p.z+p.dz*9);
+   camera.fov=aspect<.8?66:51;
+  }
+  camera.updateProjectionMatrix();
+  if(first){camera.position.copy(desired);first=false}else camera.position.lerp(desired,.075);
+  camera.lookAt(look);
+  renderer.render(scene,camera);
+ }
+ animate();
+ }catch(err){
+  console.error('3D renderer error',err);
+  stage.style.display='none';svg.classList.remove('svg-hidden');controls.style.display='flex';status.textContent='3Dを利用できないため2Dで表示';
+ }
+})();
+</script>
+</body></html>
