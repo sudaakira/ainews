@@ -80,7 +80,7 @@
 <div class="live-sim" id="live-sim">
  <div class="live-head"><strong>🏇 KYOTO 1400m OUTER｜3Dレースビュー</strong><span class="live-status" id="live-status">スタート待機</span></div>
  <div class="live-stats"><div class="live-stat"><span>レース経過（仮想）</span><b id="live-clock">00:00</b></div><div class="live-stat"><span>残り距離</span><b id="live-distance">1400m</b></div><div class="live-stat"><span>現在の区間</span><b id="live-section">発走前</b></div></div>
- <div class="camera-controls" id="camera-controls" style="display:none"><button data-camera="wide" class="cam-active">🏟️ 京都競馬場・全景</button><button data-camera="follow">🎥 外ラチ側・追走</button><button data-camera="finish">🏁 ゴール前</button><button data-camera="2d">2D模式図</button><span id="three-status">3Dモデル読み込み中…</span></div><div class="live-screen">
+ <div class="camera-controls" id="camera-controls" style="display:none"><button data-camera="wide" class="cam-active">🏟️ 京都競馬場・全景</button><button data-camera="gate">🚦 ゲート→追走</button><button data-camera="follow">🎥 外ラチ側・追走</button><button data-camera="finish">🏁 ゴール前</button><button data-camera="2d">2D模式図</button><span id="three-status">3Dモデル読み込み中…</span></div><div class="live-screen">
  <div id="three-stage" style="display:none"><div class="track-broadcast"><b>京都 11R</b><span>スワンステークス GII｜芝1400m（外）</span></div><div class="track-broadcast-bottom">🏇 KYOTO RACECOURSE <span>3D SIMULATION</span></div></div>
  <svg id="kyoto-map" viewBox="0 0 860 555" role="img" aria-label="京都芝1400m外回りを模式化した競走馬18頭のリアルタイムレース再生">
   <defs><pattern id="mow" width="60" height="60" patternUnits="userSpaceOnUse"><rect width="60" height="60" fill="#347b51"/><rect width="30" height="60" fill="#2d714b"/></pattern><linearGradient id="laneGrass" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#76bd74"/><stop offset="1" stop-color="#499958"/></linearGradient></defs>
@@ -490,8 +490,17 @@ window.KYOTO_RACE={HS,LIVE,route,routeLength,horseProgress};
   }
   updateGates(clock);
   const lead=order[0],p=path(lead.p),aspect=camera.aspect;
+  // Starting-gate view automatically hands off to the outside tracking camera.
+  if(mode==='gate'&&clock>5){
+   mode='follow';
+   controls.querySelectorAll('button').forEach(b=>b.classList.toggle('cam-active',b.dataset.camera==='follow'));
+  }
   if(mode==='wide'){
    desired.set(-15,aspect<.8?215:160,aspect<.8?-250:-192);look.set(-18,0,8);camera.fov=aspect<.8?66:55;
+  }else if(mode==='gate'){
+   const g=path(0);
+   desired.set(g.x+24,aspect<.8?16:12,g.z-(aspect<.8?41:35));
+   look.set(g.x+2,2.0,g.z);camera.fov=aspect<.8?57:51;
   }else if(mode==='finish'){
    const goal=path(1);desired.set(goal.x-20,11,goal.z+27);look.set(goal.x+10,2,goal.z);camera.fov=aspect<.8?64:50;
   }else{
