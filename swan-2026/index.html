@@ -60,12 +60,26 @@
 #three-status{color:#a8d6c7;font-size:11px}
 #kyoto-map.svg-hidden{display:none}
 @media(max-width:650px){#three-stage{height:clamp(420px,110vw,620px)}.camera-controls button{font-size:11px;padding:8px 5px}.camera-controls{gap:4px}}
+
+.result-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:18px 0 10px}
+.result-head strong{font-size:clamp(17px,2.2vw,25px);color:#f4e5b0}
+#result-state{font-size:12px;color:#c0d9d1;font-weight:700}
+.top3-results{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+.place-card{background:linear-gradient(160deg,#294651,#172e37);border:2px solid #738d94;border-radius:13px;padding:14px 12px;min-width:0;text-align:center;transition:background .3s}
+.place-1{border-color:#f1ca60;background:linear-gradient(160deg,#54472b,#263a3e)}
+.place-2{border-color:#b9c9d0}.place-3{border-color:#cc9670}
+.place-rank{font-size:clamp(16px,2.3vw,25px);font-weight:900;letter-spacing:.02em}
+.place-number{font-size:clamp(36px,6vw,74px);line-height:1.18;font-weight:950;color:white;text-shadow:0 3px 8px #14252d}
+.place-name{font-size:clamp(13px,2vw,22px);font-weight:900;line-height:1.4;overflow-wrap:anywhere}
+.place-jockey{font-size:clamp(10px,1.25vw,13px);color:#c7d6d5;margin-top:6px}
+.top3-results.finished .place-1{box-shadow:0 0 0 2px #d5ae49,0 0 28px #edb74044}
+@media(max-width:650px){.top3-results{gap:5px}.place-card{padding:10px 5px;border-radius:9px}.place-rank{font-size:14px}.place-number{font-size:44px}.place-name{font-size:12px}.place-jockey{font-size:10px}.result-head{margin-top:12px}}
 </style></head><body>
 <header><p>KYOTO 11R / 2026.10.12 / 芝1400m 外</p><h1>🏇 スワンS｜条件回帰ループ実験室</h1><p>人気・オッズ不使用 ｜ 全18頭状態カルテ × インタラクティブ着順シミュレーション</p></header><div class="wrap"><div class="hero-race"><section class="card"><h2>🏇 京都競馬場｜18頭レースシミュレーター</h2>
 <div class="live-sim" id="live-sim">
  <div class="live-head"><strong>🏇 KYOTO 1400m OUTER｜3Dレースビュー</strong><span class="live-status" id="live-status">スタート待機</span></div>
  <div class="live-stats"><div class="live-stat"><span>レース経過（仮想）</span><b id="live-clock">00:00</b></div><div class="live-stat"><span>残り距離</span><b id="live-distance">1400m</b></div><div class="live-stat"><span>現在の区間</span><b id="live-section">発走前</b></div></div>
- <div class="camera-controls" id="camera-controls" style="display:none"><button data-camera="follow" class="cam-active">🎥 横から追走</button><button data-camera="wide">🗺️ 全景</button><button data-camera="finish">🏁 ゴール前</button><button data-camera="2d">2D模式図</button><span id="three-status">3Dモデル読み込み中…</span></div><div class="live-screen">
+ <div class="camera-controls" id="camera-controls" style="display:none"><button data-camera="follow" class="cam-active">🎥 前方斜め45°</button><button data-camera="wide">🗺️ 全景</button><button data-camera="finish">🏁 ゴール前</button><button data-camera="2d">2D模式図</button><span id="three-status">3Dモデル読み込み中…</span></div><div class="live-screen">
  <div id="three-stage" style="display:none"></div>
  <svg id="kyoto-map" viewBox="0 0 860 555" role="img" aria-label="京都芝1400m外回りを模式化した競走馬18頭のリアルタイムレース再生">
   <defs><pattern id="mow" width="60" height="60" patternUnits="userSpaceOnUse"><rect width="60" height="60" fill="#347b51"/><rect width="30" height="60" fill="#2d714b"/></pattern><linearGradient id="laneGrass" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#76bd74"/><stop offset="1" stop-color="#499958"/></linearGradient></defs>
@@ -89,10 +103,12 @@
  </svg></div>
  <input type="range" min="0" max="1000" value="0" id="live-scrub" aria-label="レースの再生位置"/>
  <div class="live-buttons"><button id="live-play">▶ スタート</button><button id="live-pause" style="background:#4c646b">⏸ 一時停止</button><button id="live-reset" style="background:#4c646b">↺ 新しいレース</button><select id="live-rate" aria-label="再生速度"><option value="1">1倍速</option><option value="2">2倍速</option><option value="4" selected>4倍速</option><option value="8">8倍速</option><option value="16">16倍速</option></select></div>
+ <div class="result-head"><strong>🏆 レース順位 TOP 3</strong><span id="result-state">スタート待機</span></div>
+ <div id="race" class="top3-results" aria-live="off"></div>
  <div class="live-leaders" id="live-leaders" style="margin-top:10px"></div>
- <p class="live-note">※京都外回りの地形と距離を反映した模式図です。内枠は内ラチ側、外枠は外ラチ側に配置。3Dの馬・騎手はブラウザ内で作成したデフォルメ立体モデルで、横から走行を追います。走行位置・時計・順位は架空のレースで、実測GPS・実況映像・ライブ馬場データではありません。</p>
+ <p class="live-note">※京都外回りの地形と距離を反映した模式図です。内枠は内ラチ側、外枠は外ラチ側に配置。3Dの馬・騎手はブラウザ内で作成したかわいいデフォルメ立体モデルで、前方斜め横から走行を追います。走行位置・時計・順位は架空のレースで、実測GPS・実況映像・ライブ馬場データではありません。</p>
 </div>
-<h2 style="margin-top:18px">仮想着順</h2><div class="race" id="race"></div></section></div><div class="grid"><aside><section class="card"><h2>シミュレーション設定</h2><label>展開 <span id="pacelabel">中立</span></label><input id="pace" type="range" min="-3" max="3" value="0"><p class="small">左：スロー前残り／右：ハイ差し</p><label>高速馬場 <span id="speedlabel">高速</span></label><input id="speed" type="range" min="0" max="3" value="2"><label>ばらつき <span id="vollabel">標準</span></label><input id="vol" type="range" min="6" max="16" value="10"><label>試行回数</label><select id="n"><option value="5000">5,000回</option><option value="20000" selected>20,000回</option><option value="50000">50,000回</option></select><button id="simulate">▶ 計算する</button><button id="one" style="background:#385d7d">🏁 1レース再生</button><button id="csv" style="background:#466b6e">CSV出力</button><div class="msg">重要：表示割合は仮説に基づくモデル内出現率。実際の的中確率として統計的に校正されていません。</div></section></aside><main><section class="card"><h2>全18頭の3着以内率｜<span id="count">—</span></h2><div id="bars"></div></section><section class="card"><h2>ワイド・馬連のモデル内同時好走率</h2><select id="a"></select><select id="b"></select><div class="runners"><div><small>ワイド</small><b id="wide">—</b></div><div><small>馬連</small><b id="quin">—</b></div><div><small>本命</small><b id="top">—</b></div></div><p class="small">配当は使用していません。購入推奨ではなく確率モデルの感度分析です。</p></section></main></div><section class="card"><h2>全18頭・状態／血統／近走／休養／弱点</h2><p class="small">状態は全馬共通項目で調査。詳細を開くと血統や近4走を確認できます。5代すべての枝・騎手の同コース複勝回収率は未検証です。</p><div class="horses" id="horses"></div></section><div class="card links"><h2>資料とモデル制約</h2><a href="https://www.jra.go.jp/JRADB/accessD.html?CNAME=pw01dde0108202604051120261012%2FDC">JRA公式出馬表・前4走</a> ｜ <a href="https://www.jra.go.jp/keiba/race/094/horse.html">JRA出走馬情報</a> ｜ <a href="https://race.netkeiba.com/race/oikiri.html?race_id=202608040511">調教一覧</a> ｜ <a href="https://keiba.sponichi.co.jp/news/20261007s00004000007000c">休養明け・厩舎コメント</a><p class="small">能力指数・展開補正・休養明けの状態補正は仮定。過去データへの校正なし、馬体重・当日芝レース結果の自動更新なし。ダート競走しか近走資料のない⑦の比較には特に注意。馬券の発売は行いません。</p></div></div>
+</section></div><div class="grid"><aside><section class="card"><h2>シミュレーション設定</h2><label>展開 <span id="pacelabel">中立</span></label><input id="pace" type="range" min="-3" max="3" value="0"><p class="small">左：スロー前残り／右：ハイ差し</p><label>高速馬場 <span id="speedlabel">高速</span></label><input id="speed" type="range" min="0" max="3" value="2"><label>ばらつき <span id="vollabel">標準</span></label><input id="vol" type="range" min="6" max="16" value="10"><label>試行回数</label><select id="n"><option value="5000">5,000回</option><option value="20000" selected>20,000回</option><option value="50000">50,000回</option></select><button id="simulate">▶ 計算する</button><button id="one" style="background:#385d7d">🏁 1レース再生</button><button id="csv" style="background:#466b6e">CSV出力</button><div class="msg">重要：表示割合は仮説に基づくモデル内出現率。実際の的中確率として統計的に校正されていません。</div></section></aside><main><section class="card"><h2>全18頭の3着以内率｜<span id="count">—</span></h2><div id="bars"></div></section><section class="card"><h2>ワイド・馬連のモデル内同時好走率</h2><select id="a"></select><select id="b"></select><div class="runners"><div><small>ワイド</small><b id="wide">—</b></div><div><small>馬連</small><b id="quin">—</b></div><div><small>本命</small><b id="top">—</b></div></div><p class="small">配当は使用していません。購入推奨ではなく確率モデルの感度分析です。</p></section></main></div><section class="card"><h2>全18頭・状態／血統／近走／休養／弱点</h2><p class="small">状態は全馬共通項目で調査。詳細を開くと血統や近4走を確認できます。5代すべての枝・騎手の同コース複勝回収率は未検証です。</p><div class="horses" id="horses"></div></section><div class="card links"><h2>資料とモデル制約</h2><a href="https://www.jra.go.jp/JRADB/accessD.html?CNAME=pw01dde0108202604051120261012%2FDC">JRA公式出馬表・前4走</a> ｜ <a href="https://www.jra.go.jp/keiba/race/094/horse.html">JRA出走馬情報</a> ｜ <a href="https://race.netkeiba.com/race/oikiri.html?race_id=202608040511">調教一覧</a> ｜ <a href="https://keiba.sponichi.co.jp/news/20261007s00004000007000c">休養明け・厩舎コメント</a><p class="small">能力指数・展開補正・休養明けの状態補正は仮定。過去データへの校正なし、馬体重・当日芝レース結果の自動更新なし。ダート競走しか近走資料のない⑦の比較には特に注意。馬券の発売は行いません。</p></div></div>
 <script>
 const DATA="1|ダイヤモンドノット|牡3|55|横山武史|福永祐一 栗東|ブリックスアンドモルタル|ディープインパクト|36|B|好位|109.8|8|セントウルS8/NHKマイル5/ファルコンS1/朝日杯FS2|1400mは4戦3勝2着1回。重賞2勝|前走8着、古馬とは初対戦\n2|ショウナンザナドゥ|牝4|55|池添謙一|松下武士 栗東|キズナ|Pulpit|51|B|逃げ|100.5|9|朱鷺S1/パラダイスS2/都大路S13/六甲S7|直近1400mで1着2着。⑬と同タイム|左回り好走中心、京都適性に疑問\n3|レイベリング|牡6|57|鮫島克駿|鹿戸雄一 美浦|Frankel|Docksider|134|C|好位|101|10|安土城S6/京王杯SC17/阪急杯8/睦月S1|京都マイルOP勝ち、先行可能|1400m直近6・17・8着\n4|スズハローム|牡6|57|藤懸貴志|牧田和弥 栗東|サトノダイヤモンド|ローレルゲレイロ|127|A|差し|105.1|10|安田記念17/ダービー卿CT1/洛陽S1/睦月S9|京都洛陽S上がり32.7、GIII勝ち|1600mからの短縮と休み明け\n5|ビッグシーザー|牡6|57|M.デムーロ|杉山晴紀 栗東|ビッグアーサー|Tale of Ekati|36|C|好位|97|11|セントウルS13/アイビスSD4/高松宮記念11/オーシャンS9|1200m実績とスピード|1400m未経験、近走不振\n6|ウインマーベル|牡7|57|松山弘平|深山雅史 美浦|アイルハヴアナザー|フジキセキ|323|B|好位|109|11|マイルCS18/スワンS4/安田記念5/サウジ1351 2|芝1400m重賞3勝、昨年同舞台0.1秒差|肺出血の影響で春全休、7歳、10か月半ぶり\n7|ネオトキオ|牡6|57|安藤洋一|荒山勝徳 大井|キズナ|Dubawi|84|C|中団|92|17|大井1400ダ1/大井1400ダ1/大井1200ダ7/大井1200ダ1|地方ダート近2連勝|芝1400m重賞との比較データ欠損\n8|サンダーストラック|牡3|55|吉村誠之助|木村哲也 美浦|ロードカナロア|Hinchinbrook|78|B|好位|103|12|関屋記念9/NHKマイル7/チャーチルC12/シンザン記念1|京都芝1600m GIII勝ち|1400m初、前走不良で大敗\n9|オフトレイル|牡5|58|菅原明良|吉村圭司 栗東|Farhh|Kingmambo|127|B|差し|113.6|8|安田記念6/マイラーズC5/東京新聞杯10/マイルCS4|昨年スワンSレコード勝ち、G1級の上がり|58kg・差し遅れ・4か月休養\n10|ララマセラシオン|牡5|57|横山琉人|大竹正博 美浦|カリフォルニアクローム|クロフネ|51|B|差し|105.8|10|朱鷺S3/京王杯SC13/高松宮記念16/阪急杯2|阪急杯2着、朱鷺Sも時計差なし3着|ムラが大きく展開依存\n11|レザベーション|牡3|56|原優介|松下武士 栗東|ダノンプレミアム|ジャングルポケット|37|B|好位|103.9|11|京成杯AH11/NHKマイル6/NZT1/阪神未勝利1|NZT GII勝ち・好位から持続|1400m初、3歳ながら56kg\n12|アイサンサン|牝4|55|幸英明|橋田宜長 栗東|キズナ|シンボリクリスエス|15|C|逃げ|104|10|スプリンターズS11/ヴィクトリアマイル13/愛知杯1/戎橋S1|1400m GIII逃げ切り勝ち|中1週、逃げ争いと状態\n13|マイネルチケット|牡4|57|津村明秀|宮徹 栗東|ダノンバラード|マツリダゴッホ|120|B|中団|106.1|9|パラダイスS1/京王杯SC3/阪急杯9/睦月S2|東京1400mでL1着・GII3着|右回り1400mの高速適性、約4か月休養\n14|ワイドラトゥール|牝5|55|北村友一|藤原英昭 栗東|カリフォルニアクローム|アグネスタキオン|148|B|差し|104.8|11|ヴィクトリアマイル15/京王杯SC7/愛知杯4/マイルCS17|昨年スワンSレコード同タイム2着|近走不振・約5か月休み明け\n15|ジョイフルニュース|牝4|55|大野拓弥|大竹正博 美浦|ロードカナロア|Fortify|176|B|好位|104.7|12|福島牝馬S2/東風S2/ファイナルS1/甲斐路S2|8戦すべて連対、GIII2着|1400m初挑戦・約6か月休養\n16|ランフォーヴァウ|牝4|55|石川裕紀人|福永祐一 栗東|ロードカナロア|ディープインパクト|51|B|好位|97.8|12|朱鷺S16/北九州記念8/谷川岳S1/東風S6|芝1400m L勝ち|直近1400m16着、8枠\n17|ミニトランザット|牡4|57|西村淳也|杉山佳明 栗東|エピファネイア|ゼンノロブロイ|57|B|差し|107.8|11|中京記念2/しらさぎS6/ダービー卿CT4/石清水S1|中京記念 GIII2着、京都マイル勝ち|1400m初、8枠17番\n18|エリカエクスプレス|牝4|55|武豊|杉山晴紀 栗東|エピファネイア|Galileo|71|B|逃げ|108.5|12|クイーンS4/ヴィクトリアマイル4/中山牝馬S4/エリザベス杯12|秋華賞 GⅠ2着、VM4着、先行力|1400m初、8枠18番からの位置取り";
 const HS=DATA.split('\n').map(x=>{let a=x.split('|');return {no:+a[0],name:a[1],age:a[2],kg:a[3],j:a[4],trainer:a[5],father:a[6],mfather:a[7],rest:+a[8],training:a[9],style:a[10],base:+a[11],sd:+a[12],history:a[13],plus:a[14],minus:a[15]};});
@@ -102,8 +118,21 @@ function norm(r){return Math.sqrt(-2*Math.log(Math.max(1e-12,r())))*Math.cos(6.2
 function opts(){return{pace:+el('pace').value,speed:+el('speed').value,vol:+el('vol').value}}
 function runRace(r,s){return HS.map(h=>{let mu=h.base;if(h.style==='逃げ')mu-=1.7*s.pace;else if(h.style==='好位')mu-=.8*s.pace;else if(h.style==='中団')mu+=.2*s.pace;else mu+=1.35*s.pace;let speed={1:1,2:.7,3:-.3,4:.8,5:-.8,6:1.1,7:-1,8:.1,9:1.5,10:.9,11:-.2,12:.6,13:1,14:1.4,15:-.4,16:-.1,17:.5,18:.1}[h.no];mu+=(s.speed-1.5)*speed;if(h.no===6){mu-=7.6}return {no:h.no,score:mu+norm(r)*h.sd*s.vol/10}}).sort((a,b)=>b.score-a.score).map(x=>x.no)}
 const pair=(a,b)=>[a,b].sort((x,y)=>x-y).join('-');
-function run(){let s=opts();n=+el('n').value;let r=random(20261012+n*7+s.pace*217+s.speed*137+s.vol*43);let counts=Array.from({length:18},()=>[0,0,0]);w={};q={};let last=[];for(let t=0;t<n;t++){let v=runRace(r,s);last=v;for(let k=0;k<3;k++)counts[v[k]-1][k]++;for(let a=0;a<3;a++)for(let b=a+1;b<3;b++){let k=pair(v[a],v[b]);w[k]=(w[k]||0)+1}let k=pair(v[0],v[1]);q[k]=(q[k]||0)+1}probs=HS.map((h,i)=>({no:h.no,name:h.name,win:counts[i][0]/n*100,p3:counts[i].reduce((x,y)=>x+y,0)/n*100}));let ordered=probs.slice().sort((a,b)=>b.p3-a.p3);el('bars').innerHTML=ordered.map(x=>'<div class="bar"><span class="n" onclick="document.getElementById(\'h'+x.no+'\').scrollIntoView({behavior:\'smooth\'})">'+x.no+' '+x.name+'</span><div class="track"><div class="fill" style="width:'+Math.min(100,x.p3*1.7)+'%"></div></div><span class="val">'+x.p3.toFixed(1)+'%</span></div>').join('');el('top').textContent=ordered[0].no+'番';el('count').textContent=n.toLocaleString()+'回';raceview(last);pairs();cards();}
-function raceview(v){el('race').innerHTML=v.slice(0,6).map((no,k)=>'<div class="lane"><span>'+(k+1)+'位</span><div class="path"><span class="runner" id="r'+no+'">'+no+'</span></div><span>🏁</span></div>').join('');setTimeout(()=>v.slice(0,6).forEach((no,k)=>{let x=el('r'+no);if(x)x.style.left=(88-k*3)+'%'}),100);}
+function run(){let s=opts();n=+el('n').value;let r=random(20261012+n*7+s.pace*217+s.speed*137+s.vol*43);let counts=Array.from({length:18},()=>[0,0,0]);w={};q={};let last=[];for(let t=0;t<n;t++){let v=runRace(r,s);last=v;for(let k=0;k<3;k++)counts[v[k]-1][k]++;for(let a=0;a<3;a++)for(let b=a+1;b<3;b++){let k=pair(v[a],v[b]);w[k]=(w[k]||0)+1}let k=pair(v[0],v[1]);q[k]=(q[k]||0)+1}probs=HS.map((h,i)=>({no:h.no,name:h.name,win:counts[i][0]/n*100,p3:counts[i].reduce((x,y)=>x+y,0)/n*100}));let ordered=probs.slice().sort((a,b)=>b.p3-a.p3);el('bars').innerHTML=ordered.map(x=>'<div class="bar"><span class="n" onclick="document.getElementById(\'h'+x.no+'\').scrollIntoView({behavior:\'smooth\'})">'+x.no+' '+x.name+'</span><div class="track"><div class="fill" style="width:'+Math.min(100,x.p3*1.7)+'%"></div></div><span class="val">'+x.p3.toFixed(1)+'%</span></div>').join('');el('top').textContent=ordered[0].no+'番';el('count').textContent=n.toLocaleString()+'回';pairs();cards();}
+function raceview(v,final=false){
+ const key=(final?'F':'L')+v.slice(0,6).join('-');
+ if(raceview.lastKey===key)return;
+ raceview.lastKey=key;
+ const labels=['🥇','🥈','🥉'];
+ el('result-state').textContent=final?'🏁 確定着順':'● 走行中・暫定順位';
+ el('race').classList.toggle('finished',final);
+ el('race').innerHTML=v.slice(0,3).map((no,k)=>{
+   const h=HS[no-1];
+   return '<div class="place-card place-'+(k+1)+'"><div class="place-rank">'+labels[k]+' '+(k+1)+'着</div>'+
+    '<div class="place-number">'+no+'</div><div class="place-name">'+h.name+'</div>'+
+    '<div class="place-jockey">'+h.j+' 騎手</div></div>';
+ }).join('');
+}
 function pairs(){let a=+el('a').value,b=+el('b').value;if(a===b){el('wide').textContent='同一馬';el('quin').textContent='—';return}el('wide').textContent=((w[pair(a,b)]||0)/n*100).toFixed(2)+'%';el('quin').textContent=((q[pair(a,b)]||0)/n*100).toFixed(2)+'%'}
 function cards(){el('horses').innerHTML=HS.map(h=>{let p=probs.find(x=>x.no===h.no);return '<article class="horse" id="h'+h.no+'"><h3>'+h.no+' '+h.name+'</h3><span class="pill">'+h.age+'</span><span class="pill">調教 '+h.training+'</span><span class="pill">前走 '+h.rest+'日前</span><span class="pill">'+h.style+'</span><p>'+h.j+' / '+h.trainer+' / '+h.kg+'kg</p><p><b>強み：</b>'+h.plus+'</p><p class="risk"><b>リスク：</b>'+h.minus+'</p><p><b>試算馬券内率：</b>'+(p?p.p3.toFixed(1):'—')+'%</p><details><summary>前4走・血統・状態・指数を表示</summary><p>父 '+h.father+'／母父 '+h.mfather+'</p><p><b>近4走：</b>'+h.history+'</p><p><b>状態：</b>調教 '+h.training+'・前走から'+h.rest+'日・'+(h.rest>=120?'長期休養明け':'通常のローテ')+'</p><p><b>仮説入力指数：</b>'+h.base+'／ばらつき '+h.sd+'。数値は経験則で設定した未校正のもの</p><p>⑥は肺出血に伴う長期休養。⑦はダート指数を芝指数へ換算できないため特に不確実</p></details></article>'}).join('')}
 HS.forEach(h=>{el('a').add(new Option(h.no+' '+h.name,h.no));el('b').add(new Option(h.no+' '+h.name,h.no))});el('a').value='9';el('b').value='10';el('simulate').onclick=run;el('one').onclick=()=>raceview(runRace(random(Date.now()%999999999),opts()));el('csv').onclick=()=>{let s='馬番,馬名,1着率,3着以内率\n'+probs.map(x=>[x.no,x.name,x.win.toFixed(2),x.p3.toFixed(2)].join(',')).join('\n');let a=document.createElement('a');a.href=URL.createObjectURL(new Blob(['\ufeff'+s]));a.download='swan_2026_probabilities.csv';a.click();};el('a').onchange=pairs;el('b').onchange=pairs;el('pace').oninput=()=>el('pacelabel').textContent=['超スロー','スロー','ややスロー','中立','ややハイ','ハイ','超ハイ'][+el('pace').value+3];el('speed').oninput=()=>el('speedlabel').textContent=['通常','やや高速','高速','レコード級'][+el('speed').value];el('vol').oninput=()=>el('vollabel').textContent=el('vol').value;run();
@@ -125,7 +154,7 @@ HS.forEach(h=>{
 });
 function sampleLiveRace(){
  let s=opts(),r=random((Date.now()%4294967295)>>>0);LIVE.rank=runRace(r,s);LIVE.seed=r()*1000;LIVE.clock=0;LIVE.ready=true;LIVE.playing=false;LIVE.last=0;
- el('live-status').textContent='スタート待機';drawLive();raceview(LIVE.rank);
+ el('live-status').textContent='スタート待機';raceview.lastKey='';el('result-state').textContent='スタート待機';drawLive();
 }
 function ease(t){return t*t*(3-2*t)}
 function horseProgress(no,sec){
@@ -156,8 +185,9 @@ function drawLive(){
   g.setAttribute('opacity',active.has(h.no)?'1':'.9');
   g.setAttribute('style','filter:drop-shadow(0 2px 2px #122c24);');
  });
- el('live-leaders').innerHTML=order.slice(0,6).map((h,i)=>'<span>'+(i+1)+'位 <b>'+h.no+' '+HS[h.no-1].name+'</b></span>').join('');
- if(progress>=1){LIVE.playing=false;el('live-status').textContent='🏁 ゴール・着順確定';raceview(LIVE.rank)}
+ el('live-leaders').innerHTML=order.slice(3,6).map((h,i)=>'<span>'+(i+4)+'位 <b>'+h.no+' '+HS[h.no-1].name+'</b></span>').join('');
+ if(progress>0)raceview(order.map(x=>x.no),progress>=1);
+ if(progress>=1){LIVE.playing=false;el('live-status').textContent='🏁 ゴール・着順確定';raceview(LIVE.rank,true)}
 }
 function liveFrame(t){
  if(LIVE.playing){
@@ -232,20 +262,24 @@ window.KYOTO_RACE={HS,LIVE,route,routeLength,horseProgress};
   const root=new THREE.Group(),anim=new THREE.Group();root.add(anim);
   let coat=mat(horseColors[h.no-1]),coatDark=mat(new THREE.Color(horseColors[h.no-1]).multiplyScalar(.67)),mane=mat(0x28201c),hoof=mat(0x202224),skin=mat(0xd2a48a),silk=mat(silkColors[h.no-1],.68),pants=mat(0xf0f0e6),helmet=mat(silkColors[h.no-1],.45),reins=mat(0x26201d);
   // Anatomical shapes: rump, chest, shoulders, arched neck, muzzle and two ears
-  ellipsoid(anim,coat,0,1.65,0,.65,.69,1.18);
+  ellipsoid(anim,coat,0,1.65,0,.73,.78,1.16);
   ellipsoid(anim,coat,0,1.66,.80,.59,.60,.59);
   ellipsoid(anim,coat,0,1.6,-.91,.60,.60,.59);
-  let neck=ellipsoid(anim,coat,0,2.13,1.14,.43,.70,.44);neck.rotation.x=-.36;
+  let neck=ellipsoid(anim,coat,0,2.13,1.14,.49,.70,.49);neck.rotation.x=-.36;
   // Friendly, oversized cartoon horse head: large eyes, expressive muzzle and ears.
   const headRig=new THREE.Group();headRig.position.set(0,2.61,1.40);anim.add(headRig);
-  let head=ellipsoid(headRig,coat,0,.08,0,.43,.51,.48);head.rotation.x=.12;
-  ellipsoid(headRig,coatDark,0,-.16,.42,.40,.28,.43);
+  let head=ellipsoid(headRig,coat,0,.08,0,.53,.60,.55);head.rotation.x=.12;
+  ellipsoid(headRig,mat(0xd2a18a),0,-.19,.50,.46,.32,.48);
+  ellipsoid(headRig,coatDark,0,-.34,.87,.25,.075,.08);
   for(let side of [-1,1]){
-   let ear=ellipsoid(headRig,coat,side*.27,.54,-.15,.135,.28,.15);ear.rotation.z=-side*.20;
-   ellipsoid(headRig,mat(0xf8f7ef),side*.38,.19,.25,.105,.145,.095);
-   ellipsoid(headRig,hoof,side*.438,.19,.29,.063,.10,.057);
-   ellipsoid(headRig,mat(0xffffff),side*.455,.23,.335,.023,.029,.02);
-   ellipsoid(headRig,hoof,side*.22,-.19,.78,.055,.043,.035);
+   let ear=ellipsoid(headRig,coat,side*.32,.65,-.15,.17,.33,.18);ear.rotation.z=-side*.17;
+   let innerEar=ellipsoid(headRig,mat(0xf1a9aa),side*.33,.68,.005,.09,.21,.045);innerEar.rotation.z=-side*.17;
+   // Oversized shiny eyes, visible from the side and front.
+   ellipsoid(headRig,mat(0xfff9f0),side*.47,.21,.29,.145,.19,.14);
+   ellipsoid(headRig,hoof,side*.55,.21,.34,.085,.125,.087);
+   ellipsoid(headRig,mat(0xffffff),side*.575,.265,.395,.038,.045,.035);
+   ellipsoid(headRig,mat(0xe89993),side*.43,-.19,.40,.14,.10,.10);
+   ellipsoid(headRig,hoof,side*.25,-.24,.93,.060,.043,.034);
   }
   for(let i=0;i<7;i++)ellipsoid(anim,mane,0,2.20+i*.11,1.03-i*.09,.17,.18,.19);
   const tailRig=new THREE.Group();tailRig.position.set(0,1.90,-1.30);anim.add(tailRig);
@@ -337,13 +371,13 @@ window.KYOTO_RACE={HS,LIVE,route,routeLength,horseProgress};
   }else if(mode==='finish'){
    const goal=path(1);desired.set(goal.x-21,11,goal.z-27);look.set(goal.x+17,2,goal.z+3);camera.fov=aspect<.8?64:50;
   }else{
-   // TV-style lateral tracking camera, perpendicular to the horses' heading.
-   // Slight forward offset makes the gallop and the upcoming track visible.
+   // TV-style front-quarter sideline camera, tracking the field from ahead.
    const sideDistance=aspect<.8?37:29;
-   const trail=aspect<.8?2.0:3.2;
-   desired.set(p.x-p.dz*sideDistance-p.dx*trail,p.y+(aspect<.8?9.2:7.0),p.z+p.dx*sideDistance-p.dz*trail);
-   look.set(p.x+p.dx*2.0,p.y+1.8,p.z+p.dz*2.0);
-   camera.fov=aspect<.8?57:48;
+   // Front-quarter sideline camera: ahead of the leading horse and to its side.
+   const forward=aspect<.8?21:19;
+   desired.set(p.x-p.dz*sideDistance+p.dx*forward,p.y+(aspect<.8?10.5:8.0),p.z+p.dx*sideDistance+p.dz*forward);
+   look.set(p.x+p.dx*1.2,p.y+1.8,p.z+p.dz*1.2);
+   camera.fov=aspect<.8?58:49;
   }
   camera.updateProjectionMatrix();
   if(first){camera.position.copy(desired);first=false}else camera.position.lerp(desired,.075);
