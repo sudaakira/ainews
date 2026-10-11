@@ -256,7 +256,7 @@ window.KYOTO_RACE={HS,LIVE,route,routeLength,horseProgress};
  // Wait for venue geometry before the first render; do not silently show the old empty turf.
  let venueReady=false;
  try{
-  const venue=await import("./scenery.js?v=clear-corridor-20261012-v3");
+  const venue=await import("./scenery.js?v=expanded-kyoto-20261012-v4");
   venue.buildScenery(THREE,scene,mat);
   venueReady=true;
  }catch(e){
