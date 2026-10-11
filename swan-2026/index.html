@@ -199,7 +199,7 @@ header p:last-child{font-size:12px;opacity:.8}
  <label>馬場状態</label><select id="ground-mode"><option value="good" selected>良・高速</option><option value="yielding">稍重</option><option value="soft">重</option><option value="heavy">不良</option></select>
  <label>当日バイアス</label><select id="bias-mode"><option value="neutral" selected>中立（未確認）</option><option value="inside">内・先行有利</option><option value="outside">外・差し有利</option></select>
  <p class="small">※父・母父以外の5代血統、全レースの直接対戦・ラップ、当週・1週前調教の全時計は未検証。未校正の暫定評価です。</p>
-</div><label>試行回数</label><select id="n"><option value="5000">5,000回</option><option value="20000" selected>20,000回</option><option value="50000">50,000回</option></select><button id="csv" class="export-btn" style="background:#466b6e">CSV出力</button></details><button id="simulate">🔄 予想を再計算</button><p class="tiny-disclaimer">※表示の確率は未校正のシミュレーション値です。</p></section></aside><main><section class="card"><h2>全18頭の3着以内率｜<span id="count">—</span></h2><div id="bars"></div></section><details class="card breakdown"><summary>📊 騎手・性別・枠順の補正内訳</summary><p class="small">値はモデル指数への加減点（％ではありません）。上段の3着内率の括弧は3要素OFFとの比較差（％ポイント）。同一乱数を使って比較しています。</p><div class="factors-overflow" id="factor-deltas"></div><p class="small">京都開催のスワンS：<b>2枠33.3%／1枠26.7%／8枠22.7%</b>が3着内。牝馬は34頭中4頭が3着以内で優勝0頭。サンプルが小さいため縮小補正しています。</p><p class="small">資料：<a href="https://www.jra.go.jp/keiba/race/094/data.html" target="_blank" rel="noopener">JRA枠順</a> ／ <a href="https://note.com/pegasus_yakkun/n/n40e9d3ac2595" target="_blank" rel="noopener">京都8回の性別集計</a> ／ <a href="https://keiba-course.com/course/kyoto-turf-1400-out/" target="_blank" rel="noopener">騎手の同コース集計</a>。騎手の複勝率・複勝回収率（複回）は確認済みの7名のみ使用。未確認の成績は推定せず中立。2024・2025年の京都スワンS入着騎手には別途ごく小さな実績補正。</p></details></main></div><details class="card horse-list" id="horse-details"><summary>🐎 全18頭の詳細を見る</summary><p class="small">状態は全馬共通項目で調査。詳細を開くと血統や近4走を確認できます。5代すべての枝は未検証です。騎手は京都芝1400m外の複勝率・複勝回収率を確認できた7名のみ反映し、それ以外は中立です。</p><div class="horses" id="horses"></div></details><details class="card links"><summary>📚 出典・モデルの注意点</summary><a href="https://www.jra.go.jp/JRADB/accessD.html?CNAME=pw01dde0108202604051120261012%2FDC">JRA公式出馬表・前4走</a> ｜ <a href="https://www.jra.go.jp/keiba/race/094/horse.html">JRA出走馬情報</a> ｜ <a href="https://race.netkeiba.com/race/oikiri.html?race_id=202608040511">調教一覧</a> ｜ <a href="https://keiba.sponichi.co.jp/news/20261007s00004000007000c">休養明け・厩舎コメント</a><p class="small">能力指数・展開補正・休養明けの状態補正は仮定。過去データへの校正なし、馬体重・当日芝レース結果の自動更新なし。ダート競走しか近走資料のない⑦の比較には特に注意。馬券の発売は行いません。</p></details></div>
+</div><label>試行回数</label><select id="n"><option value="5000">5,000回</option><option value="20000" selected>20,000回</option><option value="50000">50,000回</option></select><button id="csv" class="export-btn" style="background:#466b6e">CSV出力</button></details><button id="simulate">🔄 予想を再計算</button><p class="tiny-disclaimer">※表示の確率は未校正のシミュレーション値です。</p></section></aside><main><section class="card"><h2>全18頭の3着以内率｜<span id="count">—</span></h2><p class="small">横棒＝モデル内3着以内率、右側の小文字＝条件回帰100点評価</p><div id="bars"></div></section><details class="card breakdown"><summary>📊 14項目・全18頭の採点表</summary><p class="small">100点評価を全18頭で比較。各項目の素点・配点は「全18頭の詳細」で確認できます。</p><div class="factors-overflow" id="factor-deltas"></div><p class="small">京都開催のスワンS：<b>2枠33.3%／1枠26.7%／8枠22.7%</b>が3着内。牝馬は34頭中4頭が3着以内で優勝0頭。サンプルが小さいため縮小補正しています。</p><p class="small">資料：<a href="https://www.jra.go.jp/keiba/race/094/data.html" target="_blank" rel="noopener">JRA枠順</a> ／ <a href="https://note.com/pegasus_yakkun/n/n40e9d3ac2595" target="_blank" rel="noopener">京都8回の性別集計</a> ／ <a href="https://keiba-course.com/course/kyoto-turf-1400-out/" target="_blank" rel="noopener">騎手の同コース集計</a>。騎手の複勝率・複勝回収率（複回）は確認済みの7名のみ使用。未確認の成績は推定せず中立。2024・2025年の京都スワンS入着騎手には別途ごく小さな実績補正。</p></details></main></div><details class="card horse-list" id="horse-details"><summary>🐎 全18頭の詳細を見る</summary><p class="small">状態は全馬共通項目で調査。詳細を開くと血統や近4走を確認できます。5代すべての枝は未検証です。騎手は京都芝1400m外の複勝率・複勝回収率を確認できた7名のみ反映し、それ以外は中立です。</p><div class="horses" id="horses"></div></details><details class="card links"><summary>📚 出典・モデルの注意点</summary><a href="https://www.jra.go.jp/JRADB/accessD.html?CNAME=pw01dde0108202604051120261012%2FDC">JRA公式出馬表・前4走</a> ｜ <a href="https://www.jra.go.jp/keiba/race/094/horse.html">JRA出走馬情報</a> ｜ <a href="https://race.netkeiba.com/race/oikiri.html?race_id=202608040511">調教一覧</a> ｜ <a href="https://keiba.sponichi.co.jp/news/20261007s00004000007000c">休養明け・厩舎コメント</a><p class="small">能力指数・展開補正・休養明けの状態補正は仮定。過去データへの校正なし、馬体重・当日芝レース結果の自動更新なし。ダート競走しか近走資料のない⑦の比較には特に注意。馬券の発売は行いません。</p></details></div>
 <script src="./race-factors-2026.js?v=gender-draw-jockey-roi-20261012-v2"></script>
 <script src="./condition-loop-2026.js?v=weights14-v1-20261012"></script>
 <script>
@@ -291,24 +291,54 @@ function raceview(v,final=false){
 }
 const formatFactor=n=>(n>0?'+':'')+n.toFixed(2);
 function renderFactors(s){
- const rows=HS.map(h=>({h,fx:FACTOR.factors(h,s)})).sort((a,b)=>b.fx.total-a.fx.total);
- el('factor-deltas').innerHTML='<table class="factor-table"><thead><tr><th>馬</th><th>騎手</th><th>牡牝</th><th>枠</th><th>合計</th></tr></thead><tbody>'+rows.map(({h,fx})=>
- '<tr><td><b>'+h.no+' '+h.name+'</b><small>'+h.j+(fx.jockeyKnown?' / '+fx.jockeyRides+'騎乗・3着内'+fx.jockeyTop3Pct+'%・複回'+(fx.jockeyPlaceRoi===null?'—':fx.jockeyPlaceRoi)+'%':' / 同コース成績未確認')+'</small></td>'+
- '<td>'+formatFactor(fx.jockey)+'</td><td>'+formatFactor(fx.sex)+'</td><td>'+fx.drawNumber+'枠 '+formatFactor(fx.draw)+'</td><td><strong>'+formatFactor(fx.total)+'</strong></td></tr>').join('')+'</tbody></table>';
+ const rows=HS.map(h=>({h,ev:LOOP.evaluate(h,s)})).sort((a,b)=>b.ev.rating-a.ev.rating);
+ el('factor-deltas').innerHTML='<table class="factor-table"><thead><tr><th>馬</th><th>100点評価</th><th>得意項目</th><th>枠</th></tr></thead><tbody>'+
+  rows.map(({h,ev})=>{
+   const best=LOOP.FEATURES.filter(f=>ev.detail[f.id].effectiveWeight>0)
+    .sort((a,b)=>ev.detail[b.id].score-ev.detail[a.id].score)
+    .slice(0,2).map(f=>f.label).join('・');
+   return '<tr><td><b>'+h.no+' '+h.name+'</b><small>'+h.j+'</small></td>'+
+    '<td><strong>'+ev.rating.toFixed(1)+'</strong></td><td>'+best+'</td><td>'+FACTOR.frame(h.no)+'枠</td></tr>';
+  }).join('')+'</tbody></table>';
 }
-function cards(){el('horses').innerHTML=HS.map(h=>{let p=probs.find(x=>x.no===h.no),fx=FACTOR.factors(h,opts());return '<article class="horse" id="h'+h.no+'"><h3>'+h.no+' '+h.name+'</h3><span class="pill">'+h.age+'</span><span class="pill">調教 '+h.training+'</span><span class="pill">前走 '+h.rest+'日前</span><span class="pill">'+h.style+'</span><span class="pill">'+fx.drawNumber+'枠</span><p>'+h.j+' / '+h.trainer+' / '+h.kg+'kg</p><p><b>強み：</b>'+h.plus+'</p><p class="risk"><b>リスク：</b>'+h.minus+'</p><p><b>追加3要素：</b> '+formatFactor(fx.total)+'点（騎手 '+formatFactor(fx.jockey)+'／'+fx.sexLabel+' '+formatFactor(fx.sex)+'／'+fx.drawNumber+'枠 '+formatFactor(fx.draw)+'）</p><p><b>試算馬券内率：</b>'+(p?p.p3.toFixed(1):'—')+'%</p><details><summary>前4走・血統・状態・指数を表示</summary><p>父 '+h.father+'／母父 '+h.mfather+'</p><p><b>近4走：</b>'+h.history+'</p><p><b>状態：</b>調教 '+h.training+'・前走から'+h.rest+'日・'+(h.rest>=120?'長期休養明け':'通常のローテ')+'</p><p><b>仮説入力指数：</b>'+h.base+'／ばらつき '+h.sd+'。数値は経験則で設定した未校正のもの</p><p>⑥は肺出血に伴う長期休養。⑦はダート指数を芝指数へ換算できないため特に不確実</p></details></article>'}).join('')}
+function cards(){
+ const config=opts();
+ el('horses').innerHTML=HS.map(h=>{
+  const p=probs.find(x=>x.no===h.no),v=LOOP.evaluate(h,config);
+  const scoreRows=LOOP.FEATURES.map(f=>{
+   const d=v.detail[f.id];
+   return '<tr><td>'+f.label+'<small>'+f.confidence+'</small></td><td>'+
+    d.score.toFixed(1)+'</td><td>'+d.effectiveWeight.toFixed(1)+'</td></tr>';
+  }).join('');
+  return '<article class="horse" id="h'+h.no+'"><h3>'+h.no+' '+h.name+'</h3>'+
+   '<span class="pill">'+h.age+'</span><span class="pill">'+FACTOR.frame(h.no)+'枠</span>'+
+   '<span class="pill">'+h.style+'</span><p>'+h.j+' / '+h.trainer+' / '+h.kg+'kg</p>'+
+   '<p><b>暫定総合評価：'+v.rating.toFixed(1)+' / 100点</b>　3着内率 '+(p?p.p3.toFixed(1):'—')+'%</p>'+
+   '<p><b>強み：</b>'+h.plus+'</p><p class="risk"><b>注意：</b>'+h.minus+'</p>'+
+   '<details><summary>14項目の条件回帰採点・血統・近走を表示</summary>'+
+   '<table class="factor-table horse-score-table"><thead><tr><th>評価項目</th><th>素点</th><th>配点</th></tr></thead><tbody>'+scoreRows+'</tbody></table>'+
+   '<p>父 '+h.father+'／母父 '+h.mfather+'</p><p><b>近4走：</b>'+h.history+'</p>'+
+   '<p><b>状態：</b>調教 '+h.training+'・前走から'+h.rest+'日</p>'+
+   '<p class="small">父・母父以外の5代血統、全走の直接対戦・ラップ、調教時計は未検証。暫定点は実測点ではありません。</p>'+
+   '</details></article>';
+ }).join('');
+}
 el('simulate').onclick=run;el('csv').onclick=()=>{
  const config=opts();
- const header=['馬番','馬名','枠','性齢','騎手','騎手騎乗数','騎手同コース複勝率','騎手同コース複勝回収率','騎手補正','性別補正','枠順補正','追加補正合計','1着率','3着以内率','3要素OFF時3着以内率','増減（ポイント）'];
+ const header=['馬番','馬名','総合評価100点','1着率','3着以内率','騎手性別枠順OFF時3着内率']
+  .concat(LOOP.FEATURES.map(f=>f.label+'素点'))
+  .concat(LOOP.FEATURES.map(f=>f.label+'配点倍率'));
  const rows=HS.map(h=>{
-  const fx=FACTOR.factors(h,config),p=probs[h.no-1];
-  return [h.no,h.name,fx.drawNumber,h.age,h.j,fx.jockeyRides||'',fx.jockeyTop3Pct??'',fx.jockeyPlaceRoi??'',fx.jockey,fx.sex,fx.draw,fx.total,p.win.toFixed(2),p.p3.toFixed(2),p.baseP3.toFixed(2),(p.p3-p.baseP3).toFixed(2)].join(',');
+  const p=probs[h.no-1],ev=LOOP.evaluate(h,config);
+  return [h.no,h.name,ev.rating.toFixed(1),p.win.toFixed(2),p.p3.toFixed(2),p.baseP3.toFixed(2)]
+   .concat(LOOP.FEATURES.map(f=>ev.detail[f.id].score.toFixed(1)))
+   .concat(LOOP.FEATURES.map(f=>config.weights[f.id].toFixed(2))).join(',');
  });
- const csv=header.join(',')+'\n'+rows.join('\n');
- const a=document.createElement('a');a.href=URL.createObjectURL(new Blob(['\ufeff'+csv],{type:'text/csv;charset=utf-8'}));
- a.download='swan_2026_probabilities_factors.csv';a.click();
- URL.revokeObjectURL(a.href);
-};['jockey','sex','draw'].forEach(key=>{const slider=el(key+'-w');slider.oninput=()=>el(key+'-w-label').textContent=(+slider.value).toFixed(2)+'倍';slider.onchange=()=>{run();if(typeof sampleLiveRace==='function')sampleLiveRace();};});el('pace').oninput=()=>el('pacelabel').textContent=['超スロー','スロー','ややスロー','中立','ややハイ','ハイ','超ハイ'][+el('pace').value+3];el('speed').oninput=()=>el('speedlabel').textContent=['通常','やや高速','高速','レコード級'][+el('speed').value];el('vol').oninput=()=>el('vollabel').textContent=el('vol').value;initWeightControls();run();
+ const csv=header.join(',')+'\\n'+rows.join('\\n');
+ const a=document.createElement('a');
+ a.href=URL.createObjectURL(new Blob(['\\ufeff'+csv],{type:'text/csv;charset=utf-8'}));
+ a.download='swan_2026_full_condition_loop.csv';a.click();URL.revokeObjectURL(a.href);
+};el('pace').oninput=()=>el('pacelabel').textContent=['超スロー','スロー','ややスロー','中立','ややハイ','ハイ','超ハイ'][+el('pace').value+3];el('speed').oninput=()=>el('speedlabel').textContent=['通常','やや高速','高速','レコード級'][+el('speed').value];el('vol').oninput=()=>el('vollabel').textContent=el('vol').value;initWeightControls();run();
 
 
 /* Interactive 18-horse race playback: a sampled hypothetical finish, not live race telemetry */
