@@ -94,17 +94,21 @@ export function createRaceHorse(T,scene,h,silkHex){
  oval(headRig,coat,0,-.05,-.14,.34,.36,.33);
  oval(headRig,dark,0,-.50,1.14,.245,.13,.18);
  oval(headRig,light,0,-.49,1.23,.22,.065,.11);
+ // Soft, friendly horse features: gently rounded muzzle, calm eyes and short ears.
+ oval(headRig,light,0,-.48,1.21,.255,.16,.17);
  // Two pointed horse ears with pink-brown interiors.
  const inner=new T.MeshStandardMaterial({color:0x906c69,roughness:1});
  for(const side of [-1,1]){
-  stick(headRig,[side*.24,.40,-.24],[side*.29,.88,-.30],.105,.025,coat);
-  stick(headRig,[side*.29,.49,-.10],[side*.30,.81,-.18],.055,.012,inner);
+  const ear=oval(headRig,coat,side*.23,.63,-.25,.125,.29,.12);
+  ear.rotation.z=-side*.16;
+  const earInner=oval(headRig,inner,side*.235,.66,-.15,.068,.19,.042);
+  earInner.rotation.z=-side*.16;
   // Glossy dark almond eyes, eyelids, distinct muzzle and nostrils.
-  oval(headRig,dark,side*.326,.09,.17,.060,.092,.13);
-  oval(headRig,new T.MeshPhysicalMaterial({color:0x171315,roughness:.17,clearcoat:.8}),side*.370,.10,.18,.049,.073,.088);
-  oval(headRig,white,side*.406,.14,.24,.015,.021,.018);
-  oval(headRig,coat,side*.330,.21,.15,.070,.035,.13);
-  oval(headRig,new T.MeshStandardMaterial({color:0x2a2020,roughness:.85}),side*.229,-.43,1.13,.061,.043,.032);
+  oval(headRig,dark,side*.327,.10,.17,.076,.11,.13);
+  oval(headRig,new T.MeshPhysicalMaterial({color:0x211819,roughness:.20,clearcoat:.75}),side*.371,.11,.19,.067,.090,.092);
+  oval(headRig,white,side*.418,.16,.24,.018,.023,.020);
+  oval(headRig,coat,side*.334,.22,.15,.074,.030,.13);
+  oval(headRig,new T.MeshStandardMaterial({color:0x332725,roughness:.88}),side*.229,-.43,1.27,.047,.034,.025);
   oval(headRig,light,side*.18,-.54,1.08,.11,.025,.05);
   // Subtle cheeks and eyelids rather than giant bulging eyes.
   oval(headRig,coat,side*.25,-.16,-.03,.16,.21,.27);
