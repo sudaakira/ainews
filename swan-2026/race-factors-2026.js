@@ -32,6 +32,12 @@
   '幸英明':[3,1,5,29],
   '池添謙一':[2,1,2,19]
  };
+ // Place-bet return indices (JPY returned per ¥100 staked), separate from ability.
+ // Source: course performance, 2023–2025; small auxiliary signal only.
+ const RIDER_PLACE_ROI={
+  '松山弘平':120,'武豊':112,'西村淳也':101,'北村友一':115,
+  '鮫島克駿':88,'幸英明':134,'池添謙一':65
+ };
  const SOURCE={
   draw:'https://www.jra.go.jp/keiba/race/094/data.html',
   sex:'https://note.com/pegasus_yakkun/n/n40e9d3ac2595',
@@ -68,26 +74,28 @@
   let d=clamp(4.8*Math.log(dRate/drawAverage),-1.1,1.1);
   let sex=clamp(3.6*Math.log(sRate/genderAverage),-.55,.55);
   // Unknown rider -> neutral, never a negative score from missing data.
-  let j=0,jRides=0,jP3=null;
+  let j=0,jRides=0,jP3=null,roi=null,roiImpact=0;
   if(jockeyRecord){
    jRides=jockeyRecord.reduce((a,b)=>a+b,0);
    const hits=jockeyRecord.slice(0,3).reduce((a,b)=>a+b,0);
    jP3=100*hits/jRides;
    const rate=shrunkRate(hits,jRides,.225,32);
    j=clamp(5.5*Math.log(rate/.225),-1.25,1.25);
+   roi=RIDER_PLACE_ROI[h.j]??null;
+   if(roi!==null)roiImpact=clamp((roi-100)/100*.55*jRides/(jRides+45),-.22,.22);
   }
   // Small independent same-race familiarity bonus, based on known
   // Kyoto Swan Stakes podiums (2024 and 2025 only); no double ranking.
   const familiarity={'松山弘平':.12,'武豊':.10,'菅原明良':.14,'北村友一':.10,'吉村誠之助':.10};
   const familiar=familiarity[h.j]||0;
-  const jockey=clamp((j+familiar)*weights.jockey,-2.5,2.5);
+  const jockey=clamp((j+familiar+roiImpact)*weights.jockey,-2.5,2.5);
   const sexValue=round(sex*weights.sex),drawValue=round(d*weights.draw);
   const total=round(jockey+sexValue+drawValue);
   return {
    jockey:round(jockey),sex:sexValue,draw:drawValue,total,
    drawNumber:draw,sexLabel:g,
    jockeyRides:jRides,jockeyTop3Pct:jP3===null?null:round(jP3),
-   jockeyKnown:!!jockeyRecord,
+   jockeyKnown:!!jockeyRecord,jockeyPlaceRoi:roi,
    historicalDrawPct:round(drawRecord.p3*100/drawRecord.n),
    historicalSexPct:round(sexRecord.p3*100/sexRecord.n)
   };
