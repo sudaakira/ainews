@@ -163,7 +163,7 @@ header p:last-child{font-size:12px;opacity:.8}
   <g id="kyoto-horses"></g>
  </svg></div>
  <input type="range" min="0" max="1000" value="0" id="live-scrub" aria-label="レースの再生位置"/>
- <div class="live-buttons"><button id="live-play">▶ スタート</button><button id="live-pause" style="background:#4c646b">⏸ 一時停止</button><button id="live-reset" style="background:#4c646b">↺ 新しいレース</button><select id="live-rate" aria-label="再生速度"><option value="1">1倍速</option><option value="2">2倍速</option><option value="4" selected>4倍速</option><option value="8">8倍速</option><option value="16">16倍速</option></select></div>
+ <div class="live-buttons"><button id="live-play">▶ スタート</button><button id="live-pause" style="background:#4c646b">⏸ 一時停止</button><button id="live-reset" style="background:#4c646b">↺ 新しいレース</button><select id="live-rate" aria-label="再生速度"><option value="1">1倍速</option><option value="2">2倍速</option><option value="4">4倍速</option><option value="8">8倍速</option><option value="16" selected>16倍速</option></select></div>
  <div class="result-head"><strong>🏆 レース順位 TOP 3</strong><span id="result-state">スタート待機</span></div>
  <div id="race" class="top3-results" aria-live="off"></div>
  <div class="live-leaders" id="live-leaders" style="margin-top:10px"></div>
@@ -439,7 +439,7 @@ window.KYOTO_RACE={HS,LIVE,route,routeLength,horseProgress};
  function segment(parent,material,from,to,r1,r2){let a=new THREE.Vector3(...from),b=new THREE.Vector3(...to),d=b.clone().sub(a);let m=new THREE.Mesh(new THREE.CylinderGeometry(r1,r2,d.length(),9),material);m.position.copy(a.add(b).multiplyScalar(.5));m.quaternion.setFromUnitVectors(new THREE.Vector3(0,1,0),d.normalize());parent.add(m);return m}
  const horseColors=[0x6e3927,0x9e542b,0x4b2a24,0x9b6437,0x382a28,0x8c3d24,0x6d513c,0x342d2c,0x91542d,0x52382e,0x9d5d32,0x613b2c,0x3d302b,0xa06d42,0x684631,0x412b27,0x97572d,0x5d372a];
  const silkColors=['#d63e3e','#e8e4df','#2670db','#edc33a','#dd63a5','#4ebbb0','#c7c7c7','#f2932f','#7144bd','#bda144','#db5e32','#62b55c','#e4edf4','#9c78d7','#5b9bd1','#c5a07c','#d6dc45','#cb5171'];
- const {updateGallop}=await import("./gallop-ik.js?v=natural-gallop-v8");
+ const {updateGallop}=await import("./chibi-gallop-v1.js?v=chibi-sprite-pose-20261012-v1");
  const models=[];
  const toonCache=new Map();
  function animeMaterial(c){const key=new THREE.Color(c).getHex();if(!toonCache.has(key))toonCache.set(key,new THREE.MeshToonMaterial({color:key}));return toonCache.get(key)}
@@ -566,7 +566,7 @@ window.KYOTO_RACE={HS,LIVE,route,routeLength,horseProgress};
  // Never silently show the old horse when the requested new model fails.
  let horseV3Ready=false,modelError='';
  try{
-  const horseV3=await import("./horse-pixel-v1.js?v=retro-sfc-pixel-20261012-v2");
+  const horseV3=await import("./horse-chibi-v2.js?v=chibi-animated-20261012-v2");
   for(const h of HS)models.push(horseV3.createRaceHorse(THREE,scene,h,silkColors[h.no-1]));
   horseV3Ready=models.length===18;
  }catch(e){
@@ -663,9 +663,9 @@ window.KYOTO_RACE={HS,LIVE,route,routeLength,horseProgress};
   let label=new THREE.Sprite(new THREE.SpriteMaterial({map:new THREE.CanvasTexture(cv)}));label.position.copy(p);label.position.y+=3.2;label.scale.set(4,2,1);scene.add(label);
  }
  let mode='follow',lastMode='follow';
- controls.style.display='flex';stage.style.display='block';svg.classList.add('svg-hidden');status.textContent=!horseV3Ready?'⚠️ 新しい馬モデルを読み込めません（旧モデルで代替）':venueReady?'🐴 HORSE v12 · NATURAL GALLOP 読込成功・18頭':'⚠️ 簡易背景（3D施設の読込失敗）';
- document.getElementById('horse-model-version').textContent=horseV3Ready?'PIXEL HORSE v10 · 18 HORSES':'⚠️ OLD MODEL FALLBACK';
- window.KYOTO_RENDER_STATUS={model:horseV3Ready?'natural-gallop-v12':'fallback',venue:venueReady?'full':'fallback',horses:models.length,camera:mode};
+ controls.style.display='flex';stage.style.display='block';svg.classList.add('svg-hidden');status.textContent=!horseV3Ready?'⚠️ 新しい馬モデルを読み込めません（旧モデルで代替）':venueReady?'🐴 CHIBI HORSE v14 · アニメ調 18頭':'⚠️ 簡易背景（3D施設の読込失敗）';
+ document.getElementById('horse-model-version').textContent=horseV3Ready?'CHIBI HORSE v14 · 16×':'⚠️ OLD MODEL FALLBACK';
+ window.KYOTO_RENDER_STATUS={model:horseV3Ready?'chibi-animation-v14':'fallback',venue:venueReady?'full':'fallback',horses:models.length,camera:mode};
  controls.querySelectorAll('button').forEach(btn=>btn.onclick=()=>{
   mode=btn.dataset.camera;
   controls.querySelectorAll('button').forEach(b=>b.classList.toggle('cam-active',b===btn));
