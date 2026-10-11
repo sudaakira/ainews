@@ -53,7 +53,7 @@
 }
 
 #three-stage{width:100%;height:clamp(420px,55vw,790px);position:relative;background:#2a6747}
-#three-stage canvas{display:block;width:100%;height:100%;touch-action:pan-y;image-rendering:pixelated;image-rendering:crisp-edges}
+#three-stage canvas{display:block;width:100%;height:100%;touch-action:pan-y;image-rendering:auto}
 .track-broadcast{position:absolute;top:12px;left:12px;z-index:2;display:flex;gap:9px;align-items:center;flex-wrap:wrap;background:#142e43ce;color:white;border-radius:8px;padding:7px 11px;pointer-events:none;font-size:clamp(11px,1.4vw,17px);box-shadow:0 2px 12px #122f3b66}.track-broadcast b{font-size:1.15em}.track-broadcast-bottom{position:absolute;bottom:12px;right:12px;z-index:2;background:#122f3baf;color:white;border-radius:6px;padding:5px 9px;font-size:11px;letter-spacing:.05em;pointer-events:none}.track-broadcast-bottom span{color:#a4f0db}
 .broadcast-clock{position:absolute;top:12px;right:12px;z-index:3;padding:7px 13px;border-radius:8px;background:#142c45d9;color:#fff;font-size:clamp(17px,2.7vw,26px);font-weight:900;font-variant-numeric:tabular-nums;pointer-events:none}
 .broadcast-course{position:absolute;top:64px;left:12px;z-index:3;width:clamp(122px,17vw,200px);background:#132b3bcf;border-radius:10px;padding:5px 7px;color:#fff;pointer-events:none}
@@ -243,12 +243,12 @@ window.KYOTO_RACE={HS,LIVE,route,routeLength,horseProgress};
  const {HS,LIVE,route,routeLength,horseProgress}=api;
  const scene=new THREE.Scene();scene.background=new THREE.Color(0x9edbf7);scene.fog=new THREE.FogExp2(0xb9e1ee,.0015);
  const camera=new THREE.PerspectiveCamera(50,1,.1,1000);
- const renderer=new THREE.WebGLRenderer({antialias:false,powerPreference:'high-performance',alpha:false});
+ const renderer=new THREE.WebGLRenderer({antialias:true,powerPreference:'high-performance',alpha:false});
  // Fewer GPU pixels on phones preserve frame rate when all 18 animated horses are visible.
- renderer.setPixelRatio(1); // Pixel-art presentation: intentionally render below display resolution.
+ renderer.setPixelRatio(Math.min(window.devicePixelRatio||1,window.innerWidth<800?1.5:1.8)); // Restore sharp full-resolution 3D.
  renderer.outputColorSpace=THREE.SRGBColorSpace;
- renderer.toneMapping=THREE.NoToneMapping;
- renderer.toneMappingExposure=1.0;
+ renderer.toneMapping=THREE.ACESFilmicToneMapping;
+ renderer.toneMappingExposure=1.05;
  stage.appendChild(renderer.domElement);
  scene.add(new THREE.HemisphereLight(0xffffff,0x56975d,2.1));
  const sun=new THREE.DirectionalLight(0xfff7d8,2.5);sun.position.set(-80,130,50);scene.add(sun);
@@ -343,7 +343,7 @@ window.KYOTO_RACE={HS,LIVE,route,routeLength,horseProgress};
  function segment(parent,material,from,to,r1,r2){let a=new THREE.Vector3(...from),b=new THREE.Vector3(...to),d=b.clone().sub(a);let m=new THREE.Mesh(new THREE.CylinderGeometry(r1,r2,d.length(),9),material);m.position.copy(a.add(b).multiplyScalar(.5));m.quaternion.setFromUnitVectors(new THREE.Vector3(0,1,0),d.normalize());parent.add(m);return m}
  const horseColors=[0x6e3927,0x9e542b,0x4b2a24,0x9b6437,0x382a28,0x8c3d24,0x6d513c,0x342d2c,0x91542d,0x52382e,0x9d5d32,0x613b2c,0x3d302b,0xa06d42,0x684631,0x412b27,0x97572d,0x5d372a];
  const silkColors=['#d63e3e','#e8e4df','#2670db','#edc33a','#dd63a5','#4ebbb0','#c7c7c7','#f2932f','#7144bd','#bda144','#db5e32','#62b55c','#e4edf4','#9c78d7','#5b9bd1','#c5a07c','#d6dc45','#cb5171'];
- const {updateGallop}=await import("./gallop-ik.js?v=grounded-20261012-v7");
+ const {updateGallop}=await import("./gallop-ik.js?v=natural-gallop-v8");
  const models=[];
  const toonCache=new Map();
  function animeMaterial(c){const key=new THREE.Color(c).getHex();if(!toonCache.has(key))toonCache.set(key,new THREE.MeshToonMaterial({color:key}));return toonCache.get(key)}
@@ -567,9 +567,9 @@ window.KYOTO_RACE={HS,LIVE,route,routeLength,horseProgress};
   let label=new THREE.Sprite(new THREE.SpriteMaterial({map:new THREE.CanvasTexture(cv)}));label.position.copy(p);label.position.y+=3.2;label.scale.set(4,2,1);scene.add(label);
  }
  let mode='follow',lastMode='follow';
- controls.style.display='flex';stage.style.display='block';svg.classList.add('svg-hidden');status.textContent=!horseV3Ready?'⚠️ 新しい馬モデルを読み込めません（旧モデルで代替）':venueReady?'🐴 PIXEL HORSE v11 · 52% RETRO 読込成功・18頭':'⚠️ 簡易背景（3D施設の読込失敗）';
+ controls.style.display='flex';stage.style.display='block';svg.classList.add('svg-hidden');status.textContent=!horseV3Ready?'⚠️ 新しい馬モデルを読み込めません（旧モデルで代替）':venueReady?'🐴 HORSE v12 · NATURAL GALLOP 読込成功・18頭':'⚠️ 簡易背景（3D施設の読込失敗）';
  document.getElementById('horse-model-version').textContent=horseV3Ready?'PIXEL HORSE v10 · 18 HORSES':'⚠️ OLD MODEL FALLBACK';
- window.KYOTO_RENDER_STATUS={model:horseV3Ready?'pixel-horse-v11':'fallback',venue:venueReady?'full':'fallback',horses:models.length,camera:mode};
+ window.KYOTO_RENDER_STATUS={model:horseV3Ready?'natural-gallop-v12':'fallback',venue:venueReady?'full':'fallback',horses:models.length,camera:mode};
  controls.querySelectorAll('button').forEach(btn=>btn.onclick=()=>{
   mode=btn.dataset.camera;
   controls.querySelectorAll('button').forEach(b=>b.classList.toggle('cam-active',b===btn));
@@ -578,7 +578,7 @@ window.KYOTO_RACE={HS,LIVE,route,routeLength,horseProgress};
   else{stage.style.display='block';svg.classList.add('svg-hidden');lastMode=mode;resize()}
  });
  let cw=0,ch=0;
- function resize(){let w=stage.clientWidth,h=stage.clientHeight;if(!w||!h)return;if(w!==cw||h!==ch){cw=w;ch=h;renderer.setSize(Math.max(240,Math.round(w*.52)),Math.max(200,Math.round(h*.52)),false);camera.aspect=w/h;camera.updateProjectionMatrix()}}
+ function resize(){let w=stage.clientWidth,h=stage.clientHeight;if(!w||!h)return;if(w!==cw||h!==ch){cw=w;ch=h;renderer.setSize(w,h,false);camera.aspect=w/h;camera.updateProjectionMatrix()}}
  const tmp=new THREE.Vector3(),look=new THREE.Vector3(),desired=new THREE.Vector3();
  let first=true,lastFrame=0,frame=0,lastHud=0;
  const smoothLook=new THREE.Vector3();
