@@ -220,26 +220,32 @@ export function buildScenery(T,scene,mat){
   addBox(scene,11,1.0,2,deepGreen,x,.45,216);
   addBox(scene,12,.24,2.5,stone,x,1.08,216);
  }
- // Turf-vision advertising panels on the infield side of the course.
- const signMaterials=[mat(0x173f57),mat(0x275b55),mat(0x385a83)];
- for(let i=0;i<11;i++){
-  const x=-82+i*15;
-  addBox(scene,11,2.4,.32,signMaterials[i%3],x,1.6,-18);
-  addBox(scene,10.2,.18,.38,cream,x,2.88,-18);
+ // Quiet infield hedges rather than the old rows of saturated billboard boxes.
+ const hedgeDark=mat(0x3b7350),hedgeLight=mat(0x60946a);
+ for(let i=0;i<24;i++){
+  const x=-94+i*8.2;
+  addBox(scene,7.6,.80,1.8,i%3?hedgeDark:hedgeLight,x,.46,-19);
  }
-
- // Distant Kyoto-inspired foothills and low-rise city skyline. Kept far from the horses and cameras.
- const mountainMat=[mat(0x83a4a2),mat(0x749796),mat(0x8bb2ac)];
- for(let i=0;i<18;i++){
-  const peak=new T.Mesh(new T.ConeGeometry(37+(i%4)*9,40+(i%5)*11,4),mountainMat[i%3]);
-  peak.position.set(-365+i*43,10+(i%3)*4,-330-(i%3)*20);
-  peak.rotation.y=Math.PI/4;scene.add(peak);
+ // Continuous layered foothill silhouettes. Remove the repeated cone mountains.
+ for(let layer=0;layer<3;layer++){
+  const vertices=[],indices=[],farZ=-350-layer*48;
+  const n=110,step=8.5;
+  for(let i=0;i<=n;i++){
+   const x=-460+i*step;
+   const wave=18+8*Math.sin(i*.14+layer*1.3)+6*Math.sin(i*.39+layer*.8)+3*Math.sin(i*.76);
+   const peak=Math.max(3,wave+(i%23<9?3*Math.sin(Math.PI*(i%23)/9):0));
+   vertices.push(x,-3,farZ,x,peak+layer*4,farZ);
+   if(i<n){const k=i*2;indices.push(k,k+1,k+2,k+1,k+3,k+2)}
+  }
+  const g=new T.BufferGeometry();g.setAttribute('position',new T.Float32BufferAttribute(vertices,3));g.setIndex(indices);g.computeVertexNormals();
+  const ridge=new T.Mesh(g,new T.MeshLambertMaterial({color:[0x9db6ac,0x8baaa5,0x789a98][layer],side:T.DoubleSide}));
+  scene.add(ridge);
  }
- const cityColors=[mat(0xc9d8dc),mat(0xa9c1cb),mat(0xd8d9cf)];
- for(let i=0;i<56;i++){
-  const x=-220+i*8.1,z=-210-(i%3)*9,h=4+(i*7%12);
-  addBox(scene,5.8,h,6,cityColors[i%3],x,h/2-.2,z);
-  if(i%5===0)addBox(scene,1,.9,1,cream,x,h+.1,z);
+ // Subdued distant city blocks: skyline texture, not large colorful cubes.
+ const skylineColors=[mat(0xc8d5d4),mat(0xb5c9c9),mat(0xd5dad1)];
+ for(let i=0;i<70;i++){
+  const x=-250+i*7.6,z=-242-(i%4)*4,height=3+(i*7%9);
+  addBox(scene,4.8,height,5.5,skylineColors[i%3],x,height/2-.2,z);
  }
  // A finish-side ornamental arch and short rows of distant cherry blossoms.
  const cherryTrunk=mat(0x826958),cherry=mat(0xf2b4d0);
