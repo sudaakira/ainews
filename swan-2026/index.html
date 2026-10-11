@@ -470,7 +470,7 @@ window.KYOTO_RACE={HS,LIVE,route,routeLength,horseProgress};
  // Never silently show the old horse when the requested new model fails.
  let horseV3Ready=false,modelError='';
  try{
-  const horseV3=await import("./horse-cute-v1.js?v=original-dabista-chibi-20261012-v1");
+  const horseV3=await import("./horse-pixel-v1.js?v=retro-sfc-pixel-20261012-v1");
   for(const h of HS)models.push(horseV3.createRaceHorse(THREE,scene,h,silkColors[h.no-1]));
   horseV3Ready=models.length===18;
  }catch(e){
@@ -567,9 +567,9 @@ window.KYOTO_RACE={HS,LIVE,route,routeLength,horseProgress};
   let label=new THREE.Sprite(new THREE.SpriteMaterial({map:new THREE.CanvasTexture(cv)}));label.position.copy(p);label.position.y+=3.2;label.scale.set(4,2,1);scene.add(label);
  }
  let mode='follow',lastMode='follow';
- controls.style.display='flex';stage.style.display='block';svg.classList.add('svg-hidden');status.textContent=!horseV3Ready?'⚠️ 新しい馬モデルを読み込めません（旧モデルで代替）':venueReady?'🐴 CUTE HORSE v9 読込成功・18頭':'⚠️ 簡易背景（3D施設の読込失敗）';
- document.getElementById('horse-model-version').textContent=horseV3Ready?'CUTE HORSE v9 · 18 HORSES':'⚠️ OLD MODEL FALLBACK';
- window.KYOTO_RENDER_STATUS={model:horseV3Ready?'cute-horse-v9':'fallback',venue:venueReady?'full':'fallback',horses:models.length,camera:mode};
+ controls.style.display='flex';stage.style.display='block';svg.classList.add('svg-hidden');status.textContent=!horseV3Ready?'⚠️ 新しい馬モデルを読み込めません（旧モデルで代替）':venueReady?'🐴 PIXEL HORSE v10 読込成功・18頭':'⚠️ 簡易背景（3D施設の読込失敗）';
+ document.getElementById('horse-model-version').textContent=horseV3Ready?'PIXEL HORSE v10 · 18 HORSES':'⚠️ OLD MODEL FALLBACK';
+ window.KYOTO_RENDER_STATUS={model:horseV3Ready?'pixel-horse-v10':'fallback',venue:venueReady?'full':'fallback',horses:models.length,camera:mode};
  controls.querySelectorAll('button').forEach(btn=>btn.onclick=()=>{
   mode=btn.dataset.camera;
   controls.querySelectorAll('button').forEach(b=>b.classList.toggle('cam-active',b===btn));
