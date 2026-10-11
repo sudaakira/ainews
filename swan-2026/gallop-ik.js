@@ -1,69 +1,76 @@
-// Gallop v6: ground-constrained, four-beat racehorse gait.
-// +Z is forward; all joints rotate about X. Units match horse-v5.js.
-// Hooves move relative to the torso during stance; swing is an arced recovery.
-// Two-bone inverse kinematics prevents broken-looking limb lengths.
+// Racehorse gallop v8 — hoof trajectories and two-link inverse kinematics.
+// Model forward +Z, vertical +Y. The foreleg's carpus folds back,
+// hind hock folds forward; foot positions are constrained to reachable targets.
 export function updateGallop(model,raceTime,visualTime,number){
- const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
- const smooth=t=>{t=clamp(t,0,1);return t*t*(3-2*t)};
+ const clamp=(x,a,b)=>Math.max(a,Math.min(b,x));
  const mix=(a,b,t)=>a+(b-a)*t;
- const blend=smooth((raceTime-.12)/1.25);
+ const smooth=x=>{x=clamp(x,0,1);return x*x*(3-2*x)};
+ const fract=x=>x-Math.floor(x);
+ const tau=Math.PI*2;
+ const active=smooth((raceTime-.12)/1.25);
  const legs=model.legs;
- if(!blend){
+ if(!active){
   model.anim.position.y=0;model.anim.rotation.x=0;
   model.headRig.rotation.x=0;model.tailRig.rotation.x=0;model.tailRig.rotation.z=0;
-  for(const leg of legs){leg.pivot.rotation.x=0;leg.knee.rotation.x=0;}
+  for(const l of legs){l.pivot.rotation.x=0;l.knee.rotation.x=0}
   return;
  }
- // At roughly 1.65 strides/sec the stride reads as a race gallop on mobile.
- // Every horse starts with a tiny phase offset to avoid mechanical synchronization.
- const phase=((visualTime*1.65+number*.011)%1+1)%1;
- const wrap=x=>(x%1+1)%1;
- // Four separate contacts: trailing hind, leading hind, trailing fore, leading fore.
- // In model order: fore(-), fore(+), hind(-), hind(+).
- const offsets=[.48,.66,.02,.19];
- const contact=.19;
- const ease=smooth;
- const contactPhases=[];
- function target(p,front){
-  const span=front?.51:.54;
-  const ankleY=-1.265;
-  if(p<contact){
-   const t=p/contact;
-   // Foot is planted: relative motion comes from the torso advancing over it.
-   return {z:mix(span,-span,t),y:ankleY,stance:true};
+ // 1.55 gallop cycles per real second. The hoof contacts are separated:
+ // hind left, hind right, fore left, fore right, then suspension.
+ // The visualTime is independent of 16x race clock so feet never strobe.
+ const cycle=fract(visualTime*1.55+number*.013);
+ const starts=[.36,.49,.02,.15]; // front L/R, hind L/R
+ const duration=[.17,.17,.19,.19];
+ const bodyPhase=tau*cycle;
+ // The body moves over the planted forelegs; rise during gathered suspension.
+ // A continuous wave avoids the abrupt 9cm teleport at "all hooves off".
+ const lift=.032+.065*Math.pow(.5+.5*Math.sin(bodyPhase-1.2),2);
+ const pitch=.035*Math.sin(bodyPhase+.35);
+ model.anim.position.y=active*lift;
+ model.anim.rotation.x=active*pitch;
+ model.headRig.rotation.x=active*(-.045*Math.sin(bodyPhase-.55)-pitch*.55);
+ model.tailRig.rotation.x=active*(.08*Math.sin(bodyPhase+.4));
+ model.tailRig.rotation.z=active*(.035*Math.sin(bodyPhase*.7+number));
+ let planted=0;
+ function inverseKinematics(z,y,L1,L2,front){
+  // Rotate (0,-L,0) about X: Z=-L*sin(angle).
+  const r=clamp(Math.hypot(z,y),.12,L1+L2-.012);
+  const bend=Math.acos(clamp((r*r-L1*L1-L2*L2)/(2*L1*L2),-1,1));
+  // Carpal joint folds rearward; hock folds forward.
+  const joint=front?bend:-bend;
+  const base=Math.atan2(-z,-y);
+  const hip=base-Math.atan2(L2*Math.sin(joint),L1+L2*Math.cos(joint));
+  return [clamp(hip,-1.45,1.45),clamp(joint,-2.15,2.15)];
+ }
+ for(let i=0;i<4;i++){
+  const leg=legs[i],front=leg.front;
+  const p=fract(cycle-starts[i]+1);
+  const duty=duration[i],stance=p<duty;
+  if(stance)planted++;
+  // z is the hoof position relative to the shoulder/hip. At touchdown
+  // the hoof is forward, during stance the body passes over the hoof.
+  // At recovery the leg folds then extends into the next landing.
+  const span=front?.37:.39;
+  let z,y;
+  if(stance){
+   const t=p/duty;
+   z=mix(span,-span,t);
+   // The planted hoof stays at the turf as the body rises and falls.
+   y=-1.29-lift;
+  }else{
+   const t=(p-duty)/(1-duty);
+   const ease=smooth(t);
+   z=mix(-span,span,ease);
+   y=-1.16+.31*Math.pow(Math.sin(Math.PI*t),1.45);
   }
-  const t=(p-contact)/(1-contact);
-  const lift=Math.pow(Math.sin(Math.PI*t),1.2)*(front?.49:.55);
-  return {z:mix(-span,span,ease(t)),y:ankleY+lift,stance:false};
+  // The limbs are 1.34 units long. Prevent unreachable foot positions
+  // instead of forcing extreme, dislocated-looking knee angles.
+  const maxReach=(leg.upper||.66)+(leg.lower||.68)-.012;
+  const dist=Math.hypot(z,y);
+  if(dist>maxReach){z*=maxReach/dist;y*=maxReach/dist}
+  const [hip,knee]=inverseKinematics(z,y,leg.upper||.66,leg.lower||.68,front);
+  leg.pivot.rotation.x=active*hip;
+  leg.knee.rotation.x=active*knee;
  }
- function ik(z,y,L1,L2,front){
-  // +X rotation drives a downward limb backwards (-Z).
-  // Fore knee bends rearward; hind hock bends forward.
-  const distance=clamp(Math.hypot(z,y),.05,L1+L2-.005);
-  const joint=(front?1:-1)*Math.acos(clamp((distance*distance-L1*L1-L2*L2)/(2*L1*L2),-1,1));
-  const heading=Math.atan2(-z,-y);
-  const hip=heading-Math.atan2(L2*Math.sin(joint),L1+L2*Math.cos(joint));
-  return {hip:clamp(hip,-1.35,1.35),joint:clamp(joint,-2.0,2.0)};
- }
- let contacts=0;
- for(let i=0;i<legs.length;i++){
-  const leg=legs[i],p=wrap(phase+offsets[i]);
-  const point=target(p,leg.front);
-  if(point.stance)contacts++;
-  const solved=ik(point.z,point.y,leg.upper||.66,leg.lower||.68,leg.front);
-  leg.pivot.rotation.x=mix(0,solved.hip,blend);
-  leg.knee.rotation.x=mix(0,solved.joint,blend);
-  contactPhases.push(p);
- }
- // Suspension is a short interval with all four hooves off the ground.
- // Pitch is tiny: a galloping horse flexes its back, not its whole torso like a seesaw.
- const airborne=contacts===0?1:0;
- const bodyWave=.5-.5*Math.cos(2*Math.PI*phase);
- const vertical=.025+.055*bodyWave+.090*airborne;
- model.anim.position.y=vertical*blend;
- model.anim.rotation.x=blend*(.052*Math.sin(2*Math.PI*phase-.75));
- model.headRig.rotation.x=blend*(-.075*Math.sin(2*Math.PI*phase-1.1));
- model.tailRig.rotation.x=blend*(.055*Math.sin(2*Math.PI*phase+.6));
- model.tailRig.rotation.z=blend*(.036*Math.sin(2*Math.PI*phase*.7+number));
- if(model.shadow)model.shadow.material.opacity=.18-.07*airborne;
+ if(model.shadow)model.shadow.material.opacity=.15-(planted===0?.045:0);
 }
