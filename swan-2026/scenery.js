@@ -248,6 +248,40 @@ export function buildScenery(T,scene,mat){
   addBox(scene,.55,5,.55,cherryTrunk,x,2.5,z);
   ball(scene,x,6.0,z,3.2,2.5,3.0,cherry);
  }
+ // Additional distant venue objects stay beyond the outside-rail camera.
+ const extraCream=mat(0xe7e9e1),extraGlass=mat(0x83b6c4),extraYellow=mat(0xf2d55a);
+ addBox(scene,205,.4,14,extraCream,-3,.20,250);
+ for(let i=0;i<20;i++){const x=-100+i*10.5;
+  addBox(scene,.24,4.8,.24,steel,x,2.5,248);
+  addBox(scene,8,2.5,.18,extraGlass,x,2.8,250.2);
+ }
+ addBox(scene,215,.55,17,navy,-3,5.25,249);
+ for(const x of [-118,119]){
+  addBox(scene,7,.7,64,extraCream,x,7.6,180);
+  for(const z of [153,180,207])addBox(scene,.5,7,.5,steel,x,3.7,z);
+  for(const side of [-1,1])addBox(scene,.18,1.4,64,glass,x+side*3.2,8.4,180);
+ }
+ for(let i=0;i<8;i++){
+  const x=-95+i*25,z=269+(i%2)*8;
+  addBox(scene,4.4,1.6,2.6,i%3===0?extraYellow:extraCream,x,1.35,z);
+  addBox(scene,2.4,1.1,2.3,extraGlass,x-.5,2.5,z);
+  for(const dx of [-1.45,1.45])for(const dz of [-1.12,1.12]){
+   const wheel=new T.Mesh(new T.CylinderGeometry(.46,.46,.27,10),navy);
+   wheel.rotation.x=Math.PI/2;wheel.position.set(x+dx,.56,z+dz);scene.add(wheel);
+  }
+ }
+ for(let i=0;i<26;i++){
+  const x=-110+(i%13)*18,z=286+Math.floor(i/13)*15;
+  addBox(scene,3.3,.20,.8,extraCream,x,.85,z);
+  addBox(scene,.24,.9,.24,steel,x-1.1,.4,z);
+  addBox(scene,.24,.9,.24,steel,x+1.1,.4,z);
+ }
+ const extraFlowers=[mat(0xf6d65c),mat(0xedb1cf),mat(0xf4f2e9),mat(0xe4776e)];
+ for(let i=0;i<140;i++){
+  const a=i*.23,r=17+(i%6)*2.1,x=-32+r*Math.cos(a),z=1+r*.48*Math.sin(a);
+  const bloom=new T.Mesh(new T.SphereGeometry(.26,6,5),extraFlowers[i%4]);
+  bloom.position.set(x,.38,z);scene.add(bloom);
+ }
  // Clouds over the far horizon.
  const cloudMaterial=new T.MeshBasicMaterial({color:0xffffff,fog:false}),puff=new T.SphereGeometry(1,8,6);
  for(let i=0;i<8;i++){let cloud=new T.Group();cloud.position.set(-185+i*55,56+i%3*10,-195-i%2*25);
