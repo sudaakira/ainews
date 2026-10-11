@@ -217,8 +217,8 @@ HS.forEach(h=>{el('a').add(new Option(h.no+' '+h.name,h.no));el('b').add(new Opt
   const fx=FACTOR.factors(h,config),p=probs[h.no-1];
   return [h.no,h.name,fx.drawNumber,h.age,h.j,fx.jockeyRides||'',fx.jockeyTop3Pct??'',fx.jockeyPlaceRoi??'',fx.jockey,fx.sex,fx.draw,fx.total,p.win.toFixed(2),p.p3.toFixed(2),p.baseP3.toFixed(2),(p.p3-p.baseP3).toFixed(2)].join(',');
  });
- const csv=header.join(',')+'\\n'+rows.join('\\n');
- const a=document.createElement('a');a.href=URL.createObjectURL(new Blob(['\\ufeff'+csv],{type:'text/csv;charset=utf-8'}));
+ const csv=header.join(',')+'\n'+rows.join('\n');
+ const a=document.createElement('a');a.href=URL.createObjectURL(new Blob(['\ufeff'+csv],{type:'text/csv;charset=utf-8'}));
  a.download='swan_2026_probabilities_factors.csv';a.click();
  URL.revokeObjectURL(a.href);
 };el('a').onchange=pairs;el('b').onchange=pairs;['jockey','sex','draw'].forEach(key=>{const slider=el(key+'-w');slider.oninput=()=>el(key+'-w-label').textContent=(+slider.value).toFixed(2)+'倍';slider.onchange=()=>{run();if(typeof sampleLiveRace==='function')sampleLiveRace();};});el('pace').oninput=()=>el('pacelabel').textContent=['超スロー','スロー','ややスロー','中立','ややハイ','ハイ','超ハイ'][+el('pace').value+3];el('speed').oninput=()=>el('speedlabel').textContent=['通常','やや高速','高速','レコード級'][+el('speed').value];el('vol').oninput=()=>el('vollabel').textContent=el('vol').value;run();
