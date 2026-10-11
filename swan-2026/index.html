@@ -470,7 +470,7 @@ window.KYOTO_RACE={HS,LIVE,route,routeLength,horseProgress};
  // Rebuilt horse anatomy from scratch in horse-v5.js; the old mesh is an error fallback.
  let horseV3Ready=false;
  try{
-  const horseV3=await import("./horse-v5.js?v=thoroughbred-rebuilt-20261012-v6");
+  const horseV3=await import("./horse-v5.js?v=cute-dabista-20261012-v7");
   for(const h of HS)models.push(horseV3.createRaceHorse(THREE,scene,h,silkColors[h.no-1]));
   horseV3Ready=models.length===18;
  }catch(e){
