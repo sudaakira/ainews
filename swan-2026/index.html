@@ -469,7 +469,7 @@ window.KYOTO_RACE={HS,LIVE,route,routeLength,horseProgress};
  // Replace the original all-ellipsoid cartoon model with newly sculpted thoroughbreds.
  let horseV3Ready=false;
  try{
-  const horseV3=await import("./horse-v3.js?v=thoroughbred-20261012-v1");
+  const horseV3=await import("./horse-v3.js?v=thoroughbred-20261012-v2");
   for(const h of HS)models.push(horseV3.createRaceHorse(THREE,scene,h,silkColors[h.no-1]));
   horseV3Ready=models.length===18;
  }catch(e){
