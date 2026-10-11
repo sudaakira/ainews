@@ -80,7 +80,7 @@
 <div class="live-sim" id="live-sim">
  <div class="live-head"><strong>🏇 KYOTO 1400m OUTER｜3Dレースビュー</strong><span class="live-status" id="live-status">スタート待機</span></div>
  <div class="live-stats"><div class="live-stat"><span>レース経過（仮想）</span><b id="live-clock">00:00</b></div><div class="live-stat"><span>残り距離</span><b id="live-distance">1400m</b></div><div class="live-stat"><span>現在の区間</span><b id="live-section">発走前</b></div></div>
- <div class="camera-controls" id="camera-controls" style="display:none"><button data-camera="wide" class="cam-active">🏟️ 京都競馬場・全景</button><button data-camera="gate">🚦 ゲート→追走</button><button data-camera="follow">🎥 外ラチ側・追走</button><button data-camera="finish">🏁 ゴール前</button><button data-camera="2d">2D模式図</button><span id="three-status">3Dモデル読み込み中…</span></div><div class="live-screen">
+ <div class="camera-controls" id="camera-controls" style="display:none"><button data-camera="wide">🏟️ 京都競馬場・全景</button><button data-camera="gate">🚦 ゲート→追走</button><button data-camera="follow" class="cam-active">🎥 外ラチ側・追走</button><button data-camera="finish">🏁 ゴール前</button><button data-camera="2d">2D模式図</button><span id="three-status">3Dモデル読み込み中…</span></div><div class="live-screen">
  <div id="three-stage" style="display:none"><div class="track-broadcast"><b>京都 11R</b><span>スワンステークス GII｜芝1400m（外）</span></div><div class="track-broadcast-bottom">🏇 KYOTO RACECOURSE <span>3D SIMULATION</span></div></div>
  <svg id="kyoto-map" viewBox="0 0 860 555" role="img" aria-label="京都芝1400m外回りを模式化した競走馬18頭のリアルタイムレース再生">
   <defs><pattern id="mow" width="60" height="60" patternUnits="userSpaceOnUse"><rect width="60" height="60" fill="#347b51"/><rect width="30" height="60" fill="#2d714b"/></pattern><linearGradient id="laneGrass" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#76bd74"/><stop offset="1" stop-color="#499958"/></linearGradient></defs>
@@ -113,7 +113,7 @@
  <div class="result-head"><strong>🏆 レース順位 TOP 3</strong><span id="result-state">スタート待機</span></div>
  <div id="race" class="top3-results" aria-live="off"></div>
  <div class="live-leaders" id="live-leaders" style="margin-top:10px"></div>
- <p class="live-note">※JRA公式のコース資料を参考に、京都競馬場の外回り・内回り・ダート・スタンド・馬場内施設を3Dで模式的に再構成しています。実物の寸法・建物配置を完全再現した測量モデルではありません。内枠は内ラチ側、外枠は外ラチ側に配置。3Dの馬はかわいい丸い体型を残しつつ、自然な毛色の陰影・鼻筋・目・鼻孔・まつ毛や毛並みを意識した顔に改善しています。芝は刈り込み模様、芝目、細かな草の立体表現を加えています。18連スタートゲート、ゼッケン、騎手と外ラチ側のカメラを搭載。観客席・観客・樹木は京都競馬場をイメージした演出です。16倍速でも脚の動きを滑らかに見せるよう再生速度と走行モーションを分離しています。走行位置・時計・順位は架空のレースで、実測GPS・実況映像・ライブ馬場データではありません。</p>
+ <p class="live-note">※JRA公式のコース資料を参考に、京都競馬場の外回り・内回り・ダート・スタンド・馬場内施設を3Dで模式的に再構成しています。実物の寸法・建物配置を完全再現した測量モデルではありません。内枠は内ラチ側、外枠は外ラチ側に配置。3Dの馬は添付の競馬ゲーム画面を参考に、胴体をすっきり長く・脚を長く・顔を馬らしく調整。自然な毛色の陰影・鼻筋・目・鼻孔・たてがみを改善しています。芝は刈り込み模様、芝目、細かな草の立体表現を加えています。18連スタートゲート、ゼッケン、騎手と外ラチ側のカメラを搭載。観客席・観客・樹木は京都競馬場をイメージした演出です。16倍速でも脚の動きを滑らかに見せるよう再生速度と走行モーションを分離しています。走行位置・時計・順位は架空のレースで、実測GPS・実況映像・ライブ馬場データではありません。</p>
 </div>
 </section></div><div class="grid"><aside><section class="card"><h2>シミュレーション設定</h2><label>展開 <span id="pacelabel">中立</span></label><input id="pace" type="range" min="-3" max="3" value="0"><p class="small">左：スロー前残り／右：ハイ差し</p><label>高速馬場 <span id="speedlabel">高速</span></label><input id="speed" type="range" min="0" max="3" value="2"><label>ばらつき <span id="vollabel">標準</span></label><input id="vol" type="range" min="6" max="16" value="10"><label>試行回数</label><select id="n"><option value="5000">5,000回</option><option value="20000" selected>20,000回</option><option value="50000">50,000回</option></select><button id="simulate">▶ 計算する</button><button id="one" style="background:#385d7d">🏁 1レース再生</button><button id="csv" style="background:#466b6e">CSV出力</button><div class="msg">重要：表示割合は仮説に基づくモデル内出現率。実際の的中確率として統計的に校正されていません。</div></section></aside><main><section class="card"><h2>全18頭の3着以内率｜<span id="count">—</span></h2><div id="bars"></div></section><section class="card"><h2>ワイド・馬連のモデル内同時好走率</h2><select id="a"></select><select id="b"></select><div class="runners"><div><small>ワイド</small><b id="wide">—</b></div><div><small>馬連</small><b id="quin">—</b></div><div><small>本命</small><b id="top">—</b></div></div><p class="small">配当は使用していません。購入推奨ではなく確率モデルの感度分析です。</p></section></main></div><section class="card"><h2>全18頭・状態／血統／近走／休養／弱点</h2><p class="small">状態は全馬共通項目で調査。詳細を開くと血統や近4走を確認できます。5代すべての枝・騎手の同コース複勝回収率は未検証です。</p><div class="horses" id="horses"></div></section><div class="card links"><h2>資料とモデル制約</h2><a href="https://www.jra.go.jp/JRADB/accessD.html?CNAME=pw01dde0108202604051120261012%2FDC">JRA公式出馬表・前4走</a> ｜ <a href="https://www.jra.go.jp/keiba/race/094/horse.html">JRA出走馬情報</a> ｜ <a href="https://race.netkeiba.com/race/oikiri.html?race_id=202608040511">調教一覧</a> ｜ <a href="https://keiba.sponichi.co.jp/news/20261007s00004000007000c">休養明け・厩舎コメント</a><p class="small">能力指数・展開補正・休養明けの状態補正は仮定。過去データへの校正なし、馬体重・当日芝レース結果の自動更新なし。ダート競走しか近走資料のない⑦の比較には特に注意。馬券の発売は行いません。</p></div></div>
 <script>
@@ -247,16 +247,16 @@ window.KYOTO_RACE={HS,LIVE,route,routeLength,horseProgress};
  // Wait for venue geometry before the first render; do not silently show the old empty turf.
  let venueReady=false;
  try{
-  const venue=await import("./scenery.js?v=kyoto-turf-realistic-20261012");
+  const venue=await import("./scenery.js?v=stand-far-20261012-v2");
   venue.buildScenery(THREE,scene,mat);
   venueReady=true;
  }catch(e){
   console.error("Kyoto venue geometry failed to load",e);
   // Always-visible backup grandstand when the scenery module is unavailable.
   const stand=new THREE.Mesh(new THREE.BoxGeometry(175,22,28),mat(0xb5d4dc));
-  stand.position.set(-8,11,79);scene.add(stand);
+  stand.position.set(-8,11,245);scene.add(stand);
   const roof=new THREE.Mesh(new THREE.BoxGeometry(187,2,46),mat(0xf5f5ee));
-  roof.position.set(-8,23,75);scene.add(roof);
+  roof.position.set(-8,23,241);scene.add(roof);
  }
  // Procedural natural grass: deterministic blade/soil grain and mowing bands, no external image requests.
  function grassTexture(){
@@ -288,7 +288,7 @@ window.KYOTO_RACE={HS,LIVE,route,routeLength,horseProgress};
  const turf=new THREE.MeshStandardMaterial({map:grassMap,color:0xb4dfac,roughness:.98,side:THREE.DoubleSide});
  const turfAlt=turf,white=mat(0xf1f2e8),darkRail=mat(0xcad8d2),soil=mat(0x786748);
  const lawnMap=grassMap.clone();lawnMap.needsUpdate=true;lawnMap.repeat.set(14,10);
- const ground=new THREE.Mesh(new THREE.PlaneGeometry(580,450),new THREE.MeshStandardMaterial({map:lawnMap,color:0xb8d7b1,roughness:1}));
+ const ground=new THREE.Mesh(new THREE.PlaneGeometry(850,900),new THREE.MeshStandardMaterial({map:lawnMap,color:0xb8d7b1,roughness:1}));
  ground.rotation.x=-Math.PI/2;ground.position.y=-.32;scene.add(ground);
  const W=.245;
  function heightAt(t){let u=t<.28?0:t<.44?(t-.28)/.16:t<.72?1-(t-.44)/.28:0;return 4.3*(u*u*(3-2*u))}
@@ -347,16 +347,21 @@ window.KYOTO_RACE={HS,LIVE,route,routeLength,horseProgress};
       mane=new THREE.MeshStandardMaterial({color:h.no%3===0?0x624438:0x302729,roughness:.95}),
       hoof=anime(0x36333d),skin=anime(0xf6c3a6),silk=anime(silkColors[h.no-1]),pants=anime(0xf8f4ed),helmet=anime(silkColors[h.no-1]),reins=anime(0x353038);
   // Anatomical shapes: rump, chest, shoulders, arched neck, muzzle and two ears
-  ellipsoid(anim,coat,0,1.57,0,1.13,1.02,1.16);
-  ellipsoid(anim,coat,0,1.15,.16,.85,.38,.87);
-  ellipsoid(anim,coat,0,1.58,.80,.83,.79,.75);
-  ellipsoid(anim,coat,0,1.56,-.91,.84,.77,.70);
-  let neck=ellipsoid(anim,coat,0,2.11,1.14,.57,.71,.56);neck.rotation.x=-.36;
+  ellipsoid(anim,coat,0,1.57,0,.88,.76,1.34);
+  ellipsoid(anim,coat,0,1.29,.16,.72,.34,1.08);
+  ellipsoid(anim,coat,0,1.59,.88,.77,.72,.78);
+  ellipsoid(anim,coat,0,1.57,-1.05,.78,.73,.81);
+  let neck=ellipsoid(anim,coat,0,2.04,1.25,.46,.85,.49);neck.rotation.x=-.47;
+  // The shoulder, flank and hindquarter follow a believable racehorse silhouette.
+  for(const side of [-1,1]){
+   const shoulder=ellipsoid(anim,coat,side*.55,1.58,.77,.33,.59,.48);shoulder.rotation.x=-.15;
+   const haunch=ellipsoid(anim,coat,side*.54,1.57,-1.05,.38,.58,.50);haunch.rotation.x=.18;
+  }
   // Chibi body, but more realistic thoroughbred head: long nasal bridge, defined jaw and alert ears.
-  const headRig=new THREE.Group();headRig.position.set(0,2.62,1.38);headRig.scale.set(1.30,1.23,1.29);anim.add(headRig);
-  let head=ellipsoid(headRig,coat,0,.12,-.04,.58,.63,.58);head.rotation.x=.13;
+  const headRig=new THREE.Group();headRig.position.set(0,2.62,1.54);headRig.scale.set(1.13,1.10,1.14);anim.add(headRig);
+  let head=ellipsoid(headRig,coat,0,.12,-.04,.51,.61,.58);head.rotation.x=.16;
   // A long sloping nasal bridge, strong cheekbones and soft natural muzzle.
-  const bridge=ellipsoid(headRig,coat,0,-.19,.46,.37,.43,.69);bridge.rotation.x=-.22;
+  const bridge=ellipsoid(headRig,coat,0,-.19,.46,.35,.43,.70);bridge.rotation.x=-.25;
   ellipsoid(headRig,coatDark,0,-.46,.95,.40,.24,.34);
   ellipsoid(headRig,anime(0xb79b8a),0,-.48,1.14,.39,.21,.24);
   // Rounded lower lip and subtly shaded cheekbone, closer to a real thoroughbred.
@@ -398,17 +403,17 @@ window.KYOTO_RACE={HS,LIVE,route,routeLength,horseProgress};
   }
   segment(headRig,reins,[-.43,.47,.06],[.43,.47,.06],.032,.032);
   segment(headRig,reins,[-.39,-.43,1.05],[.39,-.43,1.05],.030,.030);
-  const tailRig=new THREE.Group();tailRig.position.set(0,1.90,-1.35);anim.add(tailRig);
+  const tailRig=new THREE.Group();tailRig.position.set(0,1.90,-1.55);anim.add(tailRig);
   for(let i=0;i<5;i++){let tail=ellipsoid(tailRig,mane,Math.sin(i*.6)*.07,-i*.17,-i*.13,.25-i*.013,.27,.25-i*.014);tail.rotation.x=-.4}
-  ellipsoid(tailRig,mane,0,-.82,-.55,.29,.30,.29);
+  ellipsoid(tailRig,mane,0,-.82,-.55,.22,.30,.29);
   // Articulated legs: independently animated joints and hoof geometry
   let legs=[];
   for(let front of [false,true])for(let side of [-1,1]){
-   let pivot=new THREE.Group();pivot.position.set(side*.65,1.19,front?.84:-.83);anim.add(pivot);
-   segment(pivot,coat,[0,0,0],[0,-.52,front?.14:-.10],.34,.25);
-   let knee=new THREE.Group();knee.position.set(0,-.52,front?.14:-.10);pivot.add(knee);
-   segment(knee,coatDark,[0,0,0],[0,-.59,.08],.25,.17);
-   box(.48,.28,.55,hoof,knee,0,-.60,.19);
+   let pivot=new THREE.Group();pivot.position.set(side*.56,1.33,front?.91:-1.05);anim.add(pivot);
+   segment(pivot,coat,[0,0,0],[0,-.67,front?.14:-.13],.245,.15);
+   let knee=new THREE.Group();knee.position.set(0,-.67,front?.14:-.13);pivot.add(knee);
+   segment(knee,coatDark,[0,0,0],[0,-.55,.08],.145,.09);
+   box(.31,.17,.43,hoof,knee,0,-.57,.17);
    legs.push({pivot,knee,front,side});
   }
   // Visible saddlecloth on both flanks, with a real 1-18 number rather than only a floating marker.
@@ -424,7 +429,7 @@ window.KYOTO_RACE={HS,LIVE,route,routeLength,horseProgress};
   const clothMat=new THREE.MeshBasicMaterial({map:clothTex,side:THREE.DoubleSide,transparent:false});
   for(const side of [-1,1]){
    const panel=new THREE.Mesh(new THREE.PlaneGeometry(1.18,1.06),clothMat);
-   panel.position.set(side*.985,1.92,-.22);panel.rotation.y=side*Math.PI/2;anim.add(panel);
+   panel.position.set(side*.81,1.88,-.22);panel.rotation.y=side*Math.PI/2;anim.add(panel);
   }
   const torso=ellipsoid(anim,silk,0,2.81,.15,.37,.48,.34);torso.rotation.x=.45;
   ellipsoid(anim,pants,0,2.42,-.28,.41,.22,.39);
@@ -506,8 +511,8 @@ window.KYOTO_RACE={HS,LIVE,route,routeLength,horseProgress};
   let cv=document.createElement('canvas');cv.width=128;cv.height=64;let c=cv.getContext('2d');c.fillStyle='#fafafa';c.fillRect(0,0,128,64);c.fillStyle='#1b514b';c.font='bold 40px sans-serif';c.textAlign='center';c.fillText(meters,64,45);
   let label=new THREE.Sprite(new THREE.SpriteMaterial({map:new THREE.CanvasTexture(cv)}));label.position.copy(p);label.position.y+=3.2;label.scale.set(4,2,1);scene.add(label);
  }
- let mode='wide',lastMode='wide';
- controls.style.display='flex';stage.style.display='block';svg.classList.add('svg-hidden');status.textContent=venueReady?'🏟️ 全景3D表示中':'⚠️ 簡易背景（3D施設の読込失敗）';
+ let mode='follow',lastMode='follow';
+ controls.style.display='flex';stage.style.display='block';svg.classList.add('svg-hidden');status.textContent=venueReady?'🎥 外ラチ側・3D追走中':'⚠️ 簡易背景（3D施設の読込失敗）';
  controls.querySelectorAll('button').forEach(btn=>btn.onclick=()=>{
   mode=btn.dataset.camera;
   controls.querySelectorAll('button').forEach(b=>b.classList.toggle('cam-active',b===btn));
@@ -566,16 +571,16 @@ window.KYOTO_RACE={HS,LIVE,route,routeLength,horseProgress};
   }else{
    // Outside-rail TV camera, ahead of the leader, looking inward across the field.
    // Positive lane is the infield side of the right-handed Kyoto course.
-   const sideDistance=aspect<.8?26:22;
-   const forward=aspect<.8?15:13;
-   desired.set(p.x+p.dz*sideDistance+p.dx*forward,p.y+(aspect<.8?8.0:6.8),p.z-p.dx*sideDistance+p.dz*forward);
+   const sideDistance=aspect<.8?24:21;
+   const forward=aspect<.8?9:8;
+   desired.set(p.x+p.dz*sideDistance+p.dx*forward,p.y+(aspect<.8?6.6:5.5),p.z-p.dx*sideDistance+p.dz*forward);
    look.set(p.x+p.dx*1.2,p.y+1.8,p.z+p.dz*1.2);
-   camera.fov=aspect<.8?52:45;
+   camera.fov=aspect<.8?53:47;
   }
   camera.updateProjectionMatrix();
   // Framerate-independent camera tracking, responsive enough for 16x playback.
   const rate=+document.getElementById('live-rate').value;
-  const followAlpha=1-Math.exp(-frameDt*(7+rate*1.7));
+  const followAlpha=1-Math.exp(-frameDt*(8+rate*1.5));
   if(first){camera.position.copy(desired);smoothLook.copy(look);first=false}
   else{camera.position.lerp(desired,followAlpha);smoothLook.lerp(look,followAlpha)}
   camera.lookAt(smoothLook);
