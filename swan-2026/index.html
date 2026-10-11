@@ -469,7 +469,7 @@ window.KYOTO_RACE={HS,LIVE,route,routeLength,horseProgress};
  // Replace the original all-ellipsoid cartoon model with newly sculpted thoroughbreds.
  let horseV3Ready=false;
  try{
-  const horseV3=await import("./horse-v3.js?v=thoroughbred-20261012-v7");
+  const horseV3=await import("./horse-v3.js?v=thoroughbred-20261012-v8");
   for(const h of HS)models.push(horseV3.createRaceHorse(THREE,scene,h,silkColors[h.no-1]));
   horseV3Ready=models.length===18;
  }catch(e){
@@ -482,8 +482,8 @@ window.KYOTO_RACE={HS,LIVE,route,routeLength,horseProgress};
  const gateRoot=new THREE.Group();gateRoot.position.copy(start);
  const startDir=path(0);
  // Keep the physical 18-stall gate behind the start line so the horses leave it in view.
- gateRoot.position.x-=startDir.dx*1.0;
- gateRoot.position.z-=startDir.dz*1.0;
+ gateRoot.position.x-=startDir.dx*1.6;
+ gateRoot.position.z-=startDir.dz*1.6;
  gateRoot.rotation.y=Math.atan2(startDir.dx,startDir.dz);scene.add(gateRoot);
  const gateSteel=mat(0x347f79),gateWhite=mat(0xf4f6ee),gateDark=mat(0x1c514e),gateYellow=mat(0xf8d54f),gateNumberMat=mat(0x253b45);
  const stallWidth=1.51,stallDepth=4.9,stallCount=18,gateDoors=[];
@@ -613,17 +613,17 @@ window.KYOTO_RACE={HS,LIVE,route,routeLength,horseProgress};
     d.y+.12,
     (d.z+d.dx*lane)*(1-staging)+gateZ*staging
    );
-   const size=.72+.28*Math.max(0,Math.min(1,clock/3.0));m.root.scale.setScalar(size);
+   const size=.82+.18*Math.max(0,Math.min(1,clock/3.0));m.root.scale.setScalar(size);
    m.root.rotation.y=Math.atan2(d.dx,d.dz);
    // Racing gallop is an asymmetrical four-beat stride with suspension, not
    // a four-leg sine-wave bicycle motion. The body stays still in the stalls.
-   const cycle=LIVE.visualTime*7.6+h.no*.13;
+   const cycle=LIVE.visualTime*8.1+h.no*.13;
    const gallop=clock>0.3?Math.min(1,(clock-.3)/1.5):0;
    // Darby Stallion 2-inspired readable side-on silhouette: gather -> push -> fly -> land.
    const stridePhase=((cycle/(Math.PI*2))%1+1)%1;
-   const airborne=Math.pow(Math.max(0,Math.sin(Math.PI*2*(stridePhase-.20))),2);
-   m.anim.position.y=gallop*(.025+.17*airborne);
-   m.anim.rotation.x=gallop*(.075*Math.sin(cycle-.9));
+   const airborne=Math.pow(Math.max(0,Math.sin(Math.PI*2*(stridePhase-.30))),2);
+   m.anim.position.y=gallop*(.035+.12*airborne);
+   m.anim.rotation.x=gallop*(.042*Math.sin(cycle-.9));
    m.headRig.rotation.x=gallop*(-.08*Math.sin(cycle-1.1));
    m.tailRig.rotation.x=gallop*.14*Math.sin(cycle+.4);
    m.tailRig.rotation.z=gallop*.09*Math.sin(cycle*.43+h.no);
@@ -640,7 +640,7 @@ window.KYOTO_RACE={HS,LIVE,route,routeLength,horseProgress};
     [[-.34,.78],[-.24,.72],[.48,-.58],[.40,-.54]]
    ];
    const poseIndex=Math.min(5,Math.floor(stridePhase*6));
-   const u=stridePhase*6-poseIndex,ease=u*u*(3-2*u);
+   const u=stridePhase*6-poseIndex,ease=u*u*u*(u*(u*6-15)+10);
    m.legs.forEach((leg,j)=>{
     const a=poses[poseIndex][j],b=poses[poseIndex+1][j];
     leg.pivot.rotation.x=gallop*(a[0]+(b[0]-a[0])*ease);
