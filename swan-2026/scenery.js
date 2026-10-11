@@ -78,8 +78,8 @@ export function buildScenery(T,scene,mat){
  // Paddock and entrance facilities set behind the moved grandstand to prevent camera occlusion.
  const paddock=new T.Mesh(new T.RingGeometry(10.5,13,56),mat(0xd7c5a3));paddock.rotation.x=-Math.PI/2;paddock.position.set(-87,-.17,318);paddock.scale.set(1.7,1,1);scene.add(paddock);
  addBox(scene,27,10,19,cream,67,5,320);addBox(scene,30,1,21,navy,67,10.5,320);
- const trees=[];for(let i=0;i<18;i++)trees.push([-138+i*16,i%2?302:-99]);
- for(let i=0;i<9;i++)trees.push([95+i*7,-86+i*21]);
+ const trees=[];for(let i=0;i<18;i++)trees.push([-220+i*19,i%2?302:-190]);
+ for(let i=0;i<9;i++)trees.push([205+i*6,-125+i*28]);
  const leaves=new T.InstancedMesh(new T.SphereGeometry(1,8,6),new T.MeshLambertMaterial({color:0x69b77b}),trees.length*2);
  const trunks=new T.InstancedMesh(new T.CylinderGeometry(.36,.48,5,6),mat(0x997258),trees.length);
  trees.forEach(([x,z],i)=>{
@@ -119,7 +119,7 @@ export function buildScenery(T,scene,mat){
  for(let i=0;i<8;i++){let a=i*Math.PI/4;let x=-87+24*Math.cos(a),z=318+19*Math.sin(a);
   addBox(scene,3,.32,1.2,stone,x,.36,z);addBox(scene,3,1,.22,navy,x,.98,z+(.3*Math.sign(Math.sin(a))))}
  // Giant racecourse clock by the finish straight.
- const clockGroup=new T.Group();clockGroup.position.set(65,0,50);scene.add(clockGroup);
+ const clockGroup=new T.Group();clockGroup.position.set(30,0,-2);scene.add(clockGroup);
  addBox(clockGroup,1.6,14,1.6,steel,0,7,0);
  const clockFace=new T.Mesh(new T.CylinderGeometry(4.5,4.5,.7,32),cream);clockFace.rotation.x=Math.PI/2;clockFace.position.set(0,16,0);clockGroup.add(clockFace);
  const clockDark=mat(0x24485c);
@@ -129,7 +129,7 @@ export function buildScenery(T,scene,mat){
  const hour=addBox(clockGroup,.30,1.8,.18,clockDark,-.6,16.7,-.56);hour.rotation.z=.75;
  // Two simple photo-finish camera towers and floodlight arrays.
  const lights=mat(0xf8f8df);
- for(const [x,z] of [[-94,49],[75,47],[-105,-50],[89,-51]]){
+ for(const [x,z] of [[-180,170],[180,170],[-180,-175],[180,-175]]){
   addBox(scene,1.5,29,1.5,steel,x,14.5,z);
   addBox(scene,12,.8,1.5,navy,x,29.2,z);
   for(let k=0;k<6;k++)addBox(scene,1.55,1.15,.4,lights,x-4.7+k*1.9,29.2,z-.85);
@@ -148,7 +148,7 @@ export function buildScenery(T,scene,mat){
  for(let c=0;c<4;c++){
   const count=55,patch=new T.InstancedMesh(flowerGeo,flowerColors[c],count);
   for(let i=0;i<count;i++){
-   let x=-77+(i%11)*6.8,z=39+Math.floor(i/11)*1.8+c*2.5;
+   let x=-77+(i%11)*6.8,z=-14+Math.floor(i/11)*1.8+c*1.2;
    dummy.position.set(x,.45,z);dummy.scale.set(.9,.75,.9);dummy.rotation.set(0,0,0);dummy.updateMatrix();patch.setMatrixAt(i,dummy.matrix)
   }
   scene.add(patch)
@@ -156,8 +156,8 @@ export function buildScenery(T,scene,mat){
  const adPalette=[red,blue,gold,green,navy];
  for(let i=0;i<22;i++){
   const x=-94+i*8.5;
-  addBox(scene,7,2.3,.35,adPalette[i%5],x,1.4,45);
-  addBox(scene,6.5,.24,.4,cream,x,2.65,45);
+  addBox(scene,7,2.3,.35,adPalette[i%5],x,1.4,-12);
+  addBox(scene,6.5,.24,.4,cream,x,2.65,-12);
  }
  // Small service road and low-poly parked support vehicles behind the stands.
  addBox(scene,194,.11,14,asphalt,-8,-.19,340);
@@ -170,13 +170,13 @@ export function buildScenery(T,scene,mat){
  }
  // Start-area flags, finish-area bunting and camera platform.
  for(let i=0;i<24;i++){
-  let x=-94+i*7.7,z=52;
+  let x=-94+i*7.7,z=-9;
   addBox(scene,.12,4,.12,cream,x,2,z);
   const flag=addBox(scene,2.0,.9,.10,i%3===0?red:i%3===1?blue:gold,x+1,3.35,z);
   flag.rotation.y=i%2?.10:-.10;
  }
- addBox(scene,7,5,5,steel,87,2.5,61);
- addBox(scene,8,2,7,navy,87,6,61);
+ addBox(scene,7,5,5,steel,90,2.5,-7);
+ addBox(scene,8,2,7,navy,90,6,-7);
  // Animated-looking fountain made of translucent blue water droplets.
  const fountainMat=new T.MeshLambertMaterial({color:0x8ce0f1,transparent:true,opacity:.76});
  const basin=new T.Mesh(new T.CylinderGeometry(6,6,1.1,24),stone);basin.position.set(34,.25,315);scene.add(basin);
@@ -184,6 +184,48 @@ export function buildScenery(T,scene,mat){
  for(let i=0;i<9;i++){
   const a=i*Math.PI*2/9;
   ball(scene,34+2.8*Math.cos(a),2.5+((i%3)*.8),315+2.8*Math.sin(a),.38,1.8,.38,fountainMat)
+ }
+
+ // Infield architecture is placed behind the turf runners, never between the outside camera and horses.
+ // Curving pedestrian paths, central hedges, flower patterns and low-maintenance service roads.
+ const pathMat=mat(0xd9c8a2),pathEdge=mat(0xf0e8d3),deepGreen=mat(0x3c8150);
+ for(let k=0;k<3;k++){
+  const walkway=new T.Mesh(new T.RingGeometry(16+k*5,17.8+k*5,72),k%2?pathEdge:pathMat);
+  walkway.rotation.x=-Math.PI/2;walkway.position.set(-28,.16+k*.003,0);walkway.scale.set(1.55,1,0.60);scene.add(walkway);
+ }
+ // Shrub topiary, flowerbeds and low planters surround the lake without blocking trackside views.
+ for(let i=0;i<36;i++){
+  const a=i*Math.PI*2/36,x=-30+39*Math.cos(a),z=11*Math.sin(a);
+  ball(scene,x,.68,z,1.3,.9,1.3,i%3===0?deepGreen:green);
+  if(i%3===0)ball(scene,x,1.75,z,.45,.48,.45,mat(0xe8b2c7));
+ }
+ // Trackside distance posts and multiple horizontal white rail sections behind the runners.
+ const railWhite=mat(0xf5f7ec),railTeal=mat(0x419c96);
+ for(const z of [-26,26]){
+  for(let x=-93;x<=80;x+=7.5){
+   addBox(scene,.10,1.35,.10,railWhite,x,.66,z);
+  }
+  addBox(scene,174,.12,.13,railWhite,-6.5,1.35,z);
+  addBox(scene,174,.09,.10,railTeal,-6.5,.88,z);
+ }
+ // Small white maintenance sheds, clipped hedges, and grandstand terrace canopies.
+ for(let i=0;i<7;i++){
+  const x=-86+i*26;
+  addBox(scene,14,3.3,8,cream,x,1.65,232);
+  addBox(scene,16,.45,9,navy,x,3.55,232);
+  for(let j=0;j<3;j++)addBox(scene,2.8,1.45,.1,glass,x-4+j*4,1.95,227.92);
+ }
+ for(let i=0;i<13;i++){
+  const x=-95+i*15;
+  addBox(scene,11,1.0,2,deepGreen,x,.45,216);
+  addBox(scene,12,.24,2.5,stone,x,1.08,216);
+ }
+ // Turf-vision advertising panels on the infield side of the course.
+ const signMaterials=[mat(0x173f57),mat(0x275b55),mat(0x385a83)];
+ for(let i=0;i<11;i++){
+  const x=-82+i*15;
+  addBox(scene,11,2.4,.32,signMaterials[i%3],x,1.6,-18);
+  addBox(scene,10.2,.18,.38,cream,x,2.88,-18);
  }
 
  // Distant Kyoto-inspired foothills and low-rise city skyline. Kept far from the horses and cameras.
