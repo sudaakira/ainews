@@ -343,7 +343,7 @@ window.KYOTO_RACE={HS,LIVE,route,routeLength,horseProgress};
  function segment(parent,material,from,to,r1,r2){let a=new THREE.Vector3(...from),b=new THREE.Vector3(...to),d=b.clone().sub(a);let m=new THREE.Mesh(new THREE.CylinderGeometry(r1,r2,d.length(),9),material);m.position.copy(a.add(b).multiplyScalar(.5));m.quaternion.setFromUnitVectors(new THREE.Vector3(0,1,0),d.normalize());parent.add(m);return m}
  const horseColors=[0x6e3927,0x9e542b,0x4b2a24,0x9b6437,0x382a28,0x8c3d24,0x6d513c,0x342d2c,0x91542d,0x52382e,0x9d5d32,0x613b2c,0x3d302b,0xa06d42,0x684631,0x412b27,0x97572d,0x5d372a];
  const silkColors=['#d63e3e','#e8e4df','#2670db','#edc33a','#dd63a5','#4ebbb0','#c7c7c7','#f2932f','#7144bd','#bda144','#db5e32','#62b55c','#e4edf4','#9c78d7','#5b9bd1','#c5a07c','#d6dc45','#cb5171'];
- const {updateGallop}=await import("./gallop-ik.js?v=ik-20261012-v3");
+ const {updateGallop}=await import("./gallop-ik.js?v=grounded-20261012-v6");
  const models=[];
  const toonCache=new Map();
  function animeMaterial(c){const key=new THREE.Color(c).getHex();if(!toonCache.has(key))toonCache.set(key,new THREE.MeshToonMaterial({color:key}));return toonCache.get(key)}
@@ -467,10 +467,10 @@ window.KYOTO_RACE={HS,LIVE,route,routeLength,horseProgress};
   const texture=new THREE.CanvasTexture(cn),sprite=new THREE.Sprite(new THREE.SpriteMaterial({map:texture,depthTest:false,transparent:true}));sprite.position.set(0,4.35,0);sprite.scale.set(1.7,1.7,1);root.add(sprite);
   scene.add(root);return {root,anim,legs,sprite,headRig,tailRig};
  }
- // Replace the original all-ellipsoid cartoon model with newly sculpted thoroughbreds.
+ // Rebuilt horse anatomy from scratch in horse-v5.js; the old mesh is an error fallback.
  let horseV3Ready=false;
  try{
-  const horseV3=await import("./horse-v3.js?v=thoroughbred-20261012-v8");
+  const horseV3=await import("./horse-v5.js?v=thoroughbred-rebuilt-20261012-v5");
   for(const h of HS)models.push(horseV3.createRaceHorse(THREE,scene,h,silkColors[h.no-1]));
   horseV3Ready=models.length===18;
  }catch(e){
@@ -566,8 +566,8 @@ window.KYOTO_RACE={HS,LIVE,route,routeLength,horseProgress};
  }
  let mode='follow',lastMode='follow';
  controls.style.display='flex';stage.style.display='block';svg.classList.add('svg-hidden');status.textContent=!horseV3Ready?'⚠️ 新しい馬モデルを読み込めません（旧モデルで代替）':venueReady?'🐎 新3D馬モデル18頭・外ラチ側追走中':'⚠️ 簡易背景（3D施設の読込失敗）';
- document.getElementById('horse-model-version').textContent=horseV3Ready?'THOROUGHBRED v4 · 18 HORSES':'⚠️ OLD MODEL FALLBACK';
- window.KYOTO_RENDER_STATUS={model:horseV3Ready?'thoroughbred-v4':'fallback',venue:venueReady?'full':'fallback',horses:models.length,camera:mode};
+ document.getElementById('horse-model-version').textContent=horseV3Ready?'THOROUGHBRED v5 · 18 HORSES':'⚠️ OLD MODEL FALLBACK';
+ window.KYOTO_RENDER_STATUS={model:horseV3Ready?'thoroughbred-v5':'fallback',venue:venueReady?'full':'fallback',horses:models.length,camera:mode};
  controls.querySelectorAll('button').forEach(btn=>btn.onclick=()=>{
   mode=btn.dataset.camera;
   controls.querySelectorAll('button').forEach(b=>b.classList.toggle('cam-active',b===btn));
