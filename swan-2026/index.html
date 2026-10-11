@@ -154,7 +154,7 @@ HS.forEach(h=>{
 });
 function sampleLiveRace(){
  let s=opts(),r=random((Date.now()%4294967295)>>>0);LIVE.rank=runRace(r,s);LIVE.seed=r()*1000;LIVE.clock=0;LIVE.ready=true;LIVE.playing=false;LIVE.last=0;
- el('live-status').textContent='スタート待機';raceview.lastKey='';el('result-state').textContent='スタート待機';drawLive();
+ el('live-status').textContent='スタート待機';raceview.lastKey='';el('result-state').textContent='スタート待機';el('race').classList.remove('finished');el('race').innerHTML=['🥇','🥈','🥉'].map((medal,i)=>'<div class="place-card place-'+(i+1)+'"><div class="place-rank">'+medal+' '+(i+1)+'着</div><div class="place-number">—</div><div class="place-name">レース待機中</div></div>').join('');drawLive();
 }
 function ease(t){return t*t*(3-2*t)}
 function horseProgress(no,sec){
@@ -185,7 +185,7 @@ function drawLive(){
   g.setAttribute('opacity',active.has(h.no)?'1':'.9');
   g.setAttribute('style','filter:drop-shadow(0 2px 2px #122c24);');
  });
- el('live-leaders').innerHTML=order.slice(3,6).map((h,i)=>'<span>'+(i+4)+'位 <b>'+h.no+' '+HS[h.no-1].name+'</b></span>').join('');
+ el('live-leaders').innerHTML=progress===0?'':order.slice(3,6).map((h,i)=>'<span>'+(i+4)+'位 <b>'+h.no+' '+HS[h.no-1].name+'</b></span>').join('');
  if(progress>0)raceview(order.map(x=>x.no),progress>=1);
  if(progress>=1){LIVE.playing=false;el('live-status').textContent='🏁 ゴール・着順確定';raceview(LIVE.rank,true)}
 }
