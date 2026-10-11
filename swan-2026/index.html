@@ -662,7 +662,7 @@ window.KYOTO_RACE={HS,LIVE,route,routeLength,horseProgress};
  animate();
  }catch(err){
   console.error('3D renderer error',err);
-  stage.style.display='none';svg.classList.remove('svg-hidden');controls.style.display='flex';status.textContent='3Dを利用できないため2Dで表示';
+  stage.style.display='none';svg.classList.remove('svg-hidden');controls.style.display='flex';status.textContent='⚠️ 3D読込失敗（旧馬への自動切替なし）：'+String(err?.message||err);document.getElementById('horse-model-version').textContent='⚠️ HORSE v8 LOAD ERROR';
  }
 })();
 </script>
