@@ -85,17 +85,17 @@ export function createRaceHorse(T,scene,h,silkHex){
   [0,-.73,.66,.235,.14]
  ],22,5);
  // A soft jawline and gently rounded cheeks make the silhouette approachable.
- ell(headRig,coat,0,-.22,.12,.31,.30,.29);
- ell(headRig,highlight,0,-.72,.63,.245,.165,.17);
+ ell(headRig,coat,0,-.20,.12,.35,.33,.30);
+ ell(headRig,highlight,0,-.72,.63,.27,.19,.19);
  ell(headRig,shade,0,-.825,.63,.205,.06,.12);
  for(const side of [-1,1]){
   // Oversized but almond-shaped glossy eyes, with warm eyelids and a highlight.
-  ell(headRig,shade,side*.301,.055,.13,.063,.104,.103);
-  ell(headRig,eyeMat,side*.341,.065,.15,.060,.090,.091);
-  ell(headRig,cream,side*.395,.111,.203,.019,.023,.021);
+  ell(headRig,shade,side*.301,.055,.13,.071,.113,.111);
+  ell(headRig,eyeMat,side*.345,.065,.15,.068,.100,.101);
+  ell(headRig,cream,side*.403,.116,.205,.023,.028,.023);
   ell(headRig,coat,side*.308,.166,.13,.065,.026,.105);
   // Soft upright ears with smaller contrasting interiors.
-  const ear=ell(headRig,coat,side*.21,.53,-.20,.13,.275,.13);
+  const ear=ell(headRig,coat,side*.21,.53,-.20,.14,.28,.13);
   ear.rotation.z=-side*.16;
   const inside=ell(headRig,pink,side*.215,.56,-.105,.067,.17,.038);
   inside.rotation.z=-side*.16;
