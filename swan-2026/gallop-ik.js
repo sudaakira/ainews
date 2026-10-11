@@ -56,12 +56,12 @@ export function updateGallop(model,raceTime,visualTime,number){
    const t=p/duty;
    z=mix(span,-span,t);
    // The planted hoof stays at the turf as the body rises and falls.
-   y=-1.29-lift;
+   y=-1.22;
   }else{
    const t=(p-duty)/(1-duty);
    const ease=smooth(t);
    z=mix(-span,span,ease);
-   y=-1.16+.31*Math.pow(Math.sin(Math.PI*t),1.45);
+   y=-1.22+.31*Math.pow(Math.sin(Math.PI*t),1.45);
   }
   // The limbs are 1.34 units long. Prevent unreachable foot positions
   // instead of forcing extreme, dislocated-looking knee angles.
