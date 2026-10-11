@@ -87,7 +87,7 @@
  <div class="live-head"><strong>🏇 KYOTO 1400m OUTER｜3Dレースビュー</strong><span class="live-status" id="live-status">スタート待機</span></div>
  <div class="live-stats"><div class="live-stat"><span>レース経過（仮想）</span><b id="live-clock">00:00</b></div><div class="live-stat"><span>残り距離</span><b id="live-distance">1400m</b></div><div class="live-stat"><span>現在の区間</span><b id="live-section">発走前</b></div></div>
  <div class="camera-controls" id="camera-controls" style="display:none"><button data-camera="wide">🏟️ 京都競馬場・全景</button><button data-camera="gate">🚦 ゲート→追走</button><button data-camera="follow" class="cam-active">🎥 外ラチ側・追走</button><button data-camera="horse">🐎 馬体アップ</button><button data-camera="finish">🏁 ゴール前</button><button data-camera="2d">2D模式図</button><span id="three-status">3Dモデル読み込み中…</span></div><div class="live-screen">
- <div id="three-stage" style="display:none"><div class="track-broadcast"><b>京都 11R</b><span>スワンステークス GII｜芝1400m（外）</span></div><div class="track-broadcast-bottom">🏇 KYOTO RACECOURSE <span>HORSE MODEL v3 · 3D</span></div>
+ <div id="three-stage" style="display:none"><div class="track-broadcast"><b>京都 11R</b><span>スワンステークス GII｜芝1400m（外）</span></div><div class="track-broadcast-bottom">🏇 KYOTO RACECOURSE <span id="horse-model-version">MODEL LOADING</span></div>
  <div class="broadcast-clock" id="broadcast-clock">0:00.0</div>
  <div class="broadcast-course"><svg viewBox="0 0 210 78" aria-label="コース進行図"><rect x="5" y="6" width="200" height="66" rx="33" fill="#296e50" stroke="#d8efc9" stroke-width="4"/><rect x="17" y="17" width="176" height="44" rx="22" fill="#43875b" stroke="#9bdb6b" stroke-width="6"/><circle id="broadcast-dot" cx="23" cy="39" r="6" fill="#ffda57" stroke="#fff" stroke-width="2"/></svg><span id="broadcast-distance">残り 1400m</span></div>
  <div class="broadcast-commentary"><span class="broadcast-mic">🎙️</span><div><strong id="broadcast-leader">スタート前</strong><span id="broadcast-comment">京都芝1400m、まもなく発走！</span></div></div></div>
@@ -531,10 +531,13 @@ window.KYOTO_RACE={HS,LIVE,route,routeLength,horseProgress};
   let label=new THREE.Sprite(new THREE.SpriteMaterial({map:new THREE.CanvasTexture(cv)}));label.position.copy(p);label.position.y+=3.2;label.scale.set(4,2,1);scene.add(label);
  }
  let mode='follow',lastMode='follow';
- controls.style.display='flex';stage.style.display='block';svg.classList.add('svg-hidden');status.textContent=!horseV3Ready?'⚠️ 新しい馬モデルを読み込めません（旧モデルで代替）':venueReady?'🐎 新3D馬モデル・外ラチ側追走中':'⚠️ 簡易背景（3D施設の読込失敗）';
+ controls.style.display='flex';stage.style.display='block';svg.classList.add('svg-hidden');status.textContent=!horseV3Ready?'⚠️ 新しい馬モデルを読み込めません（旧モデルで代替）':venueReady?'🐎 新3D馬モデル18頭・外ラチ側追走中':'⚠️ 簡易背景（3D施設の読込失敗）';
+ document.getElementById('horse-model-version').textContent=horseV3Ready?'THOROUGHBRED v3 · 18 HORSES':'⚠️ OLD MODEL FALLBACK';
+ window.KYOTO_RENDER_STATUS={model:horseV3Ready?'thoroughbred-v3':'fallback',venue:venueReady?'full':'fallback',horses:models.length,camera:mode};
  controls.querySelectorAll('button').forEach(btn=>btn.onclick=()=>{
   mode=btn.dataset.camera;
   controls.querySelectorAll('button').forEach(b=>b.classList.toggle('cam-active',b===btn));
+  if(window.KYOTO_RENDER_STATUS)window.KYOTO_RENDER_STATUS.camera=mode;
   if(mode==='2d'){stage.style.display='none';svg.classList.remove('svg-hidden')}
   else{stage.style.display='block';svg.classList.add('svg-hidden');lastMode=mode;resize()}
  });
