@@ -122,7 +122,7 @@
  <div class="result-head"><strong>🏆 レース順位 TOP 3</strong><span id="result-state">スタート待機</span></div>
  <div id="race" class="top3-results" aria-live="off"></div>
  <div class="live-leaders" id="live-leaders" style="margin-top:10px"></div>
- <p class="live-note">※JRA公式のコース資料を参考に、京都競馬場の外回り・内回り・ダート・スタンド・馬場内施設を3Dで模式的に再構成しています。実物の寸法・建物配置を完全再現した測量モデルではありません。内枠は内ラチ側、外枠は外ラチ側に配置。3Dの馬は添付の競馬ゲーム画面を参考に、胴体をすっきり長く・脚を長く・顔を馬らしく調整。自然な毛色の陰影・鼻筋・目・鼻孔・たてがみを改善しています。芝は刈り込み模様、芝目、細かな草の立体表現を加えています。18連スタートゲート、ゼッケン、騎手と外ラチ側のカメラを搭載。観客席・観客・樹木は京都競馬場をイメージした演出です。16倍速でも脚の動きを滑らかに見せるよう再生速度と走行モーションを分離しています。走行位置・時計・順位は架空のレースで、実測GPS・実況映像・ライブ馬場データではありません。</p>
+ <p class="live-note">※JRA公式のコース資料を参考に、京都競馬場の外回り・内回り・ダート・スタンド・馬場内施設を3Dで模式的に再構成しています。実物の寸法・建物配置を完全再現した測量モデルではありません。内枠は内ラチ側、外枠は外ラチ側に配置。3Dの馬は添付の競馬ゲーム画面を参考に、旧球体モデルを置き換える専用の馬体メッシュを導入。胴体・首・鼻筋・脚を立体造形し、騎手とゼッケンを搭載。自然な毛色の陰影・鼻筋・目・鼻孔・たてがみを改善しています。芝は刈り込み模様、芝目、細かな草の立体表現を加えています。18連スタートゲート、ゼッケン、騎手と外ラチ側のカメラを搭載。観客席・観客・樹木は京都競馬場をイメージした演出です。16倍速でも脚の動きを滑らかに見せるよう再生速度と走行モーションを分離しています。走行位置・時計・順位は架空のレースで、実測GPS・実況映像・ライブ馬場データではありません。</p>
 </div>
 </section></div><div class="grid"><aside><section class="card"><h2>シミュレーション設定</h2><label>展開 <span id="pacelabel">中立</span></label><input id="pace" type="range" min="-3" max="3" value="0"><p class="small">左：スロー前残り／右：ハイ差し</p><label>高速馬場 <span id="speedlabel">高速</span></label><input id="speed" type="range" min="0" max="3" value="2"><label>ばらつき <span id="vollabel">標準</span></label><input id="vol" type="range" min="6" max="16" value="10"><label>試行回数</label><select id="n"><option value="5000">5,000回</option><option value="20000" selected>20,000回</option><option value="50000">50,000回</option></select><button id="simulate">▶ 計算する</button><button id="one" style="background:#385d7d">🏁 1レース再生</button><button id="csv" style="background:#466b6e">CSV出力</button><div class="msg">重要：表示割合は仮説に基づくモデル内出現率。実際の的中確率として統計的に校正されていません。</div></section></aside><main><section class="card"><h2>全18頭の3着以内率｜<span id="count">—</span></h2><div id="bars"></div></section><section class="card"><h2>ワイド・馬連のモデル内同時好走率</h2><select id="a"></select><select id="b"></select><div class="runners"><div><small>ワイド</small><b id="wide">—</b></div><div><small>馬連</small><b id="quin">—</b></div><div><small>本命</small><b id="top">—</b></div></div><p class="small">配当は使用していません。購入推奨ではなく確率モデルの感度分析です。</p></section></main></div><section class="card"><h2>全18頭・状態／血統／近走／休養／弱点</h2><p class="small">状態は全馬共通項目で調査。詳細を開くと血統や近4走を確認できます。5代すべての枝・騎手の同コース複勝回収率は未検証です。</p><div class="horses" id="horses"></div></section><div class="card links"><h2>資料とモデル制約</h2><a href="https://www.jra.go.jp/JRADB/accessD.html?CNAME=pw01dde0108202604051120261012%2FDC">JRA公式出馬表・前4走</a> ｜ <a href="https://www.jra.go.jp/keiba/race/094/horse.html">JRA出走馬情報</a> ｜ <a href="https://race.netkeiba.com/race/oikiri.html?race_id=202608040511">調教一覧</a> ｜ <a href="https://keiba.sponichi.co.jp/news/20261007s00004000007000c">休養明け・厩舎コメント</a><p class="small">能力指数・展開補正・休養明けの状態補正は仮定。過去データへの校正なし、馬体重・当日芝レース結果の自動更新なし。ダート競走しか近走資料のない⑦の比較には特に注意。馬券の発売は行いません。</p></div></div>
 <script>
@@ -256,7 +256,7 @@ window.KYOTO_RACE={HS,LIVE,route,routeLength,horseProgress};
  // Wait for venue geometry before the first render; do not silently show the old empty turf.
  let venueReady=false;
  try{
-  const venue=await import("./scenery.js?v=stand-far-20261012-v2");
+  const venue=await import("./scenery.js?v=clear-corridor-20261012-v3");
   venue.buildScenery(THREE,scene,mat);
   venueReady=true;
  }catch(e){
@@ -466,7 +466,17 @@ window.KYOTO_RACE={HS,LIVE,route,routeLength,horseProgress};
   const texture=new THREE.CanvasTexture(cn),sprite=new THREE.Sprite(new THREE.SpriteMaterial({map:texture,depthTest:false,transparent:true}));sprite.position.set(0,4.35,0);sprite.scale.set(1.7,1.7,1);root.add(sprite);
   scene.add(root);return {root,anim,legs,sprite,headRig,tailRig};
  }
- HS.forEach(h=>models.push(horseModel(h)));
+ // Replace the original all-ellipsoid cartoon model with newly sculpted thoroughbreds.
+ let horseV3Ready=false;
+ try{
+  const horseV3=await import("./horse-v3.js?v=thoroughbred-20261012-v1");
+  for(const h of HS)models.push(horseV3.createRaceHorse(THREE,scene,h,silkColors[h.no-1]));
+  horseV3Ready=models.length===18;
+ }catch(e){
+  console.error("New thoroughbred models failed to load",e);
+  // Keep a working race if the deployment is still propagating, but disclose fallback.
+  for(const h of HS)models.push(horseModel(h));
+ }
  // Full 18-stall starting gate, visible at the start and opening as the race begins.
  const start=offsetPoint(0,0,.1),end=offsetPoint(1,0,.1);
  const gateRoot=new THREE.Group();gateRoot.position.copy(start);
@@ -521,7 +531,7 @@ window.KYOTO_RACE={HS,LIVE,route,routeLength,horseProgress};
   let label=new THREE.Sprite(new THREE.SpriteMaterial({map:new THREE.CanvasTexture(cv)}));label.position.copy(p);label.position.y+=3.2;label.scale.set(4,2,1);scene.add(label);
  }
  let mode='follow',lastMode='follow';
- controls.style.display='flex';stage.style.display='block';svg.classList.add('svg-hidden');status.textContent=venueReady?'🎥 外ラチ側・3D追走中':'⚠️ 簡易背景（3D施設の読込失敗）';
+ controls.style.display='flex';stage.style.display='block';svg.classList.add('svg-hidden');status.textContent=!horseV3Ready?'⚠️ 新しい馬モデルを読み込めません（旧モデルで代替）':venueReady?'🐎 新3D馬モデル・外ラチ側追走中':'⚠️ 簡易背景（3D施設の読込失敗）';
  controls.querySelectorAll('button').forEach(btn=>btn.onclick=()=>{
   mode=btn.dataset.camera;
   controls.querySelectorAll('button').forEach(b=>b.classList.toggle('cam-active',b===btn));
@@ -593,11 +603,11 @@ window.KYOTO_RACE={HS,LIVE,route,routeLength,horseProgress};
   }else{
    // Outside-rail TV camera, ahead of the leader, looking inward across the field.
    // Positive lane is the infield side of the right-handed Kyoto course.
-   const sideDistance=aspect<.8?24:21;
-   const forward=aspect<.8?9:8;
-   desired.set(p.x+p.dz*sideDistance+p.dx*forward,p.y+(aspect<.8?6.6:5.5),p.z-p.dx*sideDistance+p.dz*forward);
-   look.set(p.x+p.dx*1.2,p.y+1.8,p.z+p.dz*1.2);
-   camera.fov=aspect<.8?53:47;
+   const sideDistance=aspect<.8?21:18;
+   const forward=aspect<.8?7:6;
+   desired.set(p.x+p.dz*sideDistance+p.dx*forward,p.y+(aspect<.8?5.6:4.8),p.z-p.dx*sideDistance+p.dz*forward);
+   look.set(p.x-p.dx*3.5,p.y+1.7,p.z-p.dz*3.5);
+   camera.fov=aspect<.8?56:49;
   }
   camera.updateProjectionMatrix();
   // Framerate-independent camera tracking, responsive enough for 16x playback.
