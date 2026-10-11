@@ -343,6 +343,7 @@ window.KYOTO_RACE={HS,LIVE,route,routeLength,horseProgress};
  function segment(parent,material,from,to,r1,r2){let a=new THREE.Vector3(...from),b=new THREE.Vector3(...to),d=b.clone().sub(a);let m=new THREE.Mesh(new THREE.CylinderGeometry(r1,r2,d.length(),9),material);m.position.copy(a.add(b).multiplyScalar(.5));m.quaternion.setFromUnitVectors(new THREE.Vector3(0,1,0),d.normalize());parent.add(m);return m}
  const horseColors=[0x6e3927,0x9e542b,0x4b2a24,0x9b6437,0x382a28,0x8c3d24,0x6d513c,0x342d2c,0x91542d,0x52382e,0x9d5d32,0x613b2c,0x3d302b,0xa06d42,0x684631,0x412b27,0x97572d,0x5d372a];
  const silkColors=['#d63e3e','#e8e4df','#2670db','#edc33a','#dd63a5','#4ebbb0','#c7c7c7','#f2932f','#7144bd','#bda144','#db5e32','#62b55c','#e4edf4','#9c78d7','#5b9bd1','#c5a07c','#d6dc45','#cb5171'];
+ const {updateGallop}=await import("./gallop-ik.js?v=ik-20261012-v3");
  const models=[];
  const toonCache=new Map();
  function animeMaterial(c){const key=new THREE.Color(c).getHex();if(!toonCache.has(key))toonCache.set(key,new THREE.MeshToonMaterial({color:key}));return toonCache.get(key)}
@@ -615,37 +616,8 @@ window.KYOTO_RACE={HS,LIVE,route,routeLength,horseProgress};
    );
    const size=.82+.18*Math.max(0,Math.min(1,clock/3.0));m.root.scale.setScalar(size);
    m.root.rotation.y=Math.atan2(d.dx,d.dz);
-   // Racing gallop is an asymmetrical four-beat stride with suspension, not
-   // a four-leg sine-wave bicycle motion. The body stays still in the stalls.
-   const cycle=LIVE.visualTime*8.1+h.no*.13;
-   const gallop=clock>0.3?Math.min(1,(clock-.3)/1.5):0;
-   // Darby Stallion 2-inspired readable side-on silhouette: gather -> push -> fly -> land.
-   const stridePhase=((cycle/(Math.PI*2))%1+1)%1;
-   const airborne=Math.pow(Math.max(0,Math.sin(Math.PI*2*(stridePhase-.30))),2);
-   m.anim.position.y=gallop*(.035+.12*airborne);
-   m.anim.rotation.x=gallop*(.042*Math.sin(cycle-.9));
-   m.headRig.rotation.x=gallop*(-.08*Math.sin(cycle-1.1));
-   m.tailRig.rotation.x=gallop*.14*Math.sin(cycle+.4);
-   m.tailRig.rotation.z=gallop*.09*Math.sin(cycle*.43+h.no);
-   // Six hand-authored silhouette poses. A short suspension and a long
-   // forward reach create the visual rhythm of classic 2D racing games.
-   // Angles: foreleg pair (front-right/front-left), hindleg pair.
-   const poses=[
-    [[-.34,.78],[-.24,.72],[.48,-.58],[.40,-.54]],  // collected
-    [[-.66,.30],[-.57,.28],[-.44,-.14],[-.36,-.12]], // push-off
-    [[-.42,.82],[-.32,.80],[-.82,-.90],[-.70,-.83]], // tucked flight
-    [[.34,.58],[.22,.60],[-.62,-.84],[-.52,-.78]],  // unfolding
-    [[.84,.16],[.70,.21],[.08,-.56],[.16,-.50]],   // reaching
-    [[.32,.52],[.25,.55],[.50,-.48],[.43,-.44]],   // landing
-    [[-.34,.78],[-.24,.72],[.48,-.58],[.40,-.54]]
-   ];
-   const poseIndex=Math.min(5,Math.floor(stridePhase*6));
-   const u=stridePhase*6-poseIndex,ease=u*u*u*(u*(u*6-15)+10);
-   m.legs.forEach((leg,j)=>{
-    const a=poses[poseIndex][j],b=poses[poseIndex+1][j];
-    leg.pivot.rotation.x=gallop*(a[0]+(b[0]-a[0])*ease);
-    leg.knee.rotation.x=gallop*(a[1]+(b[1]-a[1])*ease);
-   });
+   // Entirely new ground-contact + two-bone IK gait, loaded from gallop-ik.js.
+   updateGallop(m,clock,LIVE.visualTime,h.no);
    m.sprite.material.opacity=order.slice(0,3).some(x=>x.no===h.no)?1:.88;
   }
   updateGates(clock);
