@@ -20,28 +20,6 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - uses: actions/checkout@v4
-      - name: Enable GitHub Pages if necessary
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          set -euo pipefail
-          status=$(curl -sS -o /tmp/pages.json -w '%{http_code}' \
-            -H "Authorization: Bearer $GH_TOKEN" \
-            -H "Accept: application/vnd.github+json" \
-            -H "X-GitHub-Api-Version: 2022-11-28" \
-            "https://api.github.com/repos/$GITHUB_REPOSITORY/pages")
-          if [ "$status" = "404" ]; then
-            echo 'Enabling GitHub Pages with Actions source'
-            curl -fsSL -X POST \
-              -H "Authorization: Bearer $GH_TOKEN" \
-              -H "Accept: application/vnd.github+json" \
-              -H "X-GitHub-Api-Version: 2022-11-28" \
-              "https://api.github.com/repos/$GITHUB_REPOSITORY/pages" \
-              -d '{"build_type":"workflow"}'
-          elif [ "$status" != "200" ]; then
-            cat /tmp/pages.json
-            exit 1
-          fi
       - name: Prepare static site
         run: |
           mkdir -p _site/swan-2026
