@@ -467,16 +467,18 @@ window.KYOTO_RACE={HS,LIVE,route,routeLength,horseProgress};
   const texture=new THREE.CanvasTexture(cn),sprite=new THREE.Sprite(new THREE.SpriteMaterial({map:texture,depthTest:false,transparent:true}));sprite.position.set(0,4.35,0);sprite.scale.set(1.7,1.7,1);root.add(sprite);
   scene.add(root);return {root,anim,legs,sprite,headRig,tailRig};
  }
- // Rebuilt horse anatomy from scratch in horse-v5.js; the old mesh is an error fallback.
- let horseV3Ready=false;
+ // Never silently show the old horse when the requested new model fails.
+ let horseV3Ready=false,modelError='';
  try{
-  const horseV3=await import("./horse-v5.js?v=cute-dabista-20261012-v7");
+  const horseV3=await import("./horse-v5.js?v=cute-dabista-20261012-v8");
   for(const h of HS)models.push(horseV3.createRaceHorse(THREE,scene,h,silkColors[h.no-1]));
   horseV3Ready=models.length===18;
  }catch(e){
-  console.error("New thoroughbred models failed to load",e);
-  // Keep a working race if the deployment is still propagating, but disclose fallback.
-  for(const h of HS)models.push(horseModel(h));
+  modelError=String(e?.stack||e);
+  console.error("Horse model loading failed",e);
+  status.textContent='⚠️ 新馬モデルの読込エラー：'+String(e?.message||e);
+  // Do not silently replace the redesigned horses with the old geometry.
+  throw e;
  }
  // Full 18-stall starting gate, visible at the start and opening as the race begins.
  const start=offsetPoint(0,0,.1),end=offsetPoint(1,0,.1);
@@ -565,9 +567,9 @@ window.KYOTO_RACE={HS,LIVE,route,routeLength,horseProgress};
   let label=new THREE.Sprite(new THREE.SpriteMaterial({map:new THREE.CanvasTexture(cv)}));label.position.copy(p);label.position.y+=3.2;label.scale.set(4,2,1);scene.add(label);
  }
  let mode='follow',lastMode='follow';
- controls.style.display='flex';stage.style.display='block';svg.classList.add('svg-hidden');status.textContent=!horseV3Ready?'⚠️ 新しい馬モデルを読み込めません（旧モデルで代替）':venueReady?'🐎 新3D馬モデル18頭・外ラチ側追走中':'⚠️ 簡易背景（3D施設の読込失敗）';
- document.getElementById('horse-model-version').textContent=horseV3Ready?'THOROUGHBRED v5 · 18 HORSES':'⚠️ OLD MODEL FALLBACK';
- window.KYOTO_RENDER_STATUS={model:horseV3Ready?'thoroughbred-v5':'fallback',venue:venueReady?'full':'fallback',horses:models.length,camera:mode};
+ controls.style.display='flex';stage.style.display='block';svg.classList.add('svg-hidden');status.textContent=!horseV3Ready?'⚠️ 新しい馬モデルを読み込めません（旧モデルで代替）':venueReady?'🐴 CUTE HORSE v8 読込成功・18頭':'⚠️ 簡易背景（3D施設の読込失敗）';
+ document.getElementById('horse-model-version').textContent=horseV3Ready?'CUTE HORSE v8 · 18 HORSES':'⚠️ OLD MODEL FALLBACK';
+ window.KYOTO_RENDER_STATUS={model:horseV3Ready?'cute-horse-v8':'fallback',venue:venueReady?'full':'fallback',horses:models.length,camera:mode};
  controls.querySelectorAll('button').forEach(btn=>btn.onclick=()=>{
   mode=btn.dataset.camera;
   controls.querySelectorAll('button').forEach(b=>b.classList.toggle('cam-active',b===btn));
@@ -614,7 +616,7 @@ window.KYOTO_RACE={HS,LIVE,route,routeLength,horseProgress};
     d.y+.12,
     (d.z+d.dx*lane)*(1-staging)+gateZ*staging
    );
-   const size=.82+.18*Math.max(0,Math.min(1,clock/3.0));m.root.scale.setScalar(size);
+   const size=.88+.12*Math.max(0,Math.min(1,clock/3.0));m.root.scale.setScalar(size);
    m.root.rotation.y=Math.atan2(d.dx,d.dz);
    // Entirely new ground-contact + two-bone IK gait, loaded from gallop-ik.js.
    updateGallop(m,clock,LIVE.visualTime,h.no);
