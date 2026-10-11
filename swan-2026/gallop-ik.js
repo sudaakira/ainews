@@ -20,12 +20,12 @@ export function updateGallop(model,raceTime,visualTime,number){
  const wrap=x=>(x%1+1)%1;
  // Four separate contacts: trailing hind, leading hind, trailing fore, leading fore.
  // In model order: fore(-), fore(+), hind(-), hind(+).
- const offsets=[.49,.67,.04,.22];
- const contact=.30;
+ const offsets=[.48,.66,.02,.19];
+ const contact=.19;
  const ease=smooth;
  const contactPhases=[];
  function target(p,front){
-  const span=front?.38:.40;
+  const span=front?.51:.54;
   const ankleY=-1.265;
   if(p<contact){
    const t=p/contact;
@@ -33,7 +33,7 @@ export function updateGallop(model,raceTime,visualTime,number){
    return {z:mix(span,-span,t),y:ankleY,stance:true};
   }
   const t=(p-contact)/(1-contact);
-  const lift=Math.pow(Math.sin(Math.PI*t),1.4)*(front?.36:.40);
+  const lift=Math.pow(Math.sin(Math.PI*t),1.2)*(front?.49:.55);
   return {z:mix(-span,span,ease(t)),y:ankleY+lift,stance:false};
  }
  function ik(z,y,L1,L2,front){
@@ -59,10 +59,10 @@ export function updateGallop(model,raceTime,visualTime,number){
  // Pitch is tiny: a galloping horse flexes its back, not its whole torso like a seesaw.
  const airborne=contacts===0?1:0;
  const bodyWave=.5-.5*Math.cos(2*Math.PI*phase);
- const vertical=.018+.052*bodyWave+.055*airborne;
+ const vertical=.025+.055*bodyWave+.090*airborne;
  model.anim.position.y=vertical*blend;
- model.anim.rotation.x=blend*(.026*Math.sin(2*Math.PI*phase-.75));
- model.headRig.rotation.x=blend*(-.038*Math.sin(2*Math.PI*phase-1.1));
+ model.anim.rotation.x=blend*(.052*Math.sin(2*Math.PI*phase-.75));
+ model.headRig.rotation.x=blend*(-.075*Math.sin(2*Math.PI*phase-1.1));
  model.tailRig.rotation.x=blend*(.055*Math.sin(2*Math.PI*phase+.6));
  model.tailRig.rotation.z=blend*(.036*Math.sin(2*Math.PI*phase*.7+number));
  if(model.shadow)model.shadow.material.opacity=.18-.07*airborne;
