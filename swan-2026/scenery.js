@@ -38,7 +38,7 @@ export function buildScenery(T,scene,mat){
  const pond=new T.Mesh(new T.CircleGeometry(6,40),new T.MeshStandardMaterial({color:0x65bed6,roughness:.28,metalness:.1}));pond.rotation.x=-Math.PI/2;pond.position.set(-33,.11,0);pond.scale.set(2.3,1,1);scene.add(pond);
  for(let i=0;i<16;i++){let a=i*Math.PI/8;let flower=new T.Mesh(new T.SphereGeometry(.55,6,5),mat(i%2?0xffe07c:0xff89b2));flower.position.set(-28+24*Math.cos(a),.35,12*Math.sin(a));scene.add(flower)}
  // Kyoto's main grandstand on the home straight: Station Side and Goal Side wings.
- const stand=new T.Group();scene.add(stand);
+ const stand=new T.Group();stand.position.z=66;scene.add(stand); // Set the grandstand well behind the outside rail and all tracking cameras.
  addBox(stand,172,3,31,cream,-8,1.5,78);
  addBox(stand,171,15,26,glass,-8,10.2,83);
  for(let k=0;k<4;k++){
@@ -75,10 +75,10 @@ export function buildScenery(T,scene,mat){
  const vt=new T.CanvasTexture(cv);vt.colorSpace=T.SRGBColorSpace;
  const vision=new T.Mesh(new T.PlaneGeometry(27.5,11.3),new T.MeshBasicMaterial({map:vt,side:T.DoubleSide}));
  vision.position.set(0,14,-1.38);screen.add(vision);
- // Paddock outside the home straight, a gate building, pathways, and rows of trees.
- const paddock=new T.Mesh(new T.RingGeometry(10.5,13,56),mat(0xd7c5a3));paddock.rotation.x=-Math.PI/2;paddock.position.set(-87,-.17,130);paddock.scale.set(1.7,1,1);scene.add(paddock);
- addBox(scene,27,10,19,cream,67,5,126);addBox(scene,30,1,21,navy,67,10.5,126);
- const trees=[];for(let i=0;i<18;i++)trees.push([-138+i*16,i%2?102:-99]);
+ // Paddock and entrance facilities set behind the moved grandstand to prevent camera occlusion.
+ const paddock=new T.Mesh(new T.RingGeometry(10.5,13,56),mat(0xd7c5a3));paddock.rotation.x=-Math.PI/2;paddock.position.set(-87,-.17,190);paddock.scale.set(1.7,1,1);scene.add(paddock);
+ addBox(scene,27,10,19,cream,67,5,190);addBox(scene,30,1,21,navy,67,10.5,190);
+ const trees=[];for(let i=0;i<18;i++)trees.push([-138+i*16,i%2?177:-99]);
  for(let i=0;i<9;i++)trees.push([95+i*7,-86+i*21]);
  const leaves=new T.InstancedMesh(new T.SphereGeometry(1,8,6),new T.MeshLambertMaterial({color:0x69b77b}),trees.length*2);
  const trunks=new T.InstancedMesh(new T.CylinderGeometry(.36,.48,5,6),mat(0x997258),trees.length);
@@ -95,28 +95,28 @@ export function buildScenery(T,scene,mat){
   const o=new T.Mesh(sphereGeo,m);o.position.set(x,y,z);o.scale.set(sx,sy,sz);parent.add(o);return o;
  };
  // Entrance plaza behind the main grandstand, ticket counters, awnings and turnstiles.
- addBox(scene,183,.18,44,stone,-7,-.16,117);
+ addBox(scene,183,.18,44,stone,-7,-.16,182);
  for(let i=0;i<8;i++){
   const x=-80+i*21;
-  addBox(scene,15,5,7,cream,x,2.5,116);
-  addBox(scene,15,.55,10,i%2?red:blue,x,5.4,114);
-  for(let k=0;k<3;k++)addBox(scene,2.6,1.9,.15,glass,x-4.2+k*4.2,2.6,112.35);
-  addBox(scene,.25,2.3,3,steel,x+7,1.15,110);
+  addBox(scene,15,5,7,cream,x,2.5,181);
+  addBox(scene,15,.55,10,i%2?red:blue,x,5.4,179);
+  for(let k=0;k<3;k++)addBox(scene,2.6,1.9,.15,glass,x-4.2+k*4.2,2.6,177.35);
+  addBox(scene,.25,2.3,3,steel,x+7,1.15,175);
  }
  // Elevated covered walkway and a small pedestrian bridge.
- addBox(scene,130,.7,6,stone,-7,8.2,118);
- addBox(scene,130,.45,9,cream,-7,12.6,118);
+ addBox(scene,130,.7,6,stone,-7,8.2,183);
+ addBox(scene,130,.45,9,cream,-7,12.6,183);
  for(let x=-68;x<=55;x+=12){
-  addBox(scene,.35,4.1,.35,steel,x,10.35,115.2);
-  addBox(scene,.35,4.1,.35,steel,x,10.35,120.8);
+  addBox(scene,.35,4.1,.35,steel,x,10.35,180.2);
+  addBox(scene,.35,4.1,.35,steel,x,10.35,185.8);
  }
  // Paddock detail: circular rail, small inner grass island and benches.
- const paddockCenter=new T.Vector3(-87,0,130);
+ const paddockCenter=new T.Vector3(-87,0,190);
  const paddockCurve=[];
  for(let i=0;i<=64;i++){let a=i/64*Math.PI*2;paddockCurve.push(new T.Vector3(paddockCenter.x+19*Math.cos(a),1.15,paddockCenter.z+13*Math.sin(a)))}
  scene.add(new T.Mesh(new T.TubeGeometry(new T.CatmullRomCurve3(paddockCurve,true),64,.12,5,true),cream));
- const paddockGrass=new T.Mesh(new T.CircleGeometry(10,40),green);paddockGrass.rotation.x=-Math.PI/2;paddockGrass.position.set(-87,-.12,130);paddockGrass.scale.set(1.6,1,1);scene.add(paddockGrass);
- for(let i=0;i<8;i++){let a=i*Math.PI/4;let x=-87+24*Math.cos(a),z=130+19*Math.sin(a);
+ const paddockGrass=new T.Mesh(new T.CircleGeometry(10,40),green);paddockGrass.rotation.x=-Math.PI/2;paddockGrass.position.set(-87,-.12,190);paddockGrass.scale.set(1.6,1,1);scene.add(paddockGrass);
+ for(let i=0;i<8;i++){let a=i*Math.PI/4;let x=-87+24*Math.cos(a),z=190+19*Math.sin(a);
   addBox(scene,3,.32,1.2,stone,x,.36,z);addBox(scene,3,1,.22,navy,x,.98,z+(.3*Math.sign(Math.sin(a))))}
  // Giant racecourse clock by the finish straight.
  const clockGroup=new T.Group();clockGroup.position.set(65,0,50);scene.add(clockGroup);
@@ -160,10 +160,10 @@ export function buildScenery(T,scene,mat){
   addBox(scene,6.5,.24,.4,cream,x,2.65,45);
  }
  // Small service road and low-poly parked support vehicles behind the stands.
- addBox(scene,194,.11,14,asphalt,-8,-.19,148);
+ addBox(scene,194,.11,14,asphalt,-8,-.19,213);
  const carBody=[mat(0xf2e9d8),red,blue,mat(0x75b79e),gold],wheel=mat(0x30363a);
  for(let i=0;i<13;i++){
-  const x=-92+i*14.5,z=145+(i%2)*3.1,body=carBody[i%carBody.length];
+  const x=-92+i*14.5,z=210+(i%2)*3.1,body=carBody[i%carBody.length];
   addBox(scene,6,1.8,3.2,body,x,1.15,z);
   addBox(scene,3.6,1.45,2.8,glass,x-.25,2.62,z);
   for(const sx of [-2.0,2.0])for(const sz of [-1.65,1.65])ball(scene,x+sx,.55,z+sz,.64,.64,.28,wheel);
@@ -179,11 +179,11 @@ export function buildScenery(T,scene,mat){
  addBox(scene,8,2,7,navy,87,6,61);
  // Animated-looking fountain made of translucent blue water droplets.
  const fountainMat=new T.MeshLambertMaterial({color:0x8ce0f1,transparent:true,opacity:.76});
- const basin=new T.Mesh(new T.CylinderGeometry(6,6,1.1,24),stone);basin.position.set(34,.25,125);scene.add(basin);
- const water=new T.Mesh(new T.CylinderGeometry(5.5,5.5,.13,24),blue);water.position.set(34,.85,125);scene.add(water);
+ const basin=new T.Mesh(new T.CylinderGeometry(6,6,1.1,24),stone);basin.position.set(34,.25,192);scene.add(basin);
+ const water=new T.Mesh(new T.CylinderGeometry(5.5,5.5,.13,24),blue);water.position.set(34,.85,192);scene.add(water);
  for(let i=0;i<9;i++){
   const a=i*Math.PI*2/9;
-  ball(scene,34+2.8*Math.cos(a),2.5+((i%3)*.8),125+2.8*Math.sin(a),.38,1.8,.38,fountainMat)
+  ball(scene,34+2.8*Math.cos(a),2.5+((i%3)*.8),192+2.8*Math.sin(a),.38,1.8,.38,fountainMat)
  }
 
  // Clouds over the far horizon.
