@@ -73,31 +73,37 @@ export function createRaceHorse(T,scene,h,silkHex){
   ell(anim,coat,side*.38,1.43,.78,.235,.42,.37);
   ell(anim,coat,side*.38,1.45,-1.22,.255,.46,.42);
  }
- // Head with a long, straight nasal profile, wide forehead and soft muzzle.
- const headRig=new T.Group();headRig.position.set(0,2.57,1.69);anim.add(headRig);
+ // Equine head: forehead upright, bridge of nose slopes sharply down.
+ // Previous head was nearly horizontal (+1.2m forward) and looked crocodilian.
+ const headRig=new T.Group();headRig.position.set(0,2.57,1.64);anim.add(headRig);
  loft(headRig,coat,[
-  [0,.12,-.35,.09,.13],[0,.13,-.23,.27,.32],
-  [0,.08,-.05,.34,.37],[0,-.06,.18,.32,.35],
-  [0,-.21,.40,.255,.28],[0,-.34,.65,.21,.20],
-  [0,-.42,.92,.205,.16],[0,-.44,1.08,.23,.16],
-  [0,-.44,1.18,.19,.13]
- ],18,5);
- ell(headRig,highlight,0,-.44,1.13,.23,.13,.17);
- ell(headRig,shade,0,-.52,1.13,.21,.065,.12);
- // Natural forward-set eyes (not bulging cartoon googly eyes).
+  [0,.12,-.29,.10,.13],[0,.14,-.17,.245,.28],
+  [0,.09,.00,.31,.34],[0,-.04,.17,.30,.34],
+  [0,-.23,.29,.245,.29],[0,-.43,.38,.215,.25],
+  [0,-.64,.48,.175,.20],[0,-.79,.57,.18,.155],
+  [0,-.88,.64,.22,.145],[0,-.89,.73,.20,.12]
+ ],20,5);
+ // Wide, rounded nostril-bearing muzzle and lower lip.
+ ell(headRig,highlight,0,-.88,.69,.225,.145,.165);
+ ell(headRig,shade,0,-.985,.69,.19,.060,.11);
  for(const side of [-1,1]){
-  ell(headRig,shade,side*.305,.08,.11,.055,.094,.11);
-  ell(headRig,eyeMat,side*.337,.095,.13,.047,.073,.085);
-  ell(headRig,cream,side*.371,.133,.18,.014,.018,.018);
-  const lid=ell(headRig,coat,side*.318,.19,.10,.065,.025,.11);lid.rotation.z=-side*.10;
-  const ear=ell(headRig,coat,side*.21,.51,-.23,.105,.24,.11);ear.rotation.z=-side*.13;
-  const earInside=ell(headRig,pink,side*.215,.55,-.14,.054,.155,.035);earInside.rotation.z=-side*.13;
-  ell(headRig,shade,side*.197,-.42,1.18,.043,.031,.022);
-  // Fine bridle lines, kept tight to the cheek rather than floating.
-  tube(headRig,leather,[side*.31,.16,-.12],[side*.23,-.43,1.03],.022,.020);
-  ell(headRig,metal,side*.24,-.44,1.03,.037,.035,.033);
+  // Eyes are recessed in the upper skull, not floating outside the cheeks.
+  ell(headRig,shade,side*.275,.035,.13,.044,.085,.09);
+  ell(headRig,eyeMat,side*.302,.047,.145,.037,.061,.067);
+  ell(headRig,cream,side*.327,.080,.174,.010,.013,.014);
+  const lid=ell(headRig,coat,side*.283,.129,.12,.049,.020,.09);
+  lid.rotation.z=-side*.08;
+  // Ears point upward and slightly forward from the poll.
+  const ear=ell(headRig,coat,side*.20,.51,-.19,.105,.26,.095);
+  ear.rotation.z=-side*.14;
+  const earInside=ell(headRig,pink,side*.205,.55,-.12,.052,.16,.030);
+  earInside.rotation.z=-side*.14;
+  // Dark nostrils on the two sides of the muzzle.
+  ell(headRig,shade,side*.188,-.865,.745,.048,.032,.023);
+  tube(headRig,leather,[side*.28,.11,-.09],[side*.20,-.85,.65],.018,.017);
+  ell(headRig,metal,side*.21,-.84,.65,.030,.031,.028);
  }
- tube(headRig,leather,[-.23,-.44,1.05],[.23,-.44,1.05],.022,.022);
+ tube(headRig,leather,[-.22,-.86,.66],[.22,-.86,.66],.020,.020);
  // Soft forelock and short continuous mane.
  for(let i=0;i<5;i++){
   const tuft=ell(headRig,mane,(i-2)*.083,.40,.01,.075,.13,.15);tuft.rotation.x=-.24;
@@ -107,7 +113,7 @@ export function createRaceHorse(T,scene,h,silkHex){
   const tuft=ell(anim,mane,0,y,z,.078,.105,.13);tuft.rotation.x=-.28;
  }
  if(h.no%4===1){
-  loft(headRig,cream,[[0,.23,.17,.02,.03],[0,.10,.30,.057,.08],[0,-.16,.50,.04,.06],[0,-.35,.76,.022,.035]],9,3);
+  loft(headRig,cream,[[0,.24,.15,.02,.03],[0,.04,.22,.052,.07],[0,-.35,.40,.037,.06],[0,-.72,.57,.022,.035]],9,3);
  }
  const tailRig=new T.Group();tailRig.position.set(0,1.78,-1.66);anim.add(tailRig);
  tube(tailRig,mane,[0,0,0],[0,-.26,-.34],.095,.070);
@@ -153,7 +159,7 @@ export function createRaceHorse(T,scene,h,silkHex){
   tube(rider,cream,[side*.25,2.34,-.44],[side*.43,2.06,.10],.13,.10);
   tube(rider,hoofMat,[side*.43,2.06,.10],[side*.47,1.85,.31],.095,.075);
   ell(rider,hoofMat,side*.48,1.83,.38,.09,.10,.18);
-  tube(rider,leather,[side*.35,2.57,.79],[side*.24,2.25,2.36],.014,.010);
+  tube(rider,leather,[side*.35,2.57,.79],[side*.22,2.05,2.16],.014,.010);
  }
  // Ground shadow and unobtrusive number sprite.
  const shadow=new T.Mesh(new T.CircleGeometry(1,20),new T.MeshBasicMaterial({color:0x173c20,transparent:true,opacity:.18,depthWrite:false,side:T.DoubleSide}));
