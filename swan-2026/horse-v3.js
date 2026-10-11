@@ -1,4 +1,4 @@
-// Horse model v3: custom skinned-looking loft meshes, equine profiles and jockeys.
+// Horse model v4: cohesive thoroughbred silhouette, soft organic limbs, natural head and racing tack.
 // This is intentionally a different mesh generator from the original ellipsoid horse.
 export function createRaceHorse(T,scene,h,silkHex){
  const root=new T.Group(),anim=new T.Group();root.add(anim);
@@ -65,55 +65,59 @@ export function createRaceHorse(T,scene,h,silkHex){
  }
  // Horse-shaped backline, barrel, chest and quarters: one continuous anatomical mesh.
  loft(anim,coat,[
-  [0,1.65,-1.75,.08,.15],[0,1.70,-1.53,.50,.57],
-  [0,1.68,-1.16,.74,.74],[0,1.61,-.60,.73,.71],
-  [0,1.58,0,.66,.67],[0,1.62,.49,.72,.76],
-  [0,1.72,.92,.69,.71],[0,1.80,1.15,.47,.55],
-  [0,1.90,1.36,.22,.30],[0,1.97,1.45,.035,.06]
+  [0,1.66,-1.82,.09,.14],[0,1.66,-1.56,.43,.48],
+  [0,1.63,-1.25,.62,.65],[0,1.56,-.80,.65,.65],
+  [0,1.56,-.22,.61,.62],[0,1.57,.35,.61,.65],
+  [0,1.67,.82,.64,.68],[0,1.77,1.12,.49,.55],
+  [0,1.88,1.34,.25,.29],[0,1.94,1.43,.04,.06]
  ]);
  // Chest and shoulder muscles, pronounced hindquarters, a smooth tucked belly.
+ // Smooth shoulders and haunches; avoid separate protruding sphere-shaped joints.
  for(const side of [-1,1]){
-  const shoulder=oval(anim,coat,side*.46,1.55,.72,.35,.63,.50);shoulder.rotation.x=-.20;
-  const haunch=oval(anim,coat,side*.46,1.61,-1.15,.41,.65,.57);haunch.rotation.x=.13;
-  oval(anim,light,side*.53,1.25,-.60,.10,.24,.49);
+  const shoulder=oval(anim,coat,side*.35,1.55,.78,.29,.51,.45);shoulder.rotation.x=-.12;
+  const haunch=oval(anim,coat,side*.34,1.57,-1.18,.30,.50,.47);haunch.rotation.x=.10;
  }
- // Forward, sloping muscular neck; sculpted with a tapered smooth tube.
- const neck=oval(anim,coat,0,2.12,1.27,.44,.89,.45);neck.rotation.x=-.53;
- oval(anim,coat,0,2.34,1.57,.34,.61,.34).rotation.x=-.43;
- // A separate animated head with a true equine elongated nose and strong jaw.
- const headRig=new T.Group();headRig.position.set(0,2.70,1.69);anim.add(headRig);
- loft(headRig,coat,[
-  [0,.15,-.42,.17,.24],[0,.12,-.23,.38,.45],
-  [0,.05,.02,.42,.50],[0,-.13,.33,.34,.40],
-  [0,-.31,.62,.265,.29],[0,-.48,.89,.24,.20],
-  [0,-.52,1.13,.285,.20],[0,-.52,1.28,.24,.13]
+ // The neck grows naturally out of the withers, with a sloped topline.
+ loft(anim,coat,[
+  [0,1.85,.85,.38,.42],[0,1.96,1.10,.40,.49],
+  [0,2.12,1.35,.38,.53],[0,2.31,1.53,.32,.48],
+  [0,2.49,1.68,.29,.37],[0,2.58,1.78,.22,.26]
  ]);
- oval(headRig,coat,0,-.05,-.15,.43,.43,.36);
- oval(headRig,dark,0,-.57,1.18,.275,.16,.20);
- oval(headRig,light,0,-.51,1.24,.26,.095,.13);
+ // A separate animated head with a true equine elongated nose and strong jaw.
+ const headRig=new T.Group();headRig.position.set(0,2.61,1.68);anim.add(headRig);
+ loft(headRig,coat,[
+  [0,.15,-.42,.16,.22],[0,.12,-.24,.31,.37],
+  [0,.06,.02,.35,.41],[0,-.10,.30,.31,.36],
+  [0,-.27,.58,.25,.27],[0,-.41,.87,.23,.19],
+  [0,-.46,1.09,.27,.19],[0,-.46,1.23,.23,.14]
+ ]);
+ oval(headRig,coat,0,-.05,-.14,.34,.36,.33);
+ oval(headRig,dark,0,-.50,1.14,.245,.13,.18);
+ oval(headRig,light,0,-.49,1.23,.22,.065,.11);
  // Two pointed horse ears with pink-brown interiors.
  const inner=new T.MeshStandardMaterial({color:0x906c69,roughness:1});
  for(const side of [-1,1]){
-  const ear=stick(headRig,[side*.25,.48,-.25],[side*.29,1.04,-.32],.14,.045,coat);
-  stick(headRig,[side*.30,.57,-.10],[side*.29,.96,-.17],.07,.025,inner);
+  stick(headRig,[side*.24,.40,-.24],[side*.29,.88,-.30],.105,.025,coat);
+  stick(headRig,[side*.29,.49,-.10],[side*.30,.81,-.18],.055,.012,inner);
   // Glossy dark almond eyes, eyelids, distinct muzzle and nostrils.
-  oval(headRig,dark,side*.385,.11,.19,.085,.15,.18);
-  oval(headRig,new T.MeshPhysicalMaterial({color:0x171315,roughness:.14,clearcoat:1}),side*.436,.12,.215,.071,.112,.112);
-  oval(headRig,white,side*.486,.18,.28,.025,.033,.027);
-  oval(headRig,coat,side*.393,.265,.18,.09,.04,.17);
-  oval(headRig,new T.MeshStandardMaterial({color:0x2a2020,roughness:.85}),side*.245,-.48,1.15,.075,.062,.044);
-  oval(headRig,light,side*.21,-.60,1.08,.14,.04,.07);
-  // Cheek muscles make the face look alive, not like a spherical cartoon.
-  oval(headRig,coat,side*.30,-.18,-.03,.21,.28,.33);
+  oval(headRig,dark,side*.326,.09,.17,.060,.092,.13);
+  oval(headRig,new T.MeshPhysicalMaterial({color:0x171315,roughness:.17,clearcoat:.8}),side*.370,.10,.18,.049,.073,.088);
+  oval(headRig,white,side*.406,.14,.24,.015,.021,.018);
+  oval(headRig,coat,side*.330,.21,.15,.070,.035,.13);
+  oval(headRig,new T.MeshStandardMaterial({color:0x2a2020,roughness:.85}),side*.229,-.43,1.13,.061,.043,.032);
+  oval(headRig,light,side*.18,-.54,1.08,.11,.025,.05);
+  // Subtle cheeks and eyelids rather than giant bulging eyes.
+  oval(headRig,coat,side*.25,-.16,-.03,.16,.21,.27);
  }
  // Forelock, mane, blaze and noseband.
- for(let i=0;i<6;i++){
-  const x=(i-2.5)*.12;
-  stick(headRig,[x,.50,-.15],[x*.92,.69,.22],.085,.018,mane);
+ // Low-profile forelock and a continuous short mane, no porcupine-like spikes.
+ for(let i=0;i<5;i++){
+  const x=(i-2)*.095;
+  const lock=oval(headRig,mane,x,.41,.06,.095,.17,.15);lock.rotation.x=-.32;
  }
- for(let i=0;i<13;i++){
-  const z=1.38-i*.14,y=2.48-i*.04;
-  const hair=stick(anim,[0,y,z],[0,y+.22,z-.11],.095,.018,mane);
+ for(let i=0;i<9;i++){
+  const z=1.51-i*.105,y=2.54-i*.073;
+  const crest=oval(anim,mane,0,y,z,.095,.105,.14);crest.rotation.x=-.32;
  }
  if(h.no%3===0){
   loft(headRig,white,[[0,.38,.37,.05,.06],[0,.10,.47,.085,.12],[0,-.22,.64,.06,.09],[0,-.43,.90,.035,.055]],9);
@@ -126,23 +130,24 @@ export function createRaceHorse(T,scene,h,silkHex){
  stick(headRig,[-.30,-.44,1.09],[.30,-.44,1.09],.03,.03,tack);
  // Animated tail with tapered tuft, swaying independently.
  const tailRig=new T.Group();tailRig.position.set(0,1.87,-1.69);anim.add(tailRig);
- stick(tailRig,[0,0,0],[0,-.34,-.46],.12,.07,mane);
+ stick(tailRig,[0,0,0],[0,-.34,-.40],.11,.07,mane);
  for(let i=-2;i<=2;i++){
-  stick(tailRig,[i*.04,-.31,-.46],[i*.10,-.99,-.94],.095,.009,mane);
+  const strand=oval(tailRig,mane,i*.045,-.63,-.62,.095,.45,.13);
+  strand.rotation.x=-.42;strand.rotation.z=i*.09;
  }
  // Four independently animated legs: muscled upper limb, tapered cannon, defined fetlock and hoof.
  const legs=[];
  for(const front of [true,false])for(const side of [-1,1]){
-  const hip=new T.Group();hip.position.set(side*.47,1.45,front?.81:-1.23);anim.add(hip);
-  const upperLength=front?.73:.67;
-  oval(hip,coat,0,-.24,0,front?.22:.30,.40,.24);
-  stick(hip,[0,-.05,0],[0,-upperLength,front?.08:-.10],front?.21:.26,.115,coat);
-  const knee=new T.Group();knee.position.set(0,-upperLength,front?.08:-.10);hip.add(knee);
-  oval(knee,coat,0,0,0,.14,.14,.14);
-  stick(knee,[0,-.06,0],[0,-.61,.12],.115,.065,coat);
-  oval(knee,coat,0,-.61,.13,.095,.13,.10);
-  const foot=new T.Mesh(new T.BoxGeometry(.25,.20,.39),hoof);foot.position.set(0,-.74,.24);knee.add(foot);
-  oval(knee,hoof,0,-.79,.38,.13,.09,.21);
+  const hip=new T.Group();hip.position.set(side*.39,1.38,front?.80:-1.22);anim.add(hip);
+  const upperLength=front?.64:.59;
+  const upper=oval(hip,coat,0,-upperLength*.48,0,front?.145:.19,upperLength*.58,.17);
+  upper.rotation.x=front?-.09:.15;
+  const knee=new T.Group();knee.position.set(0,-upperLength,front?.06:-.07);hip.add(knee);
+  oval(knee,coat,0,0,0,.115,.12,.115);
+  const cannon=oval(knee,coat,0,-.27,.07,.082,.31,.082);cannon.rotation.x=-.10;
+  oval(knee,coat,0,-.56,.13,.09,.11,.10);
+  const foot=oval(knee,hoof,0,-.65,.23,.145,.105,.235);
+  foot.rotation.x=-.13;
   legs.push({pivot:hip,knee,front,side});
  }
  // Dark navy numbered saddlecloths with visible white numbers on both sides.
@@ -162,17 +167,17 @@ export function createRaceHorse(T,scene,h,silkHex){
  oval(rider,white,0,2.40,-.45,.36,.24,.34); // breeches
  const torso=oval(rider,silk,0,2.75,.12,.35,.45,.39);torso.rotation.x=.61;
  const bib=new T.Mesh(new T.BoxGeometry(.46,.32,.055),white);bib.position.set(0,2.77,.46);bib.rotation.x=-.40;rider.add(bib);
- oval(rider,skin,0,3.16,.51,.245,.30,.26);
- oval(rider,helmet,0,3.41,.48,.30,.23,.31);
- oval(rider,helmet,0,3.35,.73,.28,.065,.19);
+ oval(rider,skin,0,3.10,.50,.205,.24,.22);
+ oval(rider,helmet,0,3.31,.47,.26,.19,.27);
+ oval(rider,helmet,0,3.27,.68,.23,.048,.16);
  for(const side of [-1,1]){
   stick(rider,[side*.26,2.91,.30],[side*.41,2.64,.82],.12,.09,silk);
   oval(rider,white,side*.42,2.60,.88,.12,.11,.12);
   stick(rider,[side*.30,2.45,-.43],[side*.50,2.08,.12],.17,.12,white);
   stick(rider,[side*.50,2.08,.12],[side*.54,1.85,.39],.13,.09,hoof);
   oval(rider,hoof,side*.54,1.83,.46,.11,.12,.23);
-  oval(rider,hoof,side*.13,3.17,.76,.11,.095,.052);
-  oval(rider,new T.MeshStandardMaterial({color:0x9fcad6,metalness:.16,roughness:.26}),side*.13,3.18,.81,.08,.065,.02);
+  oval(rider,hoof,side*.11,3.13,.71,.082,.069,.043);
+  oval(rider,new T.MeshStandardMaterial({color:0x9fcad6,metalness:.16,roughness:.26}),side*.11,3.13,.75,.061,.046,.018);
   stick(rider,[side*.42,2.60,.90],[side*.31,2.41,1.17],.017,.012,tack);
   stick(rider,[side*.31,2.41,1.17],[side*.36,2.20,2.36],.012,.009,tack);
  }
