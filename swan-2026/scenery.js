@@ -87,6 +87,105 @@ export function buildScenery(T,scene,mat){
   for(let j=0;j<2;j++){dummy.position.set(x+(j?1:-.8),5.2+j*.6,z);dummy.scale.set(3,3,3);dummy.updateMatrix();leaves.setMatrixAt(i*2+j,dummy.matrix);leaves.setColorAt(i*2+j,new T.Color(j?0x4ca65b:0x78c884))}
  });
  scene.add(leaves,trunks);
+
+ // More recognizable race-day landmarks. Decorative layout is illustrative, not surveyed.
+ const stone=mat(0xd9d8ce),red=mat(0xd75163),gold=mat(0xffd268),blue=mat(0x439ec5),asphalt=mat(0x87908d),whiteLine=mat(0xfaf7e9);
+ const sphereGeo=new T.SphereGeometry(1,8,6);
+ const ball=(parent,x,y,z,sx,sy,sz,m)=>{
+  const o=new T.Mesh(sphereGeo,m);o.position.set(x,y,z);o.scale.set(sx,sy,sz);parent.add(o);return o;
+ };
+ // Entrance plaza behind the main grandstand, ticket counters, awnings and turnstiles.
+ addBox(scene,183,.18,44,stone,-7,-.16,117);
+ for(let i=0;i<8;i++){
+  const x=-80+i*21;
+  addBox(scene,15,5,7,cream,x,2.5,116);
+  addBox(scene,15,.55,10,i%2?red:blue,x,5.4,114);
+  for(let k=0;k<3;k++)addBox(scene,2.6,1.9,.15,glass,x-4.2+k*4.2,2.6,112.35);
+  addBox(scene,.25,2.3,3,steel,x+7,1.15,110);
+ }
+ // Elevated covered walkway and a small pedestrian bridge.
+ addBox(scene,130,.7,6,stone,-7,8.2,118);
+ addBox(scene,130,.45,9,cream,-7,12.6,118);
+ for(let x=-68;x<=55;x+=12){
+  addBox(scene,.35,4.1,.35,steel,x,10.35,115.2);
+  addBox(scene,.35,4.1,.35,steel,x,10.35,120.8);
+ }
+ // Paddock detail: circular rail, small inner grass island and benches.
+ const paddockCenter=new T.Vector3(-87,0,130);
+ const paddockCurve=[];
+ for(let i=0;i<=64;i++){let a=i/64*Math.PI*2;paddockCurve.push(new T.Vector3(paddockCenter.x+19*Math.cos(a),1.15,paddockCenter.z+13*Math.sin(a)))}
+ scene.add(new T.Mesh(new T.TubeGeometry(new T.CatmullRomCurve3(paddockCurve,true),64,.12,5,true),cream));
+ const paddockGrass=new T.Mesh(new T.CircleGeometry(10,40),green);paddockGrass.rotation.x=-Math.PI/2;paddockGrass.position.set(-87,-.12,130);paddockGrass.scale.set(1.6,1,1);scene.add(paddockGrass);
+ for(let i=0;i<8;i++){let a=i*Math.PI/4;let x=-87+24*Math.cos(a),z=130+19*Math.sin(a);
+  addBox(scene,3,.32,1.2,stone,x,.36,z);addBox(scene,3,1,.22,navy,x,.98,z+(.3*Math.sign(Math.sin(a))))}
+ // Giant racecourse clock by the finish straight.
+ const clockGroup=new T.Group();clockGroup.position.set(65,0,50);scene.add(clockGroup);
+ addBox(clockGroup,1.6,14,1.6,steel,0,7,0);
+ const clockFace=new T.Mesh(new T.CylinderGeometry(4.5,4.5,.7,32),cream);clockFace.rotation.x=Math.PI/2;clockFace.position.set(0,16,0);clockGroup.add(clockFace);
+ const clockDark=mat(0x24485c);
+ ball(clockGroup,0,16,-.47,.4,.4,.13,clockDark);
+ for(let n=0;n<12;n++){let a=n*Math.PI/6;ball(clockGroup,3.5*Math.sin(a),16+3.5*Math.cos(a),-.48,.19,.19,.11,clockDark)}
+ const minute=addBox(clockGroup,.24,2.9,.17,clockDark,0,17.45,-.52);minute.rotation.z=-.35;
+ const hour=addBox(clockGroup,.30,1.8,.18,clockDark,-.6,16.7,-.56);hour.rotation.z=.75;
+ // Two simple photo-finish camera towers and floodlight arrays.
+ const lights=mat(0xf8f8df);
+ for(const [x,z] of [[-94,49],[75,47],[-105,-50],[89,-51]]){
+  addBox(scene,1.5,29,1.5,steel,x,14.5,z);
+  addBox(scene,12,.8,1.5,navy,x,29.2,z);
+  for(let k=0;k<6;k++)addBox(scene,1.55,1.15,.4,lights,x-4.7+k*1.9,29.2,z-.85);
+  addBox(scene,2,2.1,2,cream,x,25.3,z);
+ }
+ // Turf-vision perimeter flowers, low hedges and vibrant sponsor boards.
+ const hedgeGeo=new T.BoxGeometry(2.8,1.0,1.1);
+ const hedgeCount=100,hedges=new T.InstancedMesh(hedgeGeo,new T.MeshLambertMaterial({color:0x348e50}),hedgeCount);
+ for(let i=0;i<hedgeCount;i++){
+  let a=i*Math.PI*2/hedgeCount,x=-29+43*Math.cos(a),z=24*Math.sin(a);
+  dummy.position.set(x,.46,z);dummy.rotation.y=a;dummy.scale.set(1,1,1);dummy.updateMatrix();hedges.setMatrixAt(i,dummy.matrix)
+ }
+ scene.add(hedges);
+ const flowerColors=[mat(0xf18da4),mat(0xffd86c),mat(0xf8f5ed),mat(0x9f86d8)];
+ const flowerGeo=new T.SphereGeometry(.48,6,5);
+ for(let c=0;c<4;c++){
+  const count=55,patch=new T.InstancedMesh(flowerGeo,flowerColors[c],count);
+  for(let i=0;i<count;i++){
+   let x=-77+(i%11)*6.8,z=39+Math.floor(i/11)*1.8+c*2.5;
+   dummy.position.set(x,.45,z);dummy.scale.set(.9,.75,.9);dummy.rotation.set(0,0,0);dummy.updateMatrix();patch.setMatrixAt(i,dummy.matrix)
+  }
+  scene.add(patch)
+ }
+ const adPalette=[red,blue,gold,green,navy];
+ for(let i=0;i<22;i++){
+  const x=-94+i*8.5;
+  addBox(scene,7,2.3,.35,adPalette[i%5],x,1.4,45);
+  addBox(scene,6.5,.24,.4,cream,x,2.65,45);
+ }
+ // Small service road and low-poly parked support vehicles behind the stands.
+ addBox(scene,194,.11,14,asphalt,-8,-.19,148);
+ const carBody=[mat(0xf2e9d8),red,blue,mat(0x75b79e),gold],wheel=mat(0x30363a);
+ for(let i=0;i<13;i++){
+  const x=-92+i*14.5,z=145+(i%2)*3.1,body=carBody[i%carBody.length];
+  addBox(scene,6,1.8,3.2,body,x,1.15,z);
+  addBox(scene,3.6,1.45,2.8,glass,x-.25,2.62,z);
+  for(const sx of [-2.0,2.0])for(const sz of [-1.65,1.65])ball(scene,x+sx,.55,z+sz,.64,.64,.28,wheel);
+ }
+ // Start-area flags, finish-area bunting and camera platform.
+ for(let i=0;i<24;i++){
+  let x=-94+i*7.7,z=52;
+  addBox(scene,.12,4,.12,cream,x,2,z);
+  const flag=addBox(scene,2.0,.9,.10,i%3===0?red:i%3===1?blue:gold,x+1,3.35,z);
+  flag.rotation.y=i%2?.10:-.10;
+ }
+ addBox(scene,7,5,5,steel,87,2.5,61);
+ addBox(scene,8,2,7,navy,87,6,61);
+ // Animated-looking fountain made of translucent blue water droplets.
+ const fountainMat=new T.MeshLambertMaterial({color:0x8ce0f1,transparent:true,opacity:.76});
+ const basin=new T.Mesh(new T.CylinderGeometry(6,6,1.1,24),stone);basin.position.set(34,.25,125);scene.add(basin);
+ const water=new T.Mesh(new T.CylinderGeometry(5.5,5.5,.13,24),blue);water.position.set(34,.85,125);scene.add(water);
+ for(let i=0;i<9;i++){
+  const a=i*Math.PI*2/9;
+  ball(scene,34+2.8*Math.cos(a),2.5+((i%3)*.8),125+2.8*Math.sin(a),.38,1.8,.38,fountainMat)
+ }
+
  // Clouds over the far horizon.
  const cloudMaterial=new T.MeshBasicMaterial({color:0xffffff,fog:false}),puff=new T.SphereGeometry(1,8,6);
  for(let i=0;i<8;i++){let cloud=new T.Group();cloud.position.set(-185+i*55,56+i%3*10,-195-i%2*25);
