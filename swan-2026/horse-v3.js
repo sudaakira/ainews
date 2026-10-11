@@ -15,7 +15,18 @@ export function createRaceHorse(T,scene,h,silkHex){
   skin=new T.MeshStandardMaterial({color:0xe5b594,roughness:.95}),
   silk=new T.MeshStandardMaterial({color:silkHex,roughness:.86}),
   helmet=new T.MeshStandardMaterial({color:silkHex,roughness:.49});
- const sphere=new T.SphereGeometry(1,16,12);
+ // One shared subtle coat texture gives the horse skin some natural variation without network assets.
+ const coatCanvas=document.createElement('canvas');coatCanvas.width=128;coatCanvas.height=128;
+ const coatCtx=coatCanvas.getContext('2d');coatCtx.fillStyle='#f6f6f2';coatCtx.fillRect(0,0,128,128);
+ let noiseSeed=159+h.no*107;const rand=()=>{noiseSeed=(Math.imul(noiseSeed,1664525)+1013904223)>>>0;return noiseSeed/4294967296};
+ for(let i=0;i<2600;i++){
+  const x=rand()*128,y=rand()*128;
+  coatCtx.fillStyle=rand()>.52?'rgba(255,255,255,.11)':'rgba(55,45,35,.065)';
+  coatCtx.fillRect(x,y,.4+rand()*2,.6+rand()*2);
+ }
+ const coatTex=new T.CanvasTexture(coatCanvas);coatTex.colorSpace=T.SRGBColorSpace;
+ coat.map=coatTex;dark.map=coatTex;light.map=coatTex;
+ const sphere=new T.SphereGeometry(1,20,16);
  function oval(parent,material,x,y,z,rx,ry,rz){
   const o=new T.Mesh(sphere,material);o.position.set(x,y,z);o.scale.set(rx,ry,rz);parent.add(o);return o;
  }
@@ -26,17 +37,25 @@ export function createRaceHorse(T,scene,h,silkHex){
   mesh.quaternion.setFromUnitVectors(new T.Vector3(0,1,0),d.normalize());
   parent.add(mesh);return mesh;
  }
- function loft(parent,material,stations,sides=14){
-  // Stations are [x,y,z,rx,ry] cross sections perpendicular to forward z.
-  const v=[],uv=[],ix=[];
-  stations.forEach(([x,y,z,rx,ry],i)=>{
+ function loft(parent,material,stations,sides=20){
+  // Cubic subdivision produces a genuinely smooth horse silhouette, not stacked spheres.
+  const v=[],uv=[],ix=[],smooth=[];
+  const cubic=(a,b,c,d,t)=>.5*((2*b)+(-a+c)*t+(2*a-5*b+4*c-d)*t*t+(-a+3*b-3*c+d)*t*t*t);
+  for(let i=0;i<stations.length-1;i++){
+   for(let q=0;q<4;q++){
+    const t=q/4;
+    smooth.push(stations[i].map((_,j)=>cubic(stations[Math.max(0,i-1)][j],stations[i][j],stations[i+1][j],stations[Math.min(stations.length-1,i+2)][j],t)));
+   }
+  }
+  smooth.push(stations[stations.length-1]);
+  smooth.forEach(([x,y,z,rx,ry],i)=>{
    for(let k=0;k<=sides;k++){
     const a=k/sides*Math.PI*2;
-    v.push(x+Math.cos(a)*rx,y+Math.sin(a)*ry,z);
-    uv.push(k/sides,i/(stations.length-1));
+    v.push(x+Math.cos(a)*Math.max(.02,rx),y+Math.sin(a)*Math.max(.02,ry),z);
+    uv.push(k/sides,i/(smooth.length-1));
    }
   });
-  for(let i=0;i<stations.length-1;i++)for(let k=0;k<sides;k++){
+  for(let i=0;i<smooth.length-1;i++)for(let k=0;k<sides;k++){
    const a=i*(sides+1)+k,b=a+sides+1;
    ix.push(a,b,a+1,b,b+1,a+1);
   }
