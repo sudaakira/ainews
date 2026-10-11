@@ -73,37 +73,39 @@ export function createRaceHorse(T,scene,h,silkHex){
   ell(anim,coat,side*.38,1.43,.78,.235,.42,.37);
   ell(anim,coat,side*.38,1.45,-1.22,.255,.46,.42);
  }
- // Equine head: forehead upright, bridge of nose slopes sharply down.
- // Previous head was nearly horizontal (+1.2m forward) and looked crocodilian.
- const headRig=new T.Group();headRig.position.set(0,2.57,1.64);anim.add(headRig);
+ // Derby Stallion 2-inspired cute racehorse: compact head, round cheek,
+ // broad gentle forehead, short muzzle and readable eyes from the side camera.
+ // This is a stylized 3D interpretation, not an extracted copyrighted sprite.
+ const headRig=new T.Group();headRig.position.set(0,2.60,1.64);anim.add(headRig);
  loft(headRig,coat,[
-  [0,.12,-.29,.10,.13],[0,.14,-.17,.245,.28],
-  [0,.09,.00,.31,.34],[0,-.04,.17,.30,.34],
-  [0,-.23,.29,.245,.29],[0,-.43,.38,.215,.25],
-  [0,-.64,.48,.175,.20],[0,-.79,.57,.18,.155],
-  [0,-.88,.64,.22,.145],[0,-.89,.73,.20,.12]
- ],20,5);
- // Wide, rounded nostril-bearing muzzle and lower lip.
- ell(headRig,highlight,0,-.88,.69,.225,.145,.165);
- ell(headRig,shade,0,-.985,.69,.19,.060,.11);
+  [0,.10,-.28,.09,.13],[0,.14,-.16,.27,.29],
+  [0,.11,.00,.34,.39],[0,-.05,.15,.33,.37],
+  [0,-.24,.29,.275,.29],[0,-.45,.40,.23,.23],
+  [0,-.62,.48,.205,.19],[0,-.70,.57,.215,.155],
+  [0,-.73,.66,.235,.14]
+ ],22,5);
+ // A soft jawline and gently rounded cheeks make the silhouette approachable.
+ ell(headRig,coat,0,-.22,.12,.31,.30,.29);
+ ell(headRig,highlight,0,-.72,.63,.245,.165,.17);
+ ell(headRig,shade,0,-.825,.63,.205,.06,.12);
  for(const side of [-1,1]){
-  // Eyes are recessed in the upper skull, not floating outside the cheeks.
-  ell(headRig,shade,side*.275,.035,.13,.044,.085,.09);
-  ell(headRig,eyeMat,side*.302,.047,.145,.037,.061,.067);
-  ell(headRig,cream,side*.327,.080,.174,.010,.013,.014);
-  const lid=ell(headRig,coat,side*.283,.129,.12,.049,.020,.09);
-  lid.rotation.z=-side*.08;
-  // Ears point upward and slightly forward from the poll.
-  const ear=ell(headRig,coat,side*.20,.51,-.19,.105,.26,.095);
-  ear.rotation.z=-side*.14;
-  const earInside=ell(headRig,pink,side*.205,.55,-.12,.052,.16,.030);
-  earInside.rotation.z=-side*.14;
-  // Dark nostrils on the two sides of the muzzle.
-  ell(headRig,shade,side*.188,-.865,.745,.048,.032,.023);
-  tube(headRig,leather,[side*.28,.11,-.09],[side*.20,-.85,.65],.018,.017);
-  ell(headRig,metal,side*.21,-.84,.65,.030,.031,.028);
+  // Oversized but almond-shaped glossy eyes, with warm eyelids and a highlight.
+  ell(headRig,shade,side*.301,.055,.13,.063,.104,.103);
+  ell(headRig,eyeMat,side*.341,.065,.15,.060,.090,.091);
+  ell(headRig,cream,side*.395,.111,.203,.019,.023,.021);
+  ell(headRig,coat,side*.308,.166,.13,.065,.026,.105);
+  // Soft upright ears with smaller contrasting interiors.
+  const ear=ell(headRig,coat,side*.21,.53,-.20,.13,.275,.13);
+  ear.rotation.z=-side*.16;
+  const inside=ell(headRig,pink,side*.215,.56,-.105,.067,.17,.038);
+  inside.rotation.z=-side*.16;
+  // Rounded nostrils on the muzzle, not at the end of a long crocodile snout.
+  ell(headRig,shade,side*.201,-.685,.699,.050,.035,.027);
+  // A narrow unobtrusive bridle; leave the eyes and cheeks visible.
+  tube(headRig,leather,[side*.30,.14,-.09],[side*.20,-.67,.59],.015,.014);
+  ell(headRig,metal,side*.20,-.68,.59,.027,.027,.027);
  }
- tube(headRig,leather,[-.22,-.86,.66],[.22,-.86,.66],.020,.020);
+ tube(headRig,leather,[-.21,-.70,.62],[.21,-.70,.62],.018,.018);
  // Soft forelock and short continuous mane.
  for(let i=0;i<5;i++){
   const tuft=ell(headRig,mane,(i-2)*.083,.40,.01,.075,.13,.15);tuft.rotation.x=-.24;
@@ -113,7 +115,7 @@ export function createRaceHorse(T,scene,h,silkHex){
   const tuft=ell(anim,mane,0,y,z,.078,.105,.13);tuft.rotation.x=-.28;
  }
  if(h.no%4===1){
-  loft(headRig,cream,[[0,.24,.15,.02,.03],[0,.04,.22,.052,.07],[0,-.35,.40,.037,.06],[0,-.72,.57,.022,.035]],9,3);
+  loft(headRig,cream,[[0,.23,.14,.02,.03],[0,.04,.20,.056,.08],[0,-.28,.35,.042,.07],[0,-.61,.52,.022,.035]],9,3);
  }
  const tailRig=new T.Group();tailRig.position.set(0,1.78,-1.66);anim.add(tailRig);
  tube(tailRig,mane,[0,0,0],[0,-.26,-.34],.095,.070);
