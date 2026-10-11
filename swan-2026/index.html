@@ -84,13 +84,13 @@
 .factor-settings{border:1px solid #476b70;border-radius:10px;background:#18343e;padding:12px;margin:12px 0}
 .factor-settings h3{font-size:15px;color:#f3dfa6;margin:0 0 9px}
 .factor-settings label{display:flex;justify-content:space-between;margin-top:12px;font-size:13px}
-.factor-settings input{width:100%}
+.factor-settings input{width:100%}.factor-settings,.factor-settings label,.factor-settings .small{color:#e4f0eb}
 .factors-overflow{overflow-x:auto}
 .factor-table{border-collapse:collapse;width:100%;font-size:12px;min-width:360px}
 .factor-table th,.factor-table td{border-bottom:1px solid #446068;padding:7px 5px;text-align:right;white-space:nowrap}
 .factor-table th:first-child,.factor-table td:first-child{text-align:left}
-.factor-table td small{display:block;white-space:normal;color:#bad1cf;font-size:10px}
-.factor-table tbody tr:nth-child(even){background:#203e45}
+.factor-table td small{display:block;white-space:normal;color:#47676c;font-size:10px}
+.factor-table tbody tr:nth-child(even){background:#eaf4f3}
 
 /* Simple, two-level interface: race and three-place ranking first;
    all expert model switches and audit tables are available on demand. */
@@ -103,7 +103,7 @@ header p:last-child{font-size:12px;opacity:.8}
 .advanced-settings .factor-settings{margin-top:12px}
 .advanced-settings .export-btn{font-size:12px;margin-top:14px}
 .detail-panel,.breakdown,.horse-list,.links{margin:12px 0}
-.breakdown>summary,.horse-list>summary,.links>summary{cursor:pointer;font-weight:800;font-size:16px;list-style-position:inside;color:#e6f3ed;padding:3px 0}
+.breakdown>summary,.horse-list>summary,.links>summary{cursor:pointer;font-weight:800;font-size:16px;list-style-position:inside;color:#193d48;padding:3px 0}
 .breakdown[open]>summary,.horse-list[open]>summary,.links[open]>summary{margin-bottom:12px}
 .tiny-disclaimer{font-size:11px;color:#a9bfc0;margin:8px 0 0}
 .hero-race .live-stats{display:flex;gap:14px;margin:8px 0}
@@ -111,13 +111,13 @@ header p:last-child{font-size:12px;opacity:.8}
 .hero-race .live-stat span{font-size:11px}
 .hero-race .live-stat b{font-size:14px}
 .hero-race .live-stat:last-child{display:none}
-.hero-race .live-head strong{font-size:clamp(14px,1.5vw,18px)}
+.hero-race .live-head strong{font-size:clamp(14px,1.5vw,18px)}.advanced-settings label,.advanced-settings .small{color:#dceae9}.advanced-settings>summary{color:#f0f5ed}
 .hero-race>.card{border-width:1px}
 .hero-race .live-sim{padding:10px}
 .hero-race .live-buttons{margin-top:7px}
 .hero-race .result-head strong{font-size:clamp(16px,2vw,21px)}
 #simulate{margin-top:12px;padding:13px;font-weight:900}
-#bars .bar .val small{font-size:10px;display:block}
+#bars .bar .val small{font-size:10px;display:block}.bar{grid-template-columns:130px minmax(0,1fr) 68px}@media(max-width:520px){.bar{grid-template-columns:105px minmax(0,1fr) 68px;gap:5px}}
 #bars .bar .n{cursor:pointer}
 @media(max-width:760px){
  .hero-race .live-stats{gap:9px}
