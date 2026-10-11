@@ -469,7 +469,7 @@ window.KYOTO_RACE={HS,LIVE,route,routeLength,horseProgress};
  // Replace the original all-ellipsoid cartoon model with newly sculpted thoroughbreds.
  let horseV3Ready=false;
  try{
-  const horseV3=await import("./horse-v3.js?v=thoroughbred-20261012-v5");
+  const horseV3=await import("./horse-v3.js?v=thoroughbred-20261012-v6");
   for(const h of HS)models.push(horseV3.createRaceHorse(THREE,scene,h,silkColors[h.no-1]));
   horseV3Ready=models.length===18;
  }catch(e){
@@ -500,8 +500,10 @@ window.KYOTO_RACE={HS,LIVE,route,routeLength,horseProgress};
   const doors=[];
   for(let side of [-1,1]){
    const hinge=new THREE.Group();hinge.position.set(x+side*stallWidth/2,1.47,stallDepth/2);gateRoot.add(hinge);
-   const leaf=beam(hinge,-side*stallWidth/4,0,0,stallWidth/2-.05,2.55,.09,gateWhite);
-   for(let k=0;k<3;k++)beam(hinge,-side*stallWidth/4,-.83+k*.82,.09,stallWidth/2-.07,.09,.09,gateSteel);
+   // Open grille doors: a solid white panel obscured the horses completely.
+   const leaf=new THREE.Group();hinge.add(leaf);
+   for(let k=0;k<4;k++)beam(leaf,-side*stallWidth/4,-1.02+k*.65,0,stallWidth/2-.07,.065,.07,gateSteel);
+   beam(leaf,-side*(stallWidth/2-.10),0,0,.07,2.50,.08,gateSteel);
    doors.push({hinge,side});
   }
   gateDoors.push(...doors);
@@ -521,7 +523,7 @@ window.KYOTO_RACE={HS,LIVE,route,routeLength,horseProgress};
  // At the stalls, scale the chibi runners slightly down to fit; blend back to normal as they accelerate.
  function updateGates(clock){
   const opening=Math.max(0,Math.min(1,clock/.65));
-  const swing=opening*1.30;
+  const swing=opening*1.48;
   for(const door of gateDoors)door.hinge.rotation.y=-door.side*swing;
  }
  // Kyoto-inspired JRA goal board: freestanding pylons outside both rails,
@@ -620,21 +622,31 @@ window.KYOTO_RACE={HS,LIVE,route,routeLength,horseProgress};
    m.root.rotation.y=Math.atan2(d.dx,d.dz);
    // Racing gallop is an asymmetrical four-beat stride with suspension, not
    // a four-leg sine-wave bicycle motion. The body stays still in the stalls.
-   const cycle=LIVE.visualTime*7.2+h.no*.18;
+   const cycle=LIVE.visualTime*6.8+h.no*.18;
    const gallop=clock>0.3?Math.min(1,(clock-.3)/1.5):0;
+   // Darby Stallion 2-inspired readable side-on silhouette: gather -> push -> fly -> land.
    const stridePhase=((cycle/(Math.PI*2))%1+1)%1;
-   const airborne=Math.pow(Math.max(0,Math.sin(Math.PI*2*(stridePhase-.12))),2);
-   m.anim.position.y=gallop*(.05+.13*airborne);
-   m.anim.rotation.x=gallop*(.045*Math.sin(cycle-.65));
-   m.headRig.rotation.x=gallop*(-.06*Math.sin(cycle-.9));
+   const airborne=Math.pow(Math.max(0,Math.sin(Math.PI*2*(stridePhase-.20))),2);
+   m.anim.position.y=gallop*(.025+.17*airborne);
+   m.anim.rotation.x=gallop*(.075*Math.sin(cycle-.9));
+   m.headRig.rotation.x=gallop*(-.08*Math.sin(cycle-1.1));
    m.tailRig.rotation.x=gallop*.14*Math.sin(cycle+.4);
    m.tailRig.rotation.z=gallop*.09*Math.sin(cycle*.43+h.no);
+   // Explicit four-keyframe poses (degrees in radians), not independent sine waves.
+   // Front pair extends together at landing; rear pair pushes together at takeoff.
+   const poses=[
+    [[-.55,.85],[-.40,.78],[.64,-.70],[.48,-.63]], // gather
+    [[-.80,.36],[-.72,.40],[-.48,-.18],[-.39,-.20]], // hind push
+    [[.54,.74],[.42,.67],[-.66,-.77],[-.56,-.69]], // suspension
+    [[.80,.18],[.68,.22],[.15,-.58],[.23,-.52]], // front reach
+    [[-.55,.85],[-.40,.78],[.64,-.70],[.48,-.63]]
+   ];
+   const poseIndex=Math.min(3,Math.floor(stridePhase*4));
+   const u=(stridePhase*4-poseIndex),ease=u*u*(3-2*u);
    m.legs.forEach((leg,j)=>{
-    const phase=cycle+(leg.front?(leg.side>0?.28:0):(leg.side>0?3.55:3.18));
-    const reach=Math.sin(phase);
-    leg.pivot.rotation.x=gallop*(leg.front?-.14:.16)+gallop*reach*(leg.front?.57:.68);
-    const tuck=Math.max(0,Math.sin(phase-.55));
-    leg.knee.rotation.x=gallop*(leg.front?1:-1)*(.10+.83*tuck);
+    const a=poses[poseIndex][j],b=poses[poseIndex+1][j];
+    leg.pivot.rotation.x=gallop*(a[0]+(b[0]-a[0])*ease);
+    leg.knee.rotation.x=gallop*(a[1]+(b[1]-a[1])*ease);
    });
    m.sprite.material.opacity=order.slice(0,3).some(x=>x.no===h.no)?1:.88;
   }
