@@ -55,6 +55,12 @@
 #three-stage{width:100%;height:clamp(420px,55vw,790px);position:relative;background:#2a6747}
 #three-stage canvas{display:block;width:100%;height:100%;touch-action:pan-y}
 .track-broadcast{position:absolute;top:12px;left:12px;z-index:2;display:flex;gap:9px;align-items:center;flex-wrap:wrap;background:#142e43ce;color:white;border-radius:8px;padding:7px 11px;pointer-events:none;font-size:clamp(11px,1.4vw,17px);box-shadow:0 2px 12px #122f3b66}.track-broadcast b{font-size:1.15em}.track-broadcast-bottom{position:absolute;bottom:12px;right:12px;z-index:2;background:#122f3baf;color:white;border-radius:6px;padding:5px 9px;font-size:11px;letter-spacing:.05em;pointer-events:none}.track-broadcast-bottom span{color:#a4f0db}
+.broadcast-clock{position:absolute;top:12px;right:12px;z-index:3;padding:7px 13px;border-radius:8px;background:#142c45d9;color:#fff;font-size:clamp(17px,2.7vw,26px);font-weight:900;font-variant-numeric:tabular-nums;pointer-events:none}
+.broadcast-course{position:absolute;top:64px;left:12px;z-index:3;width:clamp(122px,17vw,200px);background:#132b3bcf;border-radius:10px;padding:5px 7px;color:#fff;pointer-events:none}
+.broadcast-course svg{width:100%;display:block}.broadcast-course span{display:block;text-align:center;font-size:12px;font-weight:900}
+.broadcast-commentary{position:absolute;bottom:14px;left:12px;z-index:3;display:flex;align-items:center;gap:9px;max-width:min(75%,490px);padding:9px 15px;background:#172f3ccf;border-left:4px solid #35c1c9;color:#fff;border-radius:7px;pointer-events:none;text-shadow:0 1px 2px #111}
+.broadcast-commentary .broadcast-mic{font-size:26px}.broadcast-commentary strong{display:block;color:#7fe2ee;font-size:clamp(12px,1.5vw,16px)}.broadcast-commentary span:not(.broadcast-mic){display:block;font-size:clamp(11px,1.3vw,14px)}
+@media(max-width:600px){.broadcast-course{top:57px;width:124px}.broadcast-commentary{bottom:10px;left:7px;padding:6px 9px;max-width:78%}.broadcast-mic{display:none}.track-broadcast-bottom{display:none}.track-broadcast{max-width:75%;font-size:10px}.broadcast-clock{padding:5px 7px}}
 .camera-controls{display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin:10px 0}
 .camera-controls button{width:auto;min-width:0;flex:1;margin:0;padding:9px 8px;background:#31535d;font-size:13px;border:1px solid #638781}
 .camera-controls button.cam-active{background:#0b898c;border-color:#75c4b8}
@@ -81,7 +87,10 @@
  <div class="live-head"><strong>🏇 KYOTO 1400m OUTER｜3Dレースビュー</strong><span class="live-status" id="live-status">スタート待機</span></div>
  <div class="live-stats"><div class="live-stat"><span>レース経過（仮想）</span><b id="live-clock">00:00</b></div><div class="live-stat"><span>残り距離</span><b id="live-distance">1400m</b></div><div class="live-stat"><span>現在の区間</span><b id="live-section">発走前</b></div></div>
  <div class="camera-controls" id="camera-controls" style="display:none"><button data-camera="wide">🏟️ 京都競馬場・全景</button><button data-camera="gate">🚦 ゲート→追走</button><button data-camera="follow" class="cam-active">🎥 外ラチ側・追走</button><button data-camera="finish">🏁 ゴール前</button><button data-camera="2d">2D模式図</button><span id="three-status">3Dモデル読み込み中…</span></div><div class="live-screen">
- <div id="three-stage" style="display:none"><div class="track-broadcast"><b>京都 11R</b><span>スワンステークス GII｜芝1400m（外）</span></div><div class="track-broadcast-bottom">🏇 KYOTO RACECOURSE <span>3D SIMULATION</span></div></div>
+ <div id="three-stage" style="display:none"><div class="track-broadcast"><b>京都 11R</b><span>スワンステークス GII｜芝1400m（外）</span></div><div class="track-broadcast-bottom">🏇 KYOTO RACECOURSE <span>3D SIMULATION</span></div>
+ <div class="broadcast-clock" id="broadcast-clock">0:00.0</div>
+ <div class="broadcast-course"><svg viewBox="0 0 210 78" aria-label="コース進行図"><rect x="5" y="6" width="200" height="66" rx="33" fill="#296e50" stroke="#d8efc9" stroke-width="4"/><rect x="17" y="17" width="176" height="44" rx="22" fill="#43875b" stroke="#9bdb6b" stroke-width="6"/><circle id="broadcast-dot" cx="23" cy="39" r="6" fill="#ffda57" stroke="#fff" stroke-width="2"/></svg><span id="broadcast-distance">残り 1400m</span></div>
+ <div class="broadcast-commentary"><span class="broadcast-mic">🎙️</span><div><strong id="broadcast-leader">スタート前</strong><span id="broadcast-comment">京都芝1400m、まもなく発走！</span></div></div></div>
  <svg id="kyoto-map" viewBox="0 0 860 555" role="img" aria-label="京都芝1400m外回りを模式化した競走馬18頭のリアルタイムレース再生">
   <defs><pattern id="mow" width="60" height="60" patternUnits="userSpaceOnUse"><rect width="60" height="60" fill="#347b51"/><rect width="30" height="60" fill="#2d714b"/></pattern><linearGradient id="laneGrass" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#76bd74"/><stop offset="1" stop-color="#499958"/></linearGradient></defs>
   <rect width="860" height="555" fill="url(#mow)"/>
@@ -522,7 +531,7 @@ window.KYOTO_RACE={HS,LIVE,route,routeLength,horseProgress};
  let cw=0,ch=0;
  function resize(){let w=stage.clientWidth,h=stage.clientHeight;if(!w||!h)return;if(w!==cw||h!==ch){cw=w;ch=h;renderer.setSize(w,h,false);camera.aspect=w/h;camera.updateProjectionMatrix()}}
  const tmp=new THREE.Vector3(),look=new THREE.Vector3(),desired=new THREE.Vector3();
- let first=true,lastFrame=0,frame=0;
+ let first=true,lastFrame=0,frame=0,lastHud=0;
  const smoothLook=new THREE.Vector3();
  function animate(now){
   requestAnimationFrame(animate);
@@ -530,6 +539,19 @@ window.KYOTO_RACE={HS,LIVE,route,routeLength,horseProgress};
   resize();if(!LIVE.ready)return;
   const frameDt=lastFrame?Math.min(.12,Math.max(0,(now-lastFrame)/1000)):1/60;lastFrame=now;
   const clock=LIVE.clock,order=HS.map(h=>({no:h.no,p:horseProgress(h.no,clock)})).sort((a,b)=>b.p-a.p);
+  if(now-lastHud>180){
+   lastHud=now;
+   const raceProgress=Math.min(1,Math.max(0,clock/LIVE.duration));
+   const remaining=Math.max(0,Math.round(1400*(1-raceProgress)/10)*10);
+   document.getElementById('broadcast-clock').textContent=Math.floor(clock/60)+':'+(clock%60).toFixed(1).padStart(4,'0');
+   document.getElementById('broadcast-distance').textContent=remaining?'残り '+remaining+'m':'🏁 ゴール';
+   const angle=Math.PI*2*raceProgress+Math.PI;
+   document.getElementById('broadcast-dot').setAttribute('cx',(105+81*Math.cos(angle)).toFixed(1));
+   document.getElementById('broadcast-dot').setAttribute('cy',(39+21*Math.sin(angle)).toFixed(1));
+   const top=HS[order[0].no-1],second=HS[order[1].no-1];
+   document.getElementById('broadcast-leader').textContent=clock<=0?'スタート前':raceProgress>=1?'🏁 ゴール！':'先頭 '+top.no+'番 '+top.name;
+   document.getElementById('broadcast-comment').textContent=clock<=0?'京都芝1400m、まもなく発走！':raceProgress>=1?'上位3頭の着順をご確認ください':remaining<300?'直線勝負！ '+second.no+'番 '+second.name+' が追う！':second.no+'番 '+second.name+' が続きます';
+  }
   for(let i=0;i<HS.length;i++){
    const h=HS[i],m=models[i],p=horseProgress(h.no,clock),d=path(p);
    const release=Math.max(0,Math.min(1,clock/3.2));
