@@ -21,6 +21,8 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - uses: actions/checkout@v4
+      - name: Validate shared engine (18-horse and 6-horse cases)
+        run: node race-engine/tests/smoke.mjs
       - name: Prepare static site
         run: |
           mkdir -p _site/swan-2026 _site/race-engine
