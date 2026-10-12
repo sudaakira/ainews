@@ -1,4 +1,4 @@
-/** Tokyo October Stakes 2026. Pre-race inputs and clearly marked proxy scores. */
+/** Tokyo October Stakes 2026 pre-race profile; measured entries vs modeled proxies identified in notes. */
 export default {
   "schemaVersion": 1,
   "id": "tokyo-20261012-11",
@@ -16,14 +16,15 @@ export default {
   "duration": 118,
   "demo": false,
   "standardWeight": 57,
-  "notes": "2026年10月12日10:49 JST時点の事前評価。出馬表・騎手・負担重量・父母父・馬番を照合。調教A/B/Cは競馬チャンネル2026/10/11の全頭診断（主観評価）、base・inputs（同コース等の換算点、ラップ、血統）は公開成績に基づく暫定代理指数で実測値ではない。母系5代・中間調教全時計・当日芝バイアスは未検証。オッズは採点に不使用。東京3Dは左回り・3角付近の上り・直線上りを近似した模式図であり、実測コース形状ではない。",
+  "notes": "2026年10月12日10:49 JST時点の事前評価。出馬表・騎手・負担重量・父母父・馬番を照合。調教A/B/Cは競馬チャンネル2026/10/11の全頭診断を基本とし、②はnetkeiba掲載の最終追い切りB評価を採用（競馬チャンネルではC。評価が分かれる）、base・inputs（同コース等の換算点、ラップ、血統）は公開成績に基づく暫定代理指数で実測値ではない。母系5代・中間調教全時計・当日芝バイアスは未検証。オッズは採点に不使用。東京3Dは左回り・3角付近の上り・直線上りを近似した模式図であり、実測コース形状ではない。",
   "sources": {
     "JRA": "https://www.jra.go.jp/JRADB/accessD.html?CNAME=pw01dde0105202604051120261012%2FFE",
     "entry": "https://sports.yahoo.co.jp/keiba/race/denma/2605040511",
     "record": "https://sports.yahoo.co.jp/keiba/race/achievement/course/2605040511",
     "distance": "https://sports.yahoo.co.jp/keiba/race/achievement/distance/2605040511",
     "training": "https://keibachannel.jp/prediction/36515/5/",
-    "courseStats": "https://www.keibadata.com/courses/tokyo/turf/2000"
+    "courseStats": "https://www.keibadata.com/courses/tokyo/turf/2000",
+    "trainingAlternative": "https://race.netkeiba.com/race/newspaper.html?race_id=202605040511"
   },
   "horses": [
     {
@@ -60,7 +61,7 @@ export default {
       "training": "B",
       "history": "府中S1着〈東京2000m 1:57.1／上がり34.0〉、目黒記念GII6着0.3秒差",
       "plus": "東京2000m好走・左回り4勝・距離短縮",
-      "minus": "約4か月半ぶり・OP昇級初戦"
+      "minus": "約4か月半ぶり・OP昇級初戦。媒体で調教評価B/Cが分かれる"
     },
     {
       "no": 3,
