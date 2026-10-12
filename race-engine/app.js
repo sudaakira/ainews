@@ -14,9 +14,24 @@ const mainHeading=document.querySelector('main section.card h2');if(mainHeading)
 const broadcast=document.querySelector('.track-broadcast');if(broadcast)broadcast.innerHTML='<b>'+config.venue+' '+config.raceNumber+'R</b><span>'+config.name+'｜'+config.surface+config.distance+'m '+(config.course||'')+'</span>';
 const venueTag=document.querySelector('.track-broadcast-bottom');if(venueTag)venueTag.firstChild.textContent='🏇 '+config.venue+' ';
 for(const id of ['live-distance','broadcast-distance']){const el=document.getElementById(id);if(el)el.textContent=(id==='live-distance'?'':'残り ')+distance+'m';}
-const map=document.getElementById('kyoto-map');if(map){map.setAttribute('aria-label','汎用3D競馬模式図（コース形状・距離は実測ではない）');if(config.courseView!=='kyoto-1400-outer'){map.querySelectorAll('text').forEach(t=>{const v=t.textContent||'';if(v.includes('京都'))t.textContent=v.replaceAll('京都競馬場',config.venue).replaceAll('京都',config.venue);if(v.includes('芝1400m'))t.textContent=config.surface+config.distance+'m / 汎用模式図';});}}
+const map=document.getElementById('kyoto-map');if(map){map.setAttribute('aria-label',config.courseView==='kyoto-1400-outer'?'京都芝1400m外のモデル模式図':'汎用3D競馬模式図（コース形状・距離は実測ではない）');if(config.courseView!=='kyoto-1400-outer'){map.querySelectorAll('text').forEach(t=>{const v=t.textContent||'';if(v.includes('京都'))t.textContent=v.replaceAll('京都競馬場',config.venue).replaceAll('京都',config.venue);if(v.includes('芝1400m'))t.textContent=config.surface+config.distance+'m / 汎用模式図';});}}
 const docLinks=document.querySelector('.card.links');
-if(docLinks&&config.courseView!=='kyoto-1400-outer')docLinks.innerHTML='<summary>📚 データの扱い</summary><p> '+(config.notes||'未取得の情報は中立として扱います。')+'</p><p>3Dコースは汎用オーバルの模式図であり、実際の距離・坂・ラチ配置を再現するものではありません。</p>';
+if(docLinks){
+ const sources={...(config.factors?.sources||{}),...(config.sources||{})};
+ const entries=Object.entries(sources).filter(([,url])=>typeof url==='string'&&url.startsWith('https://'));
+ docLinks.innerHTML='<summary>📚 出典・モデルの注意点</summary>'+
+  '<p class="small">'+(config.notes||'情報が未取得の要素は中立に扱います。')+'</p>'+
+  '<p class="small">'+(config.factors?.scope||'該当コースの騎手・枠順・性別統計は未入力のため中立です。')+'</p>'+
+  (entries.length?'<p class="small">'+entries.map(([type,url])=>
+    '<a rel="noopener" target="_blank" href="'+url+'">'+type+'の資料</a>').join(' ／ ')+'</p>':'')+
+  '<p class="small">※着順率は未校正モデル内の出現率。'+(config.courseView==='kyoto-1400-outer'?'':'3Dは汎用模式図で実際の競馬場の高低差・距離形状を再現しません。')+'</p>';
+}
+const cameraAll=document.querySelector('[data-camera="wide"]');
+if(cameraAll)cameraAll.textContent='🏟️ '+config.venue+'・全景';
+const auditTitle=document.querySelector('.card.breakdown summary');
+if(auditTitle)auditTitle.textContent='📊 14項目・全'+FIELD+'頭の採点表';
+const horseListTitle=document.querySelector('.horse-list summary');
+if(horseListTitle)horseListTitle.textContent='🐎 全'+FIELD+'頭の詳細を見る';
 const el=id=>document.getElementById(id);let probs=[],n=20000;
 const random=SIM.random,norm=SIM.norm;
 function initWeightControls(){
