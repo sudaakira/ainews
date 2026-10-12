@@ -152,6 +152,7 @@ const LIVE = {playing:false,clock:0,visualTime:0,last:0,rank:[],seed:0,duration,
 const NS='http://www.w3.org/2000/svg';
 const route=el('kyoto-route'), group=el('kyoto-horses');
 const routeLength=route.getTotalLength();
+const routeAt=d=>route.getPointAtLength(config.direction==='左'?routeLength-d:d);
 const silks=['#d33c39','#f6e9e2','#1b6fcb','#eac73a','#d65e91','#50b7ae','#b6b6b6','#f18a35','#713fb3','#c1a447','#e15532','#59b45a','#e9eff3','#a774db','#5ca0ca','#c89a75','#d2db49','#d24e70'];
 function mkSvg(tag,attrs){let e=document.createElementNS(NS,tag);Object.entries(attrs||{}).forEach(([k,v])=>e.setAttribute(k,v));return e}
 HS.forEach(h=>{
@@ -187,7 +188,7 @@ function drawLive(){
  let active=new Set(order.slice(0,3).map(x=>x.no));
  HS.forEach(h=>{
   let p=horseProgress(h.no,LIVE.clock),dist=routeLength*p;
-  let pos=route.getPointAtLength(dist),prev=route.getPointAtLength(Math.max(0,dist-1)),next=route.getPointAtLength(Math.min(routeLength,dist+1));
+  let pos=routeAt(dist),prev=routeAt(Math.max(0,dist-1)),next=routeAt(Math.min(routeLength,dist+1));
   let dx=next.x-prev.x,dy=next.y-prev.y,len=Math.max(.1,Math.hypot(dx,dy));
   let lateral=(CENTER-h.no)*4.3, x=pos.x-dy/len*lateral,y=pos.y+dx/len*lateral;
   let g=el('horse-'+h.no);g.setAttribute('transform','translate('+x.toFixed(1)+' '+(y+Math.sin(LIVE.visualTime*11+h.no)*1.2).toFixed(1)+')');
