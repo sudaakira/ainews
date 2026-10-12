@@ -76,8 +76,14 @@
    biasScore=clamp(50+22*late+(f.drawNumber>=7?8:f.drawNumber<=3?-6:0),24,82);
   }
   const rest=h.rest;
-  const rotation=rest<=18?43:rest<=80?70:rest<=110?61:rest<=150?47:rest<=200?38:24;
-  const state={A:87,B:67,C:43}[h.training]??50;
+  let rotation=rest<=18?43:rest<=80?70:rest<=110?61:rest<=150?47:rest<=200?38:24;
+  let state={A:87,B:67,C:43}[h.training]??50;
+  // Recent serious illness plus extended absence is a top-level fitness
+  // uncertainty, not merely a few points of spacing/layoff variance.
+  // This is a cautious model assumption, not a veterinary diagnosis.
+  const fitnessRisk=rest>=120&&/肺出血|屈腱炎|骨折/.test(h.minus||'');
+  if(fitnessRisk){state=Math.min(state,36);rotation=Math.min(rotation,24);}
+
   return {
    course:inp[0],
    recent:clamp(55+(h.base-103)*2.8,15,96),
@@ -122,7 +128,7 @@
  }
  function docSummary(){
   return {features:FEATURES.length,defaultWeight:100,
-   unverified:['完全5代血統','厩舎の定量成績','全出走の直接対戦・ラップ','当日馬場バイアス','当週/1週前調教全時計']};
+   unverified:['完全5代血統','厩舎の定量成績','全出走の直接対戦・ラップ','当日馬場バイアス','当週/1週前調教全時計','人気・オッズ（期待値の評価不可）']};
  }
  global.SWAN_LOOP=Object.freeze({FEATURES,INPUTS,DEFAULTS,BIASES,GROUNDS,
   scores,evaluate,weights,baselineWeights,docSummary});
