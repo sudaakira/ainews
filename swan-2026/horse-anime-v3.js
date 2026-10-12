@@ -38,7 +38,7 @@ function paintedEye(T){
  t.generateMipmaps=true;t.anisotropy=4;t.needsUpdate=true;
  sharedEyeTexture=t;return t;
 }
-// Anime pony v15 — original 3D chibi character based on the requested
+// Anime pony v17 soft-plush — original 3D chibi character based on the requested
 // illustrated design direction (large expressive eyes, rosy muzzle, tiny rider).
 // Coordinates: forward +Z, up +Y. Four articulated legs stay compatible with
 // chibi-gallop-v1.js and the 18-horse Kyoto race simulator.
@@ -48,9 +48,12 @@ export function createRaceHorse(T,scene,h,silkHex){
  const base=coatColors[(h.no-1)%coatColors.length];
  // Hand-painted anime proportions; broad cel-shaded highlights rather than pixelated noise.
  // All 18 coats retain their own color while eye highlights, blush and face stay readable.
- const gradient=new T.DataTexture(new Uint8Array([
-  104,104,104,255, 161,161,161,255, 226,226,226,255, 255,255,255,255
- ]),4,1,T.RGBAFormat);gradient.needsUpdate=true;
+ // Gentle eight-step shading: the old four hard bands exaggerated geometry seams.
+ // Keep anime illustration colour without a plastic polygon-faceted surface.
+ const shades=[118,147,168,188,207,222,237,255];
+ const gradient=new T.DataTexture(new Uint8Array(
+  shades.flatMap(v=>[v,v,v,255])
+ ),shades.length,1,T.RGBAFormat);gradient.needsUpdate=true;
  gradient.minFilter=T.NearestFilter;gradient.magFilter=T.NearestFilter;
  gradient.generateMipmaps=false;
  const color=v=>new T.Color(v);
@@ -101,7 +104,7 @@ export function createRaceHorse(T,scene,h,silkHex){
   m.quaternion.setFromUnitVectors(new T.Vector3(0,1,0),v.normalize());parent.add(m);return m;
  };
  // Rounded Catmull-Rom rings: body cross-sections in the XY plane, advancing +Z.
- function loft(parent,material,rings,segments=18,steps=4){
+ function loft(parent,material,rings,segments=36,steps=6){
   const points=[];
   const cr=(a,b,c,d,t)=>.5*(2*b+(-a+c)*t+(2*a-5*b+4*c-d)*t*t+(-a+3*b-3*c+d)*t*t*t);
   for(let i=0;i<rings.length-1;i++)for(let q=0;q<steps;q++){
@@ -123,31 +126,56 @@ export function createRaceHorse(T,scene,h,silkHex){
   }
   const g=new T.BufferGeometry();g.setAttribute('position',new T.Float32BufferAttribute(v,3));
   g.setAttribute('uv',new T.Float32BufferAttribute(uv,2));g.setIndex(idx);g.computeVertexNormals();
+  // The ring duplicates angle 0 at 2pi for UVs. Smooth the two normals:
+  // otherwise each ring displays a visible vertical seam in grazing light.
+  const normal=g.getAttribute('normal');
+  if(normal){
+   for(let row=0;row<points.length;row++){
+    const a=row*(segments+1),b=a+segments;
+    let nx=normal.getX(a)+normal.getX(b),ny=normal.getY(a)+normal.getY(b),nz=normal.getZ(a)+normal.getZ(b);
+    const len=Math.hypot(nx,ny,nz)||1;nx/=len;ny/=len;nz/=len;
+    normal.setXYZ(a,nx,ny,nz);normal.setXYZ(b,nx,ny,nz);
+   }
+   normal.needsUpdate=true;
+  }
   const m=new T.Mesh(g,material);parent.add(m);return m;
  }
- // Chibi body v16: compact plush barrel, exaggerated rounded rump,
- // low soft belly and thick shoulders. Deliberately short between hip and chest.
- // Rings flow forward along +Z; small endpoint caps avoid a flat cylinder face.
+ // v17 SOFT PLUSH body. All of the shoulders, rump and belly are now one
+ // continuous organic surface; the old pasted-on ellipsoids caused obvious
+ // intersecting "lumps" and harsh dark seams around the hips.
+ // More radial faces and finely spaced profiles produce an even silhouette.
  loft(anim,coat,[
-  [0,1.73,-1.45,.035,.055],[0,1.66,-1.36,.43,.48],
-  [0,1.61,-1.20,.63,.66],[0,1.58,-.94,.72,.73],
-  [0,1.57,-.55,.76,.78],[0,1.56,-.12,.75,.80],
-  [0,1.61,.28,.76,.79],[0,1.69,.62,.71,.76],
-  [0,1.78,.88,.59,.68],[0,1.85,1.05,.32,.40],
-  [0,1.91,1.12,.035,.055]
- ],20,5);
- // Plump, gently arched chest-to-poll connection: never a thin giraffe neck.
+  [0,1.74,-1.49,.025,.035],
+  [0,1.67,-1.42,.25,.31],
+  [0,1.64,-1.32,.42,.46],
+  [0,1.62,-1.22,.56,.59],
+  [0,1.59,-1.07,.68,.70],
+  [0,1.57,-.87,.76,.77],
+  [0,1.56,-.63,.795,.805],
+  [0,1.55,-.37,.815,.825],
+  [0,1.55,-.08,.82,.835],
+  [0,1.57,.19,.81,.83],
+  [0,1.61,.43,.77,.80],
+  [0,1.66,.64,.71,.76],
+  [0,1.72,.82,.61,.69],
+  [0,1.80,.97,.48,.57],
+  [0,1.87,1.09,.28,.35],
+  [0,1.92,1.16,.025,.045]
+ ],40,6);
+ // Short, softly arched neck. Its wide lower rings are buried inside the
+ // continuous torso instead of sitting visibly atop it as a second cylinder.
  loft(anim,coat,[
-  [0,1.83,.72,.48,.49],[0,1.99,.94,.46,.47],
-  [0,2.14,1.12,.39,.41],[0,2.29,1.25,.33,.36],
-  [0,2.42,1.36,.26,.28],[0,2.50,1.42,.15,.16]
- ],20,5);
- // Front shoulders and hind haunches make the toy-like body silhouette.
- for(const side of [-1,1]){
-  ell(anim,coat,side*.43,1.45,.63,.34,.51,.42);
-  ell(anim,coat,side*.42,1.44,-1.02,.37,.56,.46);
-  ell(anim,highlight,side*.68,1.71,-1.02,.09,.26,.24);
- }
+  [0,1.90,.72,.43,.40],
+  [0,1.97,.84,.44,.44],
+  [0,2.04,.99,.43,.45],
+  [0,2.15,1.12,.39,.41],
+  [0,2.26,1.23,.34,.37],
+  [0,2.36,1.33,.29,.31],
+  [0,2.45,1.39,.23,.25],
+  [0,2.50,1.43,.14,.17]
+ ],36,6);
+ // Shoulder and haunch volume live in the loft itself; no overlapping
+ // side-spheres or bright "patch" blobs on the outside of the coat.
  // Derby Stallion 2-inspired original character proportions.
  // No long tapered mesh: rounded forehead + cheek + short downturned muzzle.
  // Reference direction: large friendly eyes, tiny muzzle, fluffy forelock.
@@ -232,16 +260,19 @@ export function createRaceHorse(T,scene,h,silkHex){
   const pivot=new T.Group();
   pivot.position.set(side*.45,1.025,front?.67:-.98);
   pivot.scale.set(1.23,.91,1.12);anim.add(pivot);
-  const muscle=ell(pivot,coat,0,-upper*.37,0,front?.265:.305,upper*.61,.245);
+  // Rounded plush upper limb with a gentle taper into the knee.
+  const muscle=ell(pivot,coat,0,-upper*.37,0,front?.245:.275,upper*.66,.215);
   const knee=new T.Group();knee.position.set(0,-upper,0);pivot.add(knee);
-  ell(knee,coat,0,0,0,.151,.149,.135);
-  const cannon=ell(knee,coat,0,-lower*.46,0,.137,lower*.55,.133);
-  ell(knee,coat,0,-lower+.07,.015,.122,.139,.128);
+  // Reduce the bulging knee/ankle spheres that made the legs look jointed
+  // like chunky Lego pieces, while retaining the reliable pivot hierarchy.
+  ell(knee,coat,0,0,0,.136,.137,.129);
+  const cannon=ell(knee,coat,0,-lower*.44,0,.123,lower*.60,.119);
+  ell(knee,coat,0,-lower+.080,.012,.110,.133,.120);
   // Cute white fetlocks and chunky black hooves, still legible in motion.
   if((h.no+side+(front?0:2))%3!==0){
    ell(knee,cream,0,-lower*.75,.009,.143,.173,.140);
   }
-  const foot=lined(knee,hoofMat,0,-lower+.025,.13,.188,.124,.218);
+  const foot=lined(knee,hoofMat,0,-lower+.025,.13,.175,.112,.204);
   foot.rotation.x=-.13;
   legs.push({pivot,knee,front,side,upper,lower});
  }
@@ -254,7 +285,7 @@ export function createRaceHorse(T,scene,h,silkHex){
  const clothMat=new T.MeshBasicMaterial({map:clothTex,side:T.DoubleSide});
  for(const side of [-1,1]){
   const p=new T.Mesh(new T.PlaneGeometry(1.17,1.00),clothMat);
-  p.position.set(side*.802,1.88,-.18);p.rotation.y=side*Math.PI/2;anim.add(p);
+  p.position.set(side*.827,1.88,-.18);p.rotation.y=side*Math.PI/2;anim.add(p);
  }
  // Cute anime/chibi jockey. A full-face helmet, shiny eyes and flying hair
  // match the reference illustration while the original silks remain per runner.
@@ -308,5 +339,5 @@ export function createRaceHorse(T,scene,h,silkHex){
  const sprite=new T.Sprite(new T.SpriteMaterial({map:new T.CanvasTexture(label),transparent:true,depthTest:false}));
  sprite.position.set(0,4.04,0);sprite.scale.set(.73,.73,1);root.add(sprite);
  scene.add(root);
- return {root,anim,headRig,tailRig,legs,sprite,shadow,artDirection:'anime-pony-v16'};
+ return {root,anim,headRig,tailRig,legs,sprite,shadow,artDirection:'anime-pony-v17-softplush'};
 }
