@@ -170,11 +170,15 @@ export function createRaceHorse(T,scene,h,silkHex){
   tuft(anim,i%3===0?maneLight:mane,0,y+.067,z-.02,.086,.20,.10,
    -.20,i%2===0?.19:-.16);
  }
- const tailRig=new T.Group();tailRig.position.set(0,1.78,-1.66);anim.add(tailRig);
- tube(tailRig,mane,[0,0,0],[0,-.26,-.34],.095,.070);
- for(let i=-2;i<=2;i++){
-  const t=ell(tailRig,mane,i*.055,-.51,-.53,.075,.37,.12);
-  t.rotation.x=-.35;t.rotation.z=i*.07;
+ // Layered flowing tail — a fan of glossy manga hair, not rigid sticks.
+ const tailRig=new T.Group();tailRig.position.set(0,1.80,-1.62);anim.add(tailRig);
+ ell(tailRig,mane,0,-.090,-.275,.192,.197,.40);
+ for(let i=-3;i<=3;i++){
+  const x=i*.072;
+  const tuftBase=ell(tailRig,i%2?maneLight:mane,x,-.17,-.52,.088,.120,.38);
+  tuftBase.rotation.x=-.16;tuftBase.rotation.y=i*.035;
+  tuft(tailRig,mane,x*1.32,-.24,-.83-(3-Math.abs(i))*.042,
+   .080,.37,.084,-1.25,i*.07);
  }
  // The thigh and forearm are each a single organic tapered section.
  // Hinge positions exactly match the IK segment lengths below.
@@ -190,14 +194,18 @@ export function createRaceHorse(T,scene,h,silkHex){
   ell(knee,coat,0,0,0,.112,.115,.105);
   const cannon=ell(knee,coat,0,-lower*.48,0,.112,lower*.54,.104);
   ell(knee,coat,0,-lower+.07,.015,.09,.13,.09);
-  const foot=ell(knee,hoofMat,0,-lower+.025,.13,.168,.114,.200);
+  // High white socks on selected horses: thick shapes are visible at race-camera size.
+  if((h.no+side+(front?0:2))%3!==0){
+   ell(knee,cream,0,-lower*.76,.005,.119,.174,.120);
+  }
+  const foot=lined(knee,hoofMat,0,-lower+.025,.13,.176,.118,.215);
   foot.rotation.x=-.13;
   legs.push({pivot,knee,front,side,upper,lower});
  }
  // Jockey and saddlecloth (18 unique race numbers).
  ell(anim,leather,0,2.17,-.24,.58,.12,.66);
  const c=document.createElement('canvas');c.width=256;c.height=256;const g=c.getContext('2d');
- g.fillStyle='#172b76';g.fillRect(0,0,256,256);g.strokeStyle='#f5f5f0';g.lineWidth=8;g.strokeRect(8,8,240,240);
+ g.fillStyle='#493177';g.fillRect(0,0,256,256);g.strokeStyle='#f5f5f0';g.lineWidth=8;g.strokeRect(8,8,240,240);
  g.fillStyle='#fff';g.font='bold 174px sans-serif';g.textAlign='center';g.textBaseline='middle';g.fillText(String(h.no),128,135);
  const clothTex=new T.CanvasTexture(c);clothTex.colorSpace=T.SRGBColorSpace;clothTex.magFilter=T.NearestFilter;clothTex.minFilter=T.NearestFilter;clothTex.generateMipmaps=false;
  const clothMat=new T.MeshBasicMaterial({map:clothTex,side:T.DoubleSide});
@@ -205,19 +213,48 @@ export function createRaceHorse(T,scene,h,silkHex){
   const p=new T.Mesh(new T.PlaneGeometry(1.17,1.00),clothMat);
   p.position.set(side*.655,1.87,-.22);p.rotation.y=side*Math.PI/2;anim.add(p);
  }
+ // Cute anime/chibi jockey. A full-face helmet, shiny eyes and flying hair
+ // match the reference illustration while the original silks remain per runner.
  const rider=new T.Group();anim.add(rider);
- ell(rider,cream,0,2.36,-.43,.30,.22,.31);
- const torso=ell(rider,silk,0,2.69,.10,.29,.39,.32);torso.rotation.x=.63;
- ell(rider,new T.MeshStandardMaterial({color:0xe4b291,roughness:.95}),0,3.02,.44,.18,.22,.19);
- ell(rider,silk,0,3.25,.42,.24,.17,.26);
- ell(rider,silk,0,3.20,.63,.24,.05,.13);
+ const skin=toon(0xffd3b5),skinShade=toon(0xe3a793);
+ const helmetWhite=toon(0xfff9f5),helmetBand=toon(0x2b2a36);
+ const boot=toon(0x292930),glove=toon(0x30313c);
+ const hair=toon(h.no%3===0?0x623d32:h.no%3===1?0x50352f:0x865238);
+ const saddle=ell(rider,leather,0,2.18,-.25,.56,.10,.65);
+ ell(rider,cream,0,2.36,-.43,.30,.23,.30);
+ const torso=ell(rider,silk,0,2.69,.07,.30,.33,.30);torso.rotation.x=.58;
+ // Big round face, around 65% of helmet width.
+ lined(rider,skin,0,3.035,.455,.295,.283,.278);
+ ell(rider,skinShade,0,2.844,.618,.18,.061,.12);
+ // Tiny friendly mouth and two large shining eyes on the facing side.
+ ell(rider,skinShade,0,2.988,.726,.045,.018,.012);
  for(const side of [-1,1]){
-  tube(rider,silk,[side*.25,2.82,.30],[side*.37,2.57,.75],.11,.08);
-  ell(rider,cream,side*.37,2.56,.77,.10,.10,.10);
-  tube(rider,cream,[side*.25,2.34,-.44],[side*.43,2.06,.10],.13,.10);
-  tube(rider,hoofMat,[side*.43,2.06,.10],[side*.47,1.85,.31],.095,.075);
-  ell(rider,hoofMat,side*.48,1.83,.38,.09,.10,.18);
-  tube(rider,leather,[side*.35,2.57,.79],[side*.22,2.05,2.16],.014,.010);
+  ell(rider,shine,side*.124,3.068,.694,.070,.095,.025);
+  ell(rider,iris,side*.121,3.060,.721,.055,.079,.023);
+  ell(rider,pupil,side*.122,3.058,.739,.038,.065,.015);
+  ell(rider,shine,side*.104,3.099,.756,.018,.021,.009);
+  ell(rider,cheekPink,side*.235,2.989,.645,.024,.045,.048);
+  // Side locks behind the cheeks and streamed back in the wind.
+  ell(rider,hair,side*.267,3.040,.295,.091,.205,.116);
+  ell(rider,hair,side*.34,2.975,.05,.12,.118,.28);
+  tuft(rider,hair,side*.35,2.92,-.16,.11,.29,.11,-1.17,side*.15);
+ }
+ // Helmet remains brighter than the coat. Two silk-colored panels read
+ // like the red-and-white competition helmet in the design sheet.
+ lined(rider,helmetWhite,0,3.335,.423,.367,.208,.337);
+ ell(rider,silk,0,3.438,.493,.092,.112,.287);
+ ell(rider,helmetBand,0,3.265,.725,.363,.055,.090);
+ // A little glossy front peak and golden helmet buckle.
+ ell(rider,helmetBand,0,3.275,.745,.330,.032,.128);
+ ell(rider,metal,.29,3.272,.660,.035,.027,.025);
+ // Arm + reins: lean forward into the run, tucked like a game character.
+ for(const side of [-1,1]){
+  tube(rider,silk,[side*.24,2.81,.24],[side*.355,2.59,.64],.122,.100);
+  ell(rider,glove,side*.357,2.576,.651,.111,.103,.109);
+  tube(rider,cream,[side*.25,2.34,-.40],[side*.40,2.085,.11],.133,.106);
+  tube(rider,boot,[side*.40,2.085,.11],[side*.43,1.85,.30],.106,.084);
+  ell(rider,boot,side*.43,1.83,.362,.112,.109,.18);
+  tube(rider,leather,[side*.353,2.581,.65],[side*.31,2.02,2.11],.014,.012);
  }
  // Ground shadow and unobtrusive number sprite.
  const shadow=new T.Mesh(new T.CircleGeometry(1,20),new T.MeshBasicMaterial({color:0x173c20,transparent:true,opacity:.20,depthWrite:false,side:T.DoubleSide}));
