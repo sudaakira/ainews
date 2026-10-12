@@ -105,50 +105,70 @@ export function createRaceHorse(T,scene,h,silkHex){
  }
  // Derby Stallion 2-inspired original character proportions.
  // No long tapered mesh: rounded forehead + cheek + short downturned muzzle.
- const headRig=new T.Group();headRig.position.set(0,2.44,1.42);headRig.scale.set(1.25,1.21,1.15);anim.add(headRig);
- // Forehead slopes only slightly forward; a round cheek gives a gentle expression.
- const skull=ell(headRig,coat,0,.04,.17,.325,.37,.31);
- skull.rotation.x=-.16;
- ell(headRig,coat,0,-.20,.25,.315,.32,.30);
- // Short nasal bridge, deliberately less than half the previous snout length.
- const bridge=ell(headRig,coat,0,-.35,.41,.225,.31,.22);
- bridge.rotation.x=.31;
- // Rounded velvety muzzle, lips and two small nostrils.
- ell(headRig,highlight,0,-.55,.53,.265,.18,.20);
- ell(headRig,shade,0,-.675,.56,.22,.065,.13);
+ // Reference direction: large friendly eyes, tiny muzzle, fluffy forelock.
+ // Proportions are deliberately stylized, not anatomy-accurate.
+ const headRig=new T.Group();headRig.position.set(0,2.45,1.39);
+ headRig.scale.set(1.48,1.36,1.32);anim.add(headRig);
+ const skull=lined(headRig,coat,0,.045,.105,.353,.373,.326);
+ skull.rotation.x=-.10;
+ ell(headRig,coat,0,-.205,.215,.331,.335,.307);
+ const nose=ell(headRig,coat,0,-.356,.405,.261,.282,.257);
+ nose.rotation.x=.25;
+ // Rounded peach mouth as in the supplied character sheet.
+ lined(headRig,muzzle,0,-.548,.568,.301,.212,.246);
+ ell(headRig,muzzleShade,0,-.692,.609,.256,.065,.146);
+ ell(headRig,leather,0,-.699,.738,.138,.019,.013); // subtle smiling mouth
  for(const side of [-1,1]){
-  // Eye patch and bright oversized eyes. Readable at 150px horse height.
-  ell(headRig,shade,side*.284,.100,.225,.065,.113,.116);
-  ell(headRig,eyeMat,side*.325,.105,.245,.073,.106,.107);
-  ell(headRig,cream,side*.391,.153,.300,.028,.034,.027);
-  ell(headRig,coat,side*.287,.202,.215,.064,.025,.105);
-  // Rounded, softly lit cheeks accentuate the friendly 16-bit silhouette.
-  ell(headRig,highlight,side*.29,-.21,.29,.065,.11,.075);
-  // Upright triangular-ish ears with inner ear, softened at the tip.
-  const ear=ell(headRig,coat,side*.20,.49,-.06,.13,.26,.12);
-  ear.rotation.z=-side*.13;
-  const inner=ell(headRig,pink,side*.215,.53,.016,.058,.14,.037);
-  inner.rotation.z=-side*.13;
-  ell(headRig,shade,side*.202,-.54,.697,.042,.033,.021);
-  // Delicate bridle and bit, away from the eyes.
-  tube(headRig,leather,[side*.26,.01,.04],[side*.22,-.52,.55],.012,.012);
-  ell(headRig,metal,side*.228,-.52,.55,.024,.025,.024);
+  // The eye is a layered anime iris, not a single glossy black bead.
+  // Nearer camera sees: ink lid, warm sclera, iris, pupil, two catchlights.
+  lined(headRig,shade,side*.330,.083,.237,.060,.193,.190);
+  ell(headRig,sclera,side*.362,.084,.245,.068,.173,.172);
+  ell(headRig,iris,side*.418,.067,.265,.065,.146,.141);
+  ell(headRig,irisLight,side*.468,.028,.291,.019,.083,.076);
+  ell(headRig,pupil,side*.471,.067,.278,.041,.110,.090);
+  ell(headRig,shine,side*.508,.139,.324,.027,.034,.031);
+  ell(headRig,shine,side*.505,.019,.249,.012,.016,.015);
+  // Ink eyebrows and warm blush make the pony appear expressive.
+  const eyebrow=ell(headRig,mane,side*.345,.303,.211,.034,.018,.148);
+  eyebrow.rotation.x=-side*.18;
+  ell(headRig,cheekPink,side*.310,-.233,.351,.032,.066,.092);
+  // Upright furry ears with strawberry-pink inner ears.
+  const ear=lined(headRig,coat,side*.235,.496,-.111,.149,.328,.139);
+  ear.rotation.z=-side*.16;
+  const inside=ell(headRig,pink,side*.250,.545,-.028,.070,.193,.058);
+  inside.rotation.z=-side*.16;
+  // Tiny round nostrils, one on each side of the muzzle.
+  ell(headRig,muzzleShade,side*.223,-.544,.773,.052,.033,.025);
+  // Thin unobtrusive reins and metallic bit; eyes remain unobstructed.
+  tube(headRig,leather,[side*.278,.002,.085],[side*.229,-.54,.653],.011,.013);
+  ell(headRig,metal,side*.234,-.539,.665,.026,.025,.027);
  }
- tube(headRig,leather,[-.23,-.56,.59],[.23,-.56,.59],.015,.015);
- // Forelock and short mane, with rounded tuft tips.
- for(let i=0;i<6;i++){
-  const tuft=ell(headRig,mane,(i-2.5)*.079,.34,.23,.070,.13,.115);
-  tuft.rotation.x=-.25;
+ tube(headRig,leather,[-.249,-.586,.725],[.249,-.586,.725],.016,.016);
+ // Wide ivory blaze makes the face recognizable at mobile sizes.
+ if(h.no%4!==2){
+  const blaze=ell(headRig,cream,0,.105,.427,.090,.245,.025);
+  blaze.rotation.x=.10;
+  ell(headRig,cream,0,-.233,.553,.060,.109,.027);
  }
- for(let i=0;i<10;i++){
-  const z=1.42-i*.067,y=2.48-i*.060;
-  const tuft=ell(anim,mane,0,y,z,.085,.115,.115);
-  tuft.rotation.x=-.25;
+ // Fluffy forelock with tapered highlights, soft rounded bases.
+ for(let k=0;k<7;k++){
+  const x=(k-3)*.084,ry=.20+(k%3)*.047;
+  ell(headRig,mane,x,.372,.289,.105,.118,.131);
+  tuft(headRig,k%3===0?maneLight:mane,x,.465,.320,
+   .100,ry,.118,.70,(k-3)*.09);
  }
- // White blaze for some horses, with geometry laid on the short forehead.
- if(h.no%4===1){
-  ell(headRig,cream,0,.04,.479,.045,.21,.020);
-  ell(headRig,cream,0,-.26,.587,.038,.10,.018);
+ // Forehead side fringe, separated from the eyes.
+ for(const side of [-1,1]){
+  ell(headRig,mane,side*.345,.339,.075,.112,.169,.165);
+  tuft(headRig,mane,side*.366,.449,.075,.098,.27,.115,
+       side===1?-.18:.24,side*.27);
+ }
+ // Neck crest is light and tufted so the horse reads as a character.
+ for(let i=0;i<9;i++){
+  const z=1.45-i*.09,y=2.46-i*.069;
+  ell(anim,mane,0,y,z,.107,.101,.111);
+  tuft(anim,i%3===0?maneLight:mane,0,y+.067,z-.02,.086,.20,.10,
+   -.20,i%2===0?.19:-.16);
  }
  const tailRig=new T.Group();tailRig.position.set(0,1.78,-1.66);anim.add(tailRig);
  tube(tailRig,mane,[0,0,0],[0,-.26,-.34],.095,.070);
