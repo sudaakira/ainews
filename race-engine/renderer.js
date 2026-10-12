@@ -77,8 +77,26 @@
  const ground=new THREE.Mesh(new THREE.PlaneGeometry(850,900),new THREE.MeshStandardMaterial({map:lawnMap,color:0xb8d7b1,roughness:1}));
  ground.rotation.x=-Math.PI/2;ground.position.y=-.32;scene.add(ground);
  const W=.245;
- function heightAt(t){if(config.courseView!=='kyoto-1400-outer')return 0;let u=t<.28?0:t<.44?(t-.28)/.16:t<.72?1-(t-.44)/.28:0;return 4.3*(u*u*(3-2*u))}
- function path(t){let d=Math.max(0,Math.min(1,t))*routeLength,p=route.getPointAtLength(d),a=route.getPointAtLength(Math.max(0,d-2)),b=route.getPointAtLength(Math.min(routeLength,d+2));let dx=b.x-a.x,dz=b.y-a.y,l=Math.max(.01,Math.hypot(dx,dz));return {x:(p.x-430)*W,z:(p.y-277)*W,dx:dx/l,dz:dz/l,y:heightAt(t)}}
+ function heightAt(t){
+  const smooth=x=>{x=Math.max(0,Math.min(1,x));return x*x*(3-2*x)};
+  if(config.courseView==='tokyo-2000'){
+   // Approximate schematic elevations: gentle 3C ascent, back turn descent,
+   // then the last-straight 2.1m climb. NOT surveyed course geometry.
+   return 1.45*smooth((t-.40)/.13)-1.15*smooth((t-.62)/.14)+1.80*smooth((t-.84)/.13);
+  }
+  if(config.courseView!=='kyoto-1400-outer')return 0;
+  let u=t<.28?0:t<.44?(t-.28)/.16:t<.72?1-(t-.44)/.28:0;
+  return 4.3*(u*u*(3-2*u));
+ }
+ function path(t){
+  const normalized=Math.max(0,Math.min(1,t));
+  const sign=config.direction==='左'?-1:1;
+  const d=(sign===-1?1-normalized:normalized)*routeLength;
+  const p=route.getPointAtLength(d);
+  const a=route.getPointAtLength(Math.max(0,d-2)),b=route.getPointAtLength(Math.min(routeLength,d+2));
+  const dx=(b.x-a.x)*sign,dz=(b.y-a.y)*sign,l=Math.max(.01,Math.hypot(dx,dz));
+  return {x:(p.x-430)*W,z:(p.y-277)*W,dx:dx/l,dz:dz/l,y:heightAt(normalized)};
+ }
  const count=320,half=12.8;
  function offsetPoint(t,lane,yOffset=0){let p=path(t);return new THREE.Vector3(p.x-p.dz*lane,p.y+yOffset,p.z+p.dx*lane)}
  const verts=[],norm=[],uv=[],idx=[];
