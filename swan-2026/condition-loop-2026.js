@@ -105,6 +105,12 @@
    total+=values[f.id]*effective;
    detail[f.id]={score:round(values[f.id]),effectiveWeight:round(effective)};
   }
+  // Display the ACTUAL normalized weights after all user multipliers.
+  // Sliders change relative importance; the reported column always sums to ~100.
+  for(const f of FEATURES){
+   detail[f.id].rawWeight=detail[f.id].effectiveWeight;
+   detail[f.id].effectiveWeight=active?round(f.weight*w[f.id]/active*100):0;
+  }
   const overall=active?total/active:50;
   return {no:h.no,rating:round(clamp(overall,0,100)),rawRating:overall,
    detail,activeWeight:round(active),basis:'未校正の条件回帰ループ暫定モデル'};
