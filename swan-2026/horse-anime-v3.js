@@ -38,9 +38,10 @@ function paintedEye(T){
  t.generateMipmaps=true;t.anisotropy=4;t.needsUpdate=true;
  sharedEyeTexture=t;return t;
 }
-// Thoroughbred v5 — complete replacement model. Local forward is +Z, up +Y.
-// Horse body is an organic loft, not a pile of intersecting spheres.
-// Four limbs have matching hip/knee/hoof geometry and support analytical gallop.
+// Anime pony v15 — original 3D chibi character based on the requested
+// illustrated design direction (large expressive eyes, rosy muzzle, tiny rider).
+// Coordinates: forward +Z, up +Y. Four articulated legs stay compatible with
+// chibi-gallop-v1.js and the 18-horse Kyoto race simulator.
 export function createRaceHorse(T,scene,h,silkHex){
  const root=new T.Group(),anim=new T.Group();root.add(anim);
  const coatColors=[0x848b91,0x593a30,0x815038,0x995e40,0xb2764c,0x686e75,0x633a30,0x976b4c,0x473b38,0x8b5a40,0x593d35,0x977759,0x754b37,0x69483d,0x805b48,0xa1795c,0x50403a,0x977e66];
@@ -303,5 +304,5 @@ export function createRaceHorse(T,scene,h,silkHex){
  const sprite=new T.Sprite(new T.SpriteMaterial({map:new T.CanvasTexture(label),transparent:true,depthTest:false}));
  sprite.position.set(0,4.04,0);sprite.scale.set(.73,.73,1);root.add(sprite);
  scene.add(root);
- return {root,anim,headRig,tailRig,legs,sprite,shadow};
+ return {root,anim,headRig,tailRig,legs,sprite,shadow,artDirection:'anime-pony-v15'};
 }
