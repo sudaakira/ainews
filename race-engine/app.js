@@ -68,7 +68,8 @@ function opts(){return{pace:+el('pace').value,speed:+el('speed').value,vol:+el('
 const runRace=(r,s,computed)=>SIM.runRace(r,s,computed);
 function run(){
  const s=opts();n=+el('n').value;
- const result=SIM.simulate(s,n,20261012+n*7+s.pace*217+s.speed*137+s.vol*43);
+ // Common random numbers prevent unrelated RNG fluctuations when race settings change.
+ const result=SIM.simulate(s,n,Number(config.seed??20261012));
  probs=result;
  const ordered=probs.slice().sort((a,b)=>b.p3-a.p3);
  el('bars').innerHTML=ordered.map(x=>
