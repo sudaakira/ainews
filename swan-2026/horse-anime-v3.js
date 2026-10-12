@@ -125,24 +125,28 @@ export function createRaceHorse(T,scene,h,silkHex){
   g.setAttribute('uv',new T.Float32BufferAttribute(uv,2));g.setIndex(idx);g.computeVertexNormals();
   const m=new T.Mesh(g,material);parent.add(m);return m;
  }
- // Stylized 16-bit racehorse proportions: round compact barrel, distinct rump,
- // deep shoulder, SHORT arched neck. The profile must read at mobile-screen size.
+ // Chibi body v16: compact plush barrel, exaggerated rounded rump,
+ // low soft belly and thick shoulders. Deliberately short between hip and chest.
+ // Rings flow forward along +Z; small endpoint caps avoid a flat cylinder face.
  loft(anim,coat,[
-  [0,1.63,-1.58,.06,.08],[0,1.60,-1.41,.42,.45],
-  [0,1.57,-1.10,.58,.59],[0,1.54,-.65,.61,.62],
-  [0,1.55,-.10,.60,.61],[0,1.58,.37,.59,.62],
-  [0,1.65,.76,.60,.66],[0,1.73,1.02,.48,.55],
-  [0,1.83,1.17,.24,.32],[0,1.89,1.20,.035,.06]
- ]);
- // The shorter neck avoids the giraffe/crocodile silhouette of the old horse.
+  [0,1.73,-1.45,.035,.055],[0,1.66,-1.36,.43,.48],
+  [0,1.61,-1.20,.63,.66],[0,1.58,-.94,.72,.73],
+  [0,1.57,-.55,.76,.78],[0,1.56,-.12,.75,.80],
+  [0,1.61,.28,.76,.79],[0,1.69,.62,.71,.76],
+  [0,1.78,.88,.59,.68],[0,1.85,1.05,.32,.40],
+  [0,1.91,1.12,.035,.055]
+ ],20,5);
+ // Plump, gently arched chest-to-poll connection: never a thin giraffe neck.
  loft(anim,coat,[
-  [0,1.83,.78,.39,.43],[0,1.95,1.00,.38,.43],
-  [0,2.12,1.19,.33,.38],[0,2.30,1.34,.27,.32],
-  [0,2.43,1.42,.22,.24],[0,2.50,1.46,.14,.15]
- ]);
+  [0,1.83,.72,.48,.49],[0,1.99,.94,.46,.47],
+  [0,2.14,1.12,.39,.41],[0,2.29,1.25,.33,.36],
+  [0,2.42,1.36,.26,.28],[0,2.50,1.42,.15,.16]
+ ],20,5);
+ // Front shoulders and hind haunches make the toy-like body silhouette.
  for(const side of [-1,1]){
-  ell(anim,coat,side*.39,1.45,.72,.25,.42,.36);
-  ell(anim,coat,side*.38,1.42,-1.11,.27,.47,.40);
+  ell(anim,coat,side*.43,1.45,.63,.34,.51,.42);
+  ell(anim,coat,side*.42,1.44,-1.02,.37,.56,.46);
+  ell(anim,highlight,side*.68,1.71,-1.02,.09,.26,.24);
  }
  // Derby Stallion 2-inspired original character proportions.
  // No long tapered mesh: rounded forehead + cheek + short downturned muzzle.
@@ -210,7 +214,7 @@ export function createRaceHorse(T,scene,h,silkHex){
    -.20,i%2===0?.19:-.16);
  }
  // Layered flowing tail — a fan of glossy manga hair, not rigid sticks.
- const tailRig=new T.Group();tailRig.position.set(0,1.80,-1.62);anim.add(tailRig);
+ const tailRig=new T.Group();tailRig.position.set(0,1.83,-1.44);anim.add(tailRig);
  ell(tailRig,mane,0,-.090,-.275,.192,.197,.40);
  for(let i=-3;i<=3;i++){
   const x=i*.072;
@@ -219,30 +223,30 @@ export function createRaceHorse(T,scene,h,silkHex){
   tuft(tailRig,mane,x*1.32,-.24,-.83-(3-Math.abs(i))*.042,
    .080,.37,.084,-1.25,i*.07);
  }
- // The thigh and forearm are each a single organic tapered section.
- // Hinge positions exactly match the IK segment lengths below.
+ // Short stout cartoon legs. Preserve the four-pose hierarchy for
+ // chibi-gallop-v1.js, but physically lower the hip pivots as we shorten
+ // the bones so the resting hoof still touches the ground.
  const legs=[];
  for(const front of [true,false])for(const side of [-1,1]){
-  const upper=front?.66:.66,lower=.68;
-  // Chunky short legs: raise readability and conceal fine joint noise.
-  // IK lengths stay unchanged inside local space; only the visual puppet is scaled.
-  const pivot=new T.Group();pivot.position.set(side*.40,1.20,front?.77:-1.18);
-  pivot.scale.set(1.13,.89,1.08);anim.add(pivot);
-  const muscle=ell(pivot,coat,0,-upper*.40,0,front?.21:.255,upper*.57,.20);
+  const upper=front?.56:.58,lower=.58;
+  const pivot=new T.Group();
+  pivot.position.set(side*.45,1.025,front?.67:-.98);
+  pivot.scale.set(1.23,.91,1.12);anim.add(pivot);
+  const muscle=ell(pivot,coat,0,-upper*.37,0,front?.265:.305,upper*.61,.245);
   const knee=new T.Group();knee.position.set(0,-upper,0);pivot.add(knee);
-  ell(knee,coat,0,0,0,.112,.115,.105);
-  const cannon=ell(knee,coat,0,-lower*.48,0,.112,lower*.54,.104);
-  ell(knee,coat,0,-lower+.07,.015,.09,.13,.09);
-  // High white socks on selected horses: thick shapes are visible at race-camera size.
+  ell(knee,coat,0,0,0,.151,.149,.135);
+  const cannon=ell(knee,coat,0,-lower*.46,0,.137,lower*.55,.133);
+  ell(knee,coat,0,-lower+.07,.015,.122,.139,.128);
+  // Cute white fetlocks and chunky black hooves, still legible in motion.
   if((h.no+side+(front?0:2))%3!==0){
-   ell(knee,cream,0,-lower*.76,.005,.119,.174,.120);
+   ell(knee,cream,0,-lower*.75,.009,.143,.173,.140);
   }
-  const foot=lined(knee,hoofMat,0,-lower+.025,.13,.176,.118,.215);
+  const foot=lined(knee,hoofMat,0,-lower+.025,.13,.188,.124,.218);
   foot.rotation.x=-.13;
   legs.push({pivot,knee,front,side,upper,lower});
  }
  // Jockey and saddlecloth (18 unique race numbers).
- ell(anim,leather,0,2.17,-.24,.58,.12,.66);
+ ell(anim,leather,0,2.35,-.24,.57,.12,.65);
  const c=document.createElement('canvas');c.width=256;c.height=256;const g=c.getContext('2d');
  g.fillStyle='#493177';g.fillRect(0,0,256,256);g.strokeStyle='#f5f5f0';g.lineWidth=8;g.strokeRect(8,8,240,240);
  g.fillStyle='#fff';g.font='bold 174px sans-serif';g.textAlign='center';g.textBaseline='middle';g.fillText(String(h.no),128,135);
@@ -250,7 +254,7 @@ export function createRaceHorse(T,scene,h,silkHex){
  const clothMat=new T.MeshBasicMaterial({map:clothTex,side:T.DoubleSide});
  for(const side of [-1,1]){
   const p=new T.Mesh(new T.PlaneGeometry(1.17,1.00),clothMat);
-  p.position.set(side*.655,1.87,-.22);p.rotation.y=side*Math.PI/2;anim.add(p);
+  p.position.set(side*.802,1.88,-.18);p.rotation.y=side*Math.PI/2;anim.add(p);
  }
  // Cute anime/chibi jockey. A full-face helmet, shiny eyes and flying hair
  // match the reference illustration while the original silks remain per runner.
@@ -259,7 +263,7 @@ export function createRaceHorse(T,scene,h,silkHex){
  const helmetWhite=toon(0xfff9f5),helmetBand=toon(0x2b2a36);
  const boot=toon(0x292930),glove=toon(0x30313c);
  const hair=toon(h.no%3===0?0x623d32:h.no%3===1?0x50352f:0x865238);
- const saddle=ell(rider,leather,0,2.18,-.25,.56,.10,.65);
+ const saddle=ell(rider,leather,0,2.36,-.25,.56,.10,.64);
  ell(rider,cream,0,2.36,-.43,.30,.23,.30);
  const torso=ell(rider,silk,0,2.69,.07,.30,.33,.30);torso.rotation.x=.58;
  // Big round face, around 65% of helmet width.
@@ -304,5 +308,5 @@ export function createRaceHorse(T,scene,h,silkHex){
  const sprite=new T.Sprite(new T.SpriteMaterial({map:new T.CanvasTexture(label),transparent:true,depthTest:false}));
  sprite.position.set(0,4.04,0);sprite.scale.set(.73,.73,1);root.add(sprite);
  scene.add(root);
- return {root,anim,headRig,tailRig,legs,sprite,shadow,artDirection:'anime-pony-v15'};
+ return {root,anim,headRig,tailRig,legs,sprite,shadow,artDirection:'anime-pony-v16'};
 }
