@@ -203,16 +203,16 @@ try {
  if(config.horses.some((h,i)=>h.no!==i+1||!h.name))throw Error('馬番は1からの連番');
  if(!Number.isFinite(config.distance)||config.distance<800||config.distance>4000)throw Error('距離は800〜4000m');
  const [{createFactors},{createRegression},{createSimulator}]=await Promise.all([
-  import('./core/factors.js?v=shared-v1'),
-  import('./core/regression.js?v=shared-v1'),
-  import('./core/simulator.js?v=shared-v1')
+  import('./core/factors.js?v=shared-v2'),
+  import('./core/regression.js?v=shared-v2'),
+  import('./core/simulator.js?v=shared-v2')
  ]);
  window.RACE_CONFIG=config;
  window.SWAN_FACTORS=createFactors(config);
  window.SWAN_LOOP=createRegression(config,window.SWAN_FACTORS);
  window.RACE_SIM=createSimulator(config,window.SWAN_LOOP);
- await import('./app.js?v=shared-v1');
- await import('./renderer.js?v=shared-v1');
+ await import('./app.js?v=shared-v2');
+ await import('./renderer.js?v=shared-v2');
 } catch(e){
  console.error('Race engine initialization failed',e);
  const errorBox=document.getElementById('bootstrap-error');
