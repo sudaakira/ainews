@@ -1,3 +1,43 @@
+// Dedicated painted anime eye decal. Shared across all 18 horses to keep GPU memory low.
+// Three.js planes wrap the cheek diagonally, readable from side and front 3/4 views.
+let sharedEyeTexture=null;
+function paintedEye(T){
+ if(sharedEyeTexture)return sharedEyeTexture;
+ const c=document.createElement('canvas');c.width=192;c.height=224;
+ const g=c.getContext('2d');
+ g.clearRect(0,0,192,224);
+ g.fillStyle='#38222b';
+ g.beginPath();g.moveTo(18,121);
+ g.bezierCurveTo(5,66,39,20,91,18);
+ g.bezierCurveTo(149,11,180,62,177,122);
+ g.bezierCurveTo(177,178,135,213,91,210);
+ g.bezierCurveTo(43,204,19,166,18,121);g.fill();
+ g.fillStyle='#fff5ef';
+ g.beginPath();g.moveTo(32,122);
+ g.bezierCurveTo(28,75,53,33,93,32);
+ g.bezierCurveTo(140,28,162,70,162,122);
+ g.bezierCurveTo(162,160,138,193,95,195);
+ g.bezierCurveTo(58,194,34,165,32,122);g.fill();
+ const ir=g.createLinearGradient(0,54,0,192);
+ ir.addColorStop(0,'#34202b');ir.addColorStop(.45,'#633625');
+ ir.addColorStop(.80,'#c17c40');ir.addColorStop(1,'#ffcb70');
+ g.fillStyle=ir;g.beginPath();g.ellipse(99,126,58,70,0,0,Math.PI*2);g.fill();
+ g.strokeStyle='#623527';g.lineWidth=4;g.stroke();
+ g.fillStyle='#261620';g.beginPath();g.ellipse(99,115,32,55,0,0,Math.PI*2);g.fill();
+ const grad=g.createLinearGradient(0,45,0,127);
+ grad.addColorStop(0,'#34202a');grad.addColorStop(1,'rgba(52,32,42,0)');
+ g.fillStyle=grad;g.beginPath();g.ellipse(94,76,67,35,0,0,Math.PI*2);g.fill();
+ g.fillStyle='#fff';g.beginPath();g.ellipse(75,84,22,29,-.25,0,Math.PI*2);g.fill();
+ g.beginPath();g.ellipse(119,150,12,16,.15,0,Math.PI*2);g.fill();
+ g.fillStyle='#fff1de';g.beginPath();g.arc(132,100,5,0,Math.PI*2);g.fill();
+ g.strokeStyle='#34212a';g.lineWidth=11;g.lineCap='round';
+ g.beginPath();g.moveTo(21,89);g.bezierCurveTo(52,14,144,12,171,94);g.stroke();
+ g.lineWidth=5;g.beginPath();g.moveTo(25,91);g.lineTo(11,70);g.moveTo(39,64);g.lineTo(23,41);g.stroke();
+ const t=new T.CanvasTexture(c);t.colorSpace=T.SRGBColorSpace;
+ t.magFilter=T.LinearFilter;t.minFilter=T.LinearMipmapLinearFilter;
+ t.generateMipmaps=true;t.anisotropy=4;t.needsUpdate=true;
+ sharedEyeTexture=t;return t;
+}
 // Thoroughbred v5 — complete replacement model. Local forward is +Z, up +Y.
 // Horse body is an organic loft, not a pile of intersecting spheres.
 // Four limbs have matching hip/knee/hoof geometry and support analytical gallop.
@@ -121,13 +161,11 @@ export function createRaceHorse(T,scene,h,silkHex){
  for(const side of [-1,1]){
   // The eye is a layered anime iris, not a single glossy black bead.
   // Nearer camera sees: ink lid, warm sclera, iris, pupil, two catchlights.
-  lined(headRig,shade,side*.330,.083,.237,.060,.193,.190);
-  ell(headRig,sclera,side*.362,.084,.245,.068,.173,.172);
-  ell(headRig,iris,side*.418,.067,.265,.065,.146,.141);
-  ell(headRig,irisLight,side*.468,.028,.291,.019,.083,.076);
-  ell(headRig,pupil,side*.471,.067,.278,.041,.110,.090);
-  ell(headRig,shine,side*.508,.139,.324,.027,.034,.031);
-  ell(headRig,shine,side*.505,.019,.249,.012,.016,.015);
+  // A hand-painted decal avoids the old round black-button-eyed look.
+  const eyeMat=new T.MeshBasicMaterial({map:paintedEye(T),transparent:true,
+    side:T.DoubleSide,depthWrite:false,polygonOffset:true,polygonOffsetFactor:-1});
+  const eye=new T.Mesh(new T.PlaneGeometry(.425,.475),eyeMat);
+  eye.position.set(side*.396,.085,.242);eye.rotation.y=side*1.08;headRig.add(eye);
   // Ink eyebrows and warm blush make the pony appear expressive.
   const eyebrow=ell(headRig,mane,side*.345,.303,.211,.034,.018,.148);
   eyebrow.rotation.x=-side*.18;
