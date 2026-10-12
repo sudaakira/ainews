@@ -104,7 +104,7 @@ function renderFactors(s){
    const best=LOOP.FEATURES.filter(f=>ev.detail[f.id].effectiveWeight>0)
     .sort((a,b)=>ev.detail[b.id].score-ev.detail[a.id].score)
     .slice(0,2).map(f=>f.label).join('・');
-   return '<tr><td><b>'+h.no+' '+h.name+'</b><small>'+h.j+'</small></td>'+
+   return '<tr><td><b>'+(config.provisionalDraw?'仮'+h.no:h.no)+' '+h.name+'</b><small>'+h.j+'</small></td>'+
     '<td><strong>'+ev.rating.toFixed(1)+'</strong></td><td>'+best+'</td><td>'+(config.provisionalDraw?'未定':FACTOR.frame(h.no))+'枠</td></tr>';
   }).join('')+'</tbody></table>';
 }
@@ -117,7 +117,7 @@ function cards(){
    return '<tr><td>'+f.label+'<small>'+f.confidence+'</small></td><td>'+
     d.score.toFixed(1)+'</td><td>'+d.effectiveWeight.toFixed(1)+'</td></tr>';
   }).join('');
-  return '<article class="horse" id="h'+h.no+'"><h3>'+h.no+' '+h.name+'</h3>'+
+  return '<article class="horse" id="h'+h.no+'"><h3>'+(config.provisionalDraw?'仮'+h.no:h.no)+' '+h.name+'</h3>'+
    '<span class="pill">'+h.age+'</span><span class="pill">'+(config.provisionalDraw?'未定':FACTOR.frame(h.no))+'枠</span>'+
    '<span class="pill">'+h.style+'</span><p>'+h.j+' / '+h.trainer+' / '+h.kg+'kg</p>'+
    '<p><b>暫定総合評価：'+v.rating.toFixed(1)+' / 100点</b>　3着内率 '+(p?p.p3.toFixed(1):'—')+'%</p>'+
