@@ -1,3 +1,9 @@
+/* Race-engine shared UI application. Loaded after per-race configuration. */
+const config=window.RACE_CONFIG;
+const FACTOR=window.SWAN_FACTORS,LOOP=window.SWAN_LOOP,SIM=window.RACE_SIM;
+if(!config||!FACTOR||!LOOP||!SIM)throw Error('Race configuration has not loaded');
+const HS=config.horses,FIELD=HS.length,CENTER=(FIELD+1)/2;
+const distance=Number(config.distance),duration=Number(config.duration)||80;
 // Race-local text, warnings, metadata and limits (not a Kyoto-only UI).
 document.title=config.name+' '+config.date+'｜共通レースシミュレーター';
 const head=document.querySelector('header');
@@ -11,12 +17,6 @@ for(const id of ['live-distance','broadcast-distance']){const el=document.getEle
 const map=document.getElementById('kyoto-map');if(map){map.setAttribute('aria-label','汎用3D競馬模式図（コース形状・距離は実測ではない）');if(config.courseView!=='kyoto-1400-outer'){map.querySelectorAll('text').forEach(t=>{const v=t.textContent||'';if(v.includes('京都'))t.textContent=v.replaceAll('京都競馬場',config.venue).replaceAll('京都',config.venue);if(v.includes('芝1400m'))t.textContent=config.surface+config.distance+'m / 汎用模式図';});}}
 const docLinks=document.querySelector('.card.links');
 if(docLinks&&config.courseView!=='kyoto-1400-outer')docLinks.innerHTML='<summary>📚 データの扱い</summary><p> '+(config.notes||'未取得の情報は中立として扱います。')+'</p><p>3Dコースは汎用オーバルの模式図であり、実際の距離・坂・ラチ配置を再現するものではありません。</p>';
-/* Race-engine shared UI application. Loaded after per-race configuration. */
-const config=window.RACE_CONFIG;
-const FACTOR=window.SWAN_FACTORS,LOOP=window.SWAN_LOOP,SIM=window.RACE_SIM;
-if(!config||!FACTOR||!LOOP||!SIM)throw Error('Race configuration has not loaded');
-const HS=config.horses,FIELD=HS.length,CENTER=(FIELD+1)/2;
-const distance=Number(config.distance),duration=Number(config.duration)||80;
 const el=id=>document.getElementById(id);let probs=[],n=20000;
 const random=SIM.random,norm=SIM.norm;
 function initWeightControls(){
