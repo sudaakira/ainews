@@ -648,9 +648,9 @@ window.KYOTO_RACE={HS,LIVE,route,routeLength,horseProgress};
  // Never silently show the old horse when the requested new model fails.
  let horseV3Ready=false,modelError='';
  try{
-  const horseV3=await import("./horse-anime-v3.js?v=anime-pony-body-v16-20261012");
+  const horseV3=await import("./horse-anime-v3.js?v=anime-pony-softplush-v17-20261012");
   for(const h of HS)models.push(horseV3.createRaceHorse(THREE,scene,h,silkColors[h.no-1]));
-  horseV3Ready=models.length===18&&models.every(m=>m.artDirection==='anime-pony-v16');
+  horseV3Ready=models.length===18&&models.every(m=>m.artDirection==='anime-pony-v17-softplush');
   if(!horseV3Ready)throw new Error('アニメ馬モデル18頭の整合性を確認できませんでした');
  }catch(e){
   modelError=String(e?.stack||e);
@@ -746,9 +746,9 @@ window.KYOTO_RACE={HS,LIVE,route,routeLength,horseProgress};
   let label=new THREE.Sprite(new THREE.SpriteMaterial({map:new THREE.CanvasTexture(cv)}));label.position.copy(p);label.position.y+=3.2;label.scale.set(4,2,1);scene.add(label);
  }
  let mode='follow',lastMode='follow';
- controls.style.display='flex';stage.style.display='block';svg.classList.add('svg-hidden');status.textContent=venueReady?'🐴 ANIME HORSE v16 · 18頭読込確認':'🐴 ANIME HORSE v16 · 背景は簡易表示';
- document.getElementById('horse-model-version').textContent='ANIME HORSE v16 · CHIBI BODY';
- window.KYOTO_RENDER_STATUS={model:'anime-pony-v16',venue:venueReady?'full':'fallback',horses:models.length,camera:mode};
+ controls.style.display='flex';stage.style.display='block';svg.classList.add('svg-hidden');status.textContent=venueReady?'🐴 ANIME HORSE v17 · ふんわり馬体18頭':'🐴 ANIME HORSE v17 · 背景は簡易表示';
+ document.getElementById('horse-model-version').textContent='ANIME HORSE v17 · SOFT PLUSH';
+ window.KYOTO_RENDER_STATUS={model:'anime-pony-v17-softplush',venue:venueReady?'full':'fallback',horses:models.length,camera:mode};
  controls.querySelectorAll('button').forEach(btn=>btn.onclick=()=>{
   mode=btn.dataset.camera;
   controls.querySelectorAll('button').forEach(b=>b.classList.toggle('cam-active',b===btn));
@@ -841,7 +841,7 @@ window.KYOTO_RACE={HS,LIVE,route,routeLength,horseProgress};
  animate();
  }catch(err){
   console.error('3D renderer error',err);
-  stage.style.display='none';svg.classList.remove('svg-hidden');controls.style.display='flex';status.textContent='⚠️ 3D読込失敗（旧馬への自動切替なし）：'+String(err?.message||err);document.getElementById('horse-model-version').textContent='⚠️ ANIME HORSE v16 LOAD ERROR';
+  stage.style.display='none';svg.classList.remove('svg-hidden');controls.style.display='flex';status.textContent='⚠️ 3D読込失敗（旧馬への自動切替なし）：'+String(err?.message||err);document.getElementById('horse-model-version').textContent='⚠️ ANIME HORSE v17 LOAD ERROR';
  }
 })();
 </script>
