@@ -145,7 +145,7 @@ header p:last-child{font-size:12px;opacity:.8}
 <div class="live-sim" id="live-sim">
  <div class="live-head"><strong>🏇 KYOTO 1400m OUTER｜3Dレースビュー</strong><span class="live-status" id="live-status">スタート待機</span></div>
  <div class="live-stats"><div class="live-stat"><span>レース経過（仮想）</span><b id="live-clock">00:00</b></div><div class="live-stat"><span>残り距離</span><b id="live-distance">1400m</b></div><div class="live-stat"><span>現在の区間</span><b id="live-section">発走前</b></div></div>
- <details class="camera-more"><summary>📷 カメラ視点を変更</summary><div class="camera-controls" id="camera-controls" style="display:none"><button data-camera="wide">🏟️ 京都競馬場・全景</button><button data-camera="gate">🚦 ゲートを見る</button><button data-camera="follow">🎥 外ラチ側・追走</button><button data-camera="horse" class="cam-active">🐴 アニメ馬アップ</button><button data-camera="finish">🏁 ゴール前</button><button data-camera="2d">2D模式図</button><span id="three-status">3Dモデル読み込み中…</span></div></details><div class="live-screen">
+ <details class="camera-more"><summary>📷 カメラ視点を変更</summary><div class="camera-controls" id="camera-controls" style="display:none"><button data-camera="wide">🏟️ 京都競馬場・全景</button><button data-camera="gate">🚦 ゲートを見る</button><button data-camera="follow" class="cam-active">🎥 外ラチ側・追走</button><button data-camera="horse">🐴 アニメ馬アップ</button><button data-camera="finish">🏁 ゴール前</button><button data-camera="2d">2D模式図</button><span id="three-status">3Dモデル読み込み中…</span></div></details><div class="live-screen">
  <div id="three-stage" style="display:none"><div class="track-broadcast"><b>京都 11R</b><span>スワンステークス GII｜芝1400m（外）</span></div><div class="track-broadcast-bottom">🏇 KYOTO RACECOURSE <span id="horse-model-version">MODEL LOADING</span></div>
  <div class="broadcast-clock" id="broadcast-clock">0:00.0</div>
  <div class="broadcast-course"><svg viewBox="0 0 210 78" aria-label="コース進行図"><rect x="5" y="6" width="200" height="66" rx="33" fill="#296e50" stroke="#d8efc9" stroke-width="4"/><rect x="17" y="17" width="176" height="44" rx="22" fill="#43875b" stroke="#9bdb6b" stroke-width="6"/><circle id="broadcast-dot" cx="23" cy="39" r="6" fill="#ffda57" stroke="#fff" stroke-width="2"/></svg><span id="broadcast-distance">残り 1400m</span></div>
@@ -648,9 +648,9 @@ window.KYOTO_RACE={HS,LIVE,route,routeLength,horseProgress};
  // Never silently show the old horse when the requested new model fails.
  let horseV3Ready=false,modelError='';
  try{
-  const horseV3=await import("./horse-anime-v3.js?v=anime-pony-reference-v15-20261012-final");
+  const horseV3=await import("./horse-anime-v3.js?v=anime-pony-body-v16-20261012");
   for(const h of HS)models.push(horseV3.createRaceHorse(THREE,scene,h,silkColors[h.no-1]));
-  horseV3Ready=models.length===18&&models.every(m=>m.artDirection==='anime-pony-v15');
+  horseV3Ready=models.length===18&&models.every(m=>m.artDirection==='anime-pony-v16');
   if(!horseV3Ready)throw new Error('アニメ馬モデル18頭の整合性を確認できませんでした');
  }catch(e){
   modelError=String(e?.stack||e);
@@ -745,10 +745,10 @@ window.KYOTO_RACE={HS,LIVE,route,routeLength,horseProgress};
   let cv=document.createElement('canvas');cv.width=128;cv.height=64;let c=cv.getContext('2d');c.fillStyle='#fafafa';c.fillRect(0,0,128,64);c.fillStyle='#1b514b';c.font='bold 40px sans-serif';c.textAlign='center';c.fillText(meters,64,45);
   let label=new THREE.Sprite(new THREE.SpriteMaterial({map:new THREE.CanvasTexture(cv)}));label.position.copy(p);label.position.y+=3.2;label.scale.set(4,2,1);scene.add(label);
  }
- let mode='horse',lastMode='horse';
- controls.style.display='flex';stage.style.display='block';svg.classList.add('svg-hidden');status.textContent=venueReady?'🐴 ANIME HORSE v15 · 18頭のモデル読込確認':'🐴 ANIME HORSE v15 · 背景は簡易表示';
- document.getElementById('horse-model-version').textContent='ANIME HORSE v15 · 16×';
- window.KYOTO_RENDER_STATUS={model:'anime-pony-v15',venue:venueReady?'full':'fallback',horses:models.length,camera:mode};
+ let mode='follow',lastMode='follow';
+ controls.style.display='flex';stage.style.display='block';svg.classList.add('svg-hidden');status.textContent=venueReady?'🐴 ANIME HORSE v16 · 18頭読込確認':'🐴 ANIME HORSE v16 · 背景は簡易表示';
+ document.getElementById('horse-model-version').textContent='ANIME HORSE v16 · CHIBI BODY';
+ window.KYOTO_RENDER_STATUS={model:'anime-pony-v16',venue:venueReady?'full':'fallback',horses:models.length,camera:mode};
  controls.querySelectorAll('button').forEach(btn=>btn.onclick=()=>{
   mode=btn.dataset.camera;
   controls.querySelectorAll('button').forEach(b=>b.classList.toggle('cam-active',b===btn));
@@ -841,7 +841,7 @@ window.KYOTO_RACE={HS,LIVE,route,routeLength,horseProgress};
  animate();
  }catch(err){
   console.error('3D renderer error',err);
-  stage.style.display='none';svg.classList.remove('svg-hidden');controls.style.display='flex';status.textContent='⚠️ 3D読込失敗（旧馬への自動切替なし）：'+String(err?.message||err);document.getElementById('horse-model-version').textContent='⚠️ ANIME HORSE v15 LOAD ERROR';
+  stage.style.display='none';svg.classList.remove('svg-hidden');controls.style.display='flex';status.textContent='⚠️ 3D読込失敗（旧馬への自動切替なし）：'+String(err?.message||err);document.getElementById('horse-model-version').textContent='⚠️ ANIME HORSE v16 LOAD ERROR';
  }
 })();
 </script>
