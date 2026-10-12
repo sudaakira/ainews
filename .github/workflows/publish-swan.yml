@@ -1,8 +1,9 @@
-name: Publish Swan Stakes simulator
+name: Publish shared race simulators
 on:
   push:
     paths:
       - 'swan-2026/**'
+      - 'race-engine/**'
       - '.github/workflows/publish-swan.yml'
   workflow_dispatch:
 permissions:
@@ -22,8 +23,9 @@ jobs:
       - uses: actions/checkout@v4
       - name: Prepare static site
         run: |
-          mkdir -p _site/swan-2026
+          mkdir -p _site/swan-2026 _site/race-engine
           cp -a swan-2026/. _site/swan-2026/
+          cp -a race-engine/. _site/race-engine/
           printf '%s\n' '<!doctype html><meta charset="utf-8"><meta http-equiv="refresh" content="0;url=./swan-2026/"><a href="./swan-2026/">スワンSシミュレーター</a>' > _site/index.html
           touch _site/.nojekyll
       - uses: actions/configure-pages@v5
