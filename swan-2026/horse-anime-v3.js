@@ -301,7 +301,7 @@ export function createRaceHorse(T,scene,h,silkHex){
  lg.fillStyle='#17306e';lg.beginPath();lg.arc(64,64,53,0,Math.PI*2);lg.fill();lg.strokeStyle='#fff';lg.lineWidth=6;lg.stroke();
  lg.fillStyle='#fff';lg.font='bold 64px sans-serif';lg.textAlign='center';lg.textBaseline='middle';lg.fillText(String(h.no),64,67);
  const sprite=new T.Sprite(new T.SpriteMaterial({map:new T.CanvasTexture(label),transparent:true,depthTest:false}));
- sprite.position.set(0,3.70,0);sprite.scale.set(.92,.92,1);root.add(sprite);
+ sprite.position.set(0,4.04,0);sprite.scale.set(.73,.73,1);root.add(sprite);
  scene.add(root);
  return {root,anim,headRig,tailRig,legs,sprite,shadow};
 }
