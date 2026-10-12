@@ -8,7 +8,7 @@ const load=(p)=>import('data:text/javascript;base64,'+Buffer.from(read(p)).toStr
 const [{createFactors},{createRegression},{createSimulator}]=await Promise.all([
  load('core/factors.js'),load('core/regression.js'),load('core/simulator.js')
 ]);
-for(const id of ['swan-2026','sample-demo','tokyo-20261012-11']){
+for(const id of ['swan-2026','sample-demo','tokyo-20261012-11','shuka-2026']){
  const {default:config}=await load('races/'+id+'.js');
  const factor=createFactors(config),regression=createRegression(config,factor),sim=createSimulator(config,regression);
  const options={pace:0,speed:2,vol:10,ground:'good',bias:'neutral',weights:regression.DEFAULTS};
@@ -35,6 +35,22 @@ for(const id of ['swan-2026','sample-demo','tokyo-20261012-11']){
   assert.equal(config.demo,false);
   assert.ok(config.sources.JRA.startsWith('https://'));
   assert.ok(config.notes.includes('暫定'));
+ }else if(id==='shuka-2026'){
+  assert.equal(config.date,'2026-10-18');
+  assert.equal(config.distance,2000);
+  assert.equal(config.horses.length,18);
+  assert.equal(config.provisionalDraw,true);
+  assert.equal(config.demo,false);
+  assert.equal(config.horses[0].name,'エンネ');
+  assert.equal(config.horses[15].name,'モンローウォーク');
+  assert.ok(config.notes.includes('仮番号'));
+  assert.ok(config.horses.every((h,i)=>h.no===i+1&&h.kg===55&&h.age==='牝3'&&h.j&&h.trainer&&h.father&&h.mfather));
+  assert.ok(config.horses.every(h=>Number.isFinite(h.rest)&&h.rest>=0));
+  const one=config.horses[0],differentPseudoFrame={...one,no:18};
+  for(const bias of ['inside','outside']){
+   const s={...options,bias};
+   assert.equal(regression.scores(one,s).bias,regression.scores(differentPseudoFrame,s).bias,'pseudo frames cannot affect track bias');
+  }
  }else{
   assert.equal(config.demo,true,'sample must be clearly fictional');
   assert.ok(config.horses.every(h=>factor.factors(h).total===0),'unavailable factors must be neutral');
@@ -51,6 +67,8 @@ assert.match(html,/await import\('\.\/renderer\.js\?v=/);
 assert.match(render,/stallCount=HS.length/);
 assert.match(render,/horseV3Ready=models.length===HS.length/);
 assert.match(app,/const HS=config.horses/);
+assert.match(app,/config\.provisionalDraw/);
+assert.match(read('core/regression.js'),/verifiedDraw/);
 for(const source of [app,render])assert.doesNotThrow(()=>new Function(source));
 assert.match(read('../swan-2026/index.html'),/race-engine\/\?race=swan-2026/);
 assert.match(render,/config.direction==='左'/);
