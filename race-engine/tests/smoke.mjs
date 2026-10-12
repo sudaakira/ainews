@@ -8,7 +8,7 @@ const load=(p)=>import('data:text/javascript;base64,'+Buffer.from(read(p)).toStr
 const [{createFactors},{createRegression},{createSimulator}]=await Promise.all([
  load('core/factors.js'),load('core/regression.js'),load('core/simulator.js')
 ]);
-for(const id of ['swan-2026','sample-demo','tokyo-20261012-11','tokyo-20261012-12','shuka-2026']){
+for(const id of ['swan-2026','sample-demo','tokyo-20261012-11','tokyo-20261012-12','kyoto-20261012-12','shuka-2026']){
  const {default:config}=await load('races/'+id+'.js');
  const factor=createFactors(config),regression=createRegression(config,factor),sim=createSimulator(config,regression);
  const options={pace:0,speed:2,vol:10,ground:'good',bias:'neutral',weights:regression.DEFAULTS};
@@ -46,6 +46,21 @@ for(const id of ['swan-2026','sample-demo','tokyo-20261012-11','tokyo-20261012-1
   assert.ok(config.horses.every((h,i)=>h.no===i+1&&h.j&&h.father&&h.mfather));
   assert.ok(config.notes.includes('暫定'));
   assert.equal(config.inputs[9][0],94);
+  assert.ok(config.sources.JRA.startsWith('https://'));
+ }else if(id==='kyoto-20261012-12'){
+  assert.equal(config.date,'2026-10-12');
+  assert.equal(config.venue,'京都');
+  assert.equal(config.raceNumber,12);
+  assert.equal(config.surface,'ダート');
+  assert.equal(config.distance,1200);
+  assert.equal(config.direction,'右');
+  assert.equal(config.demo,false);
+  assert.equal(config.horses.length,16);
+  assert.deepEqual(factor.frameSizes,[2,2,2,2,2,2,2,2]);
+  assert.ok(config.horses.every((h,i)=>h.no===i+1&&h.j&&h.trainer&&h.father&&h.mfather));
+  assert.ok(config.horses.every(h=>['B','C'].includes(h.training)));
+  assert.ok(config.notes.includes('暫定'));
+  assert.equal(config.horses[15].name,'カネコメファミリー');
   assert.ok(config.sources.JRA.startsWith('https://'));
  }else if(id==='shuka-2026'){
   assert.equal(config.date,'2026-10-18');
