@@ -8,7 +8,7 @@ const load=(p)=>import('data:text/javascript;base64,'+Buffer.from(read(p)).toStr
 const [{createFactors},{createRegression},{createSimulator}]=await Promise.all([
  load('core/factors.js'),load('core/regression.js'),load('core/simulator.js')
 ]);
-for(const id of ['swan-2026','sample-demo']){
+for(const id of ['swan-2026','sample-demo','tokyo-20261012-11']){
  const {default:config}=await load('races/'+id+'.js');
  const factor=createFactors(config),regression=createRegression(config,factor),sim=createSimulator(config,regression);
  const options={pace:0,speed:2,vol:10,ground:'good',bias:'neutral',weights:regression.DEFAULTS};
@@ -23,6 +23,18 @@ for(const id of ['swan-2026','sample-demo']){
  if(id==='swan-2026'){
   assert.deepEqual(factor.frameSizes,[2,2,2,2,2,2,3,3]);
   assert.equal(factor.frame(config.horses[17]),8);
+ }else if(id==='tokyo-20261012-11'){
+  assert.equal(config.name,'オクトーバーステークス');
+  assert.equal(config.date,'2026-10-12');
+  assert.equal(config.distance,2000);
+  assert.equal(config.direction,'左');
+  assert.equal(config.courseView,'tokyo-2000');
+  assert.equal(config.horses.length,18);
+  assert.ok(config.horses.every((h,i)=>h.no===i+1&&h.j&&h.trainer&&h.father&&h.mfather));
+  assert.deepEqual(factor.frameSizes,[2,2,2,2,2,2,3,3]);
+  assert.equal(config.demo,false);
+  assert.ok(config.sources.JRA.startsWith('https://'));
+  assert.ok(config.notes.includes('暫定'));
  }else{
   assert.equal(config.demo,true,'sample must be clearly fictional');
   assert.ok(config.horses.every(h=>factor.factors(h).total===0),'unavailable factors must be neutral');
@@ -41,4 +53,6 @@ assert.match(render,/horseV3Ready=models.length===HS.length/);
 assert.match(app,/const HS=config.horses/);
 for(const source of [app,render])assert.doesNotThrow(()=>new Function(source));
 assert.match(read('../swan-2026/index.html'),/race-engine\/\?race=swan-2026/);
-console.log('Shared UI references, variable starting gates, model files and legacy link ✓');
+assert.match(render,/config.direction==='左'/);
+assert.match(render,/config.courseView==='tokyo-2000'/);
+console.log('Shared UI references, Tokyo left-hand course, variable gates and legacy link ✓');
