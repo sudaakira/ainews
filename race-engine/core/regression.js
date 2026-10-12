@@ -17,7 +17,7 @@ export function createRegression(config,F){
   {id:'sex',label:'牡馬・牝馬傾向',weight:2,confidence:'過去傾向',note:'対象レースの牡牝別入着率。小標本を縮小補正'},
   {id:'load',label:'斤量',weight:3,confidence:'入力値',note:'対象レースに記載した負担重量を使用'},
   {id:'rotation',label:'ローテ・休養',weight:3,confidence:'一部',note:'前走からの間隔のみ。故障・手術・当日の馬体は未検証'},
-  {id:'distance',label:'距離変更・1400適性',weight:3,confidence:'暫定',note:'距離実績メモからの距離適性推定'},
+  {id:'distance',label:'距離変更・距離適性',weight:3,confidence:'暫定',note:'距離実績メモからの距離適性推定'},
   {id:'bias',label:'当日馬場バイアス',weight:2,confidence:'未確認',note:'初期値は中立。前有利・外差し等は利用者が選ぶ仮説'}
  ];
  if(FEATURES.reduce((sum,f)=>sum+f.weight,0)!==100)throw new Error('Default weights must total 100');
@@ -50,12 +50,14 @@ export function createRegression(config,F){
    paceScore=clamp(paceScore-fastAdapt*.65,20,95);
   }
   let biasScore=50;
+  // Registration-order pseudo numbers must never affect lane bias.
+  const verifiedDraw=!config.provisionalDraw;
   if(bias==='inside'){
    const front=style==='逃げ'?1:style==='好位'?.6:style==='中団'?.05:-.65;
-   biasScore=clamp(50+23*front+(f.drawNumber<=3?8:f.drawNumber>=7?-8:0),25,82);
+   biasScore=clamp(50+23*front+(verifiedDraw?(f.drawNumber<=3?8:f.drawNumber>=7?-8:0):0),25,82);
   }else if(bias==='outside'){
    const late=style==='差し'?1:style==='中団'?.6:style==='好位'?-.20:-.65;
-   biasScore=clamp(50+22*late+(f.drawNumber>=7?8:f.drawNumber<=3?-6:0),24,82);
+   biasScore=clamp(50+22*late+(verifiedDraw?(f.drawNumber>=7?8:f.drawNumber<=3?-6:0):0),24,82);
   }
   const rest=Number.isFinite(Number(h.rest))&&h.rest!==null&&h.rest!==undefined?Number(h.rest):null;
   let rotation=rest===null?50:rest<=18?43:rest<=80?70:rest<=110?61:rest<=150?47:rest<=200?38:24;
