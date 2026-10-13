@@ -126,27 +126,31 @@ function cards(){
    '<details><summary>14項目の条件回帰採点・血統・近走を表示</summary>'+
    '<table class="factor-table horse-score-table"><thead><tr><th>評価項目</th><th>素点</th><th>配点</th></tr></thead><tbody>'+scoreRows+'</tbody></table>'+
    '<p>父 '+h.father+'／母父 '+h.mfather+'</p><p><b>近4走：</b>'+h.history+'</p>'+
-   '<p><b>状態：</b>調教 '+h.training+'・前走から'+h.rest+'日</p>'+
+   '<p><b>状態：</b>調教 '+(h.training||'未確定')+'・前走から'+h.rest+'日</p>'+ (h.officialPeakRating?'<p><b>JRA2026年最高レーティング：</b>'+h.officialPeakRating+' '+h.officialPeakDistance+'（今回の予想点ではなく、年間ピーク）</p>':'')+
    '<p class="small">血統は父・母父のみ確認。完全5代血統、全走のラップ、未確認の調教・騎手統計は欠測扱い。代理点は未校正です。</p>'+
    '</details></article>';
  }).join('');
 }
 el('simulate').onclick=run;el('csv').onclick=()=>{
- const config=opts();
- const header=['馬番','馬名','総合評価100点','1着率','3着以内率','騎手性別枠順OFF時3着内率']
+ const scenario=opts();
+ const header=[config.provisionalDraw?'仮番号':'馬番','馬名','総合評価100点','1着率','3着以内率','騎手性別枠順OFF時3着内率']
   .concat(LOOP.FEATURES.map(f=>f.label+'素点'))
   .concat(LOOP.FEATURES.map(f=>f.label+'配点倍率'));
  const rows=HS.map(h=>{
-  const p=probs[h.no-1],ev=LOOP.evaluate(h,config);
+  const p=probs[h.no-1],ev=LOOP.evaluate(h,scenario);
   return [h.no,h.name,ev.rating.toFixed(1),p.win.toFixed(2),p.p3.toFixed(2),p.baseP3.toFixed(2)]
    .concat(LOOP.FEATURES.map(f=>ev.detail[f.id].score.toFixed(1)))
-   .concat(LOOP.FEATURES.map(f=>config.weights[f.id].toFixed(2))).join(',');
+   .concat(LOOP.FEATURES.map(f=>scenario.weights[f.id].toFixed(2))).join(',');
  });
  const csv=header.join(',')+'\n'+rows.join('\n');
  const a=document.createElement('a');
  a.href=URL.createObjectURL(new Blob(['\ufeff'+csv],{type:'text/csv;charset=utf-8'}));
  a.download=config.id+'_condition_loop.csv';a.click();URL.revokeObjectURL(a.href);
-};el('pace').oninput=()=>el('pacelabel').textContent=['超スロー','スロー','ややスロー','中立','ややハイ','ハイ','超ハイ'][+el('pace').value+3];el('speed').oninput=()=>el('speedlabel').textContent=['通常','やや高速','高速','レコード級'][+el('speed').value];el('vol').oninput=()=>el('vollabel').textContent=el('vol').value;initWeightControls();run();
+};el('pace').oninput=()=>el('pacelabel').textContent=['超スロー','スロー','ややスロー','中立','ややハイ','ハイ','超ハイ'][+el('pace').value+3];el('speed').oninput=()=>el('speedlabel').textContent=['通常','やや高速','高速','レコード級'][+el('speed').value];el('vol').oninput=()=>el('vollabel').textContent=el('vol').value;
+if(Number.isInteger(config.defaultPace))el('pace').value=String(Math.max(-3,Math.min(3,config.defaultPace)));
+if(Number.isInteger(config.defaultSimulations))el('n').value=String(config.defaultSimulations);
+el('pace').oninput();el('speed').oninput();
+initWeightControls();run();
 
 
 /* Interactive 18-horse race playback: a sampled hypothetical finish, not live race telemetry */
