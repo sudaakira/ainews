@@ -197,22 +197,22 @@ header p:last-child{font-size:12px;opacity:.8}
 try {
  const raceId=new URLSearchParams(location.search).get('race')||'swan-2026';
  if(!/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(raceId)||raceId.length>60)throw Error('不正なレースID');
- const {default:config}=await import('./races/'+raceId+'.js');
+ const {default:config}=await import('./races/'+raceId+'.js?v=20261013');
  if(config.schemaVersion!==1||config.id!==raceId)throw Error('レース設定の形式が不正です');
  if(!Array.isArray(config.horses)||config.horses.length<3||config.horses.length>18)throw Error('出走頭数は3〜18頭');
  if(config.horses.some((h,i)=>h.no!==i+1||!h.name))throw Error('馬番は1からの連番');
  if(!Number.isFinite(config.distance)||config.distance<800||config.distance>4000)throw Error('距離は800〜4000m');
  const [{createFactors},{createRegression},{createSimulator}]=await Promise.all([
-  import('./core/factors.js?v=shared-v2'),
-  import('./core/regression.js?v=shared-v2'),
-  import('./core/simulator.js?v=shared-v2')
+  import('./core/factors.js?v=shared-v3'),
+  import('./core/regression.js?v=shared-v3'),
+  import('./core/simulator.js?v=shared-v3')
  ]);
  window.RACE_CONFIG=config;
  window.SWAN_FACTORS=createFactors(config);
  window.SWAN_LOOP=createRegression(config,window.SWAN_FACTORS);
  window.RACE_SIM=createSimulator(config,window.SWAN_LOOP);
- await import('./app.js?v=shared-v2');
- await import('./renderer.js?v=shared-v2');
+ await import('./app.js?v=shared-v3');
+ await import('./renderer.js?v=shared-v3');
 } catch(e){
  console.error('Race engine initialization failed',e);
  const errorBox=document.getElementById('bootstrap-error');
