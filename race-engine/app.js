@@ -7,7 +7,7 @@ const distance=Number(config.distance),duration=Number(config.duration)||80;
 // Race-local text, warnings, metadata and limits (not a Kyoto-only UI).
 document.title=config.name+' '+config.date+'｜共通レースシミュレーター';
 const head=document.querySelector('header');
-if(head){head.innerHTML='<p>'+config.venue+' '+config.raceNumber+'R / '+config.date+' / '+config.surface+config.distance+'m '+(config.course||'')+'</p><h1>🏇 '+config.name+' レース予想</h1><p>'+FIELD+'頭・条件回帰ループ3Dシミュレーション'+(config.provisionalDraw?' ／ 仮番号・枠順未確定':'')+'</p>'+(config.demo?'<p style="color:#aa2d2d;font-weight:800">⚠ 架空の動作確認データ。実在の競馬予想ではありません。</p>':'');}
+if(head){head.innerHTML='<p>'+config.venue+' '+config.raceNumber+'R / '+config.date+' / '+config.surface+config.distance+'m '+(config.course||'')+'</p><h1>🏇 '+config.name+' レース予想</h1><p>'+FIELD+'頭・条件回帰ループ3Dシミュレーション'+(config.provisionalDraw?' ／ 仮番号・枠順未確定':'')+'</p>'+(config.asOf?'<p style="color:#e1f5b4;font-weight:700">📅 データ更新：'+config.asOf.replace('T',' ').replace('+09:00',' JST')+'（登録馬版）</p>':'')+(config.demo?'<p style="color:#aa2d2d;font-weight:800">⚠ 架空の動作確認データ。実在の競馬予想ではありません。</p>':'');}
 const hero=document.querySelector('.hero-race h2');if(hero)hero.textContent='🏇 '+config.venue+'｜'+FIELD+'頭レースシミュレーター';
 const liveHead=document.querySelector('.live-head strong');if(liveHead)liveHead.textContent='🏇 '+config.venue+' '+config.surface+config.distance+'m｜3Dレース';
 const mainHeading=document.querySelector('main section.card h2');if(mainHeading)mainHeading.innerHTML='全'+FIELD+'頭の3着以内率｜<span id="count">—</span>';
@@ -105,28 +105,29 @@ function renderFactors(s){
     .sort((a,b)=>ev.detail[b.id].score-ev.detail[a.id].score)
     .slice(0,2).map(f=>f.label).join('・');
    return '<tr><td><b>'+(config.provisionalDraw?'仮'+h.no:h.no)+' '+h.name+'</b><small>'+h.j+'</small></td>'+
-    '<td><strong>'+ev.rating.toFixed(1)+'</strong></td><td>'+best+'</td><td>'+(config.provisionalDraw?'未定':FACTOR.frame(h.no))+'枠</td></tr>';
+    '<td><strong>'+ev.rating.toFixed(1)+'</strong></td><td>'+best+'</td><td>'+(config.provisionalDraw?'枠未確定':FACTOR.frame(h.no)+'枠')+'</td></tr>';
   }).join('')+'</tbody></table>';
 }
 function cards(){
- const config=opts();
+ const scenario=opts();
  el('horses').innerHTML=HS.map(h=>{
-  const p=probs.find(x=>x.no===h.no),v=LOOP.evaluate(h,config);
+  const p=probs.find(x=>x.no===h.no),v=LOOP.evaluate(h,scenario);
   const scoreRows=LOOP.FEATURES.map(f=>{
    const d=v.detail[f.id];
    return '<tr><td>'+f.label+'<small>'+f.confidence+'</small></td><td>'+
     d.score.toFixed(1)+'</td><td>'+d.effectiveWeight.toFixed(1)+'</td></tr>';
   }).join('');
   return '<article class="horse" id="h'+h.no+'"><h3>'+(config.provisionalDraw?'仮'+h.no:h.no)+' '+h.name+'</h3>'+
-   '<span class="pill">'+h.age+'</span><span class="pill">'+(config.provisionalDraw?'未定':FACTOR.frame(h.no))+'枠</span>'+
+   '<span class="pill">'+h.age+'</span><span class="pill">'+(config.provisionalDraw?'枠未確定':FACTOR.frame(h.no)+'枠')+'</span>'+
    '<span class="pill">'+h.style+'</span><p>'+h.j+' / '+h.trainer+' / '+h.kg+'kg</p>'+
    '<p><b>暫定総合評価：'+v.rating.toFixed(1)+' / 100点</b>　3着内率 '+(p?p.p3.toFixed(1):'—')+'%</p>'+
+   (h.latest?'<p style="background:#e7f5ef;padding:9px;border-radius:8px"><b>📅 10/13更新：</b>'+h.latest+'</p>':'')+
    '<p><b>強み：</b>'+h.plus+'</p><p class="risk"><b>注意：</b>'+h.minus+'</p>'+
    '<details><summary>14項目の条件回帰採点・血統・近走を表示</summary>'+
    '<table class="factor-table horse-score-table"><thead><tr><th>評価項目</th><th>素点</th><th>配点</th></tr></thead><tbody>'+scoreRows+'</tbody></table>'+
    '<p>父 '+h.father+'／母父 '+h.mfather+'</p><p><b>近4走：</b>'+h.history+'</p>'+
    '<p><b>状態：</b>調教 '+h.training+'・前走から'+h.rest+'日</p>'+
-   '<p class="small">父・母父以外の5代血統、全走の直接対戦・ラップ、調教時計は未検証。暫定点は実測点ではありません。</p>'+
+   '<p class="small">血統は父・母父のみ確認。完全5代血統、全走のラップ、未確認の調教・騎手統計は欠測扱い。代理点は未校正です。</p>'+
    '</details></article>';
  }).join('');
 }
