@@ -24,6 +24,7 @@ if(docLinks){
   '<p class="small">'+(config.factors?.scope||'該当コースの騎手・枠順・性別統計は未入力のため中立です。')+'</p>'+
   (entries.length?'<p class="small">'+entries.map(([type,url])=>
     '<a rel="noopener" target="_blank" href="'+url+'">'+type+'の資料</a>').join(' ／ ')+'</p>':'')+
+  (config.historicalTrends?'<details style="margin:12px 0;background:#f3f6f6;border:1px solid #b9c9c8;border-radius:8px;padding:10px"><summary><b>📊 添付データ：過去10年の秋華賞・京都開催8回の傾向</b></summary><p class="small">枠は確定するまで中立。京都開催8回の前走4角4番手以内＝0-3-2-50（3着内9.1%）、5番手以下＝8-5-6-65（3着内22.6%）。ローズS勝馬や位置取りだけで消さず、既存の先行力・展開項目内に平滑化した軽微な補正だけを適用。</p><p class="small">脚質：逃げ0-2-0-6／先行2-0-1-23／差し6-4-7-47／追込0-2-0-39。キャリア5・6戦優位などは診断用途。人気は能力に使用せず、未確認4角は中立。</p><p class="small">詳細な数表と修正ログ：GitHubの race-engine/races/shuka-2026.js を参照。2021・2022年阪神代替を枠・脚質から除外。</p></details>':'')+
   '<p class="small">※着順率は未校正モデル内の出現率。'+(config.courseView==='kyoto-1400-outer'?'':'3Dは汎用模式図で実際の競馬場の高低差・距離形状を再現しません。')+'</p>';
 }
 const cameraAll=document.querySelector('[data-camera="wide"]');
@@ -126,7 +127,7 @@ function cards(){
    '<details><summary>14項目の条件回帰採点・血統・近走を表示</summary>'+
    '<table class="factor-table horse-score-table"><thead><tr><th>評価項目</th><th>素点</th><th>配点</th></tr></thead><tbody>'+scoreRows+'</tbody></table>'+
    '<p>父 '+h.father+'／母父 '+h.mfather+'</p><p><b>近4走：</b>'+h.history+'</p>'+
-   '<p><b>状態：</b>調教 '+(h.training||'未確定')+'・前走から'+h.rest+'日</p>'+ (h.officialPeakRating?'<p><b>JRA2026年最高レーティング：</b>'+h.officialPeakRating+' '+h.officialPeakDistance+'（今回の予想点ではなく、年間ピーク）</p>':'')+
+   '<p><b>状態：</b>調教 '+(h.training||'未確定')+'・前走から'+h.rest+'日</p>'+ (Number.isFinite(h.trainingScore)?'<p>当週の補間状態素点 '+h.trainingScore+' / 100（裁量値・未校正）</p>':'')+(Number.isInteger(h.lastRace4c)?'<p><b>前走4角：</b>'+h.lastRace4c+'番手（公式結果で照合済。過去傾向の反映は小さく制限）</p>':'')+ (h.officialPeakRating?'<p><b>JRA2026年最高レーティング：</b>'+h.officialPeakRating+' '+h.officialPeakDistance+'（今回の予想点ではなく、年間ピーク）</p>':'')+
    '<p class="small">血統は父・母父のみ確認。完全5代血統、全走のラップ、未確認の調教・騎手統計は欠測扱い。代理点は未校正です。</p>'+
    '</details></article>';
  }).join('');
