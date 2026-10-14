@@ -1,4 +1,4 @@
-/** 秋華賞2026 10/14 19:01 JST: attachment-backed Kyoto historical trends, verified prior 4C, latest workouts. Provisional IDs. */
+/** 2026 秋華賞 2026-10-15 04:22 JST: verified latest 18 workout status with missing finals explicit. Numbers provisional until confirmed draw. */
 export default {
   "schemaVersion": 1,
   "id": "shuka-2026",
@@ -17,8 +17,8 @@ export default {
   "demo": false,
   "provisionalDraw": true,
   "standardWeight": 55,
-  "seed": 20261014,
-  "notes": "2026/10/14 19:01 JST更新。画像で提供された過去10年の秋華賞データを集計（京都開催と阪神代替を厳密分離）。JRA前走4角を個別照合した9頭のみ弱い平滑化補正。人気を能力入力に使わず、過去統計を重複加点しない。10/14最終追い切り（確認可能な5頭）、調教師コメント、JRAローズS・紫苑Sの実ラップ、血統と京都実績を最新として追記。馬番は登録順の仮番号で枠順未確定。木曜の正式登録/確定出走馬/追加調教・当日の馬場未反映。3Dは模式図、京都内2000m実測形状ではない。",
+  "seed": 20261015,
+  "notes": "2026/10/15 04:22 JST早朝時点の暫定追い切り更新。10/14最終時計を確認できた8頭・吉岡厩舎の10/10実質最終負荷1頭・今週最終未確認9頭を区別し、日付/時計/コース/コメントを全18頭に構造化。10/15木曜日の出馬投票は12:00〜14:00で、現時点で確定出馬表・枠順は存在しない。10/14を含む記事で情報確認できた馬以外は不明扱い。基礎能力や血統は10/14版を継続、追い切り新発見で過剰な再採点をせずサムシング75→78、カナル70→72、テイエムB(67)→70の状態素点小幅変更のみ。前走4角・京都開催8回データの小補正と枠順中立は維持。14要素は共通エンジンのまま。未校正・人気不使用・3Dは物理再現ではなく模式図。",
   "sources": {
     "JRA": "https://jra.jp/keiba/tokubetsu/",
     "registration": "https://www.radionikkei.jp/keiba_article/news/post_38736.html",
@@ -52,7 +52,15 @@ export default {
     "bloodSmartOct14": "https://umanity.jp/racedata/race_newsdet.php?nid=11879985",
     "horseBodyOct13": "https://www.daily.co.jp/umaya/horsecheck/2026/10/13/0020923197.shtml",
     "reviewOct14": "https://umanity.jp/racedata/race_newsdet.php?nid=11879926",
-    "distanceOct14": "https://umanity.jp/racedata/race_newsdet.php?nid=11879902"
+    "distanceOct14": "https://umanity.jp/racedata/race_newsdet.php?nid=11879902",
+    "workoutFull18": "https://www.keibanomiryoku.com/article/shuka-sho-2026-work-out.html",
+    "workoutNetkeibaAll": "https://race.netkeiba.com/race/oikiri.html?race_id=202608040711",
+    "workoutLabelLate": "https://own.netkeiba.com/news/news_detail.html?id=345572",
+    "workoutCanalLate": "https://own.netkeiba.com/news/news_detail.html?id=345569",
+    "workoutGalla": "https://own.netkeiba.com/news/news_detail.html?id=345527",
+    "workoutEnne": "https://news.sp.netkeiba.com/?no=345216&pid=news_view",
+    "workoutDream": "https://umanity.jp/racedata/race_newsdet.php?nid=11879636",
+    "JRA_program": "https://www.jra.go.jp/keiba/program/2026/pdf/jusyo_kansai.pdf"
   },
   "horses": [
     {
@@ -75,7 +83,15 @@ export default {
       "latest": "10/10CW6F87.7-11.0、ブリンカー着用で3頭併せ最先着。吉岡師『ローズS前より良い』との騎乗者評価。10/13馬体診断では緩さ指摘。 10/13デイリー馬体診断A：成長・前腕/トモのボリューム増。ローズSは4角4番手、34.4で2着。10/10のCW87.7-11.0最先着が実質最終強負荷。",
       "officialPeakRating": 108,
       "officialPeakDistance": "M",
-      "lastRace4c": 4
+      "lastRace4c": 4,
+      "workout": {
+        "date": "2026-10-10",
+        "status": "実質最終負荷",
+        "venue": "栗東CW",
+        "time": "6F87.7・5F69.8・1F11.0",
+        "note": "3頭併せ最先着、ブリンカー着用で反応良好",
+        "source": "https://www.keibanomiryoku.com/article/shuka-sho-2026-work-out.html"
+      }
     },
     {
       "no": 2,
@@ -94,10 +110,18 @@ export default {
       "history": "スイートピーS(L)1着・東京1800m1:45.6／芝1600m未勝利1着",
       "plus": "スイートピーS勝ち（4着は紫苑S2着サムシングスイート）。JRAが後続馬の勝ち上がりを評価。調整は良好。",
       "minus": "5月から休養・京都芝2000mは初。GI相手の評価には飛躍余地がある。",
-      "latest": "10/13宮田師：想定通りの負荷をかけられて良い調整。JRAはスイートピーS2〜5着馬が後に勝利した相手関係を評価。 10/14美浦坂路4F54.2-39.0-12.0単走、末脚は指示通り。ただし夏の佐渡Sを馬運車内での外傷で回避、輸送トラブル再発とゲート前気負いには注意。",
+      "latest": "10/13宮田師：想定通りの負荷をかけられて良い調整。JRAはスイートピーS2〜5着馬が後に勝利した相手関係を評価。 10/14美浦坂路4F54.2-39.0-12.0単走、末脚は指示通り。ただし夏の佐渡Sを馬運車内での外傷で回避、輸送トラブル再発とゲート前気負いには注意。 【10/15早朝追記】14日坂路4F54.2-12.0。調教師は右手前への切替遅れを指摘、馬運車での外傷歴があり輸送完了まで慎重評価。",
       "officialPeakRating": 104,
       "officialPeakDistance": "M",
-      "trainingScore": 70
+      "trainingScore": 72,
+      "workout": {
+        "date": "2026-10-14",
+        "status": "最終",
+        "venue": "美浦坂路",
+        "time": "4F54.2・3F39.0・1F12.0",
+        "note": "単走・馬なり。右手前への切替が遅め、輸送不安残る",
+        "source": "https://www.keibanomiryoku.com/article/shuka-sho-2026-work-out.html"
+      }
     },
     {
       "no": 3,
@@ -118,7 +142,15 @@ export default {
       "minus": "重賞初挑戦で先行同型が多い。ハイペースになれば失速リスク。",
       "latest": "10/13杉山佳師：10/4に強めの調教を済ませ、その後は強弱をつけて調整。",
       "officialPeakRating": null,
-      "officialPeakDistance": null
+      "officialPeakDistance": null,
+      "workout": {
+        "date": "2026-10-08",
+        "status": "1週前のみ",
+        "venue": "栗東坂路",
+        "time": "4F56.1・1F12.5",
+        "note": "馬なり。10/14最終時計は未確認",
+        "source": "https://www.keibanomiryoku.com/article/shuka-sho-2026-work-out.html"
+      }
     },
     {
       "no": 4,
@@ -137,9 +169,17 @@ export default {
       "history": "桜花賞GI2着（勝馬と0.4秒差）／阪神JF GI2着／クイーンC9着",
       "plus": "阪神JFと桜花賞ともに2着。JRA評価では近2週の調教が軽快で態勢は整いつつある。厩舎の京都2000m複勝率49.0%。",
       "minus": "桜花賞以来の約6か月休養。フレグモーネによるオークス回避歴あり、当日の体調・仕上がりを要確認。芝2000m初。",
-      "latest": "10/13：フレグモーネでオークスを回避。陣営『帰厩時は約510kg、追ってもしぼまず体はできた』。JRAは近2週の軽快な動きを評価。",
+      "latest": "10/13：フレグモーネでオークスを回避。陣営『帰厩時は約510kg、追ってもしぼまず体はできた』。JRAは近2週の軽快な動きを評価。 【10/14 06:30報道】10/7CW7F97.4-6F80.4-11.8、横山和騎手騎乗で併入。吉松助手は追い切り後も馬体がしぼまず順調と説明。",
       "officialPeakRating": 110,
-      "officialPeakDistance": "M"
+      "officialPeakDistance": "M",
+      "workout": {
+        "date": "2026-10-07",
+        "status": "1週前のみ",
+        "venue": "栗東CW",
+        "time": "7F97.4・6F80.4・1F11.8",
+        "note": "一杯で併入。長休明け、馬体の張りは維持との助手談",
+        "source": "https://www.keibanomiryoku.com/article/shuka-sho-2026-work-out.html"
+      }
     },
     {
       "no": 5,
@@ -158,12 +198,20 @@ export default {
       "history": "紫苑S(GII)2着・中山2000m重（0.1秒差）／中京芝2000m1勝C1着1:58.5",
       "plus": "紫苑S2着（重2000m）、内を縫う競馬ができる。調教師は食欲・体調を評価。",
       "minus": "初の京都遠征・気負いすぎ。輸送時の馬体減少見込みは陣営予想で実測値ではない。",
-      "latest": "10/13伊藤大師：現状約520kg、輸送で20〜30kg減少する見込み。体調は良いが気持ちの入りすぎを調整。 10/14美浦W5F66.9-36.8-11.3で併せ半馬身先着。伊藤師は過去最高の動きと評価。前走は中山重2000mを4角7番手→2着、良の中京2000m勝ちもある。",
+      "latest": "10/13伊藤大師：現状約520kg、輸送で20〜30kg減少する見込み。体調は良いが気持ちの入りすぎを調整。 10/14美浦W5F66.9-36.8-11.3で併せ半馬身先着。伊藤師は過去最高の動きと評価。前走は中山重2000mを4角7番手→2着、良の中京2000m勝ちもある。 【10/15早朝追記】14日最終W6F83.9-5F66.9-11.3、馬なり0.1秒先着。前週82.7-11.4から終い維持、過去最高の動きという伊藤師評価を確認。",
       "officialPeakRating": 106,
       "officialPeakDistance": "I",
       "lastRace4c": 7,
-      "trainingScore": 75,
-      "careerStarts": 8
+      "trainingScore": 78,
+      "careerStarts": 8,
+      "workout": {
+        "date": "2026-10-14",
+        "status": "最終",
+        "venue": "美浦W",
+        "time": "6F83.9・5F66.9・3F36.8・1F11.3",
+        "note": "馬なりで0.1秒先着。調教師は今までで最良の動きと評価",
+        "source": "https://www.keibanomiryoku.com/article/shuka-sho-2026-work-out.html"
+      }
     },
     {
       "no": 6,
@@ -186,7 +234,15 @@ export default {
       "officialPeakRating": 110,
       "officialPeakDistance": "L",
       "lastRace4c": 7,
-      "trainingScore": 75
+      "trainingScore": 75,
+      "workout": {
+        "date": "2026-10-14",
+        "status": "最終",
+        "venue": "栗東坂路",
+        "time": "4F54.1・3F38.4・1F12.6",
+        "note": "末強め。佐々木騎手、前走より反応シャープとコメント",
+        "source": "https://www.keibanomiryoku.com/article/shuka-sho-2026-work-out.html"
+      }
     },
     {
       "no": 7,
@@ -208,7 +264,15 @@ export default {
       "latest": "10/13ウマニティ：一週前CW6F81.3-11.3馬なり、前走の動きより質向上。ローズSはスタート後に挟まれる不利。 10/14栗東CW6F82.7-36.6-11.0を馬なり。幸騎手が折り合い・反応を高評価。母スマートレイアーは2013秋華賞2着。ローズS4角7番手、直線前不利。",
       "officialPeakRating": 106,
       "officialPeakDistance": "M",
-      "lastRace4c": 7
+      "lastRace4c": 7,
+      "workout": {
+        "date": "2026-10-14",
+        "status": "最終",
+        "venue": "栗東CW",
+        "time": "6F82.7・3F36.6・1F11.0",
+        "note": "幸騎手騎乗、馬なりで良い反応。前走より折り合い改善",
+        "source": "https://www.keibanomiryoku.com/article/shuka-sho-2026-work-out.html"
+      }
     },
     {
       "no": 8,
@@ -230,7 +294,15 @@ export default {
       "latest": "10/13 JRA：ローズS12着は骨折明け初戦で、1週前追い切りの動き良好。松下師は馬体を502kgから496kg付近へ絞る計画。",
       "officialPeakRating": 109,
       "officialPeakDistance": "M",
-      "lastRace4c": 4
+      "lastRace4c": 4,
+      "workout": {
+        "date": "2026-10-08",
+        "status": "1週前のみ",
+        "venue": "栗東CW",
+        "time": "7F96.0・1F11.6",
+        "note": "馬なり、骨折明けを叩いた上積み。10/14最終時計未確認",
+        "source": "https://www.keibanomiryoku.com/article/shuka-sho-2026-work-out.html"
+      }
     },
     {
       "no": 9,
@@ -249,9 +321,18 @@ export default {
       "history": "納屋橋特別2勝C1着・中京1600m1:32.5／メルボルンT1着京都1600m",
       "plus": "京都マイル逃げ切り、速い時計の先行力",
       "minus": "2000mへの延長と逃げの競合、重賞初挑戦。",
-      "latest": "10/13宮地師：コンパクトな馬体だが動きとスピードは良い。",
+      "latest": "10/13宮地師：コンパクトな馬体だが動きとスピードは良い。 【10/15早朝追記】14日最終坂路4F54.1-12.2馬なり、1週前12.9より終いの反応改善。",
       "officialPeakRating": null,
-      "officialPeakDistance": null
+      "officialPeakDistance": null,
+      "workout": {
+        "date": "2026-10-14",
+        "status": "最終",
+        "venue": "栗東坂路",
+        "time": "4F54.1・3F40.0・1F12.2",
+        "note": "馬なり、終いは1週前12.9より改善。精神面は要注意",
+        "source": "https://www.keibanomiryoku.com/article/shuka-sho-2026-work-out.html"
+      },
+      "trainingScore": 70
     },
     {
       "no": 10,
@@ -270,10 +351,18 @@ export default {
       "history": "紫苑S(GII)3着・中山2000m重／オークス(GI)2着0.0秒差／クイーンC(GIII)1着",
       "plus": "オークス2着・クイーンC優勝。紫苑Sは重馬場で3着、良馬場京都への条件好転余地がある。ルメール騎手の同コース複勝率56.5%。",
       "minus": "田中博師が状態面で前走から平行線と説明。春のピークと比較した不確実性。紫苑Sではマスターソアラに先着を許す。",
-      "latest": "10/13田中博師：紫苑Sから大きな良化はなく『平行線』。状態は最終追い切りで再判定（10/13報知）。 10/13デイリー馬体診断C：筋肉の上積みはあるが加速の鈍さと右回り高速内回りを懸念する専門家意見。紫苑S4角3番手で3着、末脚36.7。陣営の最終仕上げは追加確認待ち。",
+      "latest": "10/13田中博師：紫苑Sから大きな良化はなく『平行線』。状態は最終追い切りで再判定（10/13報知）。 10/13デイリー馬体診断C：筋肉の上積みはあるが加速の鈍さと右回り高速内回りを懸念する専門家意見。紫苑S4角3番手で3着、末脚36.7。陣営の最終仕上げは追加確認待ち。 【10/15早朝追記】本日時点で10/14最終追い切り時計は確認できず。10/8のW6F82.0-11.6に対し田中博師はフォーム改善を課題視。馬体診断では筋肉の上積みも確認されており状態の評価は保留。",
       "officialPeakRating": 111,
       "officialPeakDistance": "L",
-      "lastRace4c": 3
+      "lastRace4c": 3,
+      "workout": {
+        "date": "2026-10-08",
+        "status": "1週前のみ",
+        "venue": "美浦W",
+        "time": "6F82.0・3F36.3・1F11.6",
+        "note": "サレジオと併入。田中博師がフォームと反応面の改善を課題視",
+        "source": "https://www.keibanomiryoku.com/article/shuka-sho-2026-work-out.html"
+      }
     },
     {
       "no": 11,
@@ -295,7 +384,15 @@ export default {
       "latest": "10/13助手：紫苑Sの敗因は距離ではなく重馬場とみており、2000mは問題なしとの見解。 2026紫苑Sは4角1番手→6着・上がり38.1。前走逃げの粘り欠如は高速良への好転仮説と分けて評価。",
       "officialPeakRating": null,
       "officialPeakDistance": null,
-      "lastRace4c": 1
+      "lastRace4c": 1,
+      "workout": {
+        "date": "2026-10-14",
+        "status": "最終",
+        "venue": "美浦W",
+        "time": "6F83.2・3F37.4・1F11.7",
+        "note": "馬なりで0.1秒先着。大幅上積みは確認されず",
+        "source": "https://www.keibanomiryoku.com/article/shuka-sho-2026-work-out.html"
+      }
     },
     {
       "no": 12,
@@ -316,7 +413,15 @@ export default {
       "minus": "2000m初・重賞初。気性が難しくパドックのイレ込みと掛かり癖。距離延長で折り合いが鍵。",
       "latest": "10/13ウマニティ：CW6F83.9-11.2馬なり。9戦3勝2着3回3着3回。パドックのイレ込みと折り合いが課題。",
       "officialPeakRating": null,
-      "officialPeakDistance": null
+      "officialPeakDistance": null,
+      "workout": {
+        "date": "2026-10-08",
+        "status": "1週前のみ",
+        "venue": "栗東CW",
+        "time": "6F83.9・3F36.8・1F11.2",
+        "note": "直強め。テンションと体格・輸送が不確実",
+        "source": "https://www.keibanomiryoku.com/article/shuka-sho-2026-work-out.html"
+      }
     },
     {
       "no": 13,
@@ -337,7 +442,15 @@ export default {
       "minus": "芝2000m重賞実績なく格上挑戦",
       "latest": "10/13新谷師：気性は落ち着いており、現行の調整負荷で十分との見解。",
       "officialPeakRating": 96,
-      "officialPeakDistance": "M"
+      "officialPeakDistance": "M",
+      "workout": {
+        "date": "2026-10-08",
+        "status": "1週前のみ",
+        "venue": "栗東坂路",
+        "time": "4F55.3・1F12.0",
+        "note": "馬なりで先着。1週前のみ確認",
+        "source": "https://www.keibanomiryoku.com/article/shuka-sho-2026-work-out.html"
+      }
     },
     {
       "no": 14,
@@ -358,7 +471,15 @@ export default {
       "minus": "近2走大敗。距離2000mへの延長は未知",
       "latest": "10/13浜中騎手：息遣い・息の入り良く体調は良さそうとの所見。",
       "officialPeakRating": null,
-      "officialPeakDistance": null
+      "officialPeakDistance": null,
+      "workout": {
+        "date": "2026-10-08",
+        "status": "1週前のみ",
+        "venue": "栗東CW",
+        "time": "6F83.0・3F35.8・1F11.4",
+        "note": "馬なりで0.4秒先着、体増は好材料。最終時計未確認",
+        "source": "https://www.keibanomiryoku.com/article/shuka-sho-2026-work-out.html"
+      }
     },
     {
       "no": 15,
@@ -380,7 +501,15 @@ export default {
       "latest": "10/13蛯名師：前走後は過去で最も脚元のダメージが少なく、馬体はプラスでテンション維持。初の長距離輸送は注意。 10/14美浦W単走4F54.4-39.7-12.4馬なり。蛯名師『リラックスし冷静』、初関西輸送と当日テンション留保。紫苑S4角5番手から勝利。",
       "officialPeakRating": 107,
       "officialPeakDistance": "I",
-      "lastRace4c": 5
+      "lastRace4c": 5,
+      "workout": {
+        "date": "2026-10-14",
+        "status": "最終",
+        "venue": "美浦W",
+        "time": "4F54.4・3F39.7・1F12.4",
+        "note": "馬なり、短めで調整。蛯名師が冷静さと体調の良さを評価",
+        "source": "https://www.keibanomiryoku.com/article/shuka-sho-2026-work-out.html"
+      }
     },
     {
       "no": 16,
@@ -399,10 +528,18 @@ export default {
       "history": "ローズS(GII)1着・阪神芝1800m1:44.5・0.5秒差／かもめ島特別1着／八雲特別1着",
       "plus": "無敗4連勝。ローズSを好位2番手から0.5秒差快勝、10/7CW6F81.9-11.2で先着。上村厩務員は馬体と精神状態に不安なし。",
       "minus": "初の芝2000m、初のGI。同型逃げ馬の競り合いと内回りでの位置確保。デビュー後に骨折歴（回復後3連勝）。",
-      "latest": "10/13厩務員：体重維持、気性落ち着く。15日に追い切り予定。10/7CW6F81.9-11.2、終い余力（ウマニティ10/13）。 10/14上村師インタビュー：骨折復帰後も充実、GI初挑戦。ローズS実測通過2-2、1:44.5・3馬身差、上がり34.1。母系は豪州マイルG1、短距離傾向を指摘する血統評あり。",
+      "latest": "10/13厩務員：体重維持、気性落ち着く。15日に追い切り予定。10/7CW6F81.9-11.2、終い余力（ウマニティ10/13）。 10/14上村師インタビュー：骨折復帰後も充実、GI初挑戦。ローズS実測通過2-2、1:44.5・3馬身差、上がり34.1。母系は豪州マイルG1、短距離傾向を指摘する血統評あり。 【10/15早朝追記】今週の最終追い切り時計は未確認。確認済み10/7 CW6F81.9-11.2・馬なりクビ先着と助手の順調コメントを維持。",
       "officialPeakRating": 114,
       "officialPeakDistance": "M",
-      "lastRace4c": 2
+      "lastRace4c": 2,
+      "workout": {
+        "date": "2026-10-07",
+        "status": "1週前のみ",
+        "venue": "栗東CW",
+        "time": "6F81.9・3F36.1・1F11.2",
+        "note": "馬なりでクビ先着。反動なし、今週最終時計は未確認",
+        "source": "https://www.keibanomiryoku.com/article/shuka-sho-2026-work-out.html"
+      }
     },
     {
       "no": 17,
@@ -424,7 +561,15 @@ export default {
       "latest": "10/13鹿戸師：フットワークが春とは比べものにならないほど大きくなった。JRAによると近2走は好位競馬で上がり32.3。 10/14美浦W6F84.8-39.6-12.1単走馬なり。荻野極騎手は折り合い良・軽いフットワークと評す。イレ込み緩和で10/15早めに京都輸送、16-17日にスクーリング予定。",
       "officialPeakRating": null,
       "officialPeakDistance": null,
-      "careerStarts": 4
+      "careerStarts": 4,
+      "workout": {
+        "date": "2026-10-14",
+        "status": "最終",
+        "venue": "美浦W",
+        "time": "6F84.8・3F39.6・1F12.1",
+        "note": "馬なり単走。荻野極騎手は軽い走りと折り合いを評価",
+        "source": "https://www.keibanomiryoku.com/article/shuka-sho-2026-work-out.html"
+      }
     },
     {
       "no": 18,
@@ -445,7 +590,15 @@ export default {
       "minus": "上級条件の実績不足。母父オルフェーヴルのみで無条件に上げない",
       "latest": "10/13寺島師：1週前の軽め調整は予定通り、道中の行きっぷり良好。",
       "officialPeakRating": null,
-      "officialPeakDistance": null
+      "officialPeakDistance": null,
+      "workout": {
+        "date": "2026-10-08",
+        "status": "1週前のみ",
+        "venue": "栗東CW",
+        "time": "6F85.0・3F37.3・1F12.3",
+        "note": "馬なりで併走馬に0.2秒遅れ。最終時計未確認",
+        "source": "https://www.keibanomiryoku.com/article/shuka-sho-2026-work-out.html"
+      }
     }
   ],
   "inputs": {
@@ -647,7 +800,7 @@ export default {
       "武豊": 150
     }
   },
-  "asOf": "2026-10-14T19:01:00+09:00",
+  "asOf": "2026-10-15T04:22:00+09:00",
   "analysisLog": [
     "14要素の基本配点は変更しない。過去レース数の少ない単発結果に過学習しない。",
     "エンネ：10/10CW87.7-11.0最先着、ブリンカーでローズS前より先行可能と判明、training B→A、style差し→好位。",
@@ -669,7 +822,13 @@ export default {
     "2026/10/14 最終追い：スマートCW82.7-11.0、サムシングW66.9-11.3、マスターW54.4-12.4、ラベルW84.8-12.1、カナル坂路54.2-12.0、スウィート坂路54.1-12.6。",
     "2026/10/14 スウィートハピネスは京都3戦3連対を再確認、コース素点73→79。スマートプリエールは母の京都秋華賞2着とコース実績を再評価し血統66→71/距離68→71。これは代理点で未校正。",
     "2026/10/14 モンローウォークの距離未知と短距離寄り母系を鑑み、血統70→68/距離69→66（ローズSでの3馬身差と上がり最速は維持）。",
-    "2026/10/14 カナルサンマルタンは夏の馬運車内外傷で回避の一次取材確認。長期休養の理由を追記、今回輸送懸念を強調（故障状態を推測で決め付けない）。"
+    "2026/10/14 カナルサンマルタンは夏の馬運車内外傷で回避の一次取材確認。長期休養の理由を追記、今回輸送懸念を強調（故障状態を推測で決め付けない）。",
+    "10/15 04:22 JST時点：10/14最終追い切り8頭、10/10実質最終1頭、残9頭は公表一次/取材を確認できた範囲では今週最終時計未確認（『最終が行われていない』と断定しない）。",
+    "サムシングスイートはウッド6F83.9、5F66.9、1F11.3であり、6F66.9という誤記は不採用。最終追い後コメントを再確認し状態素点75→78（100点総合への影響+0.36）。",
+    "カナルサンマルタンは右手前切替遅れと輸送事故歴を区別、調整良好で状態素点70→72。輸送成功/失敗の未来は予測して断定しない。",
+    "テイエムアイランは10/14坂路4F54.1-12.2、1週前は53.4-12.9。終い改善で状態素点67→70。マイル型の距離課題は残す。",
+    "ドリームコアは10/8W6F82.0-11.6（反応面で評価が割れる）、10/14の最終時計未確認。春の能力の過大評価と状態だけの過小評価を避けるためB/67を据え置く。",
+    "10/15の枠順・正式出走馬・輸送後馬体・当日馬場は未公表。過去10年の枠別表を登録順の仮番号に結びつけない。"
   ],
   "defaultPace": 1,
   "defaultSimulations": 50000,
