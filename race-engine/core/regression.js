@@ -44,6 +44,24 @@ export function createRegression(config,F){
   const favPace=style==='逃げ'?-1.0:style==='好位'?-.52:style==='差し'?.92:.28;
   const fastAdapt=(SPEED[h.no]??0)*(speed-1.5)*4;
   let paceScore=style?clamp(62+favPace*pace*9+fastAdapt,20,95):50;
+  // Optional race-specific prior: Kyoto Shuka Sho previous-race 4th-corner position.
+  // Front 0-3-2-50 vs behind 8-5-6-65 in eight KYOTO editions.
+  // Lap/ability and current style already capture much of this evidence, so
+  // apply a SMALL, Beta-style shrunk correction only to the existing pace factor.
+  // Never infer previous corner from registration-order pseudo horse numbers.
+  const prior=config.historicalTrends?.kyotoPrev4c, n0=Number(config.historicalTrends?.priorN??50);
+  if(prior&&Number.isInteger(h.lastRace4c)&&h.lastRace4c>0&&n0>=1){
+    const front=prior.front,behind=prior.behind;
+    const count=rec=>rec.w+rec.p2+rec.p3+rec.other;
+    const hit=rec=>rec.w+rec.p2+rec.p3;
+    const allN=count(front)+count(behind),allP=hit(front)+hit(behind);
+    if(allN>0){
+      const avg=allP/allN, rec=h.lastRace4c<=4?front:behind;
+      const posterior=(hit(rec)+n0*avg)/(count(rec)+n0);
+      const delta=clamp((posterior-avg)*35,-3,3);
+      paceScore=clamp(paceScore+delta,20,95);
+    }
+  }
   if(ground!=='good'){
    // The missing five-generation pedigree and measured wet-track form are NOT
    // fabricated. Only suppress the dry, ultra-fast-track advantage.
@@ -62,6 +80,8 @@ export function createRegression(config,F){
   const rest=Number.isFinite(Number(h.rest))&&h.rest!==null&&h.rest!==undefined?Number(h.rest):null;
   let rotation=rest===null?50:rest<=18?43:rest<=80?70:rest<=110?61:rest<=150?47:rest<=200?38:24;
   let state={A:87,B:67,C:43}[h.training]??50;
+  // Evidence-backed intermediate workout score avoids an unjustified full B→A leap.
+  if(Number.isFinite(h.trainingScore))state=clamp(h.trainingScore,15,96);
   // Recent serious illness plus extended absence is a top-level fitness
   // uncertainty, not merely a few points of spacing/layoff variance.
   // This is a cautious model assumption, not a veterinary diagnosis.
