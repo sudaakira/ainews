@@ -83,7 +83,7 @@ for(const id of ['swan-2026','sample-demo','tokyo-20261012-11','tokyo-20261012-1
   assert.equal(config.horses[0].name,'エンネ');
   assert.equal(config.horses[14].name,'モンローウォーク');
   assert.equal(config.horses[8].name,'ドリームコア');
-  assert.equal(config.inputs[9][0],85,'reindexed Dream Core's course input');
+  assert.equal(config.inputs[9][0],85,'reindexed Dream Core course input');
   assert.equal(config.inputs[15][1],87,'reindexed Monroe Walk lap input');
   assert.ok(config.notes.includes('仮番号'));
   assert.equal(config.horses.find(h=>h.name==='ドリームコア').trainingScore,80);
