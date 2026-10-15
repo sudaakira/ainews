@@ -1,4 +1,4 @@
-/** 2026 秋華賞 2026-10-15 04:22 JST: verified latest 18 workout status; provisional draw. */
+/** 秋華賞2026 confirmed 17 runners and training weights Oct 15 18:36 JST; IDs are provisional until draw. */
 export default {
   "schemaVersion": 1,
   "id": "shuka-2026",
@@ -18,7 +18,7 @@ export default {
   "provisionalDraw": true,
   "standardWeight": 55,
   "seed": 20261015,
-  "notes": "2026/10/15 04:22 JST早朝時点の暫定追い切り更新。出走登録順の1〜18は仮番号で実馬番・枠番を示さず、出走確定時に差し替える。10/14最終時計を確認できた8頭・吉岡厩舎の10/10実質最終負荷1頭・今週最終未確認9頭を区別し、日付/時計/コース/コメントを全18頭に構造化。10/15木曜日の出馬投票は12:00〜14:00で、現時点で確定出馬表・枠順は存在しない。10/14を含む記事で情報確認できた馬以外は不明扱い。基礎能力や血統は10/14版を継続、追い切り新発見で過剰な再採点をせずサムシング75→78、カナル70→72、テイエムB(67)→70の状態素点小幅変更のみ。前走4角・京都開催8回データの小補正と枠順中立は維持。14要素は共通エンジンのまま。未校正・人気不使用・3Dは物理再現ではなく模式図。",
+  "notes": "2026-10-15 18:36 JST更新。スマートプリエールの軽い捻挫による回避を反映し出走17頭と騎手確定。登録順の仮番号1〜17は実馬番や枠番ではなく、枠補正は中立。15日最終追い切りはモンロー坂路53.2-12.4、ドリームW6F84.8-11.7、ギャラボーグCW4F51.5-11.2、エンネ坂路58.5-14.1（強負荷は10/10）、タイセイ坂路56.6-12.2、ガーネットは区間ラップからの4F推定。全17頭のJRA調教後馬体重は記録だけし、輸送と当日体重が未知で評価点には採用しない。人気オッズを能力入力にしない。京都前走4角少数標本の平滑化と14項目100点は継続。全頭5代血統・全走ラップ・実測京都芝2000m 3D再現は未完了。勝率は未校正のモデル内出現率。",
   "sources": {
     "JRA": "https://jra.jp/keiba/tokubetsu/",
     "registration": "https://www.radionikkei.jp/keiba_article/news/post_38736.html",
@@ -60,7 +60,17 @@ export default {
     "workoutGalla": "https://own.netkeiba.com/news/news_detail.html?id=345527",
     "workoutEnne": "https://news.sp.netkeiba.com/?no=345216&pid=news_view",
     "workoutDream": "https://umanity.jp/racedata/race_newsdet.php?nid=11879636",
-    "JRA_program": "https://www.jra.go.jp/keiba/program/2026/pdf/jusyo_kansai.pdf"
+    "JRA_program": "https://www.jra.go.jp/keiba/program/2026/pdf/jusyo_kansai.pdf",
+    "confirmedField": "https://own.netkeiba.com/news/news_detail.html?id=345623",
+    "JRA_confirmed": "https://www.jra.go.jp/JRADB/accessD.html?CNAME=pw01dde0108202604071120261018%2F30",
+    "withdrawal": "https://own.netkeiba.com/news/news_detail.html?id=345643",
+    "JRA_weights": "https://jra.jp/news/202610/101502.html",
+    "finalMonroe": "https://umanity.jp/racedata/race_newsdet.php?nid=11880078",
+    "finalDream": "https://umanity.jp/racedata/race_newsdet.php?nid=11880081",
+    "finalDreamInterview": "https://www.radionikkei.jp/keiba_article/news/post_38805.html",
+    "finalGalla": "https://www.nikkansports.com/keiba/news/202610150000468.html",
+    "finalEnne": "https://www.nikkansports.com/keiba/news/202610150000470.html",
+    "finalTaisei": "https://keiba.nikkan-gendai.com/articles/318598"
   },
   "horses": [
     {
@@ -80,17 +90,27 @@ export default {
       "history": "ローズS2着（0.5秒差、1800m）／オークス7着（勝馬と0.3秒差）／フローラS2着（2000m）",
       "plus": "フローラS2着、オークス0.3秒差7着で上がり最速タイ、ローズS2着。10/10のCWで終い11.0・最先着。ローズSはブリンカーで位置を取る競馬を習得。",
       "minus": "ローズSではモンローに0.5秒差。大型馬で仕上がりの緩さを指摘する外部馬体診断あり（専門家所見）。",
-      "latest": "10/10CW6F87.7-11.0、ブリンカー着用で3頭併せ最先着。吉岡師『ローズS前より良い』との騎乗者評価。10/13馬体診断では緩さ指摘。 10/13デイリー馬体診断A：成長・前腕/トモのボリューム増。ローズSは4角4番手、34.4で2着。10/10のCW87.7-11.0最先着が実質最終強負荷。",
+      "latest": "10/10CW6F87.7-11.0、ブリンカー着用で3頭併せ最先着。吉岡師『ローズS前より良い』との騎乗者評価。10/13馬体診断では緩さ指摘。 10/13デイリー馬体診断A：成長・前腕/トモのボリューム増。ローズSは4角4番手、34.4で2着。10/10のCW87.7-11.0最先着が実質最終強負荷。 【10/15夕方】坂井騎手、予定どおり軽い追切で素軽さあり。強負荷は10/10。",
       "officialPeakRating": 108,
       "officialPeakDistance": "M",
       "lastRace4c": 4,
       "workout": {
-        "date": "2026-10-10",
+        "date": "2026-10-15",
         "status": "実質最終負荷",
-        "venue": "栗東CW",
-        "time": "6F87.7・5F69.8・1F11.0",
-        "note": "3頭併せ最先着、ブリンカー着用で反応良好",
-        "source": "https://www.keibanomiryoku.com/article/shuka-sho-2026-work-out.html"
+        "venue": "栗東坂路と10/10CW",
+        "time": "10/15坂路4F58.5・1F14.1／10/10CW5F69.8・1F11.0",
+        "note": "坂井騎手、予定どおり軽い追切で素軽さあり。強負荷は10/10。",
+        "source": "https://www.nikkansports.com/keiba/news/202610150000470.html"
+      },
+      "legacyRegistrationNo": 1,
+      "trainingScore": 89,
+      "trainingWeight": {
+        "kg": 528,
+        "lastKg": 522,
+        "day": "15",
+        "location": "栗東",
+        "source": "https://jra.jp/news/202610/101502.html",
+        "note": "調教後馬体重。計量後輸送で変動するため回帰採点に未使用。"
       }
     },
     {
@@ -121,6 +141,15 @@ export default {
         "time": "4F54.2・3F39.0・1F12.0",
         "note": "単走・馬なり。右手前への切替が遅め、輸送不安残る",
         "source": "https://www.keibanomiryoku.com/article/shuka-sho-2026-work-out.html"
+      },
+      "legacyRegistrationNo": 2,
+      "trainingWeight": {
+        "kg": 460,
+        "lastKg": 448,
+        "day": "14",
+        "location": "美浦",
+        "source": "https://jra.jp/news/202610/101502.html",
+        "note": "調教後馬体重。計量後輸送で変動するため回帰採点に未使用。"
       }
     },
     {
@@ -140,16 +169,26 @@ export default {
       "history": "夕月特別2勝C1着・阪神芝2000m1:59.0／札幌芝1800m1勝C1着",
       "plus": "芝転向後2連勝。阪神芝2000m1:59.0、先行力とスピード。",
       "minus": "重賞初挑戦で先行同型が多い。ハイペースになれば失速リスク。",
-      "latest": "10/13杉山佳師：10/4に強めの調教を済ませ、その後は強弱をつけて調整。",
+      "latest": "10/13杉山佳師：10/4に強めの調教を済ませ、その後は強弱をつけて調整。 【10/15夕方】区間ラップ15.1-14.8-12.7-12.3からの推定4F。公式全体時計未照合。",
       "officialPeakRating": null,
       "officialPeakDistance": null,
       "workout": {
-        "date": "2026-10-08",
-        "status": "1週前のみ",
+        "date": "2026-10-15",
+        "status": "最終",
         "venue": "栗東坂路",
-        "time": "4F56.1・1F12.5",
-        "note": "馬なり。10/14最終時計は未確認",
-        "source": "https://www.keibanomiryoku.com/article/shuka-sho-2026-work-out.html"
+        "time": "4F約54.9・1F12.3（区間合計の推定値）",
+        "note": "区間ラップ15.1-14.8-12.7-12.3からの推定4F。公式全体時計未照合。",
+        "source": "https://keibatokidokihitokuti.com/syuukasyou2026saisyuuoi/"
+      },
+      "legacyRegistrationNo": 3,
+      "trainingScore": 70,
+      "trainingWeight": {
+        "kg": 448,
+        "lastKg": 446,
+        "day": "15",
+        "location": "栗東",
+        "source": "https://jra.jp/news/202610/101502.html",
+        "note": "調教後馬体重。計量後輸送で変動するため回帰採点に未使用。"
       }
     },
     {
@@ -169,16 +208,26 @@ export default {
       "history": "桜花賞GI2着（勝馬と0.4秒差）／阪神JF GI2着／クイーンC9着",
       "plus": "阪神JFと桜花賞ともに2着。JRA評価では近2週の調教が軽快で態勢は整いつつある。厩舎の京都2000m複勝率49.0%。",
       "minus": "桜花賞以来の約6か月休養。フレグモーネによるオークス回避歴あり、当日の体調・仕上がりを要確認。芝2000m初。",
-      "latest": "10/13：フレグモーネでオークスを回避。陣営『帰厩時は約510kg、追ってもしぼまず体はできた』。JRAは近2週の軽快な動きを評価。 【10/14 06:30報道】10/7CW7F97.4-6F80.4-11.8、横山和騎手騎乗で併入。吉松助手は追い切り後も馬体がしぼまず順調と説明。",
+      "latest": "10/13：フレグモーネでオークスを回避。陣営『帰厩時は約510kg、追ってもしぼまず体はできた』。JRAは近2週の軽快な動きを評価。 【10/14 06:30報道】10/7CW7F97.4-6F80.4-11.8、横山和騎手騎乗で併入。吉松助手は追い切り後も馬体がしぼまず順調と説明。 【10/15夕方】加速ラップ、杉山晴師はスムーズと評価。休養歴は別途残す。",
       "officialPeakRating": 110,
       "officialPeakDistance": "M",
       "workout": {
-        "date": "2026-10-07",
-        "status": "1週前のみ",
+        "date": "2026-10-15",
+        "status": "最終",
         "venue": "栗東CW",
-        "time": "7F97.4・6F80.4・1F11.8",
-        "note": "一杯で併入。長休明け、馬体の張りは維持との助手談",
-        "source": "https://www.keibanomiryoku.com/article/shuka-sho-2026-work-out.html"
+        "time": "4F51.5・1F11.2",
+        "note": "加速ラップ、杉山晴師はスムーズと評価。休養歴は別途残す。",
+        "source": "https://www.nikkansports.com/keiba/news/202610150000468.html"
+      },
+      "legacyRegistrationNo": 4,
+      "trainingScore": 90,
+      "trainingWeight": {
+        "kg": 505,
+        "lastKg": 490,
+        "day": "14",
+        "location": "栗東",
+        "source": "https://jra.jp/news/202610/101502.html",
+        "note": "調教後馬体重。計量後輸送で変動するため回帰採点に未使用。"
       }
     },
     {
@@ -211,6 +260,15 @@ export default {
         "time": "6F83.9・5F66.9・3F36.8・1F11.3",
         "note": "馬なりで0.1秒先着。調教師は今までで最良の動きと評価",
         "source": "https://www.keibanomiryoku.com/article/shuka-sho-2026-work-out.html"
+      },
+      "legacyRegistrationNo": 5,
+      "trainingWeight": {
+        "kg": 510,
+        "lastKg": 498,
+        "day": "15",
+        "location": "美浦",
+        "source": "https://jra.jp/news/202610/101502.html",
+        "note": "調教後馬体重。計量後輸送で変動するため回帰採点に未使用。"
       }
     },
     {
@@ -242,40 +300,19 @@ export default {
         "time": "4F54.1・3F38.4・1F12.6",
         "note": "末強め。佐々木騎手、前走より反応シャープとコメント",
         "source": "https://www.keibanomiryoku.com/article/shuka-sho-2026-work-out.html"
+      },
+      "legacyRegistrationNo": 6,
+      "trainingWeight": {
+        "kg": 456,
+        "lastKg": 444,
+        "day": "14",
+        "location": "栗東",
+        "source": "https://jra.jp/news/202610/101502.html",
+        "note": "調教後馬体重。計量後輸送で変動するため回帰採点に未使用。"
       }
     },
     {
       "no": 7,
-      "name": "スマートプリエール",
-      "age": "牝3",
-      "kg": 55,
-      "j": "幸英明",
-      "trainer": "大久保龍志",
-      "father": "エピファネイア",
-      "mfather": "ディープインパクト",
-      "style": "中団",
-      "base": 104,
-      "rest": 35,
-      "training": "A",
-      "sd": 11,
-      "history": "ローズS(GII)6着（1.1秒差）／オークス(GI)15着／フラワーC(GIII)1着",
-      "plus": "フラワーC1着・母スマートレイアーは秋華賞2着。10/13記事で追い切りの自発的加速と一度使った上積みを高評価。",
-      "minus": "ローズS6着、オークス15着。ゲート後の不利や状態改善を加味しても2000mの上位実績は未証明。",
-      "latest": "10/13ウマニティ：一週前CW6F81.3-11.3馬なり、前走の動きより質向上。ローズSはスタート後に挟まれる不利。 10/14栗東CW6F82.7-36.6-11.0を馬なり。幸騎手が折り合い・反応を高評価。母スマートレイアーは2013秋華賞2着。ローズS4角7番手、直線前不利。",
-      "officialPeakRating": 106,
-      "officialPeakDistance": "M",
-      "lastRace4c": 7,
-      "workout": {
-        "date": "2026-10-14",
-        "status": "最終",
-        "venue": "栗東CW",
-        "time": "6F82.7・3F36.6・1F11.0",
-        "note": "幸騎手騎乗、馬なりで良い反応。前走より折り合い改善",
-        "source": "https://www.keibanomiryoku.com/article/shuka-sho-2026-work-out.html"
-      }
-    },
-    {
-      "no": 8,
       "name": "タイセイボーグ",
       "age": "牝3",
       "kg": 55,
@@ -291,21 +328,31 @@ export default {
       "history": "ローズS(GII)12着（2.6秒差）／チューリップ賞(GII)1着／阪神JF(GI)3着",
       "plus": "チューリップ賞GII勝ち、阪神JF3着。前走は骨折明け初戦で、今回は叩き2走目。1週前の追い切り良好。",
       "minus": "ローズS12着2.6秒差・距離2000m延長。骨折明けの実戦復帰後、過去の好調期まで戻ったかは未確認。",
-      "latest": "10/13 JRA：ローズS12着は骨折明け初戦で、1週前追い切りの動き良好。松下師は馬体を502kgから496kg付近へ絞る計画。",
+      "latest": "10/13 JRA：ローズS12着は骨折明け初戦で、1週前追い切りの動き良好。松下師は馬体を502kgから496kg付近へ絞る計画。 【10/15夕方】叩き2走目で俊敏さ改善。ただしローズS12着と距離不安残す。",
       "officialPeakRating": 109,
       "officialPeakDistance": "M",
       "lastRace4c": 4,
       "workout": {
-        "date": "2026-10-08",
-        "status": "1週前のみ",
-        "venue": "栗東CW",
-        "time": "7F96.0・1F11.6",
-        "note": "馬なり、骨折明けを叩いた上積み。10/14最終時計未確認",
-        "source": "https://www.keibanomiryoku.com/article/shuka-sho-2026-work-out.html"
+        "date": "2026-10-15",
+        "status": "最終",
+        "venue": "栗東坂路",
+        "time": "4F56.6・1F12.2",
+        "note": "叩き2走目で俊敏さ改善。ただしローズS12着と距離不安残す。",
+        "source": "https://keiba.nikkan-gendai.com/articles/318598"
+      },
+      "legacyRegistrationNo": 8,
+      "trainingScore": 73,
+      "trainingWeight": {
+        "kg": 502,
+        "lastKg": 498,
+        "day": "14",
+        "location": "栗東",
+        "source": "https://jra.jp/news/202610/101502.html",
+        "note": "調教後馬体重。計量後輸送で変動するため回帰採点に未使用。"
       }
     },
     {
-      "no": 9,
+      "no": 8,
       "name": "テイエムアイラン",
       "age": "牝3",
       "kg": 55,
@@ -332,10 +379,19 @@ export default {
         "note": "馬なり、終いは1週前12.9より改善。精神面は要注意",
         "source": "https://www.keibanomiryoku.com/article/shuka-sho-2026-work-out.html"
       },
-      "trainingScore": 70
+      "trainingScore": 70,
+      "legacyRegistrationNo": 9,
+      "trainingWeight": {
+        "kg": 424,
+        "lastKg": 414,
+        "day": "14",
+        "location": "栗東",
+        "source": "https://jra.jp/news/202610/101502.html",
+        "note": "調教後馬体重。計量後輸送で変動するため回帰採点に未使用。"
+      }
     },
     {
-      "no": 10,
+      "no": 9,
       "name": "ドリームコア",
       "age": "牝3",
       "kg": 55,
@@ -351,21 +407,31 @@ export default {
       "history": "紫苑S(GII)3着・中山2000m重／オークス(GI)2着0.0秒差／クイーンC(GIII)1着",
       "plus": "オークス2着・クイーンC優勝。紫苑Sは重馬場で3着、良馬場京都への条件好転余地がある。ルメール騎手の同コース複勝率56.5%。",
       "minus": "田中博師が状態面で前走から平行線と説明。春のピークと比較した不確実性。紫苑Sではマスターソアラに先着を許す。",
-      "latest": "10/13田中博師：紫苑Sから大きな良化はなく『平行線』。状態は最終追い切りで再判定（10/13報知）。 10/13デイリー馬体診断C：筋肉の上積みはあるが加速の鈍さと右回り高速内回りを懸念する専門家意見。紫苑S4角3番手で3着、末脚36.7。陣営の最終仕上げは追加確認待ち。 【10/15早朝追記】本日時点で10/14最終追い切り時計は確認できず。10/8のW6F82.0-11.6に対し田中博師はフォーム改善を課題視。馬体診断では筋肉の上積みも確認されており状態の評価は保留。",
+      "latest": "10/13田中博師：紫苑Sから大きな良化はなく『平行線』。状態は最終追い切りで再判定（10/13報知）。 10/13デイリー馬体診断C：筋肉の上積みはあるが加速の鈍さと右回り高速内回りを懸念する専門家意見。紫苑S4角3番手で3着、末脚36.7。陣営の最終仕上げは追加確認待ち。 【10/15早朝追記】本日時点で10/14最終追い切り時計は確認できず。10/8のW6F82.0-11.6に対し田中博師はフォーム改善を課題視。馬体診断では筋肉の上積みも確認されており状態の評価は保留。 【10/15夕方】馬なり併入。田中博師は前走より良化見込み、折り合い・反応が鍵。",
       "officialPeakRating": 111,
       "officialPeakDistance": "L",
       "lastRace4c": 3,
       "workout": {
-        "date": "2026-10-08",
-        "status": "1週前のみ",
+        "date": "2026-10-15",
+        "status": "最終",
         "venue": "美浦W",
-        "time": "6F82.0・3F36.3・1F11.6",
-        "note": "サレジオと併入。田中博師がフォームと反応面の改善を課題視",
-        "source": "https://www.keibanomiryoku.com/article/shuka-sho-2026-work-out.html"
+        "time": "6F84.8・5F68.3・4F53.1・3F38.6・1F11.7",
+        "note": "馬なり併入。田中博師は前走より良化見込み、折り合い・反応が鍵。",
+        "source": "https://umanity.jp/racedata/race_newsdet.php?nid=11880081"
+      },
+      "legacyRegistrationNo": 10,
+      "trainingScore": 80,
+      "trainingWeight": {
+        "kg": 523,
+        "lastKg": 502,
+        "day": "15",
+        "location": "美浦",
+        "source": "https://jra.jp/news/202610/101502.html",
+        "note": "調教後馬体重。計量後輸送で変動するため回帰採点に未使用。"
       }
     },
     {
-      "no": 11,
+      "no": 10,
       "name": "ナイスプレーアスク",
       "age": "牝3",
       "kg": 55,
@@ -392,10 +458,19 @@ export default {
         "time": "6F83.2・3F37.4・1F11.7",
         "note": "馬なりで0.1秒先着。大幅上積みは確認されず",
         "source": "https://www.keibanomiryoku.com/article/shuka-sho-2026-work-out.html"
+      },
+      "legacyRegistrationNo": 11,
+      "trainingWeight": {
+        "kg": 444,
+        "lastKg": 438,
+        "day": "15",
+        "location": "美浦",
+        "source": "https://jra.jp/news/202610/101502.html",
+        "note": "調教後馬体重。計量後輸送で変動するため回帰採点に未使用。"
       }
     },
     {
-      "no": 12,
+      "no": 11,
       "name": "ハヤブササキチャン",
       "age": "牝3",
       "kg": 55,
@@ -421,10 +496,19 @@ export default {
         "time": "6F83.9・3F36.8・1F11.2",
         "note": "直強め。テンションと体格・輸送が不確実",
         "source": "https://www.keibanomiryoku.com/article/shuka-sho-2026-work-out.html"
+      },
+      "legacyRegistrationNo": 12,
+      "trainingWeight": {
+        "kg": 424,
+        "lastKg": 430,
+        "day": "14",
+        "location": "栗東",
+        "source": "https://jra.jp/news/202610/101502.html",
+        "note": "調教後馬体重。計量後輸送で変動するため回帰採点に未使用。"
       }
     },
     {
-      "no": 13,
+      "no": 12,
       "name": "バースデイフライト",
       "age": "牝3",
       "kg": 55,
@@ -450,10 +534,19 @@ export default {
         "time": "4F55.3・1F12.0",
         "note": "馬なりで先着。1週前のみ確認",
         "source": "https://www.keibanomiryoku.com/article/shuka-sho-2026-work-out.html"
+      },
+      "legacyRegistrationNo": 13,
+      "trainingWeight": {
+        "kg": 465,
+        "lastKg": 462,
+        "day": "15",
+        "location": "栗東",
+        "source": "https://jra.jp/news/202610/101502.html",
+        "note": "調教後馬体重。計量後輸送で変動するため回帰採点に未使用。"
       }
     },
     {
-      "no": 14,
+      "no": 13,
       "name": "フェスティバルヒル",
       "age": "牝3",
       "kg": 55,
@@ -479,10 +572,19 @@ export default {
         "time": "6F83.0・3F35.8・1F11.4",
         "note": "馬なりで0.4秒先着、体増は好材料。最終時計未確認",
         "source": "https://www.keibanomiryoku.com/article/shuka-sho-2026-work-out.html"
+      },
+      "legacyRegistrationNo": 14,
+      "trainingWeight": {
+        "kg": 460,
+        "lastKg": 466,
+        "day": "15",
+        "location": "栗東",
+        "source": "https://jra.jp/news/202610/101502.html",
+        "note": "調教後馬体重。計量後輸送で変動するため回帰採点に未使用。"
       }
     },
     {
-      "no": 15,
+      "no": 14,
       "name": "マスターソアラ",
       "age": "牝3",
       "kg": 55,
@@ -509,10 +611,19 @@ export default {
         "time": "4F54.4・3F39.7・1F12.4",
         "note": "馬なり、短めで調整。蛯名師が冷静さと体調の良さを評価",
         "source": "https://www.keibanomiryoku.com/article/shuka-sho-2026-work-out.html"
+      },
+      "legacyRegistrationNo": 15,
+      "trainingWeight": {
+        "kg": 494,
+        "lastKg": 492,
+        "day": "14",
+        "location": "美浦",
+        "source": "https://jra.jp/news/202610/101502.html",
+        "note": "調教後馬体重。計量後輸送で変動するため回帰採点に未使用。"
       }
     },
     {
-      "no": 16,
+      "no": 15,
       "name": "モンローウォーク",
       "age": "牝3",
       "kg": 55,
@@ -528,21 +639,31 @@ export default {
       "history": "ローズS(GII)1着・阪神芝1800m1:44.5・0.5秒差／かもめ島特別1着／八雲特別1着",
       "plus": "無敗4連勝。ローズSを好位2番手から0.5秒差快勝、10/7CW6F81.9-11.2で先着。上村厩務員は馬体と精神状態に不安なし。",
       "minus": "初の芝2000m、初のGI。同型逃げ馬の競り合いと内回りでの位置確保。デビュー後に骨折歴（回復後3連勝）。",
-      "latest": "10/13厩務員：体重維持、気性落ち着く。15日に追い切り予定。10/7CW6F81.9-11.2、終い余力（ウマニティ10/13）。 10/14上村師インタビュー：骨折復帰後も充実、GI初挑戦。ローズS実測通過2-2、1:44.5・3馬身差、上がり34.1。母系は豪州マイルG1、短距離傾向を指摘する血統評あり。 【10/15早朝追記】今週の最終追い切り時計は未確認。確認済み10/7 CW6F81.9-11.2・馬なりクビ先着と助手の順調コメントを維持。",
+      "latest": "10/13厩務員：体重維持、気性落ち着く。15日に追い切り予定。10/7CW6F81.9-11.2、終い余力（ウマニティ10/13）。 10/14上村師インタビュー：骨折復帰後も充実、GI初挑戦。ローズS実測通過2-2、1:44.5・3馬身差、上がり34.1。母系は豪州マイルG1、短距離傾向を指摘する血統評あり。 【10/15早朝追記】今週の最終追い切り時計は未確認。確認済み10/7 CW6F81.9-11.2・馬なりクビ先着と助手の順調コメントを維持。 【10/15夕方】上村師騎乗の単走。息の乱れなくリズム良、CW1週前も順調。",
       "officialPeakRating": 114,
       "officialPeakDistance": "M",
       "lastRace4c": 2,
       "workout": {
-        "date": "2026-10-07",
-        "status": "1週前のみ",
-        "venue": "栗東CW",
-        "time": "6F81.9・3F36.1・1F11.2",
-        "note": "馬なりでクビ先着。反動なし、今週最終時計は未確認",
-        "source": "https://www.keibanomiryoku.com/article/shuka-sho-2026-work-out.html"
+        "date": "2026-10-15",
+        "status": "最終",
+        "venue": "栗東坂路",
+        "time": "4F53.2・3F38.4・1F12.4",
+        "note": "上村師騎乗の単走。息の乱れなくリズム良、CW1週前も順調。",
+        "source": "https://umanity.jp/racedata/race_newsdet.php?nid=11880078"
+      },
+      "legacyRegistrationNo": 16,
+      "trainingScore": 90,
+      "trainingWeight": {
+        "kg": 452,
+        "lastKg": 450,
+        "day": "15",
+        "location": "栗東",
+        "source": "https://jra.jp/news/202610/101502.html",
+        "note": "調教後馬体重。計量後輸送で変動するため回帰採点に未使用。"
       }
     },
     {
-      "no": 17,
+      "no": 16,
       "name": "ラベルセーヌ",
       "age": "牝3",
       "kg": 55,
@@ -569,10 +690,19 @@ export default {
         "time": "6F84.8・3F39.6・1F12.1",
         "note": "馬なり単走。荻野極騎手は軽い走りと折り合いを評価",
         "source": "https://www.keibanomiryoku.com/article/shuka-sho-2026-work-out.html"
+      },
+      "legacyRegistrationNo": 17,
+      "trainingWeight": {
+        "kg": 440,
+        "lastKg": 436,
+        "day": "14",
+        "location": "美浦",
+        "source": "https://jra.jp/news/202610/101502.html",
+        "note": "調教後馬体重。計量後輸送で変動するため回帰採点に未使用。"
       }
     },
     {
-      "no": 18,
+      "no": 17,
       "name": "ロザーンジュ",
       "age": "牝3",
       "kg": 55,
@@ -598,6 +728,15 @@ export default {
         "time": "6F85.0・3F37.3・1F12.3",
         "note": "馬なりで併走馬に0.2秒遅れ。最終時計未確認",
         "source": "https://www.keibanomiryoku.com/article/shuka-sho-2026-work-out.html"
+      },
+      "legacyRegistrationNo": 18,
+      "trainingWeight": {
+        "kg": 446,
+        "lastKg": 438,
+        "day": "14",
+        "location": "栗東",
+        "source": "https://jra.jp/news/202610/101502.html",
+        "note": "調教後馬体重。計量後輸送で変動するため回帰採点に未使用。"
       }
     }
   ],
@@ -645,83 +784,76 @@ export default {
       77
     ],
     "7": [
-      63,
-      65,
-      71,
-      62,
-      71
-    ],
-    "8": [
       51,
       54,
       55,
       55,
       54
     ],
-    "9": [
+    "8": [
       48,
       59,
       54,
       55,
       44
     ],
-    "10": [
+    "9": [
       85,
       82,
       77,
       68,
       85
     ],
-    "11": [
+    "10": [
       46,
       48,
       50,
       55,
       60
     ],
-    "12": [
+    "11": [
       63,
       61,
       59,
       56,
       61
     ],
-    "13": [
+    "12": [
       45,
       45,
       54,
       50,
       48
     ],
-    "14": [
+    "13": [
       43,
       44,
       59,
       53,
       49
     ],
-    "15": [
+    "14": [
       83,
       80,
       67,
       62,
       80
     ],
-    "16": [
+    "15": [
       75,
       87,
       68,
       69,
       66
     ],
-    "17": [
+    "16": [
       68,
       73,
       69,
       63,
       67
     ],
-    "18": [
+    "17": [
       63,
       52,
       65,
@@ -736,18 +868,17 @@ export default {
     "4": 0.3,
     "5": 0.5,
     "6": 0.3,
-    "7": 0.3,
-    "8": 0.25,
-    "9": 0.6,
-    "10": 0.7,
-    "11": 0.1,
-    "12": 0.4,
-    "13": 0.1,
-    "14": 0,
-    "15": 0.15,
-    "16": 0.7,
-    "17": 0.8,
-    "18": 0.1
+    "7": 0.25,
+    "8": 0.6,
+    "9": 0.7,
+    "10": 0.1,
+    "11": 0.4,
+    "12": 0.1,
+    "13": 0,
+    "14": 0.15,
+    "15": 0.7,
+    "16": 0.8,
+    "17": 0.1
   },
   "factors": {
     "scope": "京都芝2000m 直近3年149レース集計（競馬データ.com：2026-10-10最終更新）から、騎手別トップ10掲載6名のみ反映。残り騎手はサンプル未確認で中立。特別登録順の仮番号から実枠を推定せず、drawとsexは中立。競馬場全体の脚質傾向とGI秋華賞の傾向は別物。",
@@ -800,7 +931,7 @@ export default {
       "武豊": 150
     }
   },
-  "asOf": "2026-10-15T04:22:00+09:00",
+  "asOf": "2026-10-15T18:36:00+09:00",
   "analysisLog": [
     "14要素の基本配点は変更しない。過去レース数の少ない単発結果に過学習しない。",
     "エンネ：10/10CW87.7-11.0最先着、ブリンカーでローズS前より先行可能と判明、training B→A、style差し→好位。",
@@ -828,7 +959,14 @@ export default {
     "カナルサンマルタンは右手前切替遅れと輸送事故歴を区別、調整良好で状態素点70→72。輸送成功/失敗の未来は予測して断定しない。",
     "テイエムアイランは10/14坂路4F54.1-12.2、1週前は53.4-12.9。終い改善で状態素点67→70。マイル型の距離課題は残す。",
     "ドリームコアは10/8W6F82.0-11.6（反応面で評価が割れる）、10/14の最終時計未確認。春の能力の過大評価と状態だけの過小評価を避けるためB/67を据え置く。",
-    "10/15の枠順・正式出走馬・輸送後馬体・当日馬場は未公表。過去10年の枠別表を登録順の仮番号に結びつけない。"
+    "10/15の枠順・正式出走馬・輸送後馬体・当日馬場は未公表。過去10年の枠別表を登録順の仮番号に結びつけない。",
+    "10/15 14:45確定17頭・スマートプリエール捻挫回避。旧馬番相当の登録順仮番号を全17頭で再割当し、inputs/speedAdaptを馬名紐付けで再移行。",
+    "10/15 ドリームコア最終美浦W6F84.8-11.7、田中博師が前走比上向きとコメント。状態素点67→80（能力点据え置き）。",
+    "10/15 モンローウォーク最終坂路4F53.2-12.4、調教師高評価で状態87→90。2000m未経験リスクは残す。",
+    "10/15 ギャラボーグ最終CW4F51.5-11.2加速ラップで状態87→90。約6か月休養とフレグモーネ歴は維持。",
+    "10/15 エンネは実質最終10/10CW5F69.8-11.0、15日坂路58.5-14.1は軽い調整。状態87→89。",
+    "10/15 タイセイボーグ状態67→73、ガーネットフレア状態67→70（調教根拠と近走リスクを区別）。",
+    "JRA2026-10-15調教後馬体重17頭を保存、差分で採点せず。重さは輸送・飼料等で変化。"
   ],
   "defaultPace": 1,
   "defaultSimulations": 50000,
@@ -1009,5 +1147,14 @@ export default {
     },
     "operation": "偏り検証・診断用。ペース項目にのみ前走4角前後の平滑化差分を加算（±3素点上限、配点6%）。枠番未確定のため枠統計は採点しない。人気・オッズは能力評価に使わない。キャリアと前走着順も、すでに近走能力と相関するため二重加点しない。",
     "priorN": 50
-  }
+  },
+  "finalRunnersConfirmed": true,
+  "provisionalStatus": "17頭の出走馬と騎手は確定／実馬番・枠順未発表。仮番号1〜17で表示。",
+  "withdrawn": [
+    {
+      "name": "スマートプリエール",
+      "reason": "14日の最終追い切り後に軽い捻挫を発症し出走回避。",
+      "source": "https://own.netkeiba.com/news/news_detail.html?id=345643"
+    }
+  ]
 };
