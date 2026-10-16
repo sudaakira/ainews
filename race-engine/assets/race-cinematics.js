@@ -6,7 +6,7 @@
  */
 import {chooseRaceShot} from './race-shotlist.js?v=director-v5';
 
-export function createRaceCinematics({THREE,scene,stage,models,config,capFor,path}){
+export function createRaceCinematics({THREE,scene,stage,models,config,capFor,path,route,routeLength}){
  const mobile=()=>window.innerWidth<700;
  const reduced=()=>window.matchMedia?.('(prefers-reduced-motion: reduce)').matches||false;
  const n=models.length,PI=Math.PI;
@@ -112,6 +112,28 @@ export function createRaceCinematics({THREE,scene,stage,models,config,capFor,pat
   '</div>';
  // Overlay is pointer-events:none, so native replay/scrub controls work.
  stage.append(ui);
+ // Always-on course locator: same SVG path and progress as the rendered horses.
+ // It remains a labelled schematic, not a claimed surveyed Kyoto 3D map.
+ const location=document.createElement('div');location.id='race-course-guide';
+ location.setAttribute('aria-label','現在位置を示す模式コース図');
+ const locTitle=document.createElement('strong');
+ locTitle.textContent=(config.venue||'競馬場')+'・'+
+   (config.venue==='京都'&&config.distance===2000?'内回り':'コース')+' 位置';
+ const map=document.createElementNS('http://www.w3.org/2000/svg','svg');
+ map.setAttribute('viewBox','0 0 860 555');map.setAttribute('aria-hidden','true');
+ const mapPath=document.createElementNS('http://www.w3.org/2000/svg','path');
+ mapPath.setAttribute('d',route?.getAttribute('d')||'');
+ mapPath.setAttribute('fill','none');mapPath.setAttribute('stroke','#bad2dd');
+ mapPath.setAttribute('stroke-width','24');mapPath.setAttribute('stroke-linecap','round');
+ map.append(mapPath);
+ const routeDot=document.createElementNS('http://www.w3.org/2000/svg','circle');
+ routeDot.setAttribute('r','39');routeDot.setAttribute('fill','#efcf83');
+ routeDot.setAttribute('stroke','#102a37');routeDot.setAttribute('stroke-width','10');
+ map.append(routeDot);
+ const locText=document.createElement('span');locText.id='race-course-position';
+ locText.textContent='スタンド前・発走';
+ const schematic=document.createElement('small');schematic.textContent='コース模式図';
+ location.append(locTitle,map,locText,schematic);stage.append(location);
  const phaseTitle=ui.querySelector('#cinema-phase-title');
  const phaseKicker=ui.querySelector('.cinema-phase-kicker');
  const phaseSub=ui.querySelector('#cinema-phase-sub');
@@ -185,6 +207,15 @@ export function createRaceCinematics({THREE,scene,stage,models,config,capFor,pat
    finishCaption.textContent='シミュレーション確定着順 · 実際のレース結果ではありません';
   }
   lastClock=clock;
+  if(route&&routeLength){
+   const d=config.direction==='左'?(1-p)*routeLength:p*routeLength;
+   const pp=route.getPointAtLength(Math.max(0,Math.min(routeLength,d)));
+   routeDot.setAttribute('cx',String(pp.x.toFixed(1)));
+   routeDot.setAttribute('cy',String(pp.y.toFixed(1)));
+  }
+  const stageName=p<.14?'スタンド前・発走':p<.29?'1〜2コーナー':
+   p<.55?'向正面':p<.80?'3〜4コーナー':p<1?'最後の直線':'ゴール';
+  if(locText.textContent!==stageName)locText.textContent=stageName;
   // Storyboard: readable wide field -> warm character close-up -> tactical
   // wide -> last-400 duel. ~8 seconds at 16x means purposeful cuts rather
   // than a continuously swinging camera that obscures overtakes.
@@ -246,7 +277,7 @@ export function createRaceCinematics({THREE,scene,stage,models,config,capFor,pat
   }
   halos.forEach((x,i)=>x.material.opacity=sprint&&order.slice(0,2).some(a=>a.no===i+1)?.10:0);
   window.RACE_CINEMATIC_DEBUG={shot:shot.id,progress:p,rate,cut,
-   scriptedCuts:10,mode:'16x-broadcast'};
+   scriptedCuts:4,mode:'16x-geographic',position:stageName};
   return {cut,shot:shot.id};
  }
  return {update};
