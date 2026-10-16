@@ -14,11 +14,28 @@ const browser=await chromium.launch({headless:true,args:[
 try{
  for(const vp of [{width:390,height:844},{width:320,height:568},{width:430,height:932}]){
   const page=await browser.newPage({viewport:vp,deviceScaleFactor:2,isMobile:true,hasTouch:true});
-  const errors=[];
+  const errors=[],failedRequests=[];
   page.on('pageerror',err=>errors.push(err.message));
+  page.on('requestfailed',req=>failedRequests.push(req.url()+': '+req.failure()?.errorText));
   page.on('console',m=>{if(m.type()==='error')errors.push(m.text())});
   await page.goto(url,{waitUntil:'domcontentloaded',timeout:60000});
-  await page.waitForFunction(()=>window.KYOTO_RENDER_STATUS?.ready===true,{timeout:85000});
+  try {
+   await page.waitForFunction(()=>window.KYOTO_RENDER_STATUS?.ready===true,undefined,{timeout:18000});
+  } catch(error) {
+   const state=await page.evaluate(()=>({
+    documentTitle:document.title,
+    boot:document.querySelector('#bootstrap-error')?.textContent,
+    bootHidden:document.querySelector('#bootstrap-error')?.hidden,
+    renderer:window.KYOTO_RENDER_STATUS,
+    stageDisplay:getComputedStyle(document.querySelector('#three-stage')).display,
+    warning:document.querySelector('#race-3d-warning')?.textContent,
+    threeStatus:document.querySelector('#three-status')?.textContent,
+    raceReady:!!window.RACE_APP_READY,
+    canvasCount:document.querySelectorAll('#three-stage canvas').length
+   })).catch(e=>({evalError:e.message}));
+   console.error('REAL BROWSER FAILED TO START WEBGL',JSON.stringify({vp,state,errors,failedRequests}));
+   throw error;
+  }
   const model=await page.evaluate(()=>window.KYOTO_RENDER_STATUS);
   assert.equal(model.ready,true,'3D must actually load, not merely pass source tests');
   assert.equal(model.horses,17);
