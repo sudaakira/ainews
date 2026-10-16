@@ -191,4 +191,30 @@ assert.match(html,/shared-v9/);
 assert.match(read('../swan-2026/index.html'),/race-engine\/\?race=swan-2026/);
 assert.match(render,/config.direction==='左'/);
 assert.match(render,/config.courseView==='tokyo-2000'/);
+
+// Mobile-first presentation is intentionally a read-only shell around the
+// SAME predictor. No duplicated Monte Carlo or 14-factor scoring in UI assets.
+const premiumCSS=read('assets/premium-mobile.css');
+const premiumJS=read('assets/premium-mobile.js');
+assert.match(html,/assets\/premium-mobile\.css\?v=ui-v1/);
+assert.match(html,/import\('\.\/assets\/premium-mobile\.js\?v=ui-v1'\)/);
+assert.doesNotThrow(()=>new Function(premiumJS),'premium mobile UI code must parse');
+assert.match(premiumJS,/premium-immersive/);
+assert.match(premiumJS,/cameraOrder/);
+assert.match(premiumJS,/MutationObserver\(updatePreview\)/);
+assert.doesNotMatch(premiumJS,/SIM\.simulate|LOOP\.evaluate|SIM\.runRace/,'presentation cannot rerun model');
+assert.match(app,/class="cap-number"/);
+assert.match(app,/class="horse-label"/);
+assert.match(app,/class="place-frame"/);
+assert.match(premiumCSS,/@media\(max-width:680px\)/);
+assert.match(premiumCSS,/env\(safe-area-inset-bottom/);
+assert.match(premiumCSS,/prefers-reduced-motion/);
+assert.match(premiumCSS,/#three-stage/);
+assert.match(premiumCSS,/premium-hero-summary/);
+assert.match(premiumCSS,/premium-nav/);
+assert.match(premiumCSS,/premium-focus/);
+assert.match(premiumCSS,/\.bar:first-child \.fill/);
+assert.match(premiumCSS,/--ui-gold/);
+console.log('Premium mobile controls, responsiveness and unchanged Monte Carlo entry point ✓');
+
 console.log('Shared UI references, Tokyo left-hand course, variable gates and legacy link ✓');
