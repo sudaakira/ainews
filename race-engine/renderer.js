@@ -457,7 +457,8 @@ import {jockeyCap} from './core/jockey-caps.js?v=cap-v1';
   }
   const visualP=h=>{
    const base=horseProgress(h.no,clock);
-   return photo.active?photoHorseProgress(h.no,base,LIVE.rank,elapsed):base;
+   return photo.active||photo.completed
+    ?photoHorseProgress(h.no,base,LIVE.rank,photo.completed?2:elapsed):base;
   };
   const order=HS.map(h=>({no:h.no,p:visualP(h)}))
    .sort((a,b)=>b.p-a.p || LIVE.rank.indexOf(a.no)-LIVE.rank.indexOf(b.no));
