@@ -387,6 +387,25 @@ import {jockeyCap} from './core/jockey-caps.js?v=cap-v1';
  // Cinematic director replaces manual angle selection for every race.
  const {createRaceCinematics}=await import("./assets/race-cinematics.js?v=cinema-v8");
  const cinematics=createRaceCinematics({THREE,scene,stage,models,config,capFor,path,route,routeLength});
+ // Replay only: finish order continues to come EXCLUSIVELY from LIVE.rank.
+ // Keeps the 16x presentation legible by inserting three short arrival
+ // freezes, without changing simulated horse ability, position or odds.
+ const {photoPhase,photoHorseProgress,photoVisualTime}=await import(
+  './assets/photo-finish.js?v=photo-v8');
+ const photo={active:false,completed:false,startAt:0,priorClock:0,
+  priorPlaying:false,visualStart:0,phase:'idle'};
+ const photoCue=document.createElement('div');photoCue.id='race-photo-cue';
+ photoCue.setAttribute('aria-live','off');stage.append(photoCue);
+ const photoName=no=>{
+  const h=HS.find(x=>x.no===no);return h?no+' '+h.name:String(no);
+ };
+ function clearPhoto(){
+  photo.active=false;photo.completed=false;photo.startAt=0;
+  photo.priorClock=0;photo.priorPlaying=false;photo.phase='idle';
+  photoCue.classList.remove('photo-visible');
+  photoCue.textContent='';
+  window.RACE_PHOTO_DEBUG={phase:'idle',finished:0,reveal:false};
+ }
  controls.style.display='none';
  document.querySelector('.camera-more')?.setAttribute('hidden','');
  stage.style.display='block';svg.classList.add('svg-hidden');
@@ -401,12 +420,47 @@ import {jockeyCap} from './core/jockey-caps.js?v=cap-v1';
  const tmp=new THREE.Vector3(),look=new THREE.Vector3(),desired=new THREE.Vector3();
  let first=true,lastFrame=0,frame=0,lastHud=0;
  const smoothLook=new THREE.Vector3();
+ clearPhoto();
  function animate(now){
   requestAnimationFrame(animate);
   if(document.hidden)return;
   resize();if(!LIVE.ready)return;
   const frameDt=lastFrame?Math.min(.12,Math.max(0,(now-lastFrame)/1000)):1/60;lastFrame=now;
-  const clock=LIVE.clock,order=HS.map(h=>({no:h.no,p:horseProgress(h.no,clock)})).sort((a,b)=>b.p-a.p);
+  const clock=LIVE.clock;
+  if(clock<=0&&photo.phase!=='idle')clearPhoto();
+  if(clock>=LIVE.duration && photo.priorClock<LIVE.duration &&
+     photo.priorClock>0 && photo.priorPlaying && !photo.active && !photo.completed){
+   photo.active=true;photo.startAt=now;photo.visualStart=LIVE.visualTime;
+  }
+  const elapsed=photo.active?(now-photo.startAt)/1000:0;
+  const photoMoment=photo.active?photoPhase(elapsed):null;
+  if(photo.active&&photoMoment?.id==='result'){
+   photo.active=false;photo.completed=true;
+  }
+  if(photo.active){
+   photo.phase=photoMoment.id;
+   const frozen=photoMoment.hold;
+   const hit=photoMoment.place||0;
+   photoCue.classList.toggle('photo-visible',frozen);
+   if(frozen){
+    const no=LIVE.rank[hit-1];
+    photoCue.textContent=['🥇','🥈','🥉'][hit-1]+' '+hit+'着 通過 · '+photoName(no);
+   }else photoCue.textContent='';
+   window.RACE_PHOTO_DEBUG={
+    phase:photoMoment.id,finished:hit,freeze:frozen,
+    elapsed:+elapsed.toFixed(3),reveal:false,rank:LIVE.rank.slice(0,3)
+   };
+  }else if(photo.completed){
+   photo.phase='result';
+   photoCue.classList.remove('photo-visible');
+   window.RACE_PHOTO_DEBUG={phase:'result',finished:3,reveal:true,rank:LIVE.rank.slice(0,3)};
+  }
+  const visualP=h=>{
+   const base=horseProgress(h.no,clock);
+   return photo.active?photoHorseProgress(h.no,base,LIVE.rank,elapsed):base;
+  };
+  const order=HS.map(h=>({no:h.no,p:visualP(h)}))
+   .sort((a,b)=>b.p-a.p || LIVE.rank.indexOf(a.no)-LIVE.rank.indexOf(b.no));
   if(now-lastHud>180){
    lastHud=now;
    const raceProgress=Math.min(1,Math.max(0,clock/LIVE.duration));
@@ -421,7 +475,7 @@ import {jockeyCap} from './core/jockey-caps.js?v=cap-v1';
    document.getElementById('broadcast-comment').textContent=clock<=0?config.venue+config.surface+distance+'m、まもなく発走！':raceProgress>=1?'上位3頭の着順をご確認ください':remaining<300?'直線勝負！ '+second.no+'番 '+second.name+' が追う！':second.no+'番 '+second.name+' が続きます';
   }
   for(let i=0;i<HS.length;i++){
-   const h=HS[i],m=models[i],p=horseProgress(h.no,clock),d=path(p);
+   const h=HS[i],m=models[i],p=visualP(h),d=path(p);
    const release=Math.max(0,Math.min(1,clock/3.2));
    // At zero time all race horses are physically inside their own starting stalls.
    // Stall coordinates are in the gate's local frame; after the break the model
@@ -438,13 +492,17 @@ import {jockeyCap} from './core/jockey-caps.js?v=cap-v1';
    const size=.88+.12*Math.max(0,Math.min(1,clock/3.0));m.root.scale.setScalar(size);
    m.root.rotation.y=Math.atan2(d.dx,d.dz);
    // Entirely new ground-contact + two-bone IK gait, loaded from gallop-ik.js.
-   updateGallop(m,clock,LIVE.visualTime,h.no,clock/LIVE.duration);
+   // Freeze feet at each arrival; advance gait only while approaching.
+   const visualTime=photo.active?photo.visualStart+photoVisualTime(elapsed):LIVE.visualTime;
+   updateGallop(m,clock,visualTime,h.no,Math.min(1,clock/LIVE.duration));
    // No floating head numbers: genuine saddlecloth number/name on the flanks.
   }
   updateGates(clock);
   // Remove the start stalls after the first seconds; restore on replay.
   gateRoot.visible=clock<=Math.min(6,LIVE.duration*.055);
-  const raceProgress=Math.min(1,Math.max(0,clock/LIVE.duration));
+  // Podium reveal is DELAYED until the third photo finish freezes ends.
+  // Directly scrubbing to 100% remains immediately previewable.
+  const raceProgress=photo.active?.993:Math.min(1,Math.max(0,clock/LIVE.duration));
   const rate=+document.getElementById('live-rate').value;
   // Dedicated cinematic director: automatic camera, lights, turf spray,
   // luminous gallop streaks, duel titles and finish celebrations.
@@ -467,6 +525,8 @@ import {jockeyCap} from './core/jockey-caps.js?v=cap-v1';
    }
    window.RACE_CAMERA_AUDIT={opening:inside,total:models.length,shot:shotDirection?.shot};
   }
+  photo.priorClock=clock;
+  photo.priorPlaying=LIVE.playing;
   renderer.render(scene,camera);
  }
  animate();
