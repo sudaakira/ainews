@@ -154,12 +154,13 @@ export function createRaceCinematics({THREE,scene,stage,models,config,capFor,pat
    }
   }
   const finished=p>=1;
-  if(finished!==lastFinished){
+  const finishChanged=finished!==lastFinished;
+  if(finishChanged){
    finish.classList.toggle('cinema-finish-visible',finished);
    ui.classList.toggle('cinema-victory',finished);
    lastFinished=finished;
   }
-  if(finished&&clock!==lastClock){
+  if(finished&&(finishChanged||clock!==lastClock)){
    // Use the original simulator's definitive LIVE.rank — never derive a
    // potentially wrong finish from visually interpolated 3D positions.
    const placed=Array.isArray(finishOrder)&&finishOrder.length>=3
