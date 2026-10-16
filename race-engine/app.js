@@ -176,6 +176,17 @@ initWeightControls();run();
 const LIVE = {playing:false,clock:0,visualTime:0,last:0,rank:[],seed:0,duration,raf:0,ready:false};
 const NS='http://www.w3.org/2000/svg';
 const route=el('kyoto-route'), group=el('kyoto-horses');
+// True topology (schematic metrics): Kyoto turf 2000m (inner A) starts on
+// the grandstand-side home straight, rounds 1C -> 2C -> back straight ->
+// 3C -> 4C, and finishes on that SAME home straight. Unlike the previous
+// incomplete U-shaped SVG, the model now travels all four corners.
+// The path coordinates are diagram geometry, not surveyed measurements.
+if(config.venue==='京都'&&config.distance===2000&&config.surface==='芝'){
+ route.setAttribute('d',
+  'M 475 411 L 210 411 C 125 411 78 353 78 275 C 78 193 125 137 210 137 L 575 137 C 675 137 756 187 756 275 C 756 364 678 411 575 411 L 76 411');
+ route.setAttribute('data-course-model','kyoto-2000-inner-4turns');
+}
+
 const routeLength=route.getTotalLength();
 const routeAt=d=>route.getPointAtLength(config.direction==='左'?routeLength-d:d);
 // Race markers show jockey CAP colour, not the race-silk colour.
