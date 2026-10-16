@@ -30,6 +30,13 @@ jobs:
           cp -a race-engine/. _site/race-engine/
           printf '%s\n' '<!doctype html><meta charset="utf-8"><meta http-equiv="refresh" content="0;url=./swan-2026/"><a href="./swan-2026/">スワンSシミュレーター</a>' > _site/index.html
           touch _site/.nojekyll
+      - name: Vendor pinned Three.js for offline-safe same-origin 3D
+        run: |
+          npm install --no-save --no-audit --no-fund --prefix /tmp/race-three three@0.160.0
+          mkdir -p _site/race-engine/vendor
+          cp /tmp/race-three/node_modules/three/build/three.module.js _site/race-engine/vendor/three.module.js
+          cp /tmp/race-three/node_modules/three/LICENSE _site/race-engine/vendor/THREE-LICENSE.txt
+          test -s _site/race-engine/vendor/three.module.js
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
         with:
