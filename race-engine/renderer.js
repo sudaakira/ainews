@@ -342,41 +342,50 @@ import {jockeyCap} from './core/jockey-caps.js?v=cap-v1';
   const swing=opening*1.48;
   for(const door of gateDoors)door.hinge.rotation.y=-door.side*swing;
  }
- // Kyoto-inspired freestanding finish monument on the infield side, not a banner over the track.
- const goalRig=new THREE.Group();
- goalRig.position.copy(offsetPoint(1,-(half+6),0));
- const goalDir=path(1);goalRig.rotation.y=Math.atan2(goalDir.dx,goalDir.dz);scene.add(goalRig);
- const ivory=mat(0xf4f5ed),teal=mat(0x16786d),bronze=mat(0xc2a76a);
- // A single rounded horseshoe-shaped finish tower: two uprights and an open arch.
- for(const side of [-1,1]){
-  beam(goalRig,side*2.05,4.6,0,1.05,8.8,1.0,ivory);
-  beam(goalRig,side*2.05,4.5,.58,.22,7.9,.18,teal);
-  beam(goalRig,side*2.05,1.1,1.15,1.0,.45,1.0,bronze);
+ // Authentic-inspired 2023 Kyoto "KYOTO" turf finish marker (green
+ // and ivory nested racetrack arches with floodlights). It is not a gate.
+ let goalRig=null,goalBoard=null;
+ if(config.venue==='京都'&&config.surface==='芝'){
+  const {createKyotoGoalBoard}=await import('./assets/kyoto-goal-board.js?v=goal-v8');
+  goalBoard=createKyotoGoalBoard({THREE,scene,offsetPoint,path,half});
+  goalRig=goalBoard.root;
+ }else{
+  // Kyoto-inspired freestanding finish monument on the infield side, not a banner over the track.
+  const goalRig=new THREE.Group();
+  goalRig.position.copy(offsetPoint(1,-(half+6),0));
+  const goalDir=path(1);goalRig.rotation.y=Math.atan2(goalDir.dx,goalDir.dz);scene.add(goalRig);
+  const ivory=mat(0xf4f5ed),teal=mat(0x16786d),bronze=mat(0xc2a76a);
+  // A single rounded horseshoe-shaped finish tower: two uprights and an open arch.
+  for(const side of [-1,1]){
+   beam(goalRig,side*2.05,4.6,0,1.05,8.8,1.0,ivory);
+   beam(goalRig,side*2.05,4.5,.58,.22,7.9,.18,teal);
+   beam(goalRig,side*2.05,1.1,1.15,1.0,.45,1.0,bronze);
+  }
+  const arch=new THREE.Mesh(new THREE.TorusGeometry(2.08,.49,12,52,Math.PI),ivory);
+  arch.position.set(0,8.95,0);goalRig.add(arch);
+  const archAccent=new THREE.Mesh(new THREE.TorusGeometry(2.08,.11,8,52,Math.PI),teal);
+  archAccent.position.set(0,8.95,.51);goalRig.add(archAccent);
+  const finishLabel=document.createElement('canvas');finishLabel.width=512;finishLabel.height=256;
+  const fg=finishLabel.getContext('2d');fg.fillStyle='#f4f5ed';fg.fillRect(0,0,512,256);
+  fg.fillStyle='#176f64';fg.font='bold 76px sans-serif';fg.textAlign='center';fg.textBaseline='middle';fg.fillText(config.venue,256,92);
+  fg.font='bold 47px sans-serif';fg.fillText(config.venue,256,178);
+  const finishTex=new THREE.CanvasTexture(finishLabel);finishTex.colorSpace=THREE.SRGBColorSpace;
+  const finishSign=new THREE.Mesh(new THREE.PlaneGeometry(4.1,2.05),new THREE.MeshBasicMaterial({map:finishTex,side:THREE.DoubleSide}));
+  finishSign.position.set(0,7.0,.7);goalRig.add(finishSign);
+  const finishSpire=new THREE.Mesh(new THREE.CylinderGeometry(.06,.09,2.6,8),teal);
+  finishSpire.position.set(0,12.1,0);goalRig.add(finishSpire);
+  const flag=new THREE.Mesh(new THREE.PlaneGeometry(1.3,.7),new THREE.MeshBasicMaterial({color:0x187c69,side:THREE.DoubleSide}));
+  flag.position.set(.7,13.0,0);goalRig.add(flag);
+  // Matching thin white finish-line poles stay beyond the running lanes.
+  const finishGeo=new THREE.PlaneGeometry(half*2,1.0),finishMat=new THREE.MeshBasicMaterial({color:0xf2f5f3,side:THREE.DoubleSide});
+  const finish=new THREE.Mesh(finishGeo,finishMat);finish.rotation.x=-Math.PI/2;finish.rotation.z=0;finish.position.copy(end);finish.position.y+=.05;scene.add(finish);
+  for(let side of [-1,1]){let p=offsetPoint(1,side*(half+.8),.0);let pole=new THREE.Mesh(new THREE.CylinderGeometry(.15,.15,5,8),mat(0xf7f7f0));pole.position.copy(p);pole.position.y+=2.5;scene.add(pole)}
  }
- const arch=new THREE.Mesh(new THREE.TorusGeometry(2.08,.49,12,52,Math.PI),ivory);
- arch.position.set(0,8.95,0);goalRig.add(arch);
- const archAccent=new THREE.Mesh(new THREE.TorusGeometry(2.08,.11,8,52,Math.PI),teal);
- archAccent.position.set(0,8.95,.51);goalRig.add(archAccent);
- const finishLabel=document.createElement('canvas');finishLabel.width=512;finishLabel.height=256;
- const fg=finishLabel.getContext('2d');fg.fillStyle='#f4f5ed';fg.fillRect(0,0,512,256);
- fg.fillStyle='#176f64';fg.font='bold 76px sans-serif';fg.textAlign='center';fg.textBaseline='middle';fg.fillText(config.venue,256,92);
- fg.font='bold 47px sans-serif';fg.fillText(config.venue,256,178);
- const finishTex=new THREE.CanvasTexture(finishLabel);finishTex.colorSpace=THREE.SRGBColorSpace;
- const finishSign=new THREE.Mesh(new THREE.PlaneGeometry(4.1,2.05),new THREE.MeshBasicMaterial({map:finishTex,side:THREE.DoubleSide}));
- finishSign.position.set(0,7.0,.7);goalRig.add(finishSign);
- const finishSpire=new THREE.Mesh(new THREE.CylinderGeometry(.06,.09,2.6,8),teal);
- finishSpire.position.set(0,12.1,0);goalRig.add(finishSpire);
- const flag=new THREE.Mesh(new THREE.PlaneGeometry(1.3,.7),new THREE.MeshBasicMaterial({color:0x187c69,side:THREE.DoubleSide}));
- flag.position.set(.7,13.0,0);goalRig.add(flag);
- // Matching thin white finish-line poles stay beyond the running lanes.
- const finishGeo=new THREE.PlaneGeometry(half*2,1.0),finishMat=new THREE.MeshBasicMaterial({color:0xf2f5f3,side:THREE.DoubleSide});
- const finish=new THREE.Mesh(finishGeo,finishMat);finish.rotation.x=-Math.PI/2;finish.rotation.z=0;finish.position.copy(end);finish.position.y+=.05;scene.add(finish);
- for(let side of [-1,1]){let p=offsetPoint(1,side*(half+.8),.0);let pole=new THREE.Mesh(new THREE.CylinderGeometry(.15,.15,5,8),mat(0xf7f7f0));pole.position.copy(p);pole.position.y+=2.5;scene.add(pole)}
  // Correct JRA-style red/white posts with round numbered plaques (2=200m).
  const {createJRAFurlongPosts}=await import("./assets/jra-furlong-posts.js?v=geo-v6");
  const furlongPosts=createJRAFurlongPosts({THREE,scene,offsetPoint,distance,half});
  // Cinematic director replaces manual angle selection for every race.
- const {createRaceCinematics}=await import("./assets/race-cinematics.js?v=cinema-v7");
+ const {createRaceCinematics}=await import("./assets/race-cinematics.js?v=cinema-v8");
  const cinematics=createRaceCinematics({THREE,scene,stage,models,config,capFor,path,route,routeLength});
  controls.style.display='none';
  document.querySelector('.camera-more')?.setAttribute('hidden','');
@@ -384,7 +393,9 @@ import {jockeyCap} from './core/jockey-caps.js?v=cap-v1';
  status.textContent='🎬 CINEMATIC 3D · '+models.length+'頭';
  document.getElementById('horse-model-version').textContent='CINEMATIC RACE · DIRECTOR v1';
  window.KYOTO_RENDER_STATUS={ready:true,model:'anime-pony-v20-saddlecloth',venue:venueReady?'full':'fallback',
-  horses:models.length,camera:'geographic-4-shot',courseView:config.courseView,cinematic:true,saddleclothNames:true,furlongDigits:furlongPosts.map(x=>x.digit)};
+  horses:models.length,camera:'start-2c-4c-sidefinish',courseView:config.courseView,
+  cinematic:true,saddleclothNames:true,goalBoard:!!goalBoard,gateDisappears:true,
+  photoFinish:true,furlongDigits:furlongPosts.map(x=>x.digit)};
  let cw=0,ch=0;
  function resize(){let w=stage.clientWidth,h=stage.clientHeight;if(!w||!h)return;if(w!==cw||h!==ch){cw=w;ch=h;renderer.setSize(w,h,false);camera.aspect=w/h;camera.updateProjectionMatrix()}}
  const tmp=new THREE.Vector3(),look=new THREE.Vector3(),desired=new THREE.Vector3();
@@ -431,8 +442,8 @@ import {jockeyCap} from './core/jockey-caps.js?v=cap-v1';
    // No floating head numbers: genuine saddlecloth number/name on the flanks.
   }
   updateGates(clock);
-  // The starting gate remains a permanent 3D venue object, including in the outside camera.
-  gateRoot.visible=true;
+  // Remove the start stalls after the first seconds; restore on replay.
+  gateRoot.visible=clock<=Math.min(6,LIVE.duration*.055);
   const raceProgress=Math.min(1,Math.max(0,clock/LIVE.duration));
   const rate=+document.getElementById('live-rate').value;
   // Dedicated cinematic director: automatic camera, lights, turf spray,
