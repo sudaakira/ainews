@@ -251,7 +251,7 @@ const animeV18=read('assets/horse-anime.js');
 assert.match(animeV18,/maneStrands,tailStrands,flutter/);
 assert.match(animeV18,/tailStrands\.push/);
 assert.match(animeV18,/maneStrands\.push/);
-assert.match(gallop,/\[0\.875/);
+assert.match(gallop,/\[\.875/);
 assert.match(gallop,/maneStrands\?\.forEach/);
 assert.match(gallop,/tailStrands\?\.forEach/);
 assert.match(gallop,/model\.flutter\.rotation/);
