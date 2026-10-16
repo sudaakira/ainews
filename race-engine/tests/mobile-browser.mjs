@@ -92,11 +92,11 @@ try{
      director:window.RACE_CINEMATIC_DEBUG};
    });
    assert.equal(composition.rate,'16');
-   const dot1=await page.locator('#race-course-guide circle').getAttribute('cx');
+   const dot1=await page.locator('#race-course-guide circle').evaluate(el=>el.getAttribute('cx')+','+el.getAttribute('cy'));
    await page.locator('#live-scrub').evaluate(el=>{
     el.value='300';el.dispatchEvent(new Event('input',{bubbles:true}));
    });
-   const dot2=await page.locator('#race-course-guide circle').getAttribute('cx');
+   const dot2=await page.locator('#race-course-guide circle').evaluate(el=>el.getAttribute('cx')+','+el.getAttribute('cy'));
    assert.notEqual(dot1,dot2,'mini-map dot must follow race progress');
    assert.ok(composition.titleBottom<composition.stageHeight*.38,
     'cinematic text must stay in upper safe region '+JSON.stringify(composition));
