@@ -368,17 +368,16 @@ import {jockeyCap} from './core/jockey-caps.js?v=cap-v1';
   let cv=document.createElement('canvas');cv.width=128;cv.height=64;let c=cv.getContext('2d');c.fillStyle='#fafafa';c.fillRect(0,0,128,64);c.fillStyle='#1b514b';c.font='bold 40px sans-serif';c.textAlign='center';c.fillText(meters,64,45);
   let label=new THREE.Sprite(new THREE.SpriteMaterial({map:new THREE.CanvasTexture(cv)}));label.position.copy(p);label.position.y+=3.2;label.scale.set(4,2,1);scene.add(label);
  }
- let mode='follow',lastMode='follow';
- controls.style.display='flex';stage.style.display='block';svg.classList.add('svg-hidden');status.textContent=venueReady?'🐴 ANIME HORSE · '+HS.length+'頭読込':'🐴 ANIME HORSE · 背景簡易表示';
- document.getElementById('horse-model-version').textContent='ANIME HORSE · SHARED v1';
- window.KYOTO_RENDER_STATUS={model:'anime-pony-v17-softplush',venue:venueReady?'full':'fallback',horses:models.length,camera:mode,courseView:config.courseView};
- controls.querySelectorAll('button').forEach(btn=>btn.onclick=()=>{
-  mode=btn.dataset.camera;
-  controls.querySelectorAll('button').forEach(b=>b.classList.toggle('cam-active',b===btn));
-  if(window.KYOTO_RENDER_STATUS)window.KYOTO_RENDER_STATUS.camera=mode;
-  if(mode==='2d'){stage.style.display='none';svg.classList.remove('svg-hidden')}
-  else{stage.style.display='block';svg.classList.add('svg-hidden');lastMode=mode;resize()}
- });
+ // Cinematic director replaces manual angle selection for every race.
+ const {createRaceCinematics}=await import("./assets/race-cinematics.js?v=cinema-v1");
+ const cinematics=createRaceCinematics({THREE,scene,stage,models,config,capFor,path});
+ controls.style.display='none';
+ document.querySelector('.camera-more')?.setAttribute('hidden','');
+ stage.style.display='block';svg.classList.add('svg-hidden');
+ status.textContent='🎬 CINEMATIC 3D · '+models.length+'頭';
+ document.getElementById('horse-model-version').textContent='CINEMATIC RACE · DIRECTOR v1';
+ window.KYOTO_RENDER_STATUS={model:'anime-pony-v17-softplush',venue:venueReady?'full':'fallback',
+  horses:models.length,camera:'automatic-cinematic',courseView:config.courseView,cinematic:true};
  let cw=0,ch=0;
  function resize(){let w=stage.clientWidth,h=stage.clientHeight;if(!w||!h)return;if(w!==cw||h!==ch){cw=w;ch=h;renderer.setSize(w,h,false);camera.aspect=w/h;camera.updateProjectionMatrix()}}
  const tmp=new THREE.Vector3(),look=new THREE.Vector3(),desired=new THREE.Vector3();
@@ -386,7 +385,7 @@ import {jockeyCap} from './core/jockey-caps.js?v=cap-v1';
  const smoothLook=new THREE.Vector3();
  function animate(now){
   requestAnimationFrame(animate);
-  if(mode==='2d'||document.hidden)return;
+  if(document.hidden)return;
   resize();if(!LIVE.ready)return;
   const frameDt=lastFrame?Math.min(.12,Math.max(0,(now-lastFrame)/1000)):1/60;lastFrame=now;
   const clock=LIVE.clock,order=HS.map(h=>({no:h.no,p:horseProgress(h.no,clock)})).sort((a,b)=>b.p-a.p);
@@ -427,34 +426,13 @@ import {jockeyCap} from './core/jockey-caps.js?v=cap-v1';
   updateGates(clock);
   // The starting gate remains a permanent 3D venue object, including in the outside camera.
   gateRoot.visible=true;
-  const lead=order[0],p=path(lead.p),aspect=camera.aspect;
-  // Gate camera is manually selectable at any race time; it never disappears after the break.
-  if(mode==='wide'){
-   desired.set(-15,aspect<.8?215:160,aspect<.8?-250:-192);look.set(-18,0,8);camera.fov=aspect<.8?66:55;
-  }else if(mode==='gate'){
-   const g=path(0);
-   desired.set(g.x+g.dz*34-g.dx*4,aspect<.8?12:9,g.z-g.dx*34-g.dz*4);
-   look.set(g.x-g.dx*5.5,2.0,g.z-g.dz*5.5);camera.fov=aspect<.8?57:51;
-  }else if(mode==='horse'){
-   // Anime horse showcase: start on this clear 3/4 close-up, other cameras remain available.
-   const d=path(lead.p),side=aspect<.8?12.0:10.5,forward=aspect<.8?3.3:2.5;
-   desired.set(d.x+d.dz*side+d.dx*forward,d.y+3.8,d.z-d.dx*side+d.dz*forward);
-   look.set(d.x-d.dx*1.3,d.y+2.0,d.z-d.dz*1.3);
-   camera.fov=aspect<.8?60:51;
-  }else if(mode==='finish'){
-   const goal=path(1);desired.set(goal.x-20,11,goal.z+27);look.set(goal.x+10,2,goal.z);camera.fov=aspect<.8?64:50;
-  }else{
-   // Outside-rail TV camera, ahead of the leader, looking inward across the field.
-   // Positive lane is the infield side of the right-handed Kyoto course.
-   const sideDistance=aspect<.8?21:18;
-   const forward=aspect<.8?7:6;
-   desired.set(p.x+p.dz*sideDistance+p.dx*forward,p.y+(aspect<.8?5.6:4.8),p.z-p.dx*sideDistance+p.dz*forward);
-   look.set(p.x-p.dx*3.5,p.y+1.7,p.z-p.dz*3.5);
-   camera.fov=aspect<.8?56:49;
-  }
-  camera.updateProjectionMatrix();
-  // Framerate-independent camera tracking, responsive enough for 16x playback.
+  const raceProgress=Math.min(1,Math.max(0,clock/LIVE.duration));
   const rate=+document.getElementById('live-rate').value;
+  // Dedicated cinematic director: automatic camera, lights, turf spray,
+  // luminous gallop streaks, duel titles and finish celebrations.
+  // Does not touch horseProgress, standings or any forecast calculation.
+  cinematics.update({clock,progress:raceProgress,order,frameDt,camera,desired,look,rate});
+  // Framerate-independent camera tracking, responsive enough for 16x playback.
   const followAlpha=1-Math.exp(-frameDt*(8+rate*1.5));
   if(first){camera.position.copy(desired);smoothLook.copy(look);first=false}
   else{camera.position.lerp(desired,followAlpha);smoothLook.lerp(look,followAlpha)}
