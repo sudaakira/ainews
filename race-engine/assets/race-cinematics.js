@@ -4,6 +4,8 @@
  * All movement comes from the caller's existing race engine.
  * Designed for 3–18 entrants and mobile WebGL1/2.
  */
+import {chooseRaceShot} from './race-shotlist.js?v=director-v5';
+
 export function createRaceCinematics({THREE,scene,stage,models,config,capFor,path}){
  const mobile=()=>window.innerWidth<700;
  const reduced=()=>window.matchMedia?.('(prefers-reduced-motion: reduce)').matches||false;
@@ -111,13 +113,14 @@ export function createRaceCinematics({THREE,scene,stage,models,config,capFor,pat
  // Overlay is pointer-events:none, so native replay/scrub controls work.
  stage.append(ui);
  const phaseTitle=ui.querySelector('#cinema-phase-title');
+ const phaseKicker=ui.querySelector('.cinema-phase-kicker');
  const phaseSub=ui.querySelector('#cinema-phase-sub');
  const duel=ui.querySelector('#cinema-duel');
  const contenders=ui.querySelector('#cinema-duel-contenders');
  const finish=ui.querySelector('#cinema-finish');
  const podium=ui.querySelector('#cinema-podium');
  const finishCaption=ui.querySelector('#cinema-finish-caption');
- let lastPhase='',lastPair='',lastFinished=false,lastClock=-1;
+ let lastPhase='',lastShot='',lastPair='',lastFinished=false,lastClock=-1;
 
  function phaseAt(p,clock){
   if(clock<=0)return ['gate','GATE IN','運命の発走'];
@@ -130,12 +133,15 @@ export function createRaceCinematics({THREE,scene,stage,models,config,capFor,pat
   return ['finish','PHOTO FINISH','仮想レース決着'];
  }
  function update({clock,progress,order,finishOrder,frameDt,camera,desired,look,rate}){
-  const p=clamp(progress,0,1),lead=order[0],runner=models[lead.no-1],
-        target=path(lead.p),aspect=camera.aspect;
-  const [phase,title,subtitle]=phaseAt(p,clock);
-  if(phase!==lastPhase){
-   ui.dataset.phase=phase;phaseTitle.textContent=title;phaseSub.textContent=subtitle;
-   lastPhase=phase;
+  const p=clamp(progress,0,1),lead=order[0],aspect=camera.aspect;
+  const [phase,,subtitle]=phaseAt(p,clock);
+  const shot=chooseRaceShot(p),cut=lastShot!==shot.id;
+  if(phase!==lastPhase||cut){
+   ui.dataset.phase=phase;ui.dataset.shot=shot.id;
+   phaseKicker.textContent=shot.kicker;
+   phaseTitle.textContent=shot.label;
+   phaseSub.textContent=subtitle;
+   lastPhase=phase;lastShot=shot.id;
   }
   const sprint=p>.80&&p<1&&!reduced();
   ui.classList.toggle('cinema-sprint',sprint);
@@ -179,36 +185,30 @@ export function createRaceCinematics({THREE,scene,stage,models,config,capFor,pat
    finishCaption.textContent='シミュレーション確定着順 · 実際のレース結果ではありません';
   }
   lastClock=clock;
-  // DIRECTED CAMERA: fixed story beats; no manual camera buttons.
-  // Cameras see the actual simulated horse positions, not fabricated passes.
+  // Storyboard: readable wide field -> warm character close-up -> tactical
+  // wide -> last-400 duel. ~8 seconds at 16x means purposeful cuts rather
+  // than a continuously swinging camera that obscures overtakes.
   const short=aspect<.83;
-  // TV director faces the horses from AHEAD (+forward); the last camera
-  // mostly filmed them from the side. Keep both leaders visible on phones.
-  const settings={
-   gate:[5.3,4.1,15.0,short?60:51],
-   break:[4.7,3.9,16.0,short?58:50],
-   pursuit:[4.4,4.1,17.5,short?54:46],
-   corner:[6.9,7.3,21.0,short?61:52],
-   attack:[4.4,4.0,17.0,short?55:47],
-   sprint:[3.3,3.4,14.5,short?54:46],
-   photo:[2.4,3.6,17.0,short?55:47],
-   finish:[4.0,4.1,15.5,short?56:49]
-  };
-  const [side,height,forward,fov]=settings[phase];
-  const second=order[1]&&path(order[1].p);
-  const focus=second?{
-   x:target.x*.77+second.x*.23,y:target.y*.77+second.y*.23,
-   z:target.z*.77+second.z*.23,dx:target.dx,dz:target.dz
-  }:target;
-  desired.copy(vec(focus,side,forward,height));
-  look.copy(vec(focus,0,phase==='photo'?-1:0,phase==='gate'?2.45:2.0));
-  const shake=sprint?Math.min(.18,.05+(p-.8)*.55):0;
+  const subject=shot.view==='field'?order[Math.min(3,order.length-1)]:
+                shot.view==='pack'?order[Math.min(1,order.length-1)]:lead;
+  const target=path(subject.p);
+  const next=path(order[Math.min(1,order.length-1)].p);
+  const focus=shot.view==='duel'?
+    {x:target.x*.76+next.x*.24,y:target.y*.76+next.y*.24,
+     z:target.z*.76+next.z*.24,dx:target.dx,dz:target.dz}:target;
+  // Camera stays mostly in FRONT of the racing line with symmetric offsets.
+  // Vertical phone shots have a modestly larger FOV, never a massive pan.
+  const factor=short?.89:1;
+  const side=shot.side*factor,height=shot.height,ahead=shot.ahead;
+  desired.copy(vec(focus,side,ahead,height));
+  look.copy(vec(focus,0,-.6,2.1));
+  const targetFov=shot.fov+(short?3:0);
+  const shake=sprint&&!reduced()?Math.min(.062,.018+(p-.8)*.18):0;
   if(shake){
    const t=clock*3.3;desired.x+=Math.sin(t*1.9)*shake;
    desired.y+=Math.sin(t*2.8)*shake*.38;
   }
-  const targetFov=fov+(sprint?1.5*Math.sin(clock*.65):0);
-  camera.fov=lerp(camera.fov,targetFov,clamp(frameDt*3,0,1));
+  camera.fov=cut?targetFov:lerp(camera.fov,targetFov,clamp(frameDt*8,0,1));
   camera.updateProjectionMatrix();
 
   // Natural ground particles/hoof contact, driven by existing model poses.
@@ -245,6 +245,9 @@ export function createRaceCinematics({THREE,scene,stage,models,config,capFor,pat
    m.scale.set(1,.7+(i%3)*.18,1);
   }
   halos.forEach((x,i)=>x.material.opacity=sprint&&order.slice(0,2).some(a=>a.no===i+1)?.10:0);
+  window.RACE_CINEMATIC_DEBUG={shot:shot.id,progress:p,rate,cut,
+   scriptedCuts:10,mode:'16x-broadcast'};
+  return {cut,shot:shot.id};
  }
  return {update};
 }
