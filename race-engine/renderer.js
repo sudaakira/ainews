@@ -376,8 +376,8 @@ import {jockeyCap} from './core/jockey-caps.js?v=cap-v1';
  const {createJRAFurlongPosts}=await import("./assets/jra-furlong-posts.js?v=geo-v6");
  const furlongPosts=createJRAFurlongPosts({THREE,scene,offsetPoint,distance,half});
  // Cinematic director replaces manual angle selection for every race.
- const {createRaceCinematics}=await import("./assets/race-cinematics.js?v=cinema-v6");
- const cinematics=createRaceCinematics({THREE,scene,stage,models,config,capFor,path});
+ const {createRaceCinematics}=await import("./assets/race-cinematics.js?v=cinema-v7");
+ const cinematics=createRaceCinematics({THREE,scene,stage,models,config,capFor,path,route,routeLength});
  controls.style.display='none';
  document.querySelector('.camera-more')?.setAttribute('hidden','');
  stage.style.display='block';svg.classList.add('svg-hidden');
