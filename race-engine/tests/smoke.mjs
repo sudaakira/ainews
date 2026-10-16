@@ -112,7 +112,7 @@ for(const id of ['swan-2026','sample-demo','tokyo-20261012-11','tokyo-20261012-1
   assert.equal(config.horses.find(h=>h.name==='モンローウォーク').no,8);
   assert.equal(config.horses.find(h=>h.name==='エンネ').no,4);
   assert.equal(config.inputs[13][0],85,'Dream Core course input follows horse identity');
-  assert.equal(config.inputs[8][1],87,'Monroe Walk lap input follows horse identity');
+  assert.equal(config.inputs[8][1],89,'Monroe Walk updated lap input follows horse identity');
   assert.equal(config.horses.find(h=>h.name==='ドリームコア').trainingScore,73);
   assert.equal(config.horses.find(h=>h.name==='モンローウォーク').trainingScore,90);
   const monroe=config.horses.find(h=>h.name==='モンローウォーク');
