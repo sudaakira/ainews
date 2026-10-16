@@ -24,7 +24,7 @@ export function updateGallop(model,raceTime,visualTime,number,raceProgress=0){
   if(model.shadow)model.shadow.material.opacity=.20;
   return;
  }
- const phase=((visualTime*1.62+number*.014)%1+1)%1;
+ const phase=((visualTime*1.90+number*.014)%1+1)%1;
  // Eight distinct poses keep impact, suspension, stretching and recovery
  // readable in frontal 3/4 closeups, unlike the former five chunky poses.
  // Order of legs: near front, far front, near hind, far hind.
@@ -53,7 +53,7 @@ export function updateGallop(model,raceTime,visualTime,number,raceProgress=0){
   legs[i].pivot.rotation.z=((i%2?-.055:.055)*Math.sin(phase*pi2+i*.26))*active;
  }
  const bounce=lerp(a[3],b[3],t);
- model.anim.position.y=bounce*active*(1+.15*sprint);
+ model.anim.position.y=bounce*.72*active*(1+.10*sprint);
  model.anim.rotation.x=lerp(a[4],b[4],t)*active;
  model.anim.rotation.z=(.013*Math.sin(pi2*phase+number*.38))*(1+.30*sprint)*active;
  const nod=lerp(a[5],b[5],t)*active;
@@ -89,3 +89,4 @@ export function updateGallop(model,raceTime,visualTime,number,raceProgress=0){
  if(model.shadow)
   model.shadow.material.opacity=.23-.095*clamp(bounce/.22,0,1);
 }
+

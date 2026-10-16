@@ -1,295 +1,137 @@
-/**
- * CINEMATIC RACE v1 — reusable real-time Three.js race direction.
- * This module is VISUAL ONLY: no probability, model, RNG seed or horseProgress writes.
- * All movement comes from the caller's existing race engine.
- * Designed for 3–18 entrants and mobile WebGL1/2.
- */
-import {chooseRaceShot} from './race-shotlist.js?v=director-v8';
+/** Clean cel-racing broadcast. All positions and results are read from the shared engine. */
+import {chooseRaceShot,courseShotCuts,raceCameraPose} from './race-shotlist.js?v=broadcast-v10';
+import {finishCrossings,playbackRate} from './race-playback.js?v=broadcast-v10';
 
 export function createRaceCinematics({THREE,scene,stage,models,config,capFor,path,route,routeLength}){
- const mobile=()=>window.innerWidth<700;
+ const cuts=courseShotCuts(route,routeLength,config);
+ const duration=Number(config.duration)||80;
  const reduced=()=>window.matchMedia?.('(prefers-reduced-motion: reduce)').matches||false;
- const n=models.length,PI=Math.PI;
- const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
- const lerp=(a,b,t)=>a+(b-a)*t;
- const vec=(p,side,forward,height)=>new THREE.Vector3(
-  p.x+p.dz*side+p.dx*forward,p.y+height,p.z-p.dx*side+p.dz*forward);
- const c=(hex)=>new THREE.Color(hex);
- // Broad illustrated sunlight + contrast rim lighting for close-up shots.
- const key=new THREE.DirectionalLight(0xffe8ac,1.35);key.position.set(45,65,-75);scene.add(key);
- const fill=new THREE.DirectionalLight(0x91dfff,.65);fill.position.set(-95,36,40);scene.add(fill);
- scene.fog=new THREE.FogExp2(0xa9d4db,.0012);
-
- // A real 3D grandstand and crowd for generic course views. One
- // instanced crowd replaces hundreds of draw calls on iPhones.
- if(config.courseView!=='kyoto-1400-outer'){
-  const stadium=new THREE.Group();stadium.position.set(-8,0,216);scene.add(stadium);
-  const stadiumMat=new THREE.MeshLambertMaterial({color:0x607c94}),
-        shade=new THREE.MeshLambertMaterial({color:0x203d57}),
-        rail=new THREE.MeshLambertMaterial({color:0xe9e9db});
-  function box(w,h,d,m,x,y,z){
-   const mesh=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),m);
-   mesh.position.set(x,y,z);stadium.add(mesh);return mesh;
-  }
-  box(205,3.2,54,stadiumMat,0,2,0);
-  for(let row=0;row<7;row++){
-   box(208,1.45,6,row%2?stadiumMat:shade,0,4.4+row*1.65,-17+row*5);
-   box(205,.18,5,rail,0,5.1+row*1.65,-16+row*5);
-  }
-  box(218,2,72,shade,0,19.9,5);
-  box(215,.45,71,rail,0,21.0,5);
-  for(let i=-95;i<=95;i+=19)box(.7,16,.7,stadiumMat,i,12,31);
-  const spectatorCount=mobile()?360:720;
-  const spectators=new THREE.InstancedMesh(
-   new THREE.SphereGeometry(.55,5,5),
-   new THREE.MeshLambertMaterial({color:0xffffff}),spectatorCount);
-  const dummy=new THREE.Object3D(),colours=[0xf5d26e,0xff796b,0x5fa7ee,0xf0f0ef,0x6bdebb,0xdba0df];
-  for(let i=0;i<spectatorCount;i++){
-   const row=i%7,slot=Math.floor(i/7),slots=Math.ceil(spectatorCount/7);
-   dummy.position.set(-102+204*(slot+.5)/slots,5.45+row*1.65,-17+row*5);
-   dummy.scale.set(.68,.78,.72);dummy.updateMatrix();spectators.setMatrixAt(i,dummy.matrix);
-   spectators.setColorAt(i,c(colours[(i*17+row)%colours.length]));
-  }
-  spectators.instanceMatrix.needsUpdate=true;stadium.add(spectators);
-  // Huge illuminated sign readable during sweeping TV shots.
-  const label=document.createElement('canvas');label.width=1024;label.height=160;
-  const g=label.getContext('2d');g.fillStyle='#0d293c';g.fillRect(0,0,1024,160);
-  g.fillStyle='#e8ca88';g.font='bold 74px system-ui';g.textAlign='center';
-  g.fillText((config.name||'RACE').slice(0,14)+'  •  CINEMATIC RACE',512,108);
-  const tex=new THREE.CanvasTexture(label);tex.colorSpace=THREE.SRGBColorSpace;
-  const sign=new THREE.Mesh(new THREE.PlaneGeometry(130,20),
-   new THREE.MeshBasicMaterial({map:tex,side:THREE.DoubleSide}));
-  sign.position.set(0,30,48);stadium.add(sign);
- }
-
- // Canvas-built light halo (original graphics; no downloaded textures).
- const haloCanvas=document.createElement('canvas');haloCanvas.width=128;haloCanvas.height=128;
- const h=haloCanvas.getContext('2d');const grd=h.createRadialGradient(64,64,5,64,64,62);
- grd.addColorStop(0,'rgba(255,255,230,.8)');grd.addColorStop(.28,'rgba(255,227,146,.34)');
- grd.addColorStop(1,'rgba(255,227,146,0)');
- h.fillStyle=grd;h.fillRect(0,0,128,128);
- const haloTex=new THREE.CanvasTexture(haloCanvas);
- const halos=models.map((model,i)=>{
-  const m=new THREE.Sprite(new THREE.SpriteMaterial({map:haloTex,transparent:true,
-   depthWrite:false,depthTest:false,opacity:0,blending:THREE.AdditiveBlending}));
-  m.scale.set(5,5,1);m.position.set(0,2.6,-.7);model.root.add(m);return m;
- });
-
- // Surface grass chips are instanced, and never accumulate per frame.
- const perHorse=mobile()?5:9,total=n*perHorse;
- const chipGeom=new THREE.PlaneGeometry(.13,.29);
- const chips=new THREE.InstancedMesh(chipGeom,
-  new THREE.MeshBasicMaterial({color:0xcee7a0,transparent:true,opacity:.66,
-   depthWrite:false,side:THREE.DoubleSide}),total);
- chips.frustumCulled=false;scene.add(chips);
- const dummy=new THREE.Object3D();
- // Twelve luminous streaks make the final chase visually dramatic.
- const streaks=[];
- for(let i=0;i<12;i++){
-  const m=new THREE.Mesh(new THREE.BoxGeometry(.035,.025,4+i%3*1.9),
-   new THREE.MeshBasicMaterial({color:i%2?0xc7ffff:0xffecae,transparent:true,
-    opacity:0,depthWrite:false,blending:THREE.AdditiveBlending}));
-  scene.add(m);streaks.push(m);
- }
-
  const ui=document.createElement('div');ui.id='race-cinematic-overlay';
- ui.setAttribute('aria-live','off');ui.innerHTML=
-  '<div class="cinema-letterbox cinema-top"></div>'+
-  '<div class="cinema-letterbox cinema-bottom"></div>'+
-  '<div class="cinema-speed-wash"></div><div class="cinema-focus-flare"></div>'+
-  '<div class="cinema-phase"><span class="cinema-phase-kicker">CINEMATIC / VIRTUAL RACE</span>'+
-  '<strong id="cinema-phase-title">START YOUR ENGINES</strong>'+
-  '<span id="cinema-phase-sub">決戦のスタート</span></div>'+
-  '<div class="cinema-duel" id="cinema-duel">'+
-   '<span class="cinema-duel-label">FINAL SPRINT / 先頭争い</span>'+
-   '<div class="cinema-duel-contenders" id="cinema-duel-contenders"></div></div>'+
-  '<div class="cinema-finish" id="cinema-finish"><small>PHOTO FINISH · VIRTUAL RACE</small>'+
-   '<strong class="cinema-finish-heading">確定着順 TOP 3</strong>'+
-   '<div class="cinema-podium" id="cinema-podium"></div>'+
-   '<span id="cinema-finish-caption">ゴール！</span></div>'+
-  '<div class="cinema-confetti" aria-hidden="true">'+
-    Array.from({length:24},(_,i)=>'<i style="--i:'+i+';--x:'+((i*37)%95+2)+'%;--h:'+(i%2?'#f5ce8c':'#a2eee1')+'"></i>').join('')+
-  '</div>';
- // Overlay is pointer-events:none, so native replay/scrub controls work.
+ ui.setAttribute('aria-live','off');
+ ui.innerHTML='<div class="cinema-phase"><span class="cinema-phase-kicker"></span><strong id="cinema-phase-title"></strong><span id="cinema-phase-sub"></span></div>'+
+  '<div class="race-distance"><strong id="race-meters">'+config.distance+'</strong><span id="race-meters-label">m</span><small id="race-speed-label">16×</small></div>'+
+  '<div class="cinema-finish" id="cinema-finish"><small>仮想レース結果</small><div class="cinema-podium" id="cinema-podium"></div></div>'+
+  '<div id="race-arrival" aria-live="polite"></div>'+
+  '<div class="race-tracking"><div class="tracking-meta"><span id="tracking-caption">スタート待機</span><span>先頭 →</span></div><div id="race-tracking-field"></div></div>';
  stage.append(ui);
- // Always-on course locator: same SVG path and progress as the rendered horses.
- // It remains a labelled schematic, not a claimed surveyed Kyoto 3D map.
+ const phaseTitle=ui.querySelector('#cinema-phase-title'),kicker=ui.querySelector('.cinema-phase-kicker');
+ const subtitle=ui.querySelector('#cinema-phase-sub'),meters=ui.querySelector('#race-meters');
+ const metersLabel=ui.querySelector('#race-meters-label'),speedLabel=ui.querySelector('#race-speed-label');
+ const podium=ui.querySelector('#cinema-podium'),finish=ui.querySelector('#cinema-finish');
+ const arrival=ui.querySelector('#race-arrival'),tracking=ui.querySelector('#race-tracking-field');
+ const trackingCaption=ui.querySelector('#tracking-caption');
+ const badge=(h,className)=>{
+  const cap=capFor(h),b=document.createElement('b');b.className=className;
+  b.style.background=cap.hex;b.style.color=cap.text;b.style.borderColor=cap.outline;
+  b.textContent=String(h.no);b.title=h.no+' '+h.name;return b;
+ };
+ const markers=new Map(config.horses.map(h=>[h.no,badge(h,'tracking-number')]));
+ for(const marker of markers.values())tracking.append(marker);
  const location=document.createElement('div');location.id='race-course-guide';
  location.setAttribute('aria-label','現在位置を示す模式コース図');
- const locTitle=document.createElement('strong');
- locTitle.textContent=(config.venue||'競馬場')+'・'+
-   (config.venue==='京都'&&config.distance===2000?'内回り':'コース')+' 位置';
  const map=document.createElementNS('http://www.w3.org/2000/svg','svg');
  map.setAttribute('viewBox','0 0 860 555');map.setAttribute('aria-hidden','true');
  const mapPath=document.createElementNS('http://www.w3.org/2000/svg','path');
- mapPath.setAttribute('d',route?.getAttribute('d')||'');
- mapPath.setAttribute('fill','none');mapPath.setAttribute('stroke','#bad2dd');
- mapPath.setAttribute('stroke-width','24');mapPath.setAttribute('stroke-linecap','round');
- map.append(mapPath);
+ mapPath.setAttribute('d',route.getAttribute('d'));mapPath.setAttribute('fill','none');
+ mapPath.setAttribute('stroke','#ffffff');mapPath.setAttribute('stroke-width','27');
+ mapPath.setAttribute('stroke-linecap','round');map.append(mapPath);
  const routeDot=document.createElementNS('http://www.w3.org/2000/svg','circle');
- routeDot.setAttribute('r','39');routeDot.setAttribute('fill','#efcf83');
- routeDot.setAttribute('stroke','#102a37');routeDot.setAttribute('stroke-width','10');
- map.append(routeDot);
+ routeDot.setAttribute('r','34');routeDot.setAttribute('fill','#ffd748');
+ routeDot.setAttribute('stroke','#254b30');routeDot.setAttribute('stroke-width','10');map.append(routeDot);
  const locText=document.createElement('span');locText.id='race-course-position';
- locText.textContent='スタンド前・発走';
  const schematic=document.createElement('small');schematic.textContent='コース模式図';
- location.append(locTitle,map,locText,schematic);stage.append(location);
- const phaseTitle=ui.querySelector('#cinema-phase-title');
- const phaseKicker=ui.querySelector('.cinema-phase-kicker');
- const phaseSub=ui.querySelector('#cinema-phase-sub');
- const duel=ui.querySelector('#cinema-duel');
- const contenders=ui.querySelector('#cinema-duel-contenders');
- const finish=ui.querySelector('#cinema-finish');
- const podium=ui.querySelector('#cinema-podium');
- const finishCaption=ui.querySelector('#cinema-finish-caption');
- let lastPhase='',lastShot='',lastPair='',lastFinished=false,lastClock=-1;
+ location.append(map,locText,schematic);stage.append(location);
 
- function phaseAt(p,clock){
-  if(clock<=0)return ['gate','GATE IN','運命の発走'];
-  if(p<.035)return ['break','BREAK AWAY','一斉にスタート！'];
-  if(p<.40)return ['pursuit','FULL GALLOP','流れるような追走'];
-  if(p<.70)return ['corner','THE CHASE','3〜4コーナーへ、馬群が動く'];
-  if(p<.83)return ['attack','FINAL TURN','直線勝負、ここからだ！'];
-  if(p<.965)return ['sprint','LAST 400','激しい先頭争い！'];
-  if(p<1)return ['photo','TO THE LINE','最後の一完歩！'];
-  return ['finish','PHOTO FINISH','仮想レース決着'];
+ // Original simplified course furniture, soft colored grandstand and hedge rows.
+ // Geometry belongs to this app; no game assets or logos are embedded.
+ if(config.courseView!=='kyoto-1400-outer'){
+  const stadium=new THREE.Group();stadium.position.set(-8,0,150);scene.add(stadium);
+  const material=c=>new THREE.MeshToonMaterial({color:c});
+  const concrete=material(0xe8eee4),seat=material(0x92b6bb),glass=material(0x59939e),roof=material(0xf8f7e4);
+  const box=(w,h,d,m,x,y,z)=>{const mesh=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),m);mesh.position.set(x,y,z);stadium.add(mesh);};
+  box(210,3,32,concrete,0,1.5,0);
+  for(let row=0;row<5;row++){
+   box(210,1.8,5,row%2?glass:seat,0,4+row*1.8,-12+row*5);
+   box(211,.16,5,concrete,0,5+row*1.8,-12+row*5);
+  }
+  box(218,.6,39,roof,0,15,2);
+  for(let x=-98;x<=98;x+=28)box(.65,11,.65,concrete,x,8.5,12);
+  const crowd=new THREE.InstancedMesh(new THREE.SphereGeometry(.4,5,4),material(0xffffff),360);
+  const dummy=new THREE.Object3D(),palette=[0xe8eee8,0xe59d74,0x8ea9d2,0xf3ce76,0xbb91ac];
+  for(let i=0;i<360;i++){
+   const row=i%5,col=Math.floor(i/5);
+   dummy.position.set(-102+col*2.87,5.5+row*1.8,-12+row*5);
+   dummy.scale.set(.65,.9,.65);dummy.updateMatrix();crowd.setMatrixAt(i,dummy.matrix);
+   crowd.setColorAt(i,new THREE.Color(palette[i%palette.length]));
+  }
+  stadium.add(crowd);
+  const hedge=new THREE.InstancedMesh(new THREE.SphereGeometry(1,7,5),material(0x3b8052),90);
+  for(let i=0;i<90;i++){
+   const p=path(i/90),lane=19;
+   dummy.position.set(p.x-p.dz*lane,p.y+.8,p.z+p.dx*lane);
+   dummy.scale.set(1.5,.9,1.4);dummy.updateMatrix();hedge.setMatrixAt(i,dummy.matrix);
+  }
+  scene.add(hedge);
  }
+ // A small amount of grass kicked up by the hooves, without luminous trails.
+ const perHorse=3,chips=new THREE.InstancedMesh(new THREE.PlaneGeometry(.11,.20),
+  new THREE.MeshBasicMaterial({color:0x93c15b,transparent:true,opacity:.7,side:THREE.DoubleSide,depthWrite:false}),models.length*perHorse);
+ chips.frustumCulled=false;scene.add(chips);const dummy=new THREE.Object3D();
+ let lastShot='',lastOrder='',lastResult='',lastCrossed=-1;
  function update({clock,progress,order,finishOrder,frameDt,camera,desired,look,rate}){
-  const p=clamp(progress,0,1),lead=order[0],aspect=camera.aspect;
-  const [phase,,subtitle]=phaseAt(p,clock);
-  const shot=chooseRaceShot(p),cut=lastShot!==shot.id;
-  if(phase!==lastPhase||cut){
-   ui.dataset.phase=phase;ui.dataset.shot=shot.id;
-   phaseKicker.textContent=shot.kicker;
-   phaseTitle.textContent=shot.label;
-   phaseSub.textContent=subtitle;
-   lastPhase=phase;lastShot=shot.id;
+  const p=Math.max(0,Math.min(1,progress)),shot=chooseRaceShot(p,cuts),cut=shot.id!==lastShot;
+  if(cut){ui.dataset.shot=shot.id;kicker.textContent=shot.kicker;phaseTitle.textContent=shot.label;lastShot=shot.id;}
+  const crossed=finishCrossings(finishOrder,clock,duration),runningOut=clock>duration;
+  ui.dataset.phase=clock<=0?'gate':runningOut?'run-out':shot.id;
+  const remaining=Math.max(0,Math.round(config.distance*(1-p)/10)*10);
+  meters.textContent=remaining?String(remaining):'GOAL';metersLabel.textContent=remaining?'m':'';
+  speedLabel.textContent=playbackRate(rate,clock,duration)+'×'+(runningOut?' 走り抜け':'');
+  subtitle.textContent=clock<=0?'まもなく発走':runningOut?'ゴール後も走り抜け':shot.id==='third-turn'?'馬群全体を俯瞰':'自動カメラ';
+  const orderKey=order.map(x=>x.no).join(',');
+  if(orderKey!==lastOrder){
+   order.toReversed().forEach(o=>tracking.append(markers.get(o.no)));lastOrder=orderKey;
   }
-  const sprint=p>.80&&p<1&&!reduced();
-  ui.classList.toggle('cinema-sprint',sprint);
-  const needNames=p>.78;
-  duel.classList.toggle('cinema-duel-visible',needNames&&p<1);
-  if(needNames){
-   const first=order[0],second=order[1],pair=first.no+'-'+second.no;
-   if(pair!==lastPair){
-    const item=(o)=>{
-     const horse=config.horses[o.no-1],cap=capFor(horse);
-     const badge='<b class="cinema-cap" style="background:'+cap.hex+';color:'+cap.text+';border-color:'+cap.outline+'">'+o.no+'</b>';
-     return '<span class="cinema-horse">'+badge+'<strong>'+horse.name+'</strong></span>';
-    };
-    contenders.innerHTML=item(first)+'<span class="cinema-versus">VS</span>'+item(second);
-    lastPair=pair;
-   }
+  trackingCaption.textContent=runningOut?'ゴール通過順':clock<=0?'ゲート入り':'現在の隊列';
+  if(crossed.length!==lastCrossed){
+   const place=Math.min(3,crossed.length),h=config.horses.find(h=>h.no===crossed[place-1]);
+   arrival.textContent=h&&place<3?place+'着  '+h.no+' '+h.name:'';
+   lastCrossed=crossed.length;
   }
-  const finished=p>=1;
-  const finishChanged=finished!==lastFinished;
-  if(finishChanged){
-   finish.classList.toggle('cinema-finish-visible',finished);
-   ui.classList.toggle('cinema-victory',finished);
-   lastFinished=finished;
+  const finished=crossed.length>=3;
+  finish.classList.toggle('cinema-finish-visible',finished);
+  const resultKey=finished?finishOrder.slice(0,3).join(','):'';
+  if(resultKey!==lastResult){
+   podium.replaceChildren();
+   if(finished)finishOrder.slice(0,3).forEach((no,i)=>{
+    const h=config.horses.find(h=>h.no===no),row=document.createElement('div');row.className='cinema-podium-row cinema-podium-'+(i+1);
+    const place=document.createElement('span');place.textContent=(i+1)+'着';
+    const name=document.createElement('strong');name.textContent=h.name;
+    row.append(place,badge(h,'cinema-result-cap'),name);podium.append(row);
+   });
+   lastResult=resultKey;
   }
-  if(finished&&(finishChanged||clock!==lastClock)){
-   // Use the original simulator's definitive LIVE.rank — never derive a
-   // potentially wrong finish from visually interpolated 3D positions.
-   const placed=Array.isArray(finishOrder)&&finishOrder.length>=3
-    ?finishOrder.slice(0,3):order.slice(0,3).map(o=>o.no);
-   const medals=['🥇','🥈','🥉'];
-   podium.replaceChildren(...placed.map((no,index)=>{
-     const row=document.createElement('div');row.className='cinema-podium-row cinema-podium-'+(index+1);
-     const horse=config.horses[no-1],cap=capFor(horse);
-     const medal=document.createElement('span');medal.className='cinema-medal';medal.textContent=medals[index];
-     const number=document.createElement('b');number.className='cinema-result-cap';
-     number.style.background=cap.hex;number.style.color=cap.text;
-     number.style.borderColor=cap.outline;number.textContent=String(no);
-     const name=document.createElement('strong');name.textContent=horse.name;
-     row.append(medal,number,name);return row;
-   }));
-   finishCaption.textContent='シミュレーション確定着順 · 実際のレース結果ではありません';
-  }
-  lastClock=clock;
-  if(route&&routeLength){
-   const d=config.direction==='左'?(1-p)*routeLength:p*routeLength;
-   const pp=route.getPointAtLength(Math.max(0,Math.min(routeLength,d)));
-   routeDot.setAttribute('cx',String(pp.x.toFixed(1)));
-   routeDot.setAttribute('cy',String(pp.y.toFixed(1)));
-  }
-  const stageName=p<.14?'スタンド前・発走':p<.29?'1〜2コーナー':
-   p<.55?'向正面':p<.80?'3〜4コーナー':p<1?'最後の直線':'ゴール';
-  if(locText.textContent!==stageName)locText.textContent=stageName;
-  // Director v8: START full field → SECOND TURN close → FOURTH TURN →
-  // LAST STRAIGHT from the SIDE, to read the finishing order immediately.
-  // 16x has only four changes, and the fourth keeps the REAL goal monument
-  // in view (on the infield side of the finish line).
-  const short=aspect<.83;
-  const subject=shot.view==='field'?order[Math.min(3,order.length-1)]:
-                shot.view==='pack'?order[Math.min(1,order.length-1)]:lead;
-  const target=path(subject.p);
-  const next=path(order[Math.min(1,order.length-1)].p);
-  const mixed=shot.view==='duel'?
-    {x:target.x*.78+next.x*.22,y:target.y*.78+next.y*.22,
-     z:target.z*.78+next.z*.22,dx:target.dx,dz:target.dz}:target;
-  const isFinishSide=shot.id==='straight'||shot.id==='result';
-  const finishTarget=path(1);
-  const settle=clamp((p-.935)/.06,0,1);
-  const eased=settle*settle*(3-2*settle);
-  const focus=isFinishSide?{
-   x:lerp(mixed.x,finishTarget.x,eased),
-   y:lerp(mixed.y,finishTarget.y,eased),
-   z:lerp(mixed.z,finishTarget.z,eased),
-   dx:lerp(mixed.dx,finishTarget.dx,eased),
-   dz:lerp(mixed.dz,finishTarget.dz,eased)
-  }:mixed;
-  const side=shot.side*(short?.92:1);
-  desired.copy(vec(focus,side,shot.ahead,shot.height));
-  // Straight final: aim across the turf toward the Kyoto goal post rather
-  // than at empty sky, but preserve the horses on the near side of frame.
-  look.copy(vec(focus,isFinishSide?-7.6:0,isFinishSide?0:-.6,
-    isFinishSide?3.5:2.1));
-  const targetFov=shot.fov+(short?4:0);
-  const shake=sprint&&!reduced()?Math.min(.062,.018+(p-.8)*.18):0;
-  if(shake){
-   const t=clock*3.3;desired.x+=Math.sin(t*1.9)*shake;
-   desired.y+=Math.sin(t*2.8)*shake*.38;
-  }
-  camera.fov=cut?targetFov:lerp(camera.fov,targetFov,clamp(frameDt*8,0,1));
-  camera.updateProjectionMatrix();
-
-  // Natural ground particles/hoof contact, driven by existing model poses.
-  const isRunning=clock>.06&&p<1&&!reduced();
+  const d=config.direction==='左'?(1-p)*routeLength:p*routeLength;
+  const at=route.getPointAtLength(d);
+  routeDot.setAttribute('cx',String(at.x.toFixed(1)));routeDot.setAttribute('cy',String(at.y.toFixed(1)));
+  locText.textContent=runningOut?'ゴール':shot.label;
+  const pose=raceCameraPose({shot,progress:p,order,path,aspect:camera.aspect});
+  desired.set(pose.position.x,pose.position.y,pose.position.z);look.set(pose.look.x,pose.look.y,pose.look.z);
+  camera.fov=pose.fov;camera.updateProjectionMatrix();
   let j=0;
-  for(let i=0;i<n;i++){
-   const obj=models[i].root;
-   const forward=new THREE.Vector3(Math.sin(obj.rotation.y),0,Math.cos(obj.rotation.y));
-   const sideVector=new THREE.Vector3(forward.z,0,-forward.x);
-   for(let k=0;k<perHorse;k++,j++){
-    const lifetime=(clock*1.25+i*.37+k/perHorse)%1;
-    const sway=Math.sin((i+1)*17.13+k*41)*.65;
-    const rear=1.1+lifetime*3.1,spread=sway*(.5+lifetime);
-    dummy.position.copy(obj.position)
-     .addScaledVector(forward,-rear)
-     .addScaledVector(sideVector,spread);
-    dummy.position.y=Math.max(.12,obj.position.y+.08+lifetime*(.8+((i+k)%4)*.1));
-    dummy.rotation.set(-PI/2+lifetime*.55,(i+k)*1.25,0);
-    const size=isRunning?(.5+lifetime*.9)*(1-lifetime):0.0001;
-    dummy.scale.set(size,size,size);dummy.updateMatrix();
-    chips.setMatrixAt(j,dummy.matrix);
-   }
+  for(let i=0;i<models.length;i++)for(let k=0;k<perHorse;k++,j++){
+   const root=models[i].root,t=(clock*.16+i*.37+k/perHorse)%1;
+   dummy.position.copy(root.position);
+   dummy.position.x-=Math.sin(root.rotation.y)*(1.2+t*2.4);
+   dummy.position.z-=Math.cos(root.rotation.y)*(1.2+t*2.4);
+   dummy.position.y+=.12+Math.sin(t*Math.PI)*.45;
+   dummy.rotation.set(-Math.PI/2+t,(i+k)*1.7,0);
+   const size=clock>.05&&!reduced()?(1-t)*.8:.0001;
+   dummy.scale.setScalar(size);dummy.updateMatrix();chips.setMatrixAt(j,dummy.matrix);
   }
   chips.instanceMatrix.needsUpdate=true;
-  for(let i=0;i<streaks.length;i++){
-   const m=streaks[i],h=order[i%2],root=models[h.no-1].root;
-   const tangent=new THREE.Vector3(Math.sin(root.rotation.y),0,Math.cos(root.rotation.y));
-   const sideways=new THREE.Vector3(tangent.z,0,-tangent.x);
-   const phaseOffset=(clock*.35+i*.17)%1;
-   m.position.copy(root.position).addScaledVector(tangent,-(3+phaseOffset*6))
-    .addScaledVector(sideways,(i%6-2.5)*.38);
-   m.position.y+=1.1+(i%3)*.54;m.rotation.set(0,root.rotation.y,0);
-   m.material.opacity=sprint?.18+.2*(1-phaseOffset):0;
-   m.scale.set(1,.7+(i%3)*.18,1);
-  }
-  halos.forEach((x,i)=>x.material.opacity=sprint&&order.slice(0,2).some(a=>a.no===i+1)?.10:0);
-  window.RACE_CINEMATIC_DEBUG={shot:shot.id,progress:p,rate,cut,
-   scriptedCuts:4,mode:'16x-side-finish',position:stageName};
+  window.RACE_CINEMATIC_DEBUG={shot:shot.id,progress:p,rate,cut,scriptedCuts:4,
+   mode:'cel-four-cut-runout',cuts,position:shot.label,runOut:runningOut,crossed:crossed.length,
+   sideOn:shot.ahead===0,pose};
   return {cut,shot:shot.id};
  }
  return {update};

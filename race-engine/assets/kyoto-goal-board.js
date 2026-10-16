@@ -9,9 +9,9 @@
  */
 export function createKyotoGoalBoard({THREE,scene,offsetPoint,path,half}){
  const root=new THREE.Group();
- root.position.copy(offsetPoint(1,-(half+3.7),0));
+ root.position.copy(offsetPoint(1,half+3.7,0));
  const finishDir=path(1);
- root.rotation.y=Math.atan2(finishDir.dx,finishDir.dz);
+ root.rotation.y=Math.atan2(finishDir.dx,finishDir.dz)+Math.PI/2;
  scene.add(root);
 
  const outer=new THREE.MeshStandardMaterial({color:0x0a4a3b,roughness:.34,metalness:.1});
@@ -74,12 +74,13 @@ export function createKyotoGoalBoard({THREE,scene,offsetPoint,path,half}){
   new THREE.MeshBasicMaterial({color:0xffffff}));
  lineRoot.add(line);scene.add(lineRoot);
 
- // Little goal-edge white posts outside the running corridor.
- for(const sign of [-1,1]){
+ // Only the FAR-side marker exists; no camera-side upright can obscure a horse.
+ for(const sign of [1]){
   const base=offsetPoint(1,sign*(half+1),0);
   const pole=new THREE.Mesh(new THREE.CylinderGeometry(.09,.10,3.3,9),inner);
   pole.position.copy(base);pole.position.y+=1.65;scene.add(pole);
  }
 
- return {root,lineRoot,atProgress:1,authenticReference:'Kyoto 2023 green-white concentric loop'};
+ return {root,lineRoot,side:'far',lane:half+3.7,atProgress:1,authenticReference:'Kyoto 2023 green-white concentric loop'};
 }
+

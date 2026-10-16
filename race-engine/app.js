@@ -1,5 +1,6 @@
 /* Race-engine shared UI application. Loaded after per-race configuration. */
 import {jockeyCap,JRA_JOCKEY_CAPS} from './core/jockey-caps.js?v=cap-v1';
+import {FINISH_GAP,runOutProgress,playbackEnd,playbackRate,finishCrossings} from './assets/race-playback.js?v=broadcast-v10';
 const config=window.RACE_CONFIG;
 const FACTOR=window.SWAN_FACTORS,LOOP=window.SWAN_LOOP,SIM=window.RACE_SIM;
 if(!config||!FACTOR||!LOOP||!SIM)throw Error('Race configuration has not loaded');
@@ -233,11 +234,12 @@ function sampleLiveRace(){
 function ease(t){return t*t*(3-2*t)}
 function horseProgress(no,sec){
  let p=Math.min(1,Math.max(0,sec/LIVE.duration)),h=HS[no-1],rank=LIVE.rank.indexOf(no);
+ if(sec>LIVE.duration)return runOutProgress(rank,sec-LIVE.duration,LIVE.duration);
  let early=h.style==='逃げ'?.048:h.style==='好位'?.026:h.style==='中団'?-.006:-.036;
  let shift=early*Math.sin(Math.PI*p)*Math.pow(1-p,.15);
  let pace=+el('pace').value;
  shift+=(h.style==='逃げ'?-.004*pace:h.style==='差し'?.004*pace:0)*Math.sin(Math.PI*p);
- let finishGap=rank*.0038*ease(Math.max(0,(p-.47)/.53));
+ let finishGap=rank*FINISH_GAP*ease(Math.max(0,(p-.47)/.53));
  let jitter=Math.sin(p*24+no*2.6+LIVE.seed)*.0009*Math.sin(Math.PI*p);
  return Math.max(0,Math.min(1,p+shift-finishGap+jitter));
 }
@@ -251,33 +253,40 @@ function drawLive(){
  let order=HS.map(h=>({no:h.no,p:horseProgress(h.no,LIVE.clock)})).sort((a,b)=>b.p-a.p);
  let active=new Set(order.slice(0,3).map(x=>x.no));
  HS.forEach(h=>{
-  let p=horseProgress(h.no,LIVE.clock),dist=routeLength*p;
+  let p=horseProgress(h.no,LIVE.clock),dist=routeLength*Math.min(1,p);
   let pos=routeAt(dist),prev=routeAt(Math.max(0,dist-1)),next=routeAt(Math.min(routeLength,dist+1));
   let dx=next.x-prev.x,dy=next.y-prev.y,len=Math.max(.1,Math.hypot(dx,dy));
   let lateral=(CENTER-h.no)*4.3, x=pos.x-dy/len*lateral,y=pos.y+dx/len*lateral;
+  if(p>1){x+=dx/len*(p-1)*routeLength;y+=dy/len*(p-1)*routeLength;}
   let g=el('horse-'+h.no);g.setAttribute('transform','translate('+x.toFixed(1)+' '+(y+Math.sin(LIVE.visualTime*11+h.no)*1.2).toFixed(1)+')');
   g.setAttribute('opacity',active.has(h.no)?'1':'.9');
   g.setAttribute('style','filter:drop-shadow(0 2px 2px #122c24);');
  });
  el('live-leaders').innerHTML=progress===0?'':order.slice(3,6).map((h,i)=>'<span>'+(i+4)+'位 <b>'+h.no+' '+HS[h.no-1].name+'</b></span>').join('');
- if(progress>0)raceview(order.map(x=>x.no),progress>=1);
- if(progress>=1){if(LIVE.playing)LIVE.playbackAtFinish=true;LIVE.playing=false;el('live-status').textContent='🏁 ゴール・着順確定';raceview(LIVE.rank,true)}
+ const crossed=finishCrossings(LIVE.rank,LIVE.clock,LIVE.duration);
+ if(progress>0)raceview(order.map(x=>x.no),crossed.length>=3);
+ if(progress>=1){
+  if(LIVE.playing)LIVE.playbackAtFinish=true;
+  el('live-status').textContent=LIVE.playing?'ゴール通過・走り抜け':'ゴール';
+  if(crossed.length>=3)raceview(LIVE.rank,true);
+ }
 }
 function liveFrame(t){
  if(LIVE.playing){
   if(LIVE.last){
    const dt=Math.min(.12,Math.max(0,(t-LIVE.last)/1000));
-   const rate=+el('live-rate').value;
+   const rate=playbackRate(+el('live-rate').value,LIVE.clock,LIVE.duration);
    // Race time accelerates up to 16x, but gallop phase advances smoothly in screen time.
    // This avoids stroboscopic frozen/jerky legs at high playback speeds.
-   LIVE.clock=Math.min(LIVE.duration,LIVE.clock+dt*rate);
+   LIVE.clock=Math.min(playbackEnd(LIVE.duration,FIELD),LIVE.clock+dt*rate);
    LIVE.visualTime+=dt*(1+.13*Math.log2(rate));
+   if(LIVE.clock>=playbackEnd(LIVE.duration,FIELD))LIVE.playing=false;
   }
   LIVE.last=t;drawLive();
  }
  LIVE.raf=requestAnimationFrame(liveFrame);
 }
-el('live-play').onclick=()=>{if(!LIVE.ready||LIVE.clock>=LIVE.duration)sampleLiveRace();LIVE.playing=true;LIVE.last=0;el('live-status').textContent='● シミュレーション再生中';};
+el('live-play').onclick=()=>{if(!LIVE.ready||LIVE.clock>=playbackEnd(LIVE.duration,FIELD))sampleLiveRace();LIVE.playing=true;LIVE.last=0;el('live-status').textContent='● シミュレーション再生中';};
 el('live-pause').onclick=()=>{LIVE.playing=false;LIVE.last=0;el('live-status').textContent='一時停止';};
 el('live-reset').onclick=()=>sampleLiveRace();
 el('live-scrub').oninput=v=>{LIVE.clock=LIVE.duration*(+v.target.value)/1000;LIVE.playing=false;LIVE.last=0;LIVE.playbackAtFinish=false;drawLive();};
@@ -285,4 +294,5 @@ const oldSim=el('simulate').onclick;el('simulate').onclick=()=>{oldSim();sampleL
 sampleLiveRace();LIVE.raf=requestAnimationFrame(liveFrame);
 window.KYOTO_RACE={HS,LIVE,route,routeLength,horseProgress,config};
 window.RACE_APP_READY=true;
+
 

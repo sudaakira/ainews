@@ -3,42 +3,17 @@
 let sharedEyeTexture=null;
 function paintedEye(T){
  if(sharedEyeTexture)return sharedEyeTexture;
- const c=document.createElement('canvas');c.width=192;c.height=224;
- const g=c.getContext('2d');
- g.clearRect(0,0,192,224);
- g.fillStyle='#38222b';
- g.beginPath();g.moveTo(18,121);
- g.bezierCurveTo(5,66,39,20,91,18);
- g.bezierCurveTo(149,11,180,62,177,122);
- g.bezierCurveTo(177,178,135,213,91,210);
- g.bezierCurveTo(43,204,19,166,18,121);g.fill();
- g.fillStyle='#fff5ef';
- g.beginPath();g.moveTo(32,122);
- g.bezierCurveTo(28,75,53,33,93,32);
- g.bezierCurveTo(140,28,162,70,162,122);
- g.bezierCurveTo(162,160,138,193,95,195);
- g.bezierCurveTo(58,194,34,165,32,122);g.fill();
- const ir=g.createLinearGradient(0,54,0,192);
- ir.addColorStop(0,'#34202b');ir.addColorStop(.45,'#633625');
- ir.addColorStop(.80,'#c17c40');ir.addColorStop(1,'#ffcb70');
- g.fillStyle=ir;g.beginPath();g.ellipse(99,126,58,70,0,0,Math.PI*2);g.fill();
- g.strokeStyle='#623527';g.lineWidth=4;g.stroke();
- g.fillStyle='#261620';g.beginPath();g.ellipse(99,115,32,55,0,0,Math.PI*2);g.fill();
- const grad=g.createLinearGradient(0,45,0,127);
- grad.addColorStop(0,'#34202a');grad.addColorStop(1,'rgba(52,32,42,0)');
- g.fillStyle=grad;g.beginPath();g.ellipse(94,76,67,35,0,0,Math.PI*2);g.fill();
- g.fillStyle='#fff';g.beginPath();g.ellipse(75,84,22,29,-.25,0,Math.PI*2);g.fill();
- g.beginPath();g.ellipse(119,150,12,16,.15,0,Math.PI*2);g.fill();
- g.fillStyle='#fff1de';g.beginPath();g.arc(132,100,5,0,Math.PI*2);g.fill();
- g.strokeStyle='#34212a';g.lineWidth=11;g.lineCap='round';
- g.beginPath();g.moveTo(21,89);g.bezierCurveTo(52,14,144,12,171,94);g.stroke();
- g.lineWidth=5;g.beginPath();g.moveTo(25,91);g.lineTo(11,70);g.moveTo(39,64);g.lineTo(23,41);g.stroke();
- const t=new T.CanvasTexture(c);t.colorSpace=T.SRGBColorSpace;
- t.magFilter=T.LinearFilter;t.minFilter=T.LinearMipmapLinearFilter;
- t.generateMipmaps=true;t.anisotropy=4;t.needsUpdate=true;
- sharedEyeTexture=t;return t;
+ const c=document.createElement('canvas');c.width=128;c.height=128;
+ const g=c.getContext('2d');g.clearRect(0,0,128,128);
+ g.fillStyle='#352923';g.beginPath();g.ellipse(64,64,54,42,-.16,0,Math.PI*2);g.fill();
+ g.fillStyle='#a66d3e';g.beginPath();g.ellipse(68,69,33,33,0,0,Math.PI*2);g.fill();
+ g.fillStyle='#1b2224';g.beginPath();g.ellipse(65,61,24,30,0,0,Math.PI*2);g.fill();
+ g.fillStyle='#ffffff';g.beginPath();g.ellipse(48,44,10,11,0,0,Math.PI*2);g.fill();
+ g.fillStyle='#dbbd8f';g.beginPath();g.ellipse(82,86,7,5,0,0,Math.PI*2);g.fill();
+ sharedEyeTexture=new T.CanvasTexture(c);sharedEyeTexture.colorSpace=T.SRGBColorSpace;
+ return sharedEyeTexture;
 }
-// Anime pony v19 kawaii-plush — original 3D chibi character based on the requested
+// Original cel racehorse v10 — original 3D chibi character based on the requested
 // illustrated design direction (large expressive eyes, rosy muzzle, tiny rider).
 // Coordinates: forward +Z, up +Y. Four articulated legs stay compatible with
 // chibi-gallop-v1.js and the 18-horse Kyoto race simulator.
@@ -50,7 +25,7 @@ export function createRaceHorse(T,scene,h,silkHex,frameCapHex='#89929B',frameCap
  // All 18 coats retain their own color while eye highlights, blush and face stay readable.
  // Gentle eight-step shading: the old four hard bands exaggerated geometry seams.
  // Keep anime illustration colour without a plastic polygon-faceted surface.
- const shades=[118,147,168,188,207,222,237,255];
+ const shades=[136,196,242,255];
  const gradient=new T.DataTexture(new Uint8Array(
   shades.flatMap(v=>[v,v,v,255])
  ),shades.length,1,T.RGBAFormat);gradient.needsUpdate=true;
@@ -66,8 +41,8 @@ export function createRaceHorse(T,scene,h,silkHex,frameCapHex='#89929B',frameCap
  const hoofMat=toon(0x332f38);
  const leather=toon(0x38292c);
  const cream=toon(0xfff4e2);
- const muzzle=toon(0xffd9c9);
- const muzzleShade=toon(0xe8ad9c);
+ const muzzle=toon(0x8e8272);
+ const muzzleShade=toon(0x5d554c);
  const cheekPink=new T.MeshBasicMaterial({color:0xf09aa5,transparent:true,opacity:.69,depthWrite:false});
  const silk=toon(silkHex);
  const metal=new T.MeshStandardMaterial({color:0xe7d5a9,metalness:.28,roughness:.45});
@@ -78,7 +53,7 @@ export function createRaceHorse(T,scene,h,silkHex,frameCapHex='#89929B',frameCap
  const pupil=new T.MeshBasicMaterial({color:0x24151d});
  const shine=new T.MeshBasicMaterial({color:0xffffff});
  const outlineMat=new T.MeshBasicMaterial({color:0x422b2b,side:T.BackSide});
- const sphere=new T.SphereGeometry(1,20,14);
+ const sphere=new T.SphereGeometry(1,16,11);
  const cone=new T.ConeGeometry(1,1,7);
  const ell=(parent,material,x,y,z,sx,sy,sz)=>{
   const mesh=new T.Mesh(sphere,material);mesh.position.set(x,y,z);mesh.scale.set(sx,sy,sz);parent.add(mesh);return mesh;
@@ -86,7 +61,7 @@ export function createRaceHorse(T,scene,h,silkHex,frameCapHex='#89929B',frameCap
  // Inverted backface shells give a thin hand-drawn line on major silhouettes.
  const lined=(parent,material,x,y,z,sx,sy,sz)=>{
   const shape=ell(parent,material,x,y,z,sx,sy,sz);
-  const shell=ell(parent,outlineMat,x,y,z,sx+.017,sy+.017,sz+.017);
+  const shell=ell(parent,outlineMat,x,y,z,sx+.010,sy+.010,sz+.010);
   shell.renderOrder=-1;return shape;
  };
  const tuft=(parent,material,x,y,z,rx,ry,rz,tiltX=0,tiltZ=0)=>{
@@ -116,7 +91,7 @@ export function createRaceHorse(T,scene,h,silkHex,frameCapHex='#89929B',frameCap
   points.forEach(([x,y,z,rx,ry],i)=>{
    for(let k=0;k<=segments;k++){
     const a=2*Math.PI*k/segments;
-    v.push(x+Math.cos(a)*Math.max(.01,rx),y+Math.sin(a)*Math.max(.01,ry),z);
+    v.push((x+Math.cos(a)*Math.max(.01,rx))*.90,y+.28+Math.sin(a)*Math.max(.01,ry)*.92,z*1.06);
     uv.push(k/segments,i/(points.length-1));
    }
   });
@@ -140,7 +115,7 @@ export function createRaceHorse(T,scene,h,silkHex,frameCapHex='#89929B',frameCap
   }
   const m=new T.Mesh(g,material);parent.add(m);return m;
  }
- // v17 SOFT PLUSH body. All of the shoulders, rump and belly are now one
+ // Continuous cel-shaded torso. All of the shoulders, rump and belly are now one
  // continuous organic surface; the old pasted-on ellipsoids caused obvious
  // intersecting "lumps" and harsh dark seams around the hips.
  // More radial faces and finely spaced profiles produce an even silhouette.
@@ -161,7 +136,7 @@ export function createRaceHorse(T,scene,h,silkHex,frameCapHex='#89929B',frameCap
   [0,1.80,.97,.48,.57],
   [0,1.87,1.09,.28,.35],
   [0,1.92,1.16,.025,.045]
- ],40,6);
+ ],32,4);
  // Short, softly arched neck. Its wide lower rings are buried inside the
  // continuous torso instead of sitting visibly atop it as a second cylinder.
  loft(anim,coat,[
@@ -173,15 +148,15 @@ export function createRaceHorse(T,scene,h,silkHex,frameCapHex='#89929B',frameCap
   [0,2.36,1.33,.29,.31],
   [0,2.45,1.39,.23,.25],
   [0,2.50,1.43,.14,.17]
- ],36,6);
+ ],28,4);
  // Shoulder and haunch volume live in the loft itself; no overlapping
  // side-spheres or bright "patch" blobs on the outside of the coat.
  // Derby Stallion 2-inspired original character proportions.
  // No long tapered mesh: rounded forehead + cheek + short downturned muzzle.
  // Reference direction: large friendly eyes, tiny muzzle, fluffy forelock.
  // Proportions are deliberately stylized, not anatomy-accurate.
- const headRig=new T.Group();headRig.position.set(0,2.45,1.39);
- headRig.scale.set(1.60,1.44,1.37);anim.add(headRig);
+ const headRig=new T.Group();headRig.position.set(0,2.73,1.49);
+ headRig.scale.set(1.28,1.34,1.58);anim.add(headRig);
  const skull=lined(headRig,coat,0,.045,.105,.353,.373,.326);
  skull.rotation.x=-.10;
  ell(headRig,coat,0,-.205,.215,.331,.335,.307);
@@ -190,13 +165,6 @@ export function createRaceHorse(T,scene,h,silkHex,frameCapHex='#89929B',frameCap
  // Rounded peach mouth as in the supplied character sheet.
  lined(headRig,muzzle,0,-.548,.568,.301,.212,.246);
  ell(headRig,muzzleShade,0,-.692,.609,.256,.065,.146);
- // Rounded illustrated smile, clearly visible from the low frontal race camera.
- const grinCurve=new T.QuadraticBezierCurve3(
-  new T.Vector3(-.128,-.663,.744),
-  new T.Vector3(0,-.715,.769),
-  new T.Vector3(.128,-.663,.744));
- headRig.add(new T.Mesh(new T.TubeGeometry(grinCurve,10,.012,5,false),mane));
- ell(headRig,muzzleShade,0,-.702,.713,.070,.018,.013);
  const ears=[];
  for(const side of [-1,1]){
   // The eye is a layered anime iris, not a single glossy black bead.
@@ -204,12 +172,11 @@ export function createRaceHorse(T,scene,h,silkHex,frameCapHex='#89929B',frameCap
   // A hand-painted decal avoids the old round black-button-eyed look.
   const eyeMat=new T.MeshBasicMaterial({map:paintedEye(T),transparent:true,
     side:T.DoubleSide,depthWrite:false,polygonOffset:true,polygonOffsetFactor:-1});
-  const eye=new T.Mesh(new T.PlaneGeometry(.465,.520),eyeMat);
+  const eye=new T.Mesh(new T.PlaneGeometry(.315,.280),eyeMat);
   eye.position.set(side*.397,.086,.249);eye.rotation.y=side*1.08;headRig.add(eye);
   // Ink eyebrows and warm blush make the pony appear expressive.
   const eyebrow=ell(headRig,mane,side*.349,.319,.213,.038,.022,.148);
   eyebrow.rotation.x=-side*.18;
-  ell(headRig,cheekPink,side*.327,-.251,.358,.040,.086,.112);
   // Tiny jointed floppy ears; rosy interiors remain readable on iPhone.
   const earRig=new T.Group();
   earRig.position.set(side*.235,.496,-.111);
@@ -260,13 +227,13 @@ export function createRaceHorse(T,scene,h,silkHex,frameCapHex='#89929B',frameCap
  }
  // Neck crest is light and tufted so the horse reads as a character.
  for(let i=0;i<9;i++){
-  const z=1.45-i*.09,y=2.46-i*.069;
+  const z=1.53-i*.09,y=2.74-i*.069;
   ell(anim,mane,0,y,z,.107,.101,.111);
   tuft(anim,i%3===0?maneLight:mane,0,y+.067,z-.02,.086,.20,.10,
    -.20,i%2===0?.19:-.16);
  }
  // Layered flowing tail — a fan of glossy manga hair, not rigid sticks.
- const tailRig=new T.Group();tailRig.position.set(0,1.83,-1.44);anim.add(tailRig);
+ const tailRig=new T.Group();tailRig.position.set(0,2.11,-1.53);anim.add(tailRig);
  ell(tailRig,mane,0,-.090,-.275,.192,.197,.40);
  for(let i=-3;i<=3;i++){
   const x=i*.072;
@@ -282,15 +249,15 @@ export function createRaceHorse(T,scene,h,silkHex,frameCapHex='#89929B',frameCap
   const ribbon=tuft(rig,i%2?maneLight:mane,0,-.14,-.16,.063,.32,.08,-1.07,i*.09);
   tailStrands.push({rig,phase:i*.67});
  }
- // Short stout cartoon legs. Preserve the four-pose hierarchy for
+ // Articulated, longer racing legs. Preserve the four-pose hierarchy for
  // chibi-gallop-v1.js, but physically lower the hip pivots as we shorten
  // the bones so the resting hoof still touches the ground.
  const legs=[];
  for(const front of [true,false])for(const side of [-1,1]){
-  const upper=front?.56:.58,lower=.58;
+  const upper=front?.71:.73,lower=.70;
   const pivot=new T.Group();
-  pivot.position.set(side*.45,1.025,front?.67:-.98);
-  pivot.scale.set(1.23,.91,1.12);anim.add(pivot);
+  pivot.position.set(side*.42,1.40,front?.74:-1.04);
+  pivot.scale.set(.88,1,.90);anim.add(pivot);
   // Rounded plush upper limb with a gentle taper into the knee.
   const muscle=ell(pivot,coat,0,-upper*.37,0,front?.245:.275,upper*.66,.215);
   const knee=new T.Group();knee.position.set(0,-upper,0);pivot.add(knee);
@@ -308,7 +275,7 @@ export function createRaceHorse(T,scene,h,silkHex,frameCapHex='#89929B',frameCap
   legs.push({pivot,knee,front,side,upper,lower});
  }
  // Jockey and saddlecloth (18 unique race numbers).
- ell(anim,leather,0,2.35,-.24,.57,.12,.65);
+ ell(anim,leather,0,2.63,-.24,.52,.12,.65);
  // JRA-inspired Japanese saddlecloth: large white race number and
  // the HORSE'S OWN NAME, both flanks. No floating number above its head.
  // The cloth is deep indigo and deliberately distinct from frame-cap colors.
@@ -331,12 +298,13 @@ export function createRaceHorse(T,scene,h,silkHex,frameCapHex='#89929B',frameCap
  const clothMat=new T.MeshBasicMaterial({map:clothTex,side:T.DoubleSide});
  for(const side of [-1,1]){
   const p=new T.Mesh(new T.PlaneGeometry(1.31,1.12),clothMat);
-  p.position.set(side*.833,1.85,-.20);
+  p.position.set(side*.750,2.08,-.20);
   p.rotation.y=side*Math.PI/2;anim.add(p);
  }
- // Cute anime/chibi jockey. A full-face helmet, shiny eyes and flying hair
+ // Cel-shaded jockey. A full-face helmet, shiny eyes and flying hair
  // match the reference illustration while the original silks remain per runner.
- const rider=new T.Group();anim.add(rider);
+ const riderMount=new T.Group();riderMount.position.y=.28;anim.add(riderMount);
+ const rider=new T.Group();riderMount.add(rider);
  // Extra wind-swept jacket/scarf is rigged separately for readable sprinting.
  const flutter=new T.Group();rider.add(flutter);
  flutter.position.set(0,2.73,-.19);
@@ -356,18 +324,11 @@ export function createRaceHorse(T,scene,h,silkHex,frameCapHex='#89929B',frameCap
  // Big round face, around 65% of helmet width.
  lined(rider,skin,0,3.035,.455,.295,.283,.278);
  ell(rider,skinShade,0,2.844,.618,.18,.061,.12);
- // Tiny friendly mouth and two large shining eyes on the facing side.
- ell(rider,skinShade,0,2.988,.726,.045,.018,.012);
+ // Small goggles and a tucked riding face; no oversized face decals.
+ ell(rider,leather,0,3.085,.706,.245,.074,.042);
  for(const side of [-1,1]){
-  ell(rider,shine,side*.124,3.068,.694,.070,.095,.025);
-  ell(rider,iris,side*.121,3.060,.721,.055,.079,.023);
-  ell(rider,pupil,side*.122,3.058,.739,.038,.065,.015);
-  ell(rider,shine,side*.104,3.099,.756,.018,.021,.009);
-  ell(rider,cheekPink,side*.235,2.989,.645,.024,.045,.048);
-  // Side locks behind the cheeks and streamed back in the wind.
-  ell(rider,hair,side*.267,3.040,.295,.091,.205,.116);
-  ell(rider,hair,side*.34,2.975,.05,.12,.118,.28);
-  tuft(rider,hair,side*.35,2.92,-.16,.11,.29,.11,-1.17,side*.15);
+  ell(rider,metal,side*.115,3.087,.741,.099,.057,.027);
+  ell(rider,hair,side*.245,3.008,.304,.060,.104,.071);
  }
  // JRA official frame-coloured jockey cap. Body/crown/front panel/peak use
  // the SAME frame colour. The narrow contrasting seam keeps white and black
@@ -411,5 +372,6 @@ export function createRaceHorse(T,scene,h,silkHex,frameCapHex='#89929B',frameCap
  // No head-top billboard: only the saddlecloth carries number/name.
  const sprite=null;
  scene.add(root);
- return {root,anim,rider,headRig,tailRig,legs,ears,maneStrands,tailStrands,flutter,sprite,shadow,artDirection:'anime-pony-v20-saddlecloth'};
+ return {root,anim,rider,headRig,tailRig,legs,ears,maneStrands,tailStrands,flutter,sprite,shadow,artDirection:'cel-racehorse-v10'};
 }
+

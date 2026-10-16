@@ -216,150 +216,79 @@ assert.match(premiumCSS,/premium-focus/);
 assert.match(premiumCSS,/\.bar:first-child \.fill/);
 assert.match(premiumCSS,/--ui-gold/);
 
+// Meaningful playback contracts: four cuts, side geometry and continuous run-out.
 const cinemaJS=read('assets/race-cinematics.js'),cinemaCSS=read('assets/race-cinematics.css');
-const {createRaceCinematics}=await import('data:text/javascript;base64,'+
- Buffer.from(cinemaJS.replace(/^import .*?;$/gm,'')).toString('base64'));
-const {chooseRaceShot,RACE_SHOT_LIST}=await load('assets/race-shotlist.js');
-assert.deepEqual(RACE_SHOT_LIST.map(x=>x.id),[
- 'start','second-turn','fourth-turn','straight','result']);
-assert.equal(chooseRaceShot(0).id,'start');
-assert.equal(chooseRaceShot(.17).id,'start');
-assert.equal(chooseRaceShot(.2).id,'second-turn');
-assert.equal(chooseRaceShot(.7).id,'fourth-turn');
-assert.equal(chooseRaceShot(.9).id,'straight');
-assert.equal(chooseRaceShot(1).id,'result');
-assert.ok(RACE_SHOT_LIST.every(x=>x.side>=0),'camera must not reverse geography across rail');
-assert.ok(RACE_SHOT_LIST.every(x=>x.ahead>=0),'shot views always in front of field');
-assert.ok(RACE_SHOT_LIST.every(x=>x.fov>=40&&x.fov<=70),'all shots remain legible');
-assert.ok(RACE_SHOT_LIST[0].height>=14&&RACE_SHOT_LIST[0].ahead>=60,'all seventeen fit gate shot');
-assert.equal(typeof createRaceCinematics,'function');
-assert.match(cinemaJS,/className|race-cinematic-overlay|race-cinematic-overlay/);
-assert.match(cinemaJS,/camera\.fov/,'film camera must actually direct the 3D view');
-assert.match(cinemaJS,/THREE\.InstancedMesh/,'dynamic hoof-turf spray instancing');
-assert.match(cinemaJS,/cinema-duel/);
-assert.match(cinemaJS,/cinema-finish/);
-assert.match(cinemaJS,/models\.map/);
-assert.match(cinemaCSS,/@keyframes cinema-speed/);
-assert.match(cinemaCSS,/@keyframes cinema-fall/);
-assert.match(cinemaCSS,/#race-cinematic-overlay/);
+const {RACE_SHOT_LIST,chooseRaceShot,raceCameraPose,courseShotCuts}=await load('assets/race-shotlist.js');
+const {FINISH_GAP,runOutProgress,playbackEnd,playbackRate,finishCrossings}=await load('assets/race-playback.js');
+assert.deepEqual(RACE_SHOT_LIST.map(s=>s.id),['start','second-turn','third-turn','straight']);
+const visited=[];
+for(let p=0;p<1.25;p+=.001){const id=chooseRaceShot(p).id;if(visited.at(-1)!==id)visited.push(id);}
+assert.deepEqual(visited,RACE_SHOT_LIST.map(s=>s.id),'exactly four compositions including the entire run-out');
+for(let i=0;i<3;i++){
+ const boundary=RACE_SHOT_LIST[i].until;
+ assert.equal(chooseRaceShot(boundary-1e-8).id,RACE_SHOT_LIST[i].id);
+ assert.equal(chooseRaceShot(boundary).id,RACE_SHOT_LIST[i+1].id);
+}
+assert.equal(chooseRaceShot(NaN).id,'start');
+assert.equal(chooseRaceShot(-1).id,'start');
+assert.deepEqual(courseShotCuts(null,0,{venue:'東京'}),[.18,.52,.80,Infinity]);
+for(const angle of [0,Math.PI/2,Math.PI,Math.PI*1.5]){
+ const dx=Math.sin(angle),dz=Math.cos(angle),path=p=>({x:p*500*dx,y:0,z:p*500*dz,dx,dz});
+ for(const aspect of [.5,.75,1,1.78,2.4]){
+  for(const id of ['start','straight']){
+   const shot=RACE_SHOT_LIST.find(s=>s.id===id),progress=id==='start'?0:.99;
+   const order=Array.from({length:17},(_,i)=>({no:i+1,p:progress-i*.0038}));
+   const pose=raceCameraPose({shot,progress,order,path,aspect});
+   const forwardDot=(pose.position.x-pose.look.x)*dx+(pose.position.z-pose.look.z)*dz;
+   assert.ok(Math.abs(forwardDot)<1e-8,'start and straight must look exactly across the running direction');
+   assert.ok(pose.side>0,'camera remains on the same rail side');
+   if(id==='straight'){
+    const later=raceCameraPose({shot,progress:1,order:order.map(o=>({...o,p:o.p+.13})),path,aspect});
+    assert.deepEqual(pose,later,'camera locks to finish so the runners leave the frame');
+   }
+  }
+ }
+}
+assert.ok(RACE_SHOT_LIST[2].height>RACE_SHOT_LIST[2].side,'third turn is an overhead composition');
+assert.ok(RACE_SHOT_LIST[1].side<RACE_SHOT_LIST[0].side,'2C is closer than start');
+for(const field of [3,6,17,18])for(const duration of [68,120,180]){
+ const rank=Array.from({length:field},(_,i)=>field-i);
+ assert.deepEqual(finishCrossings(rank,duration-1e-5,duration),[]);
+ assert.deepEqual(finishCrossings(rank,duration,duration),rank.slice(0,1));
+ for(let r=0;r<field;r++){
+  assert.equal(runOutProgress(r,0,duration),1-r*FINISH_GAP,'position continuous at finish');
+  let previous=runOutProgress(r,0,duration);
+  for(let t=.01;t<28;t+=.1){
+   const current=runOutProgress(r,t,duration);
+   assert.ok(current>previous,'every horse continues after the winner crosses');previous=current;
+  }
+  const crossing=duration*(1+r*FINISH_GAP);
+  assert.ok(Math.abs(runOutProgress(r,crossing-duration,duration)-1)<1e-10);
+  assert.deepEqual(finishCrossings(rank,crossing,duration),rank.slice(0,r+1),'canonical rank preserved');
+  assert.ok(runOutProgress(r,playbackEnd(duration,field)-duration,duration)>=1.159999,'everyone exits camera before stopping');
+ }
+}
+assert.equal(playbackRate(16,119,120),16);
+assert.equal(playbackRate(16,120,120),2);
+assert.equal(playbackRate(1,121,120),1);
+for(const name of ['assets/race-cinematics.js','assets/race-shotlist.js','assets/race-playback.js','assets/chibi-gallop.js']){
+ const source=read(name).replace(/^import .*?;$/gm,'').replace(/export (function|const)/g,'$1');
+ assert.doesNotThrow(()=>new Function(source),name+' syntax');
+}
+assert.doesNotMatch(cinemaJS,/SIM\.simulate|LOOP\.evaluate|horseProgress\s*=|scores\(/,'director never recalculates prediction');
+assert.doesNotMatch(render,/photoHorseProgress|photoVisualTime|photo\.active/,'obsolete automatic freezes removed');
+assert.match(render,/continuousRunOut:true/);
+assert.match(render,/goalBehindHorses/);
+assert.match(render,/offsetPoint\(1,half\+6,0\)/);
+assert.match(read('assets/kyoto-goal-board.js'),/offsetPoint\(1,half\+3\.7,0\)/);
+assert.match(read('assets/kyoto-goal-board.js'),/for\(const sign of \[1\]\)/,'no near-side goal pole');
+assert.match(render,/Math\.max\(0,t-1\)\*routeLength\*W/,'render path extends beyond goal');
+assert.match(render,/goalRig\.rotation\.y=Math\.atan2\(goalDir\.dx,goalDir\.dz\)\+Math\.PI\/2/);
 assert.match(cinemaCSS,/prefers-reduced-motion/);
-assert.match(render,/await import\("\.\/assets\/race-cinematics\.js\?v=cinema-v8"\)/);
-assert.match(render,/cinematics\.update\(\{clock,progress:raceProgress,order,finishOrder:LIVE\.rank,frameDt,camera,desired,look,rate\}\)/);
-assert.match(render,/camera:'start-2c-4c-sidefinish'/);
-const gallop=read('assets/chibi-gallop.js');
-assert.doesNotThrow(()=>new Function(gallop.replace('export function updateGallop','function updateGallop')));
-assert.match(gallop,/const sprint=smooth/);
-assert.match(gallop,/model\.rider\.rotation\.x/);
-assert.match(render,/updateGallop\(m,clock,visualTime,h\.no,Math\.min\(1,clock\/LIVE\.duration\)\)/);
-assert.match(render,/horse-anime\.js\?v=cinema-v6/);
-assert.match(render,/chibi-gallop\.js\?v=cinema-v5/);
-assert.match(read('assets/horse-anime.js'),/return \{root,anim,rider/);
-assert.match(render,/models\.length===HS\.length/,'live field count not a fixed 18');
-assert.match(render,/m\.artDirection==='anime-pony-v20-saddlecloth'/,'actual v18 horse rig must be accepted');
-assert.doesNotMatch(render,/models\.every\(m=>m\.artDirection==='anime-pony-v17-softplush'/,'never reject current models with stale version tag');
-assert.match(render,/await import\('\.\/vendor\/three\.module\.js\?v=three-0\.160\.0'\)/,'same origin hosted Three.js required');
-assert.doesNotMatch(render,/cdn\.jsdelivr\.net\/npm\/three@/,'do not silently fall back because third-party CDN is blocked');
-
-
-assert.doesNotMatch(render,/if\(mode==='horse'\)|if\(mode==='wide'\)/,'manual camera modes must be removed');
-assert.match(html,/assets\/race-cinematics\.css\?v=cinema-v9/);
-assert.match(html,/import\('\.\/renderer\.js\?v=cinema-v9'\)/);
-assert.match(html,/CINEMATIC 3D RACE/);
-assert.doesNotMatch(cinemaJS,/SIM\.simulate|LOOP\.evaluate|horseProgress\s*=|scores\(/,'camera must not compute forecast scores');
-
-const animeV20=read('assets/horse-anime.js');
-assert.match(animeV20,/maneStrands,tailStrands,flutter/);
-assert.match(animeV20,/tailStrands\.push/);
-assert.match(animeV20,/maneStrands\.push/);
-assert.match(gallop,/\[\.875/);
-assert.match(gallop,/maneStrands\?\.forEach/);
-assert.match(gallop,/tailStrands\?\.forEach/);
-assert.match(gallop,/model\.flutter\.rotation/);
-assert.doesNotMatch(gallop,/SIM\.simulate|LOOP\.evaluate|horseProgress\s*=/);
-assert.match(cinemaJS,/finishOrder\.slice\(0,3\)/);
-assert.match(cinemaJS,/cinema-podium-row/);
-assert.match(cinemaJS,/medals=\['🥇','🥈','🥉'\]/);
-assert.match(cinemaJS,/finishChanged\|\|clock!==lastClock/);
-assert.match(cinemaJS,/chooseRaceShot\(p\)/);
-assert.match(cinemaJS,/window\.RACE_CINEMATIC_DEBUG/);
-assert.match(cinemaJS,/return \{cut,shot:shot\.id\}/);
-assert.match(render,/const stableAlpha/);
-assert.match(animeV20,/ears\.push/);
-assert.match(gallop,/model\.ears\?\.forEach/);
-assert.match(cinemaCSS,/V5: 16x speed broadcast direction/);
-assert.match(cinemaCSS,/cinema-phase.*top:58px|top:58px!important/);
-assert.match(cinemaCSS,/cinema-duel.*bottom:10px|bottom:10px!important/);
-assert.match(cinemaCSS,/\.cinema-podium-row/);
-assert.match(cinemaCSS,/\.cinema-podium-3/);
-assert.match(cinemaCSS,/@media \(max-width:700px\) and \(orientation:portrait\)/);
+assert.match(cinemaCSS,/env\(safe-area-inset-bottom/);
 assert.match(cinemaCSS,/height:100dvh/);
-assert.match(cinemaCSS,/grid-template-rows:35px minmax\(0,1fr\) 22px 49px 24px 78px/);
-assert.match(cinemaCSS,/\.hero-race \.top3-results/);
-assert.match(cinemaCSS,/\.hero-race \.live-buttons/);
-assert.match(cinemaCSS,/\.hero-race #three-stage\{display:block;height:100%!important/);
-assert.match(cinemaCSS,/body>header,\.premium-nav\{display:none!important/);
-console.log('3-place canonical finish, frontal camera, articulated rigs and one-screen mobile layout ✓');
-
-
-assert.match(read('app.js'),/data-course-model','kyoto-2000-inner-4turns'/);
-assert.match(read('app.js'),/M 475 411 L 210 411/);
-assert.match(render,/assets\/jra-furlong-posts\.js\?v=geo-v6/);
-assert.doesNotMatch(render,/for\(let meters of \[1000,800,600,400,200\]/);
-assert.match(render,/saddleclothNames:true/);
-assert.match(render,/furlongDigits:furlongPosts/);
-const posts=read('assets/jra-furlong-posts.js');
-assert.match(posts,/for\(let meters=200;meters<distance;meters\+=200\)/);
-assert.match(posts,/String\(meters\/100\)/);
-assert.match(posts,/CylinderGeometry/);
-assert.match(posts,/SphereGeometry|CanvasTexture/);
-assert.match(cinemaJS,/id='race-course-guide'/);
-assert.match(cinemaJS,/routeDot\.setAttribute\('cx'/);
-assert.match(cinemaJS,/scriptedCuts:4,mode:'16x-side-finish'/);
-assert.match(render,/camera\.position\.lerp\(desired,stableAlpha\)/);
-assert.doesNotMatch(render,/if\(first\|\|shotDirection\?\.cut\)/);
-assert.match(animeV20,/g\.fillText\(name,256,379,462\)/);
-assert.match(animeV20,/const sprite=null;/);
-assert.doesNotMatch(animeV20,/sprite\.position\.set\(0,4\.04/);
-assert.doesNotMatch(render,/m\.sprite\.material\.opacity=/);
-assert.match(cinemaCSS,/#race-course-guide/);
-
-const photoModule=await load('assets/photo-finish.js');
-const {photoPhase,photoHorseProgress,photoVisualTime}=photoModule;
-assert.equal(photoPhase(0).id,'first');
-assert.equal(photoPhase(.5).id,'approach-second');
-assert.equal(photoPhase(.80).id,'second');
-assert.equal(photoPhase(1.2).id,'approach-third');
-assert.equal(photoPhase(1.6).id,'third');
-assert.equal(photoPhase(1.85).id,'result');
-assert.equal(photoVisualTime(.2),0,'first arrival really freezes');
-assert.equal(photoVisualTime(.92),photoVisualTime(.73),'2nd crossing holds');
-assert.equal(photoVisualTime(1.60),photoVisualTime(1.48),'3rd crossing holds');
-assert.equal(photoHorseProgress(6,.991,[8,6,3],.0),.991);
-assert.equal(photoHorseProgress(6,.991,[8,6,3],.73),1);
-assert.equal(photoHorseProgress(3,.984,[8,6,3],1.48),1);
-assert.equal(photoHorseProgress(4,.982,[8,6,3],2),.982);
-assert.match(render,/kyoto-goal-board\.js\?v=goal-v8/);
-assert.match(render,/gateRoot\.visible=clock<=Math\.min\(6,LIVE\.duration\*\.055\)/);
-assert.match(render,/photoHorseProgress\(h\.no,base,LIVE\.rank/);
-assert.match(read('app.js'),/playbackAtFinish=true/);
-assert.match(render,/LIVE\.playbackAtFinish/);
-assert.match(render,/photo\.completed/);
-assert.match(render,/window\.RACE_SCENE_AUDIT/);
-assert.match(render,/window\.RACE_PHOTO_DEBUG/);
-assert.match(cinemaCSS,/#race-photo-cue/);
-const finishPost=read('assets/kyoto-goal-board.js');
-assert.match(finishPost,/KYOTO|\\.fillText\('K'/);
-assert.match(finishPost,/2023–present/);
-assert.match(finishPost,/half\*2/);
-assert.ok(RACE_SHOT_LIST[1].ahead<RACE_SHOT_LIST[0].ahead,'2角はスタートより寄り');
-assert.equal(RACE_SHOT_LIST[3].id,'straight');
-assert.ok(RACE_SHOT_LIST[3].side>=20&&RACE_SHOT_LIST[3].ahead<=5,'直線は横方向から');
-console.log('Four exact race cuts, Kyoto finish board, hidden gate and 3 x brief photo holds ✓');
-
-console.log('4 consistent geographic shots, full-field start, JRA furlong plates, Japanese name cloth and no head badge ✓');
-
-console.log('3D cinematic director, live horse race effects, 2D fallback and mobile direction ✓');
-
-console.log('Premium mobile controls, responsiveness and unchanged Monte Carlo entry point ✓');
-
-console.log('Shared UI references, Tokyo left-hand course, variable gates and legacy link ✓');
+assert.match(cinemaJS,/finishOrder\.slice\(0,3\)/);
+assert.match(render,/cel-racehorse-v10/);
+assert.match(anime,/cel-racehorse-v10/);
+assert.match(html,/broadcast-v10/);
+console.log('Four cuts, perpendicular side cameras, fixed far-side finish, continuous all-horse run-out, exact rank and responsive HUD ✓');
