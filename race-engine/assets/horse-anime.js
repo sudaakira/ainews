@@ -355,5 +355,5 @@ export function createRaceHorse(T,scene,h,silkHex,frameCapHex='#89929B',frameCap
  const sprite=new T.Sprite(new T.SpriteMaterial({map:new T.CanvasTexture(label),transparent:true,depthTest:false}));
  sprite.position.set(0,4.04,0);sprite.scale.set(.73,.73,1);root.add(sprite);
  scene.add(root);
- return {root,anim,headRig,tailRig,legs,sprite,shadow,artDirection:'anime-pony-v17-softplush'};
+ return {root,anim,rider,headRig,tailRig,legs,sprite,shadow,artDirection:'anime-pony-v17-softplush'};
 }
