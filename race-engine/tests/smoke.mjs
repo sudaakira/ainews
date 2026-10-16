@@ -115,6 +115,24 @@ for(const id of ['swan-2026','sample-demo','tokyo-20261012-11','tokyo-20261012-1
   assert.equal(config.inputs[8][1],87,'Monroe Walk lap input follows horse identity');
   assert.equal(config.horses.find(h=>h.name==='ドリームコア').trainingScore,73);
   assert.equal(config.horses.find(h=>h.name==='モンローウォーク').trainingScore,90);
+  const monroe=config.horses.find(h=>h.name==='モンローウォーク');
+  assert.equal(monroe.sd,10);
+  assert.deepEqual(config.inputs[monroe.no],[79,89,84,69,74]);
+  assert.deepEqual(monroe.evaluationAudit.previous,{course:75,lap:87,blood:68,distance:66,sd:9});
+  assert.deepEqual(monroe.evaluationAudit.revised,{course:79,lap:89,blood:84,distance:74,sd:10});
+  assert.ok(monroe.evaluationAudit.sources.blood.includes('jra-van.jp'));
+  assert.equal(config.rebalanceReview.other16HorseInputsUnchanged,true);
+  assert.equal(config.rebalanceReview.scoreWeightsUnchanged,true);
+  const oldMonroe=JSON.parse(JSON.stringify(config));
+  const oldHorse=oldMonroe.horses.find(h=>h.name==='モンローウォーク');
+  oldMonroe.inputs[monroe.no]=[75,87,68,69,66];oldHorse.sd=9;
+  const oldLoop=createRegression(oldMonroe,createFactors(oldMonroe)),oldSim=createSimulator(oldMonroe,oldLoop);
+  const simParams={...options,pace:config.defaultPace};
+  const adjusted=sim.simulate(simParams,2000,config.seed);
+  const previous=oldSim.simulate({...simParams,weights:oldLoop.DEFAULTS},2000,config.seed);
+  assert.ok(adjusted[monroe.no-1].p3>previous[monroe.no-1].p3,'evidence-backed rating must change a real simulation');
+  assert.equal(adjusted.length,17);
+
   assert.equal(config.horses.find(h=>h.name==='ラベルセーヌ').trainingScore,90);
   assert.equal(config.factors.draw.length,9);
   assert.equal(config.factors.draw[4].p3,5);
@@ -165,10 +183,11 @@ assert.match(render,/jockeyCap\(h,config,horse=>window\.SWAN_FACTORS\.frame\(hor
 assert.match(render,/frameCap\.hex,frameCap\.outline,frameCap\.pattern/);
 assert.match(app,/const cap=capFor\(h\)/);
 assert.match(app,/jra-jockey-cap-legend/);
+assert.match(app,/h\.evaluationAudit/);
 assert.match(anime,/lined\(rider,helmetFrame/);
 assert.match(anime,/frameCapPattern==='quartered'/);
 assert.doesNotMatch(anime,/helmetWhite/);
-assert.match(html,/shared-v8/);
+assert.match(html,/shared-v9/);
 assert.match(read('../swan-2026/index.html'),/race-engine\/\?race=swan-2026/);
 assert.match(render,/config.direction==='左'/);
 assert.match(render,/config.courseView==='tokyo-2000'/);
