@@ -248,8 +248,8 @@ assert.doesNotMatch(render,/cdn\.jsdelivr\.net\/npm\/three@/,'do not silently fa
 
 
 assert.doesNotMatch(render,/if\(mode==='horse'\)|if\(mode==='wide'\)/,'manual camera modes must be removed');
-assert.match(html,/assets\/race-cinematics\.css\?v=cinema-v3/);
-assert.match(html,/import\('\.\/renderer\.js\?v=cinema-v3'\)/);
+assert.match(html,/assets\/race-cinematics\.css\?v=cinema-v4/);
+assert.match(html,/import\('\.\/renderer\.js\?v=cinema-v4'\)/);
 assert.match(html,/CINEMATIC 3D RACE/);
 assert.doesNotMatch(cinemaJS,/SIM\.simulate|LOOP\.evaluate|horseProgress\s*=|scores\(/,'camera must not compute forecast scores');
 
