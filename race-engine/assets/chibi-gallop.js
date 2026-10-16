@@ -1,57 +1,84 @@
-// Chibi sprite-like gallop v1.
-// Deliberately uses five hand-shaped silhouette poses, smooth transitions,
-// short chunky limbs, a grouped rear kick and compact front-leg recovery.
-// It is stylized game animation, NOT a realistic biomechanical gait.
+/**
+ * Anime gallop v3 — articulated four-leg silhouette with secondary motion.
+ * Visual-only rig: reads visualTime and raceProgress, NEVER touches model speed,
+ * race order, RNG, horseProgress, or prediction data.
+ */
 export function updateGallop(model,raceTime,visualTime,number,raceProgress=0){
  const clamp=(x,a,b)=>Math.max(a,Math.min(b,x));
  const lerp=(a,b,t)=>a+(b-a)*t;
- const ease=t=>t*t*(3-2*t);
- const active=ease(clamp((raceTime-.09)/1.05,0,1));
- const sprint=ease(clamp((raceProgress-.77)/.2,0,1));
+ const smooth=t=>t*t*(3-2*t);
+ const active=smooth(clamp((raceTime-.08)/.85,0,1));
+ const sprint=smooth(clamp((raceProgress-.75)/.20,0,1));
  const legs=model.legs;
- if(!active){
+ if(active===0){
   model.anim.position.y=0;
-  model.anim.rotation.x=0;
-  model.anim.rotation.z=0;
-  model.headRig.rotation.x=0;
-  model.tailRig.rotation.x=0;
-  model.tailRig.rotation.z=0;
-  for(const leg of legs){leg.pivot.rotation.x=0;leg.knee.rotation.x=0}
-  if(model.rider){model.rider.position.y=0;model.rider.rotation.x=0}
+  model.anim.rotation.set(0,0,0);
+  model.headRig.rotation.set(0,0,0);
+  model.tailRig.rotation.set(0,0,0);
+  for(const leg of legs){leg.pivot.rotation.set(0,0,0);leg.knee.rotation.set(0,0,0);}
+  if(model.rider){model.rider.position.y=0;model.rider.rotation.set(0,0,0);}
+  model.maneStrands?.forEach(x=>x.rig.rotation.set(0,0,0));
+  model.tailStrands?.forEach(x=>x.rig.rotation.set(0,0,0));
+  if(model.flutter)model.flutter.rotation.set(0,0,0);
+  if(model.shadow)model.shadow.material.opacity=.20;
   return;
  }
- const time=((visualTime*1.66+number*.013)%1+1)%1;
- // [cycle, 4 hips (fore L, fore R, hind L, hind R),
- // 4 knee bends, vertical bob, body pitch, head nod].
+ const phase=((visualTime*1.62+number*.014)%1+1)%1;
+ // Eight distinct poses keep impact, suspension, stretching and recovery
+ // readable in frontal 3/4 closeups, unlike the former five chunky poses.
+ // Order of legs: near front, far front, near hind, far hind.
  const poses=[
-  [0.00,[-.55,-.62,.54,.60],[.40,.48,-.78,-.86],.065,-.018,-.03],
-  [.20,[-.92,-.82,.80,.71],[.22,.29,-.37,-.45],.125,.015,.025],
-  [.40,[-.10,.01,-.22,-.15],[1.06,.96,-1.28,-1.18],.163,.037,.015],
-  [.60,[.47,.58,-.52,-.63],[.53,.43,-.85,-.72],.086,-.007,-.025],
-  [.80,[.21,.10,.20,.11],[.86,.78,-1.02,-1.13],.035,-.034,-.032],
-  [1.00,[-.55,-.62,.54,.60],[.40,.48,-.78,-.86],.065,-.018,-.03]
+  [0.000,[-.66,-.76,.60,.71],[.32,.42,-.80,-.93],.075,-.021,-.024],
+  [.125,[-1.00,-.89,.88,.79],[.22,.30,-.44,-.58],.125,.014,.010],
+  [.250,[-1.02,-.88,.55,.49],[.45,.57,-.64,-.72],.193,.058,.038],
+  [.375,[-.30,-.18,-.31,-.25],[1.13,1.02,-1.37,-1.26],.225,.047,.054],
+  [.500,[.42,.54,-.76,-.84],[.72,.63,-1.06,-.95],.143,-.012,-.022],
+  [.625,[.70,.84,-.54,-.62],[.38,.26,-.78,-.84],.067,-.045,-.055],
+  [.750,[.32,.24,.12,.02],[.85,.95,-1.06,-1.16],.037,-.039,-.043],
+  [.875,[-.19,-.34,.40,.53],[.67,.58,-.91,-1.02],.065,-.016,-.037],
+  [1.000,[-.66,-.76,.60,.71],[.32,.42,-.80,-.93],.075,-.021,-.024]
  ];
  let idx=0;
- while(idx<poses.length-2&&time>=poses[idx+1][0])idx++;
+ while(idx<poses.length-2&&phase>=poses[idx+1][0])idx++;
  const a=poses[idx],b=poses[idx+1];
- const t=ease(clamp((time-a[0])/(b[0]-a[0]),0,1));
+ const t=smooth(clamp((phase-a[0])/(b[0]-a[0]),0,1));
+ const pi2=Math.PI*2;
  for(let i=0;i<legs.length;i++){
-  const hip=lerp(a[1][i],b[1][i],t);
-  const knee=lerp(a[2][i],b[2][i],t);
-  legs[i].pivot.rotation.x=hip*active*(1+.16*sprint);
-  legs[i].knee.rotation.x=knee*active*(1+.10*sprint);
+  const step=lerp(a[1][i],b[1][i],t);
+  const bend=lerp(a[2][i],b[2][i],t);
+  legs[i].pivot.rotation.x=step*active*(1+.13*sprint);
+  legs[i].knee.rotation.x=bend*active*(1+.15*sprint);
+  // Tiny opposite-plane offsets give the front view true spatial depth.
+  legs[i].pivot.rotation.z=((i%2?-.055:.055)*Math.sin(phase*pi2+i*.26))*active;
  }
- // Bounce provides the sense of takeoff. Subtle head motion
- // keeps the cute oversized face steady and recognizable.
- model.anim.position.y=lerp(a[3],b[3],t)*active;
+ const bounce=lerp(a[3],b[3],t);
+ model.anim.position.y=bounce*active*(1+.15*sprint);
  model.anim.rotation.x=lerp(a[4],b[4],t)*active;
- model.headRig.rotation.x=lerp(a[5],b[5],t)*active;
- model.tailRig.rotation.x=.10*Math.sin(time*Math.PI*2-.4)*active;
- model.tailRig.rotation.z=.043*Math.sin(time*Math.PI*2*.7+number)*active;
- // Final-straight visual surge only; no effect on horse speed or outcome.
- model.anim.rotation.z=.012*Math.sin(time*Math.PI*2+number)*active*(1+.3*sprint);
- if(model.rider){model.rider.position.y=.022*Math.sin(time*Math.PI*4+.3)*active;
-  model.rider.rotation.x=-.016*sprint+.009*Math.sin(time*Math.PI*2)*active;}
-
- if(model.shadow)model.shadow.material.opacity=.20-.07*clamp((model.anim.position.y-.04)/.13,0,1);
+ model.anim.rotation.z=(.013*Math.sin(pi2*phase+number*.38))*(1+.30*sprint)*active;
+ const nod=lerp(a[5],b[5],t)*active;
+ model.headRig.rotation.x=nod+.022*Math.sin(pi2*phase+.65)*active;
+ model.headRig.rotation.z=.012*Math.sin(pi2*phase*.5+number)*active;
+ model.tailRig.rotation.x=(.12+.15*sprint)*Math.sin(pi2*phase-.6)*active;
+ model.tailRig.rotation.z=(.105+.08*sprint)*Math.sin(pi2*phase*.75+number*.47)*active;
+ // Hair and tail have slightly lagged secondary spring-like waves.
+ model.maneStrands?.forEach(({rig,phase:offset},i)=>{
+  rig.rotation.x=(-.18-.20*sprint+.11*Math.sin(phase*pi2-1.1+offset))*active;
+  rig.rotation.z=.14*Math.sin(phase*pi2*.77+offset+i*.3)*active;
+ });
+ model.tailStrands?.forEach(({rig,phase:offset},i)=>{
+  rig.rotation.x=(.10+.26*sprint)*Math.sin(phase*pi2-.90+offset)*active;
+  rig.rotation.z=(.21+.1*sprint)*Math.sin(phase*pi2*.84+offset+i*.22)*active;
+ });
+ if(model.rider){
+  const landing=smooth(clamp((bounce-.07)/.14,0,1));
+  model.rider.position.y=(.018*Math.sin(pi2*phase*2+.3)+landing*.032)*active;
+  model.rider.rotation.x=(-.030-.063*sprint+.024*Math.sin(pi2*phase+.48))*active;
+  model.rider.rotation.z=.017*Math.sin(pi2*phase-.6)*active;
+ }
+ if(model.flutter){
+  model.flutter.rotation.x=(.10+.22*sprint+.08*Math.sin(pi2*phase-1.4))*active;
+  model.flutter.rotation.z=.08*Math.sin(pi2*phase*.7)*active;
+ }
+ if(model.shadow)
+  model.shadow.material.opacity=.23-.095*clamp(bounce/.22,0,1);
 }
