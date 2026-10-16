@@ -37,6 +37,14 @@ jobs:
           cp /tmp/race-three/node_modules/three/build/three.module.js _site/race-engine/vendor/three.module.js
           cp /tmp/race-three/node_modules/three/LICENSE _site/race-engine/vendor/THREE-LICENSE.txt
           test -s _site/race-engine/vendor/three.module.js
+      - name: Browser verification - actual mobile 3D and finish
+        run: |
+          npm install --no-save --no-audit --no-fund --prefix /tmp/race-playwright playwright@1.56.1
+          /tmp/race-playwright/node_modules/.bin/playwright install --with-deps chromium
+          python3 -m http.server 8765 --directory _site > /tmp/race-http.log 2>&1 &
+          server_pid=$!
+          trap 'kill $server_pid || true' EXIT
+          PLAYWRIGHT_ENTRY=/tmp/race-playwright/node_modules/playwright/index.mjs node race-engine/tests/mobile-browser.mjs
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
         with:
