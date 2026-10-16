@@ -140,7 +140,7 @@ header p:last-child{font-size:12px;opacity:.8}
 .horse-score-table{min-width:260px;margin:10px 0}
 .horse-score-table td:first-child{white-space:normal}
 @media(max-width:590px){.weight-controls{grid-template-columns:1fr}}
-</style></head><body>
+</style><link rel="stylesheet" href="./assets/premium-mobile.css?v=ui-v1"></head><body>
 <header><p>レース設定を読み込み中</p><h1>🏇 共通レースシミュレーター</h1><p>14項目の条件回帰ループ予想</p></header><div class="wrap"><div class="hero-race"><section class="card"><h2>🏇 出走馬レースシミュレーター</h2>
 <div class="live-sim" id="live-sim">
  <div class="live-head"><strong>🏇 3Dレースビュー</strong><span class="live-status" id="live-status">スタート待機</span></div>
@@ -213,6 +213,7 @@ try {
  window.RACE_SIM=createSimulator(config,window.SWAN_LOOP);
  await import('./app.js?v=shared-v9');
  await import('./renderer.js?v=shared-v9');
+ await import('./assets/premium-mobile.js?v=ui-v1');
 } catch(e){
  console.error('Race engine initialization failed',e);
  const errorBox=document.getElementById('bootstrap-error');
