@@ -91,6 +91,13 @@ try{
     el.value='982';el.dispatchEvent(new Event('input',{bubbles:true}));
    });
    await page.waitForFunction(()=>window.RACE_SCENE_AUDIT?.shot==='straight',null,{timeout:5000});
+   // Unlike the source-data shot change, the LIVE 3D camera eases into its
+   // sideways composition. Only measure when the physical projection settles.
+   await page.waitForFunction(()=>window.RACE_SCENE_AUDIT?.goalInFrame===true,null,{timeout:7000})
+    .catch(async error=>{
+     console.error('KYOTO GOAL IN CAMERA TIMEOUT',
+      await page.evaluate(()=>window.RACE_SCENE_AUDIT));throw error;
+    });
    const endScene=await page.evaluate(()=>window.RACE_SCENE_AUDIT);
    assert.equal(endScene.gateVisible,false,'starter stalls must not remain at GOAL');
    assert.equal(endScene.goalBoardVisible,true,'modern Kyoto board must exist');
