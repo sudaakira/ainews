@@ -309,14 +309,30 @@ export function createRaceHorse(T,scene,h,silkHex,frameCapHex='#89929B',frameCap
  }
  // Jockey and saddlecloth (18 unique race numbers).
  ell(anim,leather,0,2.35,-.24,.57,.12,.65);
- const c=document.createElement('canvas');c.width=256;c.height=256;const g=c.getContext('2d');
- g.fillStyle='#493177';g.fillRect(0,0,256,256);g.strokeStyle='#f5f5f0';g.lineWidth=8;g.strokeRect(8,8,240,240);
- g.fillStyle='#fff';g.font='bold 174px sans-serif';g.textAlign='center';g.textBaseline='middle';g.fillText(String(h.no),128,135);
- const clothTex=new T.CanvasTexture(c);clothTex.colorSpace=T.SRGBColorSpace;clothTex.magFilter=T.NearestFilter;clothTex.minFilter=T.NearestFilter;clothTex.generateMipmaps=false;
+ // JRA-inspired Japanese saddlecloth: large white race number and
+ // the HORSE'S OWN NAME, both flanks. No floating number above its head.
+ // The cloth is deep indigo and deliberately distinct from frame-cap colors.
+ const c=document.createElement('canvas');c.width=512;c.height=448;
+ const g=c.getContext('2d');
+ g.fillStyle='#2b2545';g.fillRect(0,0,c.width,c.height);
+ g.strokeStyle='#f5f3e6';g.lineWidth=14;g.strokeRect(12,12,488,424);
+ g.fillStyle='#e7d7a7';g.textAlign='left';g.textBaseline='middle';
+ g.font='bold 30px system-ui';g.fillText('JRA',28,47);
+ g.fillStyle='#ffffff';g.textAlign='center';g.textBaseline='middle';
+ g.font='900 260px sans-serif';g.fillText(String(h.no),256,198,465);
+ g.fillStyle='#e9d7a0';g.fillRect(30,310,452,3);
+ g.fillStyle='#fffdf4';
+ const name=String(h.name||'');
+ g.font='900 64px "Hiragino Kaku Gothic ProN","Yu Gothic","Noto Sans JP",sans-serif';
+ g.fillText(name,256,379,462);
+ const clothTex=new T.CanvasTexture(c);clothTex.colorSpace=T.SRGBColorSpace;
+ clothTex.magFilter=T.LinearFilter;clothTex.minFilter=T.LinearMipmapLinearFilter;
+ clothTex.anisotropy=4;
  const clothMat=new T.MeshBasicMaterial({map:clothTex,side:T.DoubleSide});
  for(const side of [-1,1]){
-  const p=new T.Mesh(new T.PlaneGeometry(1.17,1.00),clothMat);
-  p.position.set(side*.827,1.88,-.18);p.rotation.y=side*Math.PI/2;anim.add(p);
+  const p=new T.Mesh(new T.PlaneGeometry(1.31,1.12),clothMat);
+  p.position.set(side*.833,1.85,-.20);
+  p.rotation.y=side*Math.PI/2;anim.add(p);
  }
  // Cute anime/chibi jockey. A full-face helmet, shiny eyes and flying hair
  // match the reference illustration while the original silks remain per runner.
@@ -386,14 +402,9 @@ export function createRaceHorse(T,scene,h,silkHex,frameCapHex='#89929B',frameCap
   ell(rider,boot,side*.43,1.83,.362,.112,.109,.18);
   tube(rider,leather,[side*.353,2.581,.65],[side*.31,2.02,2.11],.014,.012);
  }
- // Ground shadow and unobtrusive number sprite.
- const shadow=new T.Mesh(new T.CircleGeometry(1,20),new T.MeshBasicMaterial({color:0x173c20,transparent:true,opacity:.20,depthWrite:false,side:T.DoubleSide}));
- shadow.rotation.x=-Math.PI/2;shadow.position.y=.018;shadow.scale.set(1,1.65,1);root.add(shadow);
- const label=document.createElement('canvas');label.width=128;label.height=128;const lg=label.getContext('2d');
- lg.fillStyle='#17306e';lg.beginPath();lg.arc(64,64,53,0,Math.PI*2);lg.fill();lg.strokeStyle='#fff';lg.lineWidth=6;lg.stroke();
- lg.fillStyle='#fff';lg.font='bold 64px sans-serif';lg.textAlign='center';lg.textBaseline='middle';lg.fillText(String(h.no),64,67);
- const sprite=new T.Sprite(new T.SpriteMaterial({map:new T.CanvasTexture(label),transparent:true,depthTest:false}));
- sprite.position.set(0,4.04,0);sprite.scale.set(.73,.73,1);root.add(sprite);
+ // No head-top billboard: the race number and the name are stitched into
+ // the saddlecloth panels, while the HUD identifies the contenders.
+ const sprite=null;
  scene.add(root);
- return {root,anim,rider,headRig,tailRig,legs,ears,maneStrands,tailStrands,flutter,sprite,shadow,artDirection:'anime-pony-v19-kawaii'};
+ return {root,anim,rider,headRig,tailRig,legs,ears,maneStrands,tailStrands,flutter,sprite,shadow,artDirection:'anime-pony-v20-saddlecloth'};
 }
