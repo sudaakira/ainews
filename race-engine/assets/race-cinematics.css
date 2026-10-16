@@ -235,3 +235,82 @@
  background:#48251fe8;color:#fff0d4;font-size:12px;line-height:1.45;
  box-shadow:0 6px 20px #0006
 }
+
+/* ═══ V5: 16x speed broadcast direction, UNOBSTRUCTED running horses ═══
+   Small typography only in the overscan/safe corners. Camera shots tell
+   the story; giant centered phase titles and duel panels no longer do. */
+#race-cinematic-overlay:before{opacity:.22}
+#race-cinematic-overlay .cinema-phase,
+#race-cinematic-overlay[data-phase="gate"] .cinema-phase,
+#race-cinematic-overlay[data-phase="break"] .cinema-phase,
+#race-cinematic-overlay[data-phase="pursuit"] .cinema-phase,
+#race-cinematic-overlay[data-phase="corner"] .cinema-phase,
+#race-cinematic-overlay[data-phase="attack"] .cinema-phase,
+#race-cinematic-overlay[data-phase="sprint"] .cinema-phase,
+#race-cinematic-overlay[data-phase="photo"] .cinema-phase{
+ position:absolute!important;top:58px!important;right:10px!important;left:auto!important;
+ bottom:auto!important;transform:none!important;animation:none!important;
+ width:auto!important;max-width:min(45%,240px)!important;
+ padding:6px 11px!important;border:1px solid #f5da8f55!important;
+ border-right:3px solid #f5da8f!important;border-radius:8px!important;
+ background:#0b1d2de5!important;text-align:right!important;
+ box-shadow:0 4px 18px #07131e61!important;opacity:.94!important;
+ overflow:hidden;white-space:nowrap;text-overflow:ellipsis;
+}
+#race-cinematic-overlay .cinema-phase-kicker{display:block;color:#f5d991;
+ font-size:9px!important;letter-spacing:.15em;line-height:1.1}
+#race-cinematic-overlay .cinema-phase strong,
+#race-cinematic-overlay[data-phase="sprint"] .cinema-phase strong,
+#race-cinematic-overlay[data-phase="photo"] .cinema-phase strong{
+ display:block;font-size:clamp(12px,1.7vw,17px)!important;
+ letter-spacing:0!important;line-height:1.3!important;
+ -webkit-text-stroke:0!important;color:#f9fcff!important;text-shadow:0 1px 3px #000a;
+}
+#race-cinematic-overlay .cinema-phase span:last-child{display:none!important}
+#race-cinematic-overlay .cinema-duel{
+ left:50%!important;top:auto!important;bottom:10px!important;
+ width:min(82%,530px)!important;min-width:0!important;max-width:82%!important;
+ display:flex;flex-direction:row;justify-content:center;
+ gap:8px!important;padding:4px 10px!important;white-space:nowrap;
+ border-radius:10px;background:#091c2bdc!important;
+ transform:translate(-50%,6px) scale(1)!important;box-shadow:none!important;
+ backdrop-filter:blur(7px)
+}
+#race-cinematic-overlay .cinema-duel.cinema-duel-visible{
+ transform:translate(-50%,0) scale(1)!important
+}
+#race-cinematic-overlay .cinema-duel-label{display:none!important}
+#race-cinematic-overlay .cinema-duel-contenders{
+ display:flex;flex-direction:row;flex-wrap:nowrap;justify-content:center;
+ width:100%;gap:8px!important;margin:0!important;min-width:0;
+}
+#race-cinematic-overlay .cinema-horse{min-width:0;overflow:hidden}
+#race-cinematic-overlay .cinema-horse strong{font-size:11px!important;max-width:125px;
+ display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#race-cinematic-overlay .cinema-cap{width:22px;height:22px;border-radius:6px;font-size:11px}
+#race-cinematic-overlay .cinema-versus{font-size:10px;flex-shrink:0}
+#race-cinematic-overlay .cinema-speed-wash{opacity:0!important}
+#race-cinematic-overlay .cinema-focus-flare{opacity:0!important}
+#race-cinematic-overlay[data-phase="finish"] .cinema-phase{display:none!important}
+.broadcast-commentary{display:none!important}
+.broadcast-course{opacity:.8}
+@media(max-width:700px){
+ .track-broadcast{top:7px!important;left:7px!important;
+  padding:5px 7px!important;font-size:10px!important;max-width:54%}
+ .broadcast-clock{top:7px!important;right:7px!important;
+  padding:5px 7px!important;font-size:15px!important}
+ .broadcast-course,.broadcast-commentary,.track-broadcast-bottom{display:none!important}
+ #race-cinematic-overlay .cinema-phase,
+ #race-cinematic-overlay[data-phase="sprint"] .cinema-phase,
+ #race-cinematic-overlay[data-phase="photo"] .cinema-phase{
+  top:45px!important;right:6px!important;max-width:48%!important;
+  padding:5px 8px!important;opacity:.91!important
+ }
+ #race-cinematic-overlay .cinema-phase strong{font-size:12px!important}
+ #race-cinematic-overlay .cinema-phase-kicker{font-size:8px!important}
+ #race-cinematic-overlay .cinema-duel{bottom:6px!important;max-width:95%!important;
+  width:95%!important;padding:3px 7px!important}
+ #race-cinematic-overlay .cinema-horse strong{font-size:10px!important;max-width:106px}
+ #race-cinematic-overlay .cinema-cap{width:20px;height:20px;font-size:10px}
+ .cinema-finish{top:50%!important}
+}
