@@ -45,6 +45,14 @@ jobs:
           server_pid=$!
           trap 'kill $server_pid || true' EXIT
           PLAYWRIGHT_ENTRY=/tmp/race-playwright/node_modules/playwright/index.mjs node race-engine/tests/mobile-browser.mjs
+      - name: Save real-browser 16x screenshots for visual review
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: shuka-cinematic-16x-mobile
+          path: /tmp/race-mobile-shots/*.png
+          if-no-files-found: ignore
+          retention-days: 7
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
         with:
