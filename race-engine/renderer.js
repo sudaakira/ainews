@@ -428,8 +428,8 @@ import {jockeyCap} from './core/jockey-caps.js?v=cap-v1';
   const frameDt=lastFrame?Math.min(.12,Math.max(0,(now-lastFrame)/1000)):1/60;lastFrame=now;
   const clock=LIVE.clock;
   if(clock<=0&&photo.phase!=='idle')clearPhoto();
-  if(clock>=LIVE.duration && photo.priorClock<LIVE.duration &&
-     photo.priorClock>0 && photo.priorPlaying && !photo.active && !photo.completed){
+  if(LIVE.playbackAtFinish && clock>=LIVE.duration &&
+     !photo.active && !photo.completed){
    photo.active=true;photo.startAt=now;photo.visualStart=LIVE.visualTime;
   }
   const elapsed=photo.active?(now-photo.startAt)/1000:0;
