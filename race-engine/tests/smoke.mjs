@@ -250,7 +250,7 @@ const gallop=read('assets/chibi-gallop.js');
 assert.doesNotThrow(()=>new Function(gallop.replace('export function updateGallop','function updateGallop')));
 assert.match(gallop,/const sprint=smooth/);
 assert.match(gallop,/model\.rider\.rotation\.x/);
-assert.match(render,/updateGallop\(m,clock,LIVE\.visualTime,h\.no,clock\/LIVE\.duration\)/);
+assert.match(render,/updateGallop\(m,clock,visualTime,h\.no,Math\.min\(1,clock\/LIVE\.duration\)\)/);
 assert.match(render,/horse-anime\.js\?v=cinema-v6/);
 assert.match(render,/chibi-gallop\.js\?v=cinema-v5/);
 assert.match(read('assets/horse-anime.js'),/return \{root,anim,rider/);
