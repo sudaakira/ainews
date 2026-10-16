@@ -5,12 +5,34 @@ import {resolve} from 'node:path';
 const root=resolve(import.meta.dirname??new URL('.',import.meta.url).pathname,'..');
 const read=(p)=>readFileSync(resolve(root,p),'utf8');
 const load=(p)=>import('data:text/javascript;base64,'+Buffer.from(read(p)).toString('base64'));
-const [{createFactors},{createRegression},{createSimulator}]=await Promise.all([
- load('core/factors.js'),load('core/regression.js'),load('core/simulator.js')
+const [{createFactors},{createRegression},{createSimulator},{JRA_JOCKEY_CAPS,UNKNOWN_JOCKEY_CAP,jockeyCap}]=await Promise.all([
+ load('core/factors.js'),load('core/regression.js'),load('core/simulator.js'),load('core/jockey-caps.js')
 ]);
+// Every JRA frame colour and contrast is validated centrally and reused in 2D/3D.
+assert.deepEqual(JRA_JOCKEY_CAPS.slice(1).map(c=>c.name),['白','黒','赤','青','黄','緑','橙','桃']);
+assert.deepEqual(JRA_JOCKEY_CAPS.slice(1).map(c=>c.hex),['#FFFFFF','#111111','#E62931','#1561C2','#FFD600','#009944','#F28C00','#EE8FAB']);
+for(let n=1;n<=8;n++){
+ const cap=jockeyCap({no:2,frame:n},{provisionalDraw:false},()=>8);
+ assert.equal(cap.frame,n,'official frame wins over horse number or derived frame');
+ assert.equal(cap.hex,JRA_JOCKEY_CAPS[n].hex);
+ assert.match(cap.outline,/^#[0-9A-F]{6}$/);
+ assert.match(cap.text,/^#[0-9A-F]{6}$/);
+}
+assert.deepEqual(jockeyCap({no:12,frame:4},{provisionalDraw:true},()=>4),UNKNOWN_JOCKEY_CAP,'unknown draw must stay neutral');
+assert.equal(jockeyCap({no:12},{},()=>6).frame,6,'legacy entries use frame resolver');
+assert.equal(jockeyCap({no:4,frame:2,capPattern:'quartered'},{},()=>3).secondary,'#FFFFFF');
+assert.equal(jockeyCap({no:4,frame:1,capPattern:'eighths'},{},()=>3).secondary,'#74D3E8');
+assert.equal(jockeyCap({no:4,frame:3,capPattern:'unverified'},{},()=>3).pattern,undefined);
+console.log('JRA official 8-frame jockey helmets, exceptional dyed caps, and provisional draw ✓');
 for(const id of ['swan-2026','sample-demo','tokyo-20261012-11','tokyo-20261012-12','kyoto-20261012-12','shuka-2026']){
  const {default:config}=await load('races/'+id+'.js');
  const factor=createFactors(config),regression=createRegression(config,factor),sim=createSimulator(config,regression);
+ // Reused for ALL races, not only the 秋華賞.
+ for(const h of config.horses){
+  const cap=jockeyCap(h,config,horse=>factor.frame(horse));
+  if(config.provisionalDraw)assert.equal(cap.frame,null);
+  else assert.equal(cap.frame,factor.frame(h),'jockey helmet must match resolved JRA frame');
+ }
  const options={pace:0,speed:2,vol:10,ground:'good',bias:'neutral',weights:regression.DEFAULTS};
  const result=sim.simulate(options,5000,20261012),again=sim.simulate(options,5000,20261012);
  assert.equal(result.length,config.horses.length);
@@ -127,7 +149,7 @@ for(const id of ['swan-2026','sample-demo','tokyo-20261012-11','tokyo-20261012-1
  console.log(id+': '+config.horses.length+' horses / deterministic 5000 draws / 14 factors ✓');
 }
 const html=read('index.html'),app=read('app.js'),render=read('renderer.js');
-for(const name of ['core/factors.js','core/regression.js','core/simulator.js','assets/horse-anime.js','assets/chibi-gallop.js','assets/kyoto-scenery.js'])assert.ok(existsSync(resolve(root,name)),name+' must exist');
+for(const name of ['core/factors.js','core/regression.js','core/simulator.js','core/jockey-caps.js','assets/horse-anime.js','assets/chibi-gallop.js','assets/kyoto-scenery.js'])assert.ok(existsSync(resolve(root,name)),name+' must exist');
 assert.match(html,/await import\('\.\/app\.js\?v=/);
 assert.match(html,/await import\('\.\/renderer\.js\?v=/);
 assert.match(render,/stallCount=HS.length/);
@@ -136,7 +158,17 @@ assert.match(app,/const HS=config.horses/);
 assert.match(app,/config\.provisionalDraw/);
 assert.match(app,/h\.workout/);
 assert.match(read('core/regression.js'),/verifiedDraw/);
-for(const source of [app,render])assert.doesNotThrow(()=>new Function(source));
+for(const source of [app,render])assert.doesNotThrow(()=>new Function(source.replace(/^import .*?;$/gm,'')),'ES-module syntax must parse');
+const anime=read('assets/horse-anime.js');
+assert.doesNotThrow(()=>new Function(anime.replace('export function createRaceHorse','function createRaceHorse')),'active 3D horse module must parse');
+assert.match(render,/jockeyCap\(h,config,horse=>window\.SWAN_FACTORS\.frame\(horse\)\)/);
+assert.match(render,/frameCap\.hex,frameCap\.outline,frameCap\.pattern/);
+assert.match(app,/const cap=capFor\(h\)/);
+assert.match(app,/jra-jockey-cap-legend/);
+assert.match(anime,/lined\(rider,helmetFrame/);
+assert.match(anime,/frameCapPattern==='quartered'/);
+assert.doesNotMatch(anime,/helmetWhite/);
+assert.match(html,/shared-v8/);
 assert.match(read('../swan-2026/index.html'),/race-engine\/\?race=swan-2026/);
 assert.match(render,/config.direction==='左'/);
 assert.match(render,/config.courseView==='tokyo-2000'/);
