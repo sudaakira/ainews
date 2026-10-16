@@ -38,6 +38,18 @@ try{
    throw error;
   }
   const model=await page.evaluate(()=>window.KYOTO_RENDER_STATUS);
+  assert.equal(model.saddleclothNames,true);
+  assert.deepEqual(model.furlongDigits,[2,4,6,8,10,12,14,16,18]);
+  assert.equal(model.camera,'geographic-4-shot');
+  const guide=page.locator('#race-course-guide');
+  assert.equal(await guide.isVisible(),true);
+  assert.match(await guide.textContent(),/模式図/);
+  if(vp.width===390){
+   await page.waitForFunction(()=>window.RACE_CAMERA_AUDIT?.shot==='establish',{timeout:5000});
+   const gateAudit=await page.evaluate(()=>window.RACE_CAMERA_AUDIT);
+   assert.equal(gateAudit.opening,gateAudit.total,
+    'ALL runners should be onscreen in the opening shot '+JSON.stringify(gateAudit));
+  }
   assert.equal(model.ready,true,'3D must actually load, not merely pass source tests');
   assert.equal(model.horses,17);
   assert.equal(model.cinematic,true);
@@ -60,8 +72,8 @@ try{
     el.value='16';el.dispatchEvent(new Event('change',{bubbles:true}));
    });
    const checks=[
-    [.11,'launch'],[.26,'long'],[.40,'close'],[.54,'reverse'],
-    [.66,'bend'],[.78,'turn'],[.90,'dash'],[.96,'line']
+    [.05,'establish'],[.30,'follow'],[.60,'follow'],
+    [.78,'turn'],[.92,'duel']
    ];
    for(const [progress,shot] of checks){
     await page.locator('#live-scrub').evaluate((el,value)=>{
@@ -80,15 +92,23 @@ try{
      director:window.RACE_CINEMATIC_DEBUG};
    });
    assert.equal(composition.rate,'16');
+   const dot1=await page.locator('#race-course-guide circle').getAttribute('cx');
+   await page.locator('#live-scrub').evaluate(el=>{
+    el.value='300';el.dispatchEvent(new Event('input',{bubbles:true}));
+   });
+   const dot2=await page.locator('#race-course-guide circle').getAttribute('cx');
+   assert.notEqual(dot1,dot2,'mini-map dot must follow race progress');
    assert.ok(composition.titleBottom<composition.stageHeight*.38,
     'cinematic text must stay in upper safe region '+JSON.stringify(composition));
    assert.ok(composition.titleWidth<.55,'story titles may not cover entire screen');
    assert.ok(composition.duelBottom<85,
     'duel info should stay near edge, not obscure the ponies');
-   assert.equal(composition.director.mode,'16x-broadcast');
+   assert.equal(composition.director.mode,'16x-geographic');
+   assert.equal(composition.director.scriptedCuts,4);
+   assert.equal(await page.locator('#race-course-position').isVisible(),true);
    mkdirSync('/tmp/race-mobile-shots',{recursive:true});
    await page.screenshot({path:'/tmp/race-mobile-shots/shuka-390x844-last400.png'});
-   console.log('PASS Real 16x storyboard 8 cuts, unobstructed HUD',composition);
+   console.log('PASS Real 16x geographically stable four shots, all horses at start and route position',composition);
   }
   // The finished leaderboard uses the ORIGINAL race engine final order.
   await page.locator('#live-scrub').evaluate(el=>{
