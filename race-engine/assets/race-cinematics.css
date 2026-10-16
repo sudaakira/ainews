@@ -1,0 +1,101 @@
+/* CINEMATIC RACE — mobile-first, actual 3D scene effects + high-energy broadcast direction.
+   Deliberately does not modify the existing Monte Carlo or racing inputs. */
+#three-stage{position:relative!important;overflow:hidden;isolation:isolate;background:#1b4e36!important}
+#three-stage canvas{display:block}
+.camera-more,#premium-camera-cycle{display:none!important}
+.live-head>strong{letter-spacing:.04em}
+.track-broadcast{z-index:18}
+.broadcast-clock,.broadcast-commentary,.broadcast-course,.track-broadcast-bottom{z-index:18}
+#race-cinematic-overlay{position:absolute;inset:0;z-index:14;pointer-events:none;overflow:hidden;color:#fff;
+ font-family:-apple-system,BlinkMacSystemFont,"Hiragino Kaku Gothic ProN",system-ui,sans-serif}
+.cinema-letterbox{position:absolute;left:0;right:0;height:clamp(7px,1.2vw,15px);background:#07111b;z-index:3}
+.cinema-top{top:0}.cinema-bottom{bottom:0}
+#race-cinematic-overlay:before{content:"";position:absolute;inset:0;background:radial-gradient(ellipse 85% 76% at 51% 48%,transparent 32%,#030a1599 100%);opacity:.58}
+.cinema-speed-wash{position:absolute;inset:-45%;opacity:0;transform:translateX(0);background:repeating-linear-gradient(110deg,
+ transparent 0px,transparent 58px,#bdf9ff00 64px,#d7faff40 68px,transparent 74px,transparent 162px);
+ filter:blur(2px);mix-blend-mode:screen;transition:opacity .25s}
+.cinema-sprint .cinema-speed-wash{opacity:.88;animation:cinema-speed .34s linear infinite}
+.cinema-focus-flare{position:absolute;left:5%;top:22%;width:75%;height:45%;border-radius:50%;
+ background:radial-gradient(ellipse,#fff0c621,#fff0c600 60%);opacity:0;transform:scale(.7)}
+.cinema-sprint .cinema-focus-flare{opacity:.75;animation:cinema-pulse 1.0s ease-in-out infinite}
+.cinema-phase{position:absolute;left:5.2%;top:16%;max-width:92%;
+ padding-left:14px;border-left:4px solid #ffdf92;text-shadow:0 4px 15px #000c;
+ filter:drop-shadow(0 7px 13px #0008);animation:cinema-slide .65s cubic-bezier(.16,.85,.24,1)}
+.cinema-phase-kicker{display:block;color:#f4db9a;font-size:clamp(9px,1.3vw,13px);font-weight:900;letter-spacing:.16em}
+.cinema-phase strong{display:block;font-size:clamp(25px,5.5vw,64px);line-height:1.02;letter-spacing:-.035em;
+ color:#fff;font-weight:950;-webkit-text-stroke:.3px #c8e1e8;filter:drop-shadow(0 4px 7px #020913a0)}
+.cinema-phase span:last-child{display:block;color:#edfaff;font-size:clamp(10px,1.8vw,16px);font-weight:800;margin-top:6px}
+#race-cinematic-overlay[data-phase="pursuit"] .cinema-phase,
+#race-cinematic-overlay[data-phase="corner"] .cinema-phase{opacity:.68;transform:scale(.85);transform-origin:left top}
+#race-cinematic-overlay[data-phase="attack"] .cinema-phase strong{color:#ffe1a8}
+#race-cinematic-overlay[data-phase="sprint"] .cinema-phase,
+#race-cinematic-overlay[data-phase="photo"] .cinema-phase{
+ top:25%;left:50%;max-width:100%;width:max-content;padding:12px 30px;border:none;
+ text-align:center;transform:translateX(-50%);background:linear-gradient(90deg,transparent,#08111db9 23%,#08111db9 77%,transparent);
+ animation:cinema-burst .6s cubic-bezier(.08,.95,.25,1)}
+#race-cinematic-overlay[data-phase="sprint"] .cinema-phase strong,
+#race-cinematic-overlay[data-phase="photo"] .cinema-phase strong{
+ color:#fff2c9;font-size:clamp(35px,7vw,82px);letter-spacing:-.045em}
+.cinema-duel{position:absolute;left:50%;bottom:22%;transform:translate(-50%,18px) scale(.92);
+ min-width:min(560px,90%);max-width:95%;display:flex;align-items:center;flex-direction:column;
+ padding:11px 18px 15px;border:1px solid #f4d39c77;border-radius:15px;background:linear-gradient(110deg,#091c2bc7,#2e231ed9,#091c2bc7);
+ opacity:0;transition:transform .28s ease,opacity .28s ease;box-shadow:0 12px 38px #0409129c;backdrop-filter:blur(8px)}
+.cinema-duel-visible{opacity:1;transform:translate(-50%,0) scale(1)}
+.cinema-duel-label{font-size:10px;letter-spacing:.20em;color:#ffdea2;font-weight:900}
+.cinema-duel-contenders{display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:10px;margin-top:7px}
+.cinema-horse{display:flex;gap:6px;align-items:center;min-width:0;white-space:nowrap}
+.cinema-horse strong{font-size:clamp(12px,1.7vw,21px);font-weight:900;text-shadow:0 2px 7px #000}
+.cinema-cap{display:inline-grid;place-items:center;width:30px;height:30px;border-radius:8px;border:2px solid #fff;
+ font-size:14px;font-weight:950;flex-shrink:0}
+.cinema-versus{font-size:11px;color:#fbd592;font-weight:950;letter-spacing:.10em}
+.cinema-finish{position:absolute;top:33%;left:50%;width:min(85%,670px);
+ transform:translate(-50%,-50%) scale(1.22);text-align:center;display:flex;flex-direction:column;
+ gap:8px;align-items:center;padding:24px 25px 30px;border-radius:20px;
+ border:2px solid #f8dc9988;background:linear-gradient(124deg,#131e33ef,#50452de7,#122a34ee);
+ box-shadow:0 0 60px #ffce7d52,0 15px 75px #030914aa;
+ opacity:0;visibility:hidden;transition:opacity .4s,transform .5s cubic-bezier(.1,.8,.17,1),visibility .3s}
+.cinema-finish-visible{opacity:1;visibility:visible;transform:translate(-50%,-50%) scale(1)}
+.cinema-finish small{font-size:11px;letter-spacing:.17em;color:#ffe4a4;font-weight:900}
+.cinema-finish strong{font-weight:1000;font-size:clamp(26px,4.3vw,55px);line-height:1.15;
+ color:#fff4d2;text-shadow:0 5px 26px #e2c1798a;overflow-wrap:anywhere}
+.cinema-finish span{font-size:12px;color:#e8efef;font-weight:700}
+.cinema-confetti{position:absolute;inset:0;visibility:hidden}
+.cinema-victory .cinema-confetti{visibility:visible}
+.cinema-confetti i{display:block;position:absolute;left:var(--x);top:-10%;width:7px;height:21px;background:var(--h);
+ border-radius:2px;opacity:0;transform:rotate(26deg)}
+.cinema-victory .cinema-confetti i{animation:cinema-fall 3.3s cubic-bezier(.18,.73,.25,.92) calc(var(--i)*.09s) infinite}
+#race-cinematic-overlay[data-phase="finish"] .cinema-phase{opacity:0}
+#race-cinematic-overlay[data-phase="gate"] .cinema-phase,
+#race-cinematic-overlay[data-phase="break"] .cinema-phase{top:26%;left:6%}
+@keyframes cinema-speed{0%{transform:translateX(70px)}100%{transform:translateX(-120px)}}
+@keyframes cinema-pulse{0%,100%{transform:scale(.78);opacity:.2}50%{transform:scale(1.3);opacity:.85}}
+@keyframes cinema-slide{0%{opacity:0;transform:translateX(-45px) skewX(-8deg)}100%{opacity:1;transform:translateX(0)}}
+@keyframes cinema-burst{0%{opacity:0;transform:translateX(-50%) scale(1.5)}100%{opacity:1;transform:translateX(-50%) scale(1)}}
+@keyframes cinema-fall{0%{transform:translateY(-5vh) rotate(0);opacity:1}85%{opacity:1}100%{transform:translateY(110vh) rotate(820deg);opacity:0}}
+/* The 3D director owns the entire view; hide manual viewpoint controls. */
+#premium-camera-cycle,#camera-controls,.camera-more{display:none!important}
+@media(max-width:700px){
+ .cinema-phase{left:4%;top:23%;padding-left:9px;border-left-width:3px}
+ .cinema-phase strong{font-size:clamp(23px,6vw,42px)}
+ .cinema-phase-kicker{font-size:9px;letter-spacing:.1em}
+ .cinema-phase span:last-child{font-size:10px;margin-top:3px}
+ #race-cinematic-overlay[data-phase="sprint"] .cinema-phase,
+ #race-cinematic-overlay[data-phase="photo"] .cinema-phase{top:31%;padding:8px 10px}
+ #race-cinematic-overlay[data-phase="sprint"] .cinema-phase strong,
+ #race-cinematic-overlay[data-phase="photo"] .cinema-phase strong{font-size:clamp(35px,10vw,56px)}
+ .cinema-duel{bottom:24%;min-width:92%;max-width:92%;padding:10px 7px}
+ .cinema-horse strong{font-size:11px;max-width:125px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+ .cinema-duel-contenders{gap:5px}
+ .cinema-cap{width:22px;height:22px;font-size:11px;border-width:1px}
+ .cinema-versus{font-size:9px}
+ .cinema-finish{top:39%;width:90%;padding:18px 12px 19px;border-radius:12px}
+ .cinema-finish strong{font-size:clamp(25px,7.5vw,43px)}
+ .cinema-finish small{font-size:9px}
+ .track-broadcast-bottom{display:none!important}
+ .broadcast-commentary{opacity:.94}
+ .hero-race #three-stage{height:clamp(420px,125vw,670px)}
+}
+@media(prefers-reduced-motion:reduce){
+ .cinema-speed-wash,.cinema-focus-flare,.cinema-confetti i,.cinema-phase{animation:none!important}
+ .cinema-duel,.cinema-finish{transition:none!important}
+}
