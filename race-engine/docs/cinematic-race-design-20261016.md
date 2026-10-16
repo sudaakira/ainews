@@ -61,3 +61,19 @@
 - [馬体アニメ](../assets/horse-anime.js)
 - [脚運びアニメ](../assets/chibi-gallop.js)
 - [公開レースビュー](https://sudaakira.github.io/ainews/race-engine/?race=shuka-2026)
+
+
+## v3 追加要件：馬体・前方カメラ・上位3着・iPhone 1画面（2026年10月16日）
+
+**ユーザー指定の4点を共通テンプレートの恒久要件に昇格する。** 初期予想・14項目100点採点・人気非参照・実馬番・騎手の枠色・シミュレーションの確定順位は変更不可。
+
+| 要件 | 実装ファイル | 受入条件 |
+|---|---|---|
+| 走る馬をもっとリッチに | `assets/horse-anime.js`, `assets/chibi-gallop.js` | 脚8位相／4肢別々の股・膝・横振れ／顔・肩の上下／揺れるたてがみ・尻尾／勝負服の揺れ／直線の騎手前傾。速度・馬番・位置には非干渉 |
+| 前方中心の分かりやすいカメラ | `assets/race-cinematics.js` | 進行方向の前から馬に振り向く、**front 3/4**（forward 14.5〜21m、side 2.4〜6.9m）。先頭2頭間を少し混ぜた焦点で馬群を見やすく。手動視点UIは廃止 |
+| ゴールで確定1〜3着 | `renderer.js` と `assets/race-cinematics.js` | `LIVE.rank` の先頭3頭を**唯一の真実**とし、JRA枠色の馬番・馬名・🥇🥈🥉を表示。画面上の仮位置や独立計算で決着させない。巻き戻して再実行しても更新 |
+| iPhone縦画面で一画面化 | `assets/race-cinematics.css` | 700px以下の縦画面で **100dvh** 以内に3D、スクラブ、再生／一時停止／リセット／速度、順位TOP3を配置。大きなヘッダー・ナビ・馬場条件設定は下部／画面外。 `safe-area-inset`・短い画面の縮小を考慮 |
+
+**検証条件：** 320×568、375×667、390×844、430×932でWebGLとSVG代替表示を目視確認すること。GitHub Actionsの smoke test は3Dアニメーション構造・必須UIと参照関係・乱数確定着順の参照先・レスポンシブCSSを自動チェックするが、**実機／ブラウザのレンダリングやFPSの保証はしない**。外部アセットやモデルを追加せず、既存のプロシージャル馬体を拡張する。レースごとの `races/*.js` は編集しない。
+
+更新時のキャッシュキー： `renderer.js?v=cinema-v3`, `race-cinematics.css?v=cinema-v3`, およびレンダラー内の `horse-anime.js?v=cinema-v3`, `chibi-gallop.js?v=cinema-v3`, `race-cinematics.js?v=cinema-v3`。
