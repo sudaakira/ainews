@@ -116,27 +116,7 @@
     if(e.key==='Escape'&&document.body.classList.contains('premium-immersive'))focusMode(false);
   });
 
-  const cameraOrder=['follow','wide','horse','gate','finish','2d'];
-  const cameraLabels={follow:'追走',wide:'全景',horse:'馬アップ',gate:'ゲート',finish:'ゴール', '2d':'2D'};
-  const camera=document.createElement('button');
-  camera.id='premium-camera-cycle';
-  camera.className='premium-focus';
-  camera.type='button';
-  camera.textContent='▣ カメラ切替';
-  camera.setAttribute('aria-label','レースカメラの視点を切り替え');
-  head.append(camera);
-  camera.addEventListener('click',()=>{
-    const cams=Array.from(document.querySelectorAll('#camera-controls [data-camera]'));
-    const usable=cameraOrder.filter(mode=>{
-      const b=cams.find(x=>x.dataset.camera===mode);
-      return b&&b.style.display!=='none';
-    });
-    if(!usable.length)return;
-    const active=cams.find(x=>x.classList.contains('cam-active'))?.dataset.camera||'follow';
-    const next=usable[(usable.indexOf(active)+1)%usable.length];
-    const button=cams.find(b=>b.dataset.camera===next);
-    if(button){button.click();camera.textContent='▣ '+cameraLabels[next];}
-  });
+  // Viewpoint switches deliberately removed. Auto direction now lives in WebGL.
 
   // Enhance existing live controls; never replace their model callbacks.
   const controls=document.querySelector('.live-buttons');
