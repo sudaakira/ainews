@@ -40,12 +40,16 @@ try{
   const model=await page.evaluate(()=>window.KYOTO_RENDER_STATUS);
   assert.equal(model.saddleclothNames,true);
   assert.deepEqual(model.furlongDigits,[2,4,6,8,10,12,14,16,18]);
-  assert.equal(model.camera,'geographic-4-shot');
+  assert.equal(model.camera,'start-2c-4c-sidefinish');
+  assert.equal(model.goalBoard,true,'Kyoto post must load in WebGL scene');
+  assert.equal(model.gateDisappears,true);
+  assert.equal(model.photoFinish,true);
+
   const guide=page.locator('#race-course-guide');
   assert.equal(await guide.isVisible(),true);
   assert.match(await guide.textContent(),/模式図/);
   if(vp.width===390){
-   await page.waitForFunction(()=>window.RACE_CAMERA_AUDIT?.shot==='establish',{timeout:5000});
+   await page.waitForFunction(()=>window.RACE_CAMERA_AUDIT?.shot==='start',{timeout:5000});
    const gateAudit=await page.evaluate(()=>window.RACE_CAMERA_AUDIT);
    assert.equal(gateAudit.opening,gateAudit.total,
     'ALL runners should be onscreen in the opening shot '+JSON.stringify(gateAudit));
@@ -72,8 +76,7 @@ try{
     el.value='16';el.dispatchEvent(new Event('change',{bubbles:true}));
    });
    const checks=[
-    [.05,'establish'],[.30,'follow'],[.60,'follow'],
-    [.78,'turn'],[.92,'duel']
+    [.05,'start'],[.32,'second-turn'],[.68,'fourth-turn'],[.92,'straight']
    ];
    for(const [progress,shot] of checks){
     await page.locator('#live-scrub').evaluate((el,value)=>{
@@ -82,6 +85,19 @@ try{
     },progress);
     await page.waitForFunction(expected=>window.RACE_CINEMATIC_DEBUG?.shot===expected,shot,{timeout:4500});
    }
+   // Verify start gate disappears AND the green/white KYOTO goal board
+   // physically falls inside the rendered frame near the finish line.
+   await page.locator('#live-scrub').evaluate(el=>{
+    el.value='982';el.dispatchEvent(new Event('input',{bubbles:true}));
+   });
+   await page.waitForFunction(()=>window.RACE_SCENE_AUDIT?.shot==='straight',null,{timeout:5000});
+   const endScene=await page.evaluate(()=>window.RACE_SCENE_AUDIT);
+   assert.equal(endScene.gateVisible,false,'starter stalls must not remain at GOAL');
+   assert.equal(endScene.goalBoardVisible,true,'modern Kyoto board must exist');
+   assert.equal(endScene.goalInFrame,true,
+    'Kyoto goal board should be visible in side-on straight composition '+JSON.stringify(endScene));
+   mkdirSync('/tmp/race-mobile-shots',{recursive:true});
+   await page.screenshot({path:'/tmp/race-mobile-shots/shuka-390x844-side-goal.png'});
    const composition=await page.evaluate(()=>{
     const stage=document.getElementById('three-stage').getBoundingClientRect();
     const title=document.querySelector('.cinema-phase').getBoundingClientRect();
@@ -105,12 +121,12 @@ try{
    assert.ok(composition.titleWidth<.55,'story titles may not cover entire screen');
    assert.ok(composition.duelBottom<85,
     'duel info should stay near edge, not obscure the ponies');
-   assert.equal(composition.director.mode,'16x-geographic');
+   assert.equal(composition.director.mode,'16x-side-finish');
    assert.equal(composition.director.scriptedCuts,4);
    assert.equal(await page.locator('#race-course-position').isVisible(),true);
    mkdirSync('/tmp/race-mobile-shots',{recursive:true});
    await page.screenshot({path:'/tmp/race-mobile-shots/shuka-390x844-last400.png'});
-   console.log('PASS Real 16x geographically stable four shots, all horses at start and route position',composition);
+   console.log('PASS Real 16x start/2C/4C/side-on finish shots, all horses at start and route position',composition);
   }
   // The finished leaderboard uses the ORIGINAL race engine final order.
   await page.locator('#live-scrub').evaluate(el=>{
@@ -121,6 +137,31 @@ try{
   const actual=await page.locator('.cinema-result-cap').allTextContents();
   assert.deepEqual(actual,expected,'cinematic podium must match exact simulator finish order');
   assert.equal(await page.locator('#race .place-card').count(),3);
+  if(vp.width===390){
+   // Manual seek still reveals the canonical finish instantly. Autoplay,
+   // however, must hold 1st/2nd/3rd one by one BEFORE the podium appears.
+   await page.locator('#live-reset').click();
+   await page.evaluate(()=>{
+    window.RACE_PHOTO_EVENTS=[];
+    window.__PHOTO_WATCH=setInterval(()=>{
+     const p=window.RACE_PHOTO_DEBUG?.phase;
+     if(p&&window.RACE_PHOTO_EVENTS.at(-1)!==p)window.RACE_PHOTO_EVENTS.push(p);
+    },35);
+   });
+   await page.locator('#live-play').click();
+   await page.waitForFunction(()=>window.RACE_PHOTO_DEBUG?.phase==='result',undefined,{timeout:30000});
+   const sequences=await page.evaluate(()=>{
+    clearInterval(window.__PHOTO_WATCH);
+    return {events:window.RACE_PHOTO_EVENTS,finish:window.RACE_PHOTO_DEBUG,
+      expected:window.KYOTO_RACE.LIVE.rank.slice(0,3)};
+   });
+   for(const step of ['first','second','third','result'])
+    assert.ok(sequences.events.includes(step),'1-2-3 finish hold missing '+step+': '+JSON.stringify(sequences));
+   const displayed=await page.locator('.cinema-result-cap').allTextContents();
+   assert.deepEqual(displayed,sequences.expected.map(String),'after three holds show exact simulated rank');
+   assert.equal(await page.locator('#race-photo-cue').isVisible(),true);
+   console.log('PASS Three distinct photo pauses followed by authentic finish result',sequences);
+  }
   if(vp.width===390)await page.screenshot({path:'/tmp/race-mobile-shots/shuka-390x844-finish.png'});
   assert.ok(!errors.some(x=>/Uncaught|Cannot read|module/i.test(x)),'browser JS errors '+JSON.stringify(errors));
   console.log('PASS Mobile WebGL cinematic, exact 1–3 finish and single viewport',vp,model.model);
