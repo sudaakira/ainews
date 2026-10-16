@@ -420,7 +420,7 @@ import {jockeyCap} from './core/jockey-caps.js?v=cap-v1';
    const size=.88+.12*Math.max(0,Math.min(1,clock/3.0));m.root.scale.setScalar(size);
    m.root.rotation.y=Math.atan2(d.dx,d.dz);
    // Entirely new ground-contact + two-bone IK gait, loaded from gallop-ik.js.
-   updateGallop(m,clock,LIVE.visualTime,h.no);
+   updateGallop(m,clock,LIVE.visualTime,h.no,clock/LIVE.duration);
    m.sprite.material.opacity=order.slice(0,3).some(x=>x.no===h.no)?1:.88;
   }
   updateGates(clock);
