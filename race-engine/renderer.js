@@ -526,6 +526,17 @@ import {jockeyCap} from './core/jockey-caps.js?v=cap-v1';
    }
    window.RACE_CAMERA_AUDIT={opening:inside,total:models.length,shot:shotDirection?.shot};
   }
+  // Real WebGL checks: is the start gate absent after the break and
+  // is the KYOTO goal post actually INSIDE the camera frame at the line?
+  let goalInFrame=false,goalScreen=null;
+  if(goalRig){
+   const pt=goalRig.localToWorld(new THREE.Vector3(0,6,0)).project(camera);
+   goalScreen={x:+pt.x.toFixed(3),y:+pt.y.toFixed(3),z:+pt.z.toFixed(3)};
+   goalInFrame=pt.z>-1&&pt.z<1&&Math.abs(pt.x)<.97&&Math.abs(pt.y)<.97;
+  }
+  window.RACE_SCENE_AUDIT={gateVisible:gateRoot.visible,
+   goalBoardVisible:!!goalRig?.visible,goalInFrame,goalScreen,
+   shot:shotDirection?.shot,photo:photo.phase};
   photo.priorClock=clock;
   photo.priorPlaying=LIVE.playing;
   renderer.render(scene,camera);
