@@ -1,4 +1,4 @@
-/** 2026 Shuka Sho confirmed draw 2026-10-16 15:21 JST; all inputs aligned to official numbers. */
+/** Shuka Sho 2026: Oct16 evening evidence-balanced Monroe Walk scoring audit; 17 runners, official draw. */
 export default {
   "schemaVersion": 1,
   "id": "shuka-2026",
@@ -18,7 +18,7 @@ export default {
   "provisionalDraw": false,
   "standardWeight": 55,
   "seed": 20261016,
-  "notes": "2026-10-16 15:21 JST 更新。netkeibaと日刊スポーツで10/16朝に確定した枠・騎手全17頭を再照合。仮番号は廃止し、各馬・inputs・speedAdaptを実馬番1〜17へ名前照合で組替。京都開催過去8回の枠別3着内実績はスムージングn0=30で枠要素4点の範囲にのみ加味。JRA10/16正午京都芝良、含水率ゴール前7.9%、4角8.5%、Aコース、内回り3〜4角内柵際軽微な傷み。16日午後の陣営コメントとウマニティ全17頭調教診断を評価へ反映（評価者所見と実測時計・陣営談話を区別、過度な加点なし）。京都内芝2000mの実測形状ではない模式3D。5代血統全頭の完全解析・全走ラップ物理再現は未完。人気・オッズを能力値に使わない。馬場バイアス当日は未確認。確率は未校正モデル内試算。",
+  "notes": "2026-10-16 15:21 JST 更新。netkeibaと日刊スポーツで10/16朝に確定した枠・騎手全17頭を再照合。仮番号は廃止し、各馬・inputs・speedAdaptを実馬番1〜17へ名前照合で組替。京都開催過去8回の枠別3着内実績はスムージングn0=30で枠要素4点の範囲にのみ加味。JRA10/16正午京都芝良、含水率ゴール前7.9%、4角8.5%、Aコース、内回り3〜4角内柵際軽微な傷み。16日午後の陣営コメントとウマニティ全17頭調教診断を評価へ反映（評価者所見と実測時計・陣営談話を区別、過度な加点なし）。京都内芝2000mの実測形状ではない模式3D。5代血統全頭の完全解析・全走ラップ物理再現は未完。人気・オッズを能力値に使わない。馬場バイアス当日は未確認。確率は未校正モデル内試算。 2026年10月16日夜、モンローウォークの2000m未経験を『不適』として血統・距離・近接コース実績で三重減点していた偏りを、ローズS実測1000m58.9秒・1:44.5・上がり34.1・ノーステッキ0.5秒勝ち、JRA-VAN秋華賞血統分析で修正。course75→79、lap87→89、blood68→84、distance66→74、sd9→10。他16頭・基礎能力115・状態90・14項目の配点は変更していない。",
   "sources": {
     "JRA": "https://jra.jp/keiba/tokubetsu/",
     "registration": "https://www.radionikkei.jp/keiba_article/news/post_38736.html",
@@ -79,7 +79,13 @@ export default {
     "monroe16": "https://dir.netkeiba.com/keiba/news/news_preview_amp.html?no=345742",
     "enne16": "https://dir.netkeiba.com/keiba/news/news_preview_amp.html?no=345750",
     "label16": "https://own.netkeiba.com/news/news_detail.html?id=345751",
-    "something16": "https://news.netkeiba.com/?no=345749&pid=news_view"
+    "something16": "https://news.netkeiba.com/?no=345749&pid=news_view",
+    "monroeRoseResult": "https://race.netkeiba.com/race/result.html?mode=result&race_id=202609040411",
+    "monroeRoseReview": "https://race.netkeiba.com/race/review.html?race_id=202609040411",
+    "monroeJraVanBlood": "https://jra-van.jp/fun/tokusyu/g1/shuka/bloodline.html",
+    "monroeOfficialForm": "https://www.jra.go.jp/JRADB/accessU.html?CNAME=pw01dud002023106859%2FDF",
+    "monroeLatestStable": "https://own.netkeiba.com/news/news_detail.html?id=345742",
+    "monroeLatestWork": "https://umanity.jp/racedata/race_newsdet.php?nid=11880135"
   },
   "horses": [
     {
@@ -414,11 +420,11 @@ export default {
       "base": 115,
       "rest": 35,
       "training": "A",
-      "sd": 9,
+      "sd": 10,
       "history": "ローズS(GII)1着・阪神芝1800m1:44.5・0.5秒差／かもめ島特別1着／八雲特別1着",
-      "plus": "無敗4連勝。ローズSを好位2番手から0.5秒差快勝、10/7CW6F81.9-11.2で先着。上村厩務員は馬体と精神状態に不安なし。",
-      "minus": "初の芝2000m、初のGI。同型逃げ馬の競り合いと内回りでの位置確保。デビュー後に骨折歴（回復後3連勝）。",
-      "latest": "10/13厩務員：体重維持、気性落ち着く。15日に追い切り予定。10/7CW6F81.9-11.2、終い余力（ウマニティ10/13）。 10/14上村師インタビュー：骨折復帰後も充実、GI初挑戦。ローズS実測通過2-2、1:44.5・3馬身差、上がり34.1。母系は豪州マイルG1、短距離傾向を指摘する血統評あり。 【10/15早朝追記】今週の最終追い切り時計は未確認。確認済み10/7 CW6F81.9-11.2・馬なりクビ先着と助手の順調コメントを維持。 【10/15夕方】上村師騎乗の単走。息の乱れなくリズム良、CW1週前も順調。 【10/16枠確定】4枠8番。上村師が真ん中偶数は理想的と評価。2番手前後で競馬を組み立てやすい。外部調教A。",
+      "plus": "無敗4連勝。ローズSは1000m58.9秒を2番手追走、上がり34.1秒、1分44秒5、エンネに3馬身0.5秒差をノーステッキで完勝。函館芝1800mの良・重両馬場で連勝。JRA-VANの秋華賞血統分析も好適配合と評価。最終調教と4枠8番も良好。",
+      "minus": "京都芝2000mとGⅠは初挑戦で距離経験は未確認。芝1800mからの延長、先行馬の競り合いと折り合い、内回りの進路選択には不確実性。過去の骨折歴はあるが復帰後3連勝しており、現在の疾病状態と混同しない。",
+      "latest": "10/13厩務員：体重維持、気性落ち着く。15日に追い切り予定。10/7CW6F81.9-11.2、終い余力（ウマニティ10/13）。 10/14上村師インタビュー：骨折復帰後も充実、GI初挑戦。ローズS実測通過2-2、1:44.5・3馬身差、上がり34.1。母系は豪州マイルG1、短距離傾向を指摘する血統評あり。 【10/15早朝追記】今週の最終追い切り時計は未確認。確認済み10/7 CW6F81.9-11.2・馬なりクビ先着と助手の順調コメントを維持。 【10/15夕方】上村師騎乗の単走。息の乱れなくリズム良、CW1週前も順調。 【10/16枠確定】4枠8番。上村師が真ん中偶数は理想的と評価。2番手前後で競馬を組み立てやすい。外部調教A。 【10/16夜の評価検証】ローズS1000m58.9秒・2番手・上がり34.1・ノーステッキ0.5秒勝ちと、JRA-VANの好適血統分析により、距離未経験を複数項目で減点した過大な不利を修正。",
       "officialPeakRating": 114,
       "officialPeakDistance": "M",
       "lastRace4c": 2,
@@ -445,7 +451,41 @@ export default {
       "pressWorkoutGrade": "A",
       "pressWorkoutGradeSource": "https://umanity.jp/racedata/race_newsdet.php?nid=11879138",
       "trainingScorePrior16": 90,
-      "drawRemark": "4枠8番。上村師が真ん中偶数は理想的と評価。2番手前後で競馬を組み立てやすい。外部調教A。"
+      "drawRemark": "4枠8番。上村師が真ん中偶数は理想的と評価。2番手前後で競馬を組み立てやすい。外部調教A。",
+      "evaluationAudit": {
+        "version": "2026-10-16-evidence-review",
+        "previous": {
+          "course": 75,
+          "lap": 87,
+          "blood": 68,
+          "distance": 66,
+          "sd": 9
+        },
+        "revised": {
+          "course": 79,
+          "lap": 89,
+          "blood": 84,
+          "distance": 74,
+          "sd": 10
+        },
+        "reasons": {
+          "course": "実測京都2000m実績なし。阪神1800m重賞の内容・函館良重1800m2勝を近接証拠とし75→79。2000m実戦があるドリームコアの85より低く据置。",
+          "lap": "ローズS前半1000m58.9秒を2番手追走し、上がり34.1秒・1:44.5・エンネに3馬身（0.5秒）差でノーステッキ。持続的な高い追走力を87→89で小幅補正。",
+          "blood": "JRA-VANはキズナ×豪GI母アンフィトリテⅡ×Sebring×Redoute's Choiceを秋華賞に好適な配合と評価。母父が短距離型ゆえの不適断定は根拠不足で68→84。ただし5代完全照合ではない。",
+          "distance": "初2000mは未知≠苦手。芝1800m良重3連勝を距離適応の代理証拠として66→74。未経験のため同距離実績馬以上にはしない。",
+          "variance": "初2000mの不確実性は得点に多重減点する代わりに未校正の順位変動SDを9→10。実測分散ではない。",
+          "unchanged": "基礎能力115、調教90、4枠8番、脚質好位、騎手・厩舎、枠・当日バイアス、14項目配点、他16頭の入力は変更なし。"
+        },
+        "sources": {
+          "officialForm": "https://www.jra.go.jp/JRADB/accessU.html?CNAME=pw01dud002023106859%2FDF",
+          "roseResult": "https://race.netkeiba.com/race/result.html?mode=result&race_id=202609040411",
+          "roseReview": "https://race.netkeiba.com/race/review.html?race_id=202609040411",
+          "blood": "https://jra-van.jp/fun/tokusyu/g1/shuka/bloodline.html",
+          "stable": "https://own.netkeiba.com/news/news_detail.html?id=345742",
+          "workout": "https://umanity.jp/racedata/race_newsdet.php?nid=11880135"
+        },
+        "caveat": "未校正の仮説モデル。全17頭5代血統・全走ペース実測・同条件のバックテスト未完了。人気やオッズは強さの入力不使用。"
+      }
     },
     {
       "no": 9,
@@ -909,11 +949,11 @@ export default {
       48
     ],
     "8": [
-      75,
-      87,
-      68,
+      79,
+      89,
+      84,
       69,
-      66
+      74
     ],
     "9": [
       79,
@@ -1132,7 +1172,11 @@ export default {
     "マスターソアラ：調教外部B、陣営は輸送前状態良好、87→85。2枠3番は内詰まりと1周目スタンド前発走での精神面注意。",
     "スウィートハピネス：外部調教Cで75→69。京都実績は維持。",
     "フェスティバルヒル：最終調教外部BでC相当43→57。過去大敗・距離の課題は別項目で維持。",
-    "10/16陣営情報：カナルとラベルは京都輸送完了。ドリームの+21kgは調教後測定、助手は太目ではないと説明。当日馬体と混同禁止。"
+    "10/16陣営情報：カナルとラベルは京都輸送完了。ドリームの+21kgは調教後測定、助手は太目ではないと説明。当日馬体と混同禁止。",
+    "10/16夜 モンローウォークの状態、騎手、4枠8番は既に高評価のため二重加点しない。能力の近接証拠、血統で未経験距離の3重減点を是正。",
+    "JRA馬別成績4戦4勝、阪神ローズS1000m58.9秒の流れを好位2番手から1:44.5/上がり34.1でエンネに0.5秒差のノーステッキ圧勝。函館芝1800m良・重両条件でも連勝。",
+    "JRA-VAN秋華賞2026血統分析はキズナ（日本ダービー馬）×豪GⅠ勝ち母×Sebring×Redoute's Choiceを高く評価。母系を短距離血脈だけで不利としていた血統68を84へ是正。完全5代解析ではない。",
+    "修正はコース75→79、ラップ87→89、血統68→84、距離66→74、初2000m不確実性をsd9→10で表現。全14項目100点配点と他16頭は変更なし。"
   ],
   "defaultPace": 1,
   "defaultSimulations": 50000,
@@ -1334,5 +1378,50 @@ export default {
     "course": "Aコース",
     "turf": "内回り3～4角内柵沿いに軽微な傷み・ほか概ね良好",
     "bias": "未観測。内枠・外枠の当日の有利不利を断定しない。10/17レースの実走結果で補正。"
+  },
+  "rebalanceReview": {
+    "asOf": "2026-10-16 evening JST",
+    "reason": "2000m未走の事実をコース・血統・距離の3つで重複マイナスに扱わない。条件に近い実走証拠とJRA-VANの血統分析で補正。",
+    "horse": "モンローウォーク",
+    "original": {
+      "course": 75,
+      "lap": 87,
+      "blood": 68,
+      "distance": 66,
+      "sd": 9
+    },
+    "adopted": {
+      "course": 79,
+      "lap": 89,
+      "blood": 84,
+      "distance": 74,
+      "sd": 10
+    },
+    "conservative": {
+      "course": 78,
+      "lap": 87,
+      "blood": 80,
+      "distance": 72,
+      "sd": 9
+    },
+    "optimistic": {
+      "course": 82,
+      "lap": 92,
+      "blood": 88,
+      "distance": 80,
+      "sd": 11
+    },
+    "other16HorseInputsUnchanged": true,
+    "scoreWeightsUnchanged": true,
+    "userPopularityOddsNotUsed": true,
+    "notCalibrated": true,
+    "sources": {
+      "officialForm": "https://www.jra.go.jp/JRADB/accessU.html?CNAME=pw01dud002023106859%2FDF",
+      "roseResult": "https://race.netkeiba.com/race/result.html?mode=result&race_id=202609040411",
+      "roseReview": "https://race.netkeiba.com/race/review.html?race_id=202609040411",
+      "blood": "https://jra-van.jp/fun/tokusyu/g1/shuka/bloodline.html",
+      "stable": "https://own.netkeiba.com/news/news_detail.html?id=345742",
+      "workout": "https://umanity.jp/racedata/race_newsdet.php?nid=11880135"
+    }
   }
 };
