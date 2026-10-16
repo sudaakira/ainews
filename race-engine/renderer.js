@@ -384,7 +384,7 @@ import {jockeyCap} from './core/jockey-caps.js?v=cap-v1';
  status.textContent='🎬 CINEMATIC 3D · '+models.length+'頭';
  document.getElementById('horse-model-version').textContent='CINEMATIC RACE · DIRECTOR v1';
  window.KYOTO_RENDER_STATUS={ready:true,model:'anime-pony-v20-saddlecloth',venue:venueReady?'full':'fallback',
-  horses:models.length,camera:'automatic-cinematic',courseView:config.courseView,cinematic:true};
+  horses:models.length,camera:'geographic-4-shot',courseView:config.courseView,cinematic:true,saddleclothNames:true,furlongDigits:furlongPosts.map(x=>x.digit)};
  let cw=0,ch=0;
  function resize(){let w=stage.clientWidth,h=stage.clientHeight;if(!w||!h)return;if(w!==cw||h!==ch){cw=w;ch=h;renderer.setSize(w,h,false);camera.aspect=w/h;camera.updateProjectionMatrix()}}
  const tmp=new THREE.Vector3(),look=new THREE.Vector3(),desired=new THREE.Vector3();
