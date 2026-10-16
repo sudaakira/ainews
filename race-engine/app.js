@@ -1,8 +1,9 @@
-import {kyotoMapPath} from './assets/kyoto-course.js?v=kyoto-v11';
+import {kyotoMapPath} from './assets/kyoto-course.js?v=kyoto-v11-1';
 /* Race-engine shared UI application. Loaded after per-race configuration. */
 import {jockeyCap,JRA_JOCKEY_CAPS} from './core/jockey-caps.js?v=cap-v1';
-import {FINISH_GAP,runOutProgress,playbackEnd,playbackRate,finishCrossings} from './assets/race-playback.js?v=kyoto-v11';
+import {FINISH_GAP,runOutProgress,playbackEnd,playbackRate,finishCrossings} from './assets/race-playback.js?v=kyoto-v11-1';
 const config=window.RACE_CONFIG;
+const isKyotoInner=config?.venue==='京都'&&config?.distance===2000&&config?.surface==='芝';
 const FACTOR=window.SWAN_FACTORS,LOOP=window.SWAN_LOOP,SIM=window.RACE_SIM;
 if(!config||!FACTOR||!LOOP||!SIM)throw Error('Race configuration has not loaded');
 const HS=config.horses,FIELD=HS.length,CENTER=(FIELD+1)/2;
@@ -29,7 +30,7 @@ if(docLinks){
   (entries.length?'<p class="small">'+entries.map(([type,url])=>
     '<a rel="noopener" target="_blank" href="'+url+'">'+type+'の資料</a>').join(' ／ ')+'</p>':'')+
   (config.historicalTrends?'<details style="margin:12px 0;background:#f3f6f6;border:1px solid #b9c9c8;border-radius:8px;padding:10px"><summary><b>📊 添付データ：過去10年の秋華賞・京都開催8回の傾向</b></summary><p class="small">'+(config.drawConfirmed?'確定枠順を京都開催8回の枠別傾向で弱く補正。枠だけで馬の実力を逆転させない。':'枠は確定するまで中立。')+' 京都開催8回の前走4角4番手以内＝0-3-2-50（3着内9.1%）、5番手以下＝8-5-6-65（3着内22.6%）。ローズS勝馬や位置取りだけで消さず、既存の先行力・展開項目内に平滑化した軽微な補正だけを適用。</p><p class="small">脚質：逃げ0-2-0-6／先行2-0-1-23／差し6-4-7-47／追込0-2-0-39。キャリア5・6戦優位などは診断用途。人気は能力に使用せず、未確認4角は中立。</p><p class="small">詳細な数表と修正ログ：GitHubの race-engine/races/shuka-2026.js を参照。2021・2022年阪神代替を枠・脚質から除外。</p></details>':'')+
-  '<p class="small">※着順率は未校正モデル内の出現率。'+(config.courseView==='kyoto-1400-outer'?'':'3Dは汎用模式図で実際の競馬場の高低差・距離形状を再現しません。')+'</p>';
+  '<p class="small">※着順率は未校正モデル内の出現率。'+(isKyotoInner?'京都内回りの公開コース図・寸法・高低差に基づく復元モデルです。':config.courseView==='kyoto-1400-outer'?'':'3Dは汎用模式図で実際の競馬場の高低差・距離形状を再現しません。')+'</p>';
 }
 const cameraAll=document.querySelector('[data-camera="wide"]');
 if(cameraAll)cameraAll.textContent='🏟️ '+config.venue+'・全景';
@@ -186,6 +187,8 @@ const route=el('kyoto-route'), group=el('kyoto-horses');
 if(config.venue==='京都'&&config.distance===2000&&config.surface==='芝'){
  route.setAttribute('d',kyotoMapPath());
  route.setAttribute('data-course-model','kyoto-inner-A-metric');
+ const svg=document.getElementById('kyoto-map');svg.setAttribute('aria-label','京都芝2000m内回り・公開寸法を基準に復元');
+ svg.querySelectorAll('text').forEach(t=>{if(t.textContent==='高低差は未再現')t.textContent='3コーナー 高低差3.1m';if(t.textContent==='直線長は模式表示')t.textContent='最後の直線328.4m';if(t.textContent==='勾配は未再現')t.textContent='4コーナーへ下り';});
 }
 
 const routeLength=route.getTotalLength();

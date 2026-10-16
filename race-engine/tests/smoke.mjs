@@ -266,7 +266,9 @@ for(const field of [3,6,17,18])for(const duration of [68,120,180]){
   assert.ok(runOutProgress(r,playbackEnd(duration,field)-duration,duration)>=1.159999,'everyone exits camera before stopping');
  }
 }
-assert.equal(playbackRate(16,119,120),16);
+assert.equal(playbackRate(16,119,120),2);
+assert.equal(playbackRate(16,102,120),4);
+assert.equal(playbackRate(16,90,120),16);
 assert.equal(playbackRate(16,120,120),2);
 assert.equal(playbackRate(1,121,120),1);
 for(const name of ['assets/race-cinematics.js','assets/race-shotlist.js','assets/race-playback.js','assets/chibi-gallop.js']){

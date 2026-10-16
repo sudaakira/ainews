@@ -1,13 +1,13 @@
 /** Deterministic text commentary driven solely by the visible running order.
  * Never reveals the sampled winner before it crosses the line. */
-export function raceCommentary({clock,progress,order,horses,crossed,distance=2000}){
+export function raceCommentary({clock,progress,order,horses,crossed,distance=2000,venue="京都",surface="芝"}){
  const byNo=new Map(horses.map(h=>[h.no,h]));
  const name=no=>byNo.get(no)?.name||String(no);
  const leader=order[0],second=order[1],third=order[2];
  const lead=name(leader.no),chaser=second?name(second.no):'',gap=second?(leader.p-second.p)*distance:0;
- const meters=Math.max(0,Math.round((1-progress)*distance/10)*10);
+ const meters=Math.max(0,Math.ceil((1-progress)*distance/10)*10);
  if(crossed.length)return {key:'winner-'+crossed[0],tone:'winner',title:'WINNER',text:name(crossed[0])+'、いま1着でゴールイン！'+(crossed.length>1?' 続いて'+name(crossed[1])+'！':' 後続も次々とゴールへ！'),winner:crossed[0]};
- if(clock<=0)return {key:'ready',tone:'calm',title:'実況席',text:'京都 芝2000m、秋の一冠へ。各馬ゲートに収まり、スタートを待ちます。'};
+ if(clock<=0)return {key:'ready',tone:'calm',title:'実況席',text:venue+' '+surface+distance+'m。各馬ゲートに収まり、スタートを待ちます。'};
  if(progress<.025)return {key:'start',tone:'excited',title:'スタート',text:'ゲートが開いた！ 各馬いっせいに飛び出しました！'};
  if(progress>.94)return {key:'final-'+leader.no+'-'+(gap<1.2),tone:'excited',title:'ゴール目前',text:gap<1.2?lead+'、'+chaser+'！ 並んでいる！ どちらが先か！':lead+'が先頭！ '+chaser+'が追う！ あと'+meters+'m、押し切るか！'};
  if(progress>.835)return {key:'straight-'+leader.no+'-'+Math.floor(meters/80),tone:'excited',title:'直線の攻防',text:gap<2?lead+'と'+chaser+'、先頭争い！ '+(third?name(third.no)+'も迫ってきた！':''):lead+'が先頭に立つ！ '+chaser+'が差を詰められるか！ 残り'+meters+'m！'};

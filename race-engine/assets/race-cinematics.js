@@ -1,7 +1,7 @@
-import {raceCommentary,ANNOUNCER_SVG} from './race-commentary.js?v=kyoto-v11';
+import {raceCommentary,ANNOUNCER_SVG} from './race-commentary.js?v=kyoto-v11-1';
 /** Clean cel-racing broadcast. All positions and results are read from the shared engine. */
-import {chooseRaceShot,courseShotCuts,raceCameraPose} from './race-shotlist.js?v=kyoto-v11';
-import {finishCrossings,playbackRate} from './race-playback.js?v=kyoto-v11';
+import {chooseRaceShot,courseShotCuts,raceCameraPose} from './race-shotlist.js?v=kyoto-v11-1';
+import {finishCrossings,playbackRate} from './race-playback.js?v=kyoto-v11-1';
 
 export function createRaceCinematics({THREE,scene,stage,models,config,capFor,path,route,routeLength}){
  const cuts=courseShotCuts(route,routeLength,config);
@@ -49,10 +49,10 @@ export function createRaceCinematics({THREE,scene,stage,models,config,capFor,pat
  // Original simplified course furniture, soft colored grandstand and hedge rows.
  // Geometry belongs to this app; no game assets or logos are embedded.
  if(config.courseView!=='kyoto-1400-outer'){
-  const stadium=new THREE.Group();stadium.position.set(-35,0,config.venue==='京都'&&config.distance===2000?220:150);scene.add(stadium);
+  const stadium=new THREE.Group();stadium.position.set(-35,0,config.venue==='京都'&&config.distance===2000?path(1).z+105:150);scene.add(stadium);
   const material=c=>new THREE.MeshToonMaterial({color:c});
   const concrete=material(0xe8eee4),seat=material(0x92b6bb),glass=material(0x59939e),roof=material(0xf8f7e4);
-  const box=(w,h,d,m,x,y,z)=>{const mesh=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),m);mesh.position.set(x,y,z);stadium.add(mesh);};
+  const box=(w,h,d,m,x,y,z)=>{const mesh=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),m);mesh.position.set(x,y,z);mesh.userData.cameraOccluder=true;stadium.add(mesh);};
   box(210,3,32,concrete,0,1.5,0);
   for(let row=0;row<5;row++){
    box(210,1.8,5,row%2?glass:seat,0,4+row*1.8,-12+row*5);
@@ -87,11 +87,11 @@ export function createRaceCinematics({THREE,scene,stage,models,config,capFor,pat
   if(cut){ui.dataset.shot=shot.id;kicker.textContent=shot.kicker;phaseTitle.textContent=shot.label;lastShot=shot.id;}
   const crossed=finishCrossings(finishOrder,clock,duration),runningOut=clock>duration;
   ui.dataset.phase=clock<=0?'gate':runningOut?'run-out':shot.id;
-  const remaining=Math.max(0,Math.round(config.distance*(1-p)/10)*10);
+  const remaining=Math.max(0,Math.ceil(config.distance*(1-p)/10)*10);
   meters.textContent=remaining?String(remaining):'GOAL';metersLabel.textContent=remaining?'m':'';
   speedLabel.textContent=playbackRate(rate,clock,duration)+'×'+(runningOut?' 走り抜け':'');
   subtitle.textContent=clock<=0?'まもなく発走':runningOut?'ゴール後も走り抜け':shot.id==='third-turn'?'坂を越えて勝負所へ':'自動カメラ';
-  const call=raceCommentary({clock,progress:p,order,horses:config.horses,crossed,distance:config.distance});
+  const call=raceCommentary({clock,progress:p,order,horses:config.horses,crossed,distance:config.distance,venue:config.venue,surface:config.surface});
   // Hold each caption long enough to read, even at 16x. Finish/seek supersedes it.
   const now=performance.now(),seeked=Math.abs(clock-previousClock)>3||clock<previousClock;
   if(call.key!==spokenKey&&(now-speechAt>2100||call.tone==='winner'||seeked||clock===0)){

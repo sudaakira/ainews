@@ -9,7 +9,8 @@ export function playbackEnd(duration,fieldSize){
 }
 export function playbackRate(selectedRate,clock,duration){
  // Gentle slow-motion run-out, never a freeze; the HUD shows the actual rate.
- return clock>=duration?Math.min(selectedRate,2):selectedRate;
+ const p=clock/duration;
+ return p>=.94?Math.min(selectedRate,2):p>=.8358?Math.min(selectedRate,4):selectedRate;
 }
 export function finishCrossings(rank,clock,duration){
  const elapsed=Math.max(0,clock-duration);

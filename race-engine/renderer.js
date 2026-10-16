@@ -1,4 +1,4 @@
-import {kyotoPath,kyotoHeight,KYOTO_INNER,runnerLane} from './assets/kyoto-course.js?v=kyoto-v11';
+import {kyotoPath,kyotoHeight,KYOTO_INNER,runnerLane} from './assets/kyoto-course.js?v=kyoto-v11-1';
 
 /* True WebGL 3D horses and racecourse. CDN failure retains the self-contained SVG view. */
 import {jockeyCap} from './core/jockey-caps.js?v=cap-v1';
@@ -174,11 +174,11 @@ import {jockeyCap} from './core/jockey-caps.js?v=cap-v1';
  }
  function box(w,h,d,material,parent,x,y,z){let m=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),material);m.position.set(x,y,z);parent.add(m);return m}
  const silkColors=['#d63e3e','#e8e4df','#2670db','#edc33a','#dd63a5','#4ebbb0','#c7c7c7','#f2932f','#7144bd','#bda144','#db5e32','#62b55c','#e4edf4','#9c78d7','#5b9bd1','#c5a07c','#d6dc45','#cb5171'];
- const {updateGallop}=await import("./assets/chibi-gallop.js?v=kyoto-v11");
+ const {updateGallop}=await import("./assets/chibi-gallop.js?v=kyoto-v11-1");
  const models=[];
  let horseV3Ready=false,modelError='';
  try{
-  const horseV3=await import("./assets/horse-anime.js?v=kyoto-v11");
+  const horseV3=await import("./assets/horse-anime.js?v=kyoto-v11-1");
   for(const h of HS){
    const frameCap=capFor(h);
    models.push(horseV3.createRaceHorse(THREE,scene,h,silkColors[h.no-1],frameCap.hex,frameCap.outline,frameCap.pattern||null,frameCap.secondary||'#FFFFFF'));
@@ -254,7 +254,7 @@ import {jockeyCap} from './core/jockey-caps.js?v=cap-v1';
  // and ivory nested racetrack arches with floodlights). It is not a gate.
  let goalRig=null,goalBoard=null;
  if(config.venue==='京都'&&config.surface==='芝'){
-  const {createKyotoGoalBoard}=await import('./assets/kyoto-goal-board.js?v=kyoto-v11');
+  const {createKyotoGoalBoard}=await import('./assets/kyoto-goal-board.js?v=kyoto-v11-1');
   goalBoard=createKyotoGoalBoard({THREE,scene,offsetPoint,path,half});
   goalRig=goalBoard.root;goalRig.scale.setScalar(.58);
  }else{
@@ -293,8 +293,10 @@ import {jockeyCap} from './core/jockey-caps.js?v=cap-v1';
  const {createJRAFurlongPosts}=await import("./assets/jra-furlong-posts.js?v=geo-v6");
  const furlongPosts=createJRAFurlongPosts({THREE,scene,offsetPoint,distance,half});
  // Cinematic director replaces manual angle selection for every race.
- const {createRaceCinematics}=await import("./assets/race-cinematics.js?v=kyoto-v11");
+ const {createRaceCinematics}=await import("./assets/race-cinematics.js?v=kyoto-v11-1");
  const cinematics=createRaceCinematics({THREE,scene,stage,models,config,capFor,path,route,routeLength});
+ const cameraBlockers=[];scene.traverse(o=>{if(o.isMesh&&o.userData.cameraOccluder)cameraBlockers.push(o)});
+ const visibilityRay=new THREE.Raycaster();
  controls.style.display='none';
  document.querySelector('.camera-more')?.setAttribute('hidden','');
  stage.style.display='block';svg.classList.add('svg-hidden');
@@ -388,11 +390,19 @@ import {jockeyCap} from './core/jockey-caps.js?v=cap-v1';
    goalScreen={x:+pt.x.toFixed(3),y:+pt.y.toFixed(3),z:+pt.z.toFixed(3)};
    goalInFrame=pt.z>-1&&pt.z<1&&Math.abs(pt.x)<.97&&Math.abs(pt.y)<.97;
   }
+  scene.updateMatrixWorld(true);
+  let leadersOccluded=0;
+  for(const item of order.slice(0,3)){
+   const target=models[item.no-1]?.root.position.clone().add(new THREE.Vector3(0,1.2,0));
+   if(!target)continue;
+   const ray=target.clone().sub(camera.position);visibilityRay.set(camera.position,ray.clone().normalize());visibilityRay.far=ray.length();
+   if(visibilityRay.intersectObjects(cameraBlockers,false).length)leadersOccluded++;
+  }
   const sight=camera.getWorldDirection(new THREE.Vector3());
   const goalDepth=goalRig?goalRig.position.clone().sub(camera.position).dot(sight):null;
   const farthestHorse=Math.max(...models.map(m=>m.root.position.clone().sub(camera.position).dot(sight)));
   window.RACE_SCENE_AUDIT={gateVisible:gateRoot.visible,
-   goalBoardVisible:!!goalRig?.visible,goalInFrame,goalScreen,
+   goalBoardVisible:!!goalRig?.visible,goalInFrame,goalScreen,leadersOccluded,
    shot:shotDirection?.shot,goalSide:'far',
    runOut:clock>LIVE.duration,clock,visualTime:LIVE.visualTime,
    positions:models.map(m=>({x:m.root.position.x,y:m.root.position.y,z:m.root.position.z})),

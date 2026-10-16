@@ -7,9 +7,10 @@
 - JRA elevation profile: climb with about1100m remaining, crest around900–800m, descend towards600m. Turf, rails, horses and camera share the same height function. No exaggerated vertical scale.
 - JSS40-inspired bridge-supported stalls, yellow numbers, protective white pads, open front grilles, paired doors, bridge supports and wheels. Model dimensions are a visual reconstruction, not manufacturer CAD.
 - New metre-scale anatomical original cel horses with tapered faces, longer necks, narrow cannon bones, articulated knees/hocks, crouching jockeys, number/name saddlecloths and frame caps. Official Derby Stallion2 visuals are a design reference, not a source of game meshes/textures.
-- Four cuts: side start /2C close / elevated forward diagonal on first5 at3–4C / true side close on first5 in final straight. Camera continues tracking the winning group after the line; all horses keep moving.
+- Four cuts: side start /2C close / elevated forward diagonal on first5 at3–4C / true side close on first3 on phones / first5 on desktop in final straight. Camera continues tracking the winning group after the line; all horses keep moving.
 - Leftmost tracker number is the leader. Winning number gets a gold accent.
 - Original illustrated announcer and Japanese text commentary. Reads visible order, gap and course section; captions held for readability. Winner appears only on actual crossing. This is text commentary, not synthesized audio.
+- Final straight eases playback to at most4×, final120m to2×; continuous motion and the actual speed stay visible.
 - Only visual spacing changed to suit metre scale; forecast core, runner inputs, sampled finishing order and RNG unchanged.
 
 ## Sources inspected
@@ -22,4 +23,4 @@ Official latest Derby Stallion2 cel-look race screen: https://www.gameaddict.co.
 ## Verification
 
 `node race-engine/tests/smoke.mjs`: six race configurations with deterministic5000-draw checks, metric length and goal offset, rise/descent, four-cut geometry, left order, data-driven commentary, uninterrupted runout.
-GitHub Actions browser release gate: 390×844,320×568,430×932,1280×800; actual WebGL, screenshots, goal behind horses, no gate at finish, active limb animation, pause/resume/reset, correct results. Publication follows passing checks.
+GitHub Actions browser release gate: 390×844,320×568,430×932,1280×800; actual WebGL, screenshots, goal behind horses, no building occlusion, no gate at finish, active limb animation, pause/resume/reset, correct results. Publication follows passing checks.

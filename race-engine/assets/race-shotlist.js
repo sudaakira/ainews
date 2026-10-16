@@ -1,4 +1,4 @@
-import {KYOTO_CUTS,runnerLane} from './kyoto-course.js?v=kyoto-v11';
+import {KYOTO_CUTS,runnerLane} from './kyoto-course.js?v=kyoto-v11-1';
 /** Four cuts; the camera follows the leaders through the finish without freezing. */
 export const RACE_SHOT_LIST=Object.freeze([
  Object.freeze({id:'start',until:.28,kicker:'01 / START',label:'スタート',side:25,height:7,ahead:0,fov:42}),
@@ -14,7 +14,7 @@ export function courseShotCuts(route,routeLength,config){
  return config.venue==='京都'&&config.distance===2000&&config.surface==='芝'?[...KYOTO_CUTS]:[.18,.52,.80,Infinity];
 }
 export function raceCameraPose({shot,progress,order,path,aspect=1}){
- const full=shot.id==='start',group=full?order:order.slice(0,5);
+ const full=shot.id==='start',group=full?order:order.slice(0,shot.id==='straight'&&aspect<1?3:5);
  const p=(group[0].p+group.at(-1).p)/2,heading=path(p);
  const field=group.map(o=>{const q=path(o.p),lane=runnerLane(o.no,order.length,progress);return {x:q.x-q.dz*lane,y:q.y,z:q.z+q.dx*lane}});
  const focus={...heading,x:(Math.min(...field.map(q=>q.x))+Math.max(...field.map(q=>q.x)))/2,z:(Math.min(...field.map(q=>q.z))+Math.max(...field.map(q=>q.z)))/2};
@@ -23,9 +23,10 @@ export function raceCameraPose({shot,progress,order,path,aspect=1}){
  // narrow phones without reverting to a bird's-eye field-wide composition.
  const norm=Math.hypot(side,ahead),rx=(heading.dx*side-heading.dz*ahead)/norm,rz=(heading.dz*side+heading.dx*ahead)/norm;
  const horizontal=field.map(q=>(q.x-focus.x)*rx+(q.z-focus.z)*rz);
- const width=Math.max(...horizontal)-Math.min(...horizontal)+4.2;
- const fit=width/(2*Math.tan(shot.fov*Math.PI/360)*Math.max(.42,aspect));
- const scale=Math.max(1,fit/Math.hypot(norm,height));
+ const cx=(heading.dz*side+heading.dx*ahead)/norm,cz=(-heading.dx*side+heading.dz*ahead)/norm;
+ const tan=Math.tan(shot.fov*Math.PI/360)*Math.max(.42,aspect);
+ const fit=Math.max(...field.map((q,i)=>(Math.abs(horizontal[i])+1.9)/tan+(q.x-focus.x)*cx+(q.z-focus.z)*cz));
+ const scale=Math.max(1,fit/norm);
  side*=scale;ahead*=scale;
  // Deliberately retain low elevation even when width requires more distance.
  const point=(lateral,forward,y)=>({x:focus.x+heading.dz*lateral+heading.dx*forward,y:focus.y+y,z:focus.z-heading.dx*lateral+heading.dz*forward});

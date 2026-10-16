@@ -42,6 +42,7 @@ try{
     await page.waitForFunction(()=>window.RACE_SCENE_AUDIT?.cameraTrackingError<.2,null,{timeout:10000});
     const state=await page.evaluate(()=>({director:window.RACE_CINEMATIC_DEBUG,scene:window.RACE_SCENE_AUDIT}));
     assert.equal(state.director.scriptedCuts,4);
+    assert.equal(state.scene.leadersOccluded,0,'buildings never occlude leading horses');
     if(id==='third-turn'){
      assert.ok(state.director.pose.position.y-state.director.pose.look.y<10);
      assert.equal(state.director.pose.subjects.length,5);
@@ -50,6 +51,7 @@ try{
     if(id==='straight'){
      await page.waitForFunction(()=>window.RACE_SCENE_AUDIT?.goalInFrame&&window.RACE_SCENE_AUDIT?.goalBehindHorses,null,{timeout:10000});
      const end=await page.evaluate(()=>window.RACE_SCENE_AUDIT);
+     assert.equal(state.director.pose.subjects.length,vp.width<700?3:5);
      assert.equal(end.gateVisible,false);
      assert.ok(Math.abs(end.cameraForwardDot)<.001,'straight is perpendicular, not diagonal');
      assert.equal(end.goalBehindHorses,true,'finish monument is deeper than every running lane');
