@@ -96,6 +96,8 @@ try{
    await page.locator('#live-scrub').evaluate(el=>{
     el.value='300';el.dispatchEvent(new Event('input',{bubbles:true}));
    });
+   // WebGL's RAF and the course marker update asynchronously after input.
+   await page.waitForFunction(()=>Math.abs((window.RACE_CINEMATIC_DEBUG?.progress??0)-.3)<.002,{timeout:5000});
    const dot2=await page.locator('#race-course-guide circle').evaluate(el=>el.getAttribute('cx')+','+el.getAttribute('cy'));
    assert.notEqual(dot1,dot2,'mini-map dot must follow race progress');
    assert.ok(composition.titleBottom<composition.stageHeight*.38,
