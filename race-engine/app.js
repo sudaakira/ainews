@@ -7,7 +7,7 @@ const distance=Number(config.distance),duration=Number(config.duration)||80;
 // Race-local text, warnings, metadata and limits (not a Kyoto-only UI).
 document.title=config.name+' '+config.date+'｜共通レースシミュレーター';
 const head=document.querySelector('header');
-if(head){head.innerHTML='<p>'+config.venue+' '+config.raceNumber+'R / '+config.date+' / '+config.surface+config.distance+'m '+(config.course||'')+'</p><h1>🏇 '+config.name+' レース予想</h1><p>'+FIELD+'頭・条件回帰ループ3Dシミュレーション'+(config.finalRunnersConfirmed?' ／ 出走馬・騎手確定':'')+(config.provisionalDraw?' ／ 仮番号・枠順未確定':'')+'</p>'+(config.asOf?'<p style="color:#e1f5b4;font-weight:700">📅 データ更新：'+config.asOf.replace('T',' ').replace('+09:00',' JST')+'（登録馬版）</p>':'')+(config.demo?'<p style="color:#aa2d2d;font-weight:800">⚠ 架空の動作確認データ。実在の競馬予想ではありません。</p>':'');}
+if(head){head.innerHTML='<p>'+config.venue+' '+config.raceNumber+'R / '+config.date+' / '+config.surface+config.distance+'m '+(config.course||'')+'</p><h1>🏇 '+config.name+' レース予想</h1><p>'+FIELD+'頭・条件回帰ループ3Dシミュレーション'+(config.finalRunnersConfirmed?' ／ 出走馬・騎手確定':'')+(config.provisionalDraw?' ／ 仮番号・枠順未確定':'')+'</p>'+(config.asOf?'<p style="color:#e1f5b4;font-weight:700">📅 データ更新：'+config.asOf.replace('T',' ').replace('+09:00',' JST')+'（確定枠順・出走17頭）</p>':'')+(config.demo?'<p style="color:#aa2d2d;font-weight:800">⚠ 架空の動作確認データ。実在の競馬予想ではありません。</p>':'');}
 const hero=document.querySelector('.hero-race h2');if(hero)hero.textContent='🏇 '+config.venue+'｜'+FIELD+'頭レースシミュレーター';
 const liveHead=document.querySelector('.live-head strong');if(liveHead)liveHead.textContent='🏇 '+config.venue+' '+config.surface+config.distance+'m｜3Dレース';
 const mainHeading=document.querySelector('main section.card h2');if(mainHeading)mainHeading.innerHTML='全'+FIELD+'頭の3着以内率｜<span id="count">—</span>';
@@ -24,7 +24,7 @@ if(docLinks){
   '<p class="small">'+(config.factors?.scope||'該当コースの騎手・枠順・性別統計は未入力のため中立です。')+'</p>'+ (config.withdrawn?.length?'<p style="color:#a43824;font-weight:700">回避：'+config.withdrawn.map(h=>h.name+'（'+h.reason+'）').join('、')+'</p>':'')+
   (entries.length?'<p class="small">'+entries.map(([type,url])=>
     '<a rel="noopener" target="_blank" href="'+url+'">'+type+'の資料</a>').join(' ／ ')+'</p>':'')+
-  (config.historicalTrends?'<details style="margin:12px 0;background:#f3f6f6;border:1px solid #b9c9c8;border-radius:8px;padding:10px"><summary><b>📊 添付データ：過去10年の秋華賞・京都開催8回の傾向</b></summary><p class="small">枠は確定するまで中立。京都開催8回の前走4角4番手以内＝0-3-2-50（3着内9.1%）、5番手以下＝8-5-6-65（3着内22.6%）。ローズS勝馬や位置取りだけで消さず、既存の先行力・展開項目内に平滑化した軽微な補正だけを適用。</p><p class="small">脚質：逃げ0-2-0-6／先行2-0-1-23／差し6-4-7-47／追込0-2-0-39。キャリア5・6戦優位などは診断用途。人気は能力に使用せず、未確認4角は中立。</p><p class="small">詳細な数表と修正ログ：GitHubの race-engine/races/shuka-2026.js を参照。2021・2022年阪神代替を枠・脚質から除外。</p></details>':'')+
+  (config.historicalTrends?'<details style="margin:12px 0;background:#f3f6f6;border:1px solid #b9c9c8;border-radius:8px;padding:10px"><summary><b>📊 添付データ：過去10年の秋華賞・京都開催8回の傾向</b></summary><p class="small">'+(config.drawConfirmed?'確定枠順を京都開催8回の枠別傾向で弱く補正。枠だけで馬の実力を逆転させない。':'枠は確定するまで中立。')+' 京都開催8回の前走4角4番手以内＝0-3-2-50（3着内9.1%）、5番手以下＝8-5-6-65（3着内22.6%）。ローズS勝馬や位置取りだけで消さず、既存の先行力・展開項目内に平滑化した軽微な補正だけを適用。</p><p class="small">脚質：逃げ0-2-0-6／先行2-0-1-23／差し6-4-7-47／追込0-2-0-39。キャリア5・6戦優位などは診断用途。人気は能力に使用せず、未確認4角は中立。</p><p class="small">詳細な数表と修正ログ：GitHubの race-engine/races/shuka-2026.js を参照。2021・2022年阪神代替を枠・脚質から除外。</p></details>':'')+
   '<p class="small">※着順率は未校正モデル内の出現率。'+(config.courseView==='kyoto-1400-outer'?'':'3Dは汎用模式図で実際の競馬場の高低差・距離形状を再現しません。')+'</p>';
 }
 const cameraAll=document.querySelector('[data-camera="wide"]');
@@ -123,6 +123,8 @@ function cards(){
    '<span class="pill">'+h.style+'</span><p>'+h.j+' / '+h.trainer+' / '+h.kg+'kg</p>'+
    '<p><b>暫定総合評価：'+v.rating.toFixed(1)+' / 100点</b>　3着内率 '+(p?p.p3.toFixed(1):'—')+'%</p>'+
    (h.workout?'<p style="padding:9px;border:1px solid #bfd6ce;border-radius:8px"><b>⏱ 追い切り：</b>'+h.workout.status+'（'+h.workout.date+'）／'+h.workout.venue+' '+h.workout.time+'／'+h.workout.note+'</p>':'')+
+   (h.pressWorkoutGrade?'<p><b>10/16全頭調教診断：</b>'+h.pressWorkoutGrade+'（専門家所見／調教状態の補助情報）</p>':'')+
+   (h.drawRemark?'<p><b>枠・金曜陣営コメント：</b>'+h.drawRemark+'</p>':'')+
    (h.trainingWeight?'<p><b>JRA調教後馬体重：</b>'+h.trainingWeight.kg+'kg（前走 '+h.trainingWeight.lastKg+'kg）／10月'+h.trainingWeight.day+'日 '+h.trainingWeight.location+'計量。輸送後・当日体重とは異なり採点不使用。</p>':'')+
    (h.latest?'<p style="background:#e7f5ef;padding:9px;border-radius:8px"><b>📅 直近調査：</b>'+h.latest+'</p>':'')+
    '<p><b>強み：</b>'+h.plus+'</p><p class="risk"><b>注意：</b>'+h.minus+'</p>'+
