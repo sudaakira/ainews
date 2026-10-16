@@ -1,5 +1,5 @@
 /**
- * Anime gallop v3 — articulated four-leg silhouette with secondary motion.
+ * Anime gallop v4 kawaii — articulated four-leg silhouette with secondary motion.
  * Visual-only rig: reads visualTime and raceProgress, NEVER touches model speed,
  * race order, RNG, horseProgress, or prediction data.
  */
@@ -17,6 +17,7 @@ export function updateGallop(model,raceTime,visualTime,number,raceProgress=0){
   model.tailRig.rotation.set(0,0,0);
   for(const leg of legs){leg.pivot.rotation.set(0,0,0);leg.knee.rotation.set(0,0,0);}
   if(model.rider){model.rider.position.y=0;model.rider.rotation.set(0,0,0);}
+  model.ears?.forEach(e=>{e.rig.rotation.x=0;e.rig.rotation.z=-e.side*.16;});
   model.maneStrands?.forEach(x=>x.rig.rotation.set(0,0,0));
   model.tailStrands?.forEach(x=>x.rig.rotation.set(0,0,0));
   if(model.flutter)model.flutter.rotation.set(0,0,0);
@@ -58,6 +59,12 @@ export function updateGallop(model,raceTime,visualTime,number,raceProgress=0){
  const nod=lerp(a[5],b[5],t)*active;
  model.headRig.rotation.x=nod+.022*Math.sin(pi2*phase+.65)*active;
  model.headRig.rotation.z=.012*Math.sin(pi2*phase*.5+number)*active;
+ // Slightly asymmetrical flops give each pony cute, alive-looking ears.
+ // Phase follows screen time (not simulated 16x time), avoiding strobing.
+ model.ears?.forEach((ear,i)=>{
+  ear.rig.rotation.z=(-ear.side*.16+ear.side*.10*Math.sin(pi2*phase+ear.side*.7))*active;
+  ear.rig.rotation.x=(.055+.065*sprint)*Math.sin(pi2*phase-1+i*.9)*active;
+ });
  model.tailRig.rotation.x=(.12+.15*sprint)*Math.sin(pi2*phase-.6)*active;
  model.tailRig.rotation.z=(.105+.08*sprint)*Math.sin(pi2*phase*.75+number*.47)*active;
  // Hair and tail have slightly lagged secondary spring-like waves.
