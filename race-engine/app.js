@@ -173,7 +173,7 @@ initWeightControls();run();
 
 
 /* Interactive 18-horse race playback: a sampled hypothetical finish, not live race telemetry */
-const LIVE = {playing:false,clock:0,visualTime:0,last:0,rank:[],seed:0,duration,raf:0,ready:false};
+const LIVE = {playing:false,clock:0,visualTime:0,last:0,rank:[],seed:0,duration,raf:0,ready:false,playbackAtFinish:false};
 const NS='http://www.w3.org/2000/svg';
 const route=el('kyoto-route'), group=el('kyoto-horses');
 // True topology (schematic metrics): Kyoto turf 2000m (inner A) starts on
@@ -227,7 +227,7 @@ if(liveScreen){
  liveScreen.parentNode.insertBefore(legend,liveScreen);
 }
 function sampleLiveRace(){
- let s=opts(),r=random((Date.now()%4294967295)>>>0);LIVE.rank=runRace(r,s);LIVE.seed=r()*1000;LIVE.clock=0;LIVE.visualTime=0;LIVE.ready=true;LIVE.playing=false;LIVE.last=0;
+ let s=opts(),r=random((Date.now()%4294967295)>>>0);LIVE.rank=runRace(r,s);LIVE.seed=r()*1000;LIVE.clock=0;LIVE.visualTime=0;LIVE.ready=true;LIVE.playing=false;LIVE.last=0;LIVE.playbackAtFinish=false;
  el('live-status').textContent='スタート待機';raceview.lastKey='';el('result-state').textContent='スタート待機';el('race').classList.remove('finished');el('race').innerHTML=['🥇','🥈','🥉'].map((medal,i)=>'<div class="place-card place-'+(i+1)+'"><div class="place-rank">'+medal+' '+(i+1)+'着</div><div class="place-number">—</div><div class="place-name">レース待機中</div></div>').join('');drawLive();
 }
 function ease(t){return t*t*(3-2*t)}
@@ -261,7 +261,7 @@ function drawLive(){
  });
  el('live-leaders').innerHTML=progress===0?'':order.slice(3,6).map((h,i)=>'<span>'+(i+4)+'位 <b>'+h.no+' '+HS[h.no-1].name+'</b></span>').join('');
  if(progress>0)raceview(order.map(x=>x.no),progress>=1);
- if(progress>=1){LIVE.playing=false;el('live-status').textContent='🏁 ゴール・着順確定';raceview(LIVE.rank,true)}
+ if(progress>=1){if(LIVE.playing)LIVE.playbackAtFinish=true;LIVE.playing=false;el('live-status').textContent='🏁 ゴール・着順確定';raceview(LIVE.rank,true)}
 }
 function liveFrame(t){
  if(LIVE.playing){
@@ -280,7 +280,7 @@ function liveFrame(t){
 el('live-play').onclick=()=>{if(!LIVE.ready||LIVE.clock>=LIVE.duration)sampleLiveRace();LIVE.playing=true;LIVE.last=0;el('live-status').textContent='● シミュレーション再生中';};
 el('live-pause').onclick=()=>{LIVE.playing=false;LIVE.last=0;el('live-status').textContent='一時停止';};
 el('live-reset').onclick=()=>sampleLiveRace();
-el('live-scrub').oninput=v=>{LIVE.clock=LIVE.duration*(+v.target.value)/1000;LIVE.playing=false;LIVE.last=0;drawLive();};
+el('live-scrub').oninput=v=>{LIVE.clock=LIVE.duration*(+v.target.value)/1000;LIVE.playing=false;LIVE.last=0;LIVE.playbackAtFinish=false;drawLive();};
 const oldSim=el('simulate').onclick;el('simulate').onclick=()=>{oldSim();sampleLiveRace();};
 sampleLiveRace();LIVE.raf=requestAnimationFrame(liveFrame);
 window.KYOTO_RACE={HS,LIVE,route,routeLength,horseProgress,config};
