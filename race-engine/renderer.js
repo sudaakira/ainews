@@ -151,7 +151,7 @@ import {jockeyCap} from './core/jockey-caps.js?v=cap-v1';
  function segment(parent,material,from,to,r1,r2){let a=new THREE.Vector3(...from),b=new THREE.Vector3(...to),d=b.clone().sub(a);let m=new THREE.Mesh(new THREE.CylinderGeometry(r1,r2,d.length(),9),material);m.position.copy(a.add(b).multiplyScalar(.5));m.quaternion.setFromUnitVectors(new THREE.Vector3(0,1,0),d.normalize());parent.add(m);return m}
  const horseColors=[0x6e3927,0x9e542b,0x4b2a24,0x9b6437,0x382a28,0x8c3d24,0x6d513c,0x342d2c,0x91542d,0x52382e,0x9d5d32,0x613b2c,0x3d302b,0xa06d42,0x684631,0x412b27,0x97572d,0x5d372a];
  const silkColors=['#d63e3e','#e8e4df','#2670db','#edc33a','#dd63a5','#4ebbb0','#c7c7c7','#f2932f','#7144bd','#bda144','#db5e32','#62b55c','#e4edf4','#9c78d7','#5b9bd1','#c5a07c','#d6dc45','#cb5171'];
- const {updateGallop}=await import("./assets/chibi-gallop.js?v=cinema-v3");
+ const {updateGallop}=await import("./assets/chibi-gallop.js?v=cinema-v5");
  const models=[];
  const toonCache=new Map();
  function animeMaterial(c){const key=new THREE.Color(c).getHex();if(!toonCache.has(key))toonCache.set(key,new THREE.MeshToonMaterial({color:key}));return toonCache.get(key)}
@@ -279,12 +279,12 @@ import {jockeyCap} from './core/jockey-caps.js?v=cap-v1';
  // Never silently show the old horse when the requested new model fails.
  let horseV3Ready=false,modelError='';
  try{
-  const horseV3=await import("./assets/horse-anime.js?v=cinema-v3");
+  const horseV3=await import("./assets/horse-anime.js?v=cinema-v5");
   for(const h of HS){
    const frameCap=capFor(h);
    models.push(horseV3.createRaceHorse(THREE,scene,h,silkColors[h.no-1],frameCap.hex,frameCap.outline,frameCap.pattern||null,frameCap.secondary||'#FFFFFF'));
   }
-  horseV3Ready=models.length===HS.length&&models.every(m=>m.artDirection==='anime-pony-v18-kinetic');
+  horseV3Ready=models.length===HS.length&&models.every(m=>m.artDirection==='anime-pony-v19-kawaii');
   if(!horseV3Ready)throw new Error('アニメ馬モデルと出走'+HS.length+'頭の整合性を確認できませんでした');
  }catch(e){
   modelError=String(e?.stack||e);
@@ -380,14 +380,14 @@ import {jockeyCap} from './core/jockey-caps.js?v=cap-v1';
   let label=new THREE.Sprite(new THREE.SpriteMaterial({map:new THREE.CanvasTexture(cv)}));label.position.copy(p);label.position.y+=3.2;label.scale.set(4,2,1);scene.add(label);
  }
  // Cinematic director replaces manual angle selection for every race.
- const {createRaceCinematics}=await import("./assets/race-cinematics.js?v=cinema-v3");
+ const {createRaceCinematics}=await import("./assets/race-cinematics.js?v=cinema-v5");
  const cinematics=createRaceCinematics({THREE,scene,stage,models,config,capFor,path});
  controls.style.display='none';
  document.querySelector('.camera-more')?.setAttribute('hidden','');
  stage.style.display='block';svg.classList.add('svg-hidden');
  status.textContent='🎬 CINEMATIC 3D · '+models.length+'頭';
  document.getElementById('horse-model-version').textContent='CINEMATIC RACE · DIRECTOR v1';
- window.KYOTO_RENDER_STATUS={ready:true,model:'anime-pony-v18-kinetic',venue:venueReady?'full':'fallback',
+ window.KYOTO_RENDER_STATUS={ready:true,model:'anime-pony-v19-kawaii',venue:venueReady?'full':'fallback',
   horses:models.length,camera:'automatic-cinematic',courseView:config.courseView,cinematic:true};
  let cw=0,ch=0;
  function resize(){let w=stage.clientWidth,h=stage.clientHeight;if(!w||!h)return;if(w!==cw||h!==ch){cw=w;ch=h;renderer.setSize(w,h,false);camera.aspect=w/h;camera.updateProjectionMatrix()}}
@@ -442,11 +442,17 @@ import {jockeyCap} from './core/jockey-caps.js?v=cap-v1';
   // Dedicated cinematic director: automatic camera, lights, turf spray,
   // luminous gallop streaks, duel titles and finish celebrations.
   // Does not touch horseProgress, standings or any forecast calculation.
-  cinematics.update({clock,progress:raceProgress,order,finishOrder:LIVE.rank,frameDt,camera,desired,look,rate});
+  const shotDirection=cinematics.update({clock,progress:raceProgress,order,finishOrder:LIVE.rank,frameDt,camera,desired,look,rate});
   // Framerate-independent camera tracking, responsive enough for 16x playback.
   const followAlpha=1-Math.exp(-frameDt*(8+rate*1.5));
-  if(first){camera.position.copy(desired);smoothLook.copy(look);first=false}
-  else{camera.position.lerp(desired,followAlpha);smoothLook.lerp(look,followAlpha)}
+  // A deliberate 16x cut is a new shot, not a dizzying several-second
+  // camera orbit across the whole course. Between cuts, track smoothly.
+  if(first||shotDirection?.cut){
+   camera.position.copy(desired);smoothLook.copy(look);first=false;
+  }else{
+   camera.position.lerp(desired,followAlpha);
+   smoothLook.lerp(look,followAlpha);
+  }
   camera.lookAt(smoothLook);
   renderer.render(scene,camera);
  }
