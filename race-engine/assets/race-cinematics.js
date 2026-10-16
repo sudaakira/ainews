@@ -4,7 +4,7 @@
  * All movement comes from the caller's existing race engine.
  * Designed for 3–18 entrants and mobile WebGL1/2.
  */
-import {chooseRaceShot} from './race-shotlist.js?v=director-v7';
+import {chooseRaceShot} from './race-shotlist.js?v=director-v8';
 
 export function createRaceCinematics({THREE,scene,stage,models,config,capFor,path,route,routeLength}){
  const mobile=()=>window.innerWidth<700;
@@ -216,24 +216,36 @@ export function createRaceCinematics({THREE,scene,stage,models,config,capFor,pat
   const stageName=p<.14?'スタンド前・発走':p<.29?'1〜2コーナー':
    p<.55?'向正面':p<.80?'3〜4コーナー':p<1?'最後の直線':'ゴール';
   if(locText.textContent!==stageName)locText.textContent=stageName;
-  // Storyboard: readable wide field -> warm character close-up -> tactical
-  // wide -> last-400 duel. ~8 seconds at 16x means purposeful cuts rather
-  // than a continuously swinging camera that obscures overtakes.
+  // Director v8: START full field → SECOND TURN close → FOURTH TURN →
+  // LAST STRAIGHT from the SIDE, to read the finishing order immediately.
+  // 16x has only four changes, and the fourth keeps the REAL goal monument
+  // in view (on the infield side of the finish line).
   const short=aspect<.83;
   const subject=shot.view==='field'?order[Math.min(3,order.length-1)]:
                 shot.view==='pack'?order[Math.min(1,order.length-1)]:lead;
   const target=path(subject.p);
   const next=path(order[Math.min(1,order.length-1)].p);
-  const focus=shot.view==='duel'?
-    {x:target.x*.76+next.x*.24,y:target.y*.76+next.y*.24,
-     z:target.z*.76+next.z*.24,dx:target.dx,dz:target.dz}:target;
-  // Camera stays mostly in FRONT of the racing line with symmetric offsets.
-  // Vertical phone shots have a modestly larger FOV, never a massive pan.
-  const factor=short?.89:1;
-  const side=shot.side*factor,height=shot.height,ahead=shot.ahead;
-  desired.copy(vec(focus,side,ahead,height));
-  look.copy(vec(focus,0,-.6,2.1));
-  const targetFov=shot.fov+(short?3:0);
+  const mixed=shot.view==='duel'?
+    {x:target.x*.78+next.x*.22,y:target.y*.78+next.y*.22,
+     z:target.z*.78+next.z*.22,dx:target.dx,dz:target.dz}:target;
+  const isFinishSide=shot.id==='straight'||shot.id==='result';
+  const finishTarget=path(1);
+  const settle=clamp((p-.935)/.06,0,1);
+  const eased=settle*settle*(3-2*settle);
+  const focus=isFinishSide?{
+   x:lerp(mixed.x,finishTarget.x,eased),
+   y:lerp(mixed.y,finishTarget.y,eased),
+   z:lerp(mixed.z,finishTarget.z,eased),
+   dx:lerp(mixed.dx,finishTarget.dx,eased),
+   dz:lerp(mixed.dz,finishTarget.dz,eased)
+  }:mixed;
+  const side=shot.side*(short?.92:1);
+  desired.copy(vec(focus,side,shot.ahead,shot.height));
+  // Straight final: aim across the turf toward the Kyoto goal post rather
+  // than at empty sky, but preserve the horses on the near side of frame.
+  look.copy(vec(focus,isFinishSide?-7.6:0,isFinishSide?0:-.6,
+    isFinishSide?3.5:2.1));
+  const targetFov=shot.fov+(short?4:0);
   const shake=sprint&&!reduced()?Math.min(.062,.018+(p-.8)*.18):0;
   if(shake){
    const t=clock*3.3;desired.x+=Math.sin(t*1.9)*shake;
@@ -277,7 +289,7 @@ export function createRaceCinematics({THREE,scene,stage,models,config,capFor,pat
   }
   halos.forEach((x,i)=>x.material.opacity=sprint&&order.slice(0,2).some(a=>a.no===i+1)?.10:0);
   window.RACE_CINEMATIC_DEBUG={shot:shot.id,progress:p,rate,cut,
-   scriptedCuts:4,mode:'16x-geographic',position:stageName};
+   scriptedCuts:4,mode:'16x-side-finish',position:stageName};
   return {cut,shot:shot.id};
  }
  return {update};
