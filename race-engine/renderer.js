@@ -447,6 +447,15 @@ import {jockeyCap} from './core/jockey-caps.js?v=cap-v1';
   if(first){camera.position.copy(desired);smoothLook.copy(look);first=false}
   else{camera.position.lerp(desired,stableAlpha);smoothLook.lerp(look,stableAlpha)}
   camera.lookAt(smoothLook);
+  // Verify the opening camera actually frames every projected horse body.
+  if(raceProgress<.19){
+   let inside=0;const projected=new THREE.Vector3();
+   for(const h of models){
+    projected.set(0,2.0,0);h.root.localToWorld(projected);projected.project(camera);
+    if(projected.z>-1&&projected.z<1&&Math.abs(projected.x)<.94&&Math.abs(projected.y)<.94)inside++;
+   }
+   window.RACE_CAMERA_AUDIT={opening:inside,total:models.length,shot:shotDirection?.shot};
+  }
   renderer.render(scene,camera);
  }
  animate();
