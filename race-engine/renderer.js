@@ -5,8 +5,19 @@ import {jockeyCap} from './core/jockey-caps.js?v=cap-v1';
  const stage=document.getElementById('three-stage'),svg=document.getElementById('kyoto-map'),controls=document.getElementById('camera-controls');
  const status=document.getElementById('three-status');
  let THREE;
- try{THREE=await import('https://cdn.jsdelivr.net/npm/three@0.160.1/build/three.module.js')}
- catch(err){status.textContent='3D読込不可・2Dで再生中';controls.style.display='flex';controls.querySelectorAll('button').forEach(b=>b.style.display=b.dataset.camera==='2d'?'':'none');return}
+ const show3DFailure=(detail)=>{
+  window.KYOTO_RENDER_STATUS={ready:false,reason:String(detail)};
+  stage.style.display='none';svg.classList.remove('svg-hidden');
+  const parent=document.querySelector('.live-screen');
+  if(parent){
+   let warning=document.getElementById('race-3d-warning');
+   if(!warning){warning=document.createElement('div');warning.id='race-3d-warning';parent.append(warning)}
+   warning.textContent='⚠ 3D映像を開始できません：'+String(detail)+'（2D代替表示）';
+  }
+  if(status)status.textContent='⚠ 3D起動不可：'+String(detail);
+ };
+ try{THREE=await import('./vendor/three.module.js?v=three-0.160.0')}
+ catch(err){console.error('Local 3D library failed',err);show3DFailure(err?.message||err);return}
  try{
  const api=window.KYOTO_RACE;
  if(!api)throw Error('Race state unavailable');
@@ -14,9 +25,9 @@ import {jockeyCap} from './core/jockey-caps.js?v=cap-v1';
  const capFor=h=>jockeyCap(h,config,horse=>window.SWAN_FACTORS.frame(horse));
  const scene=new THREE.Scene();scene.background=new THREE.Color(0x9edbf7);scene.fog=new THREE.FogExp2(0xb9e1ee,.0015);
  const camera=new THREE.PerspectiveCamera(50,1,.1,1000);
- const renderer=new THREE.WebGLRenderer({antialias:true,powerPreference:'high-performance',alpha:false});
+ const renderer=new THREE.WebGLRenderer({antialias:true,powerPreference:'default',alpha:false,preserveDrawingBuffer:false});
  // Fewer GPU pixels on phones preserve frame rate when all up to 18 animated horses are visible.
- renderer.setPixelRatio(Math.min(window.devicePixelRatio||1,window.innerWidth<800?1.5:1.8)); // Restore sharp full-resolution 3D.
+ renderer.setPixelRatio(Math.min(window.devicePixelRatio||1,window.innerWidth<800?1.2:1.8)); // Restore sharp full-resolution 3D.
  renderer.outputColorSpace=THREE.SRGBColorSpace;
  renderer.toneMapping=THREE.ACESFilmicToneMapping;
  renderer.toneMappingExposure=1.05;
@@ -376,7 +387,7 @@ import {jockeyCap} from './core/jockey-caps.js?v=cap-v1';
  stage.style.display='block';svg.classList.add('svg-hidden');
  status.textContent='🎬 CINEMATIC 3D · '+models.length+'頭';
  document.getElementById('horse-model-version').textContent='CINEMATIC RACE · DIRECTOR v1';
- window.KYOTO_RENDER_STATUS={model:'anime-pony-v17-softplush',venue:venueReady?'full':'fallback',
+ window.KYOTO_RENDER_STATUS={ready:true,model:'anime-pony-v18-kinetic',venue:venueReady?'full':'fallback',
   horses:models.length,camera:'automatic-cinematic',courseView:config.courseView,cinematic:true};
  let cw=0,ch=0;
  function resize(){let w=stage.clientWidth,h=stage.clientHeight;if(!w||!h)return;if(w!==cw||h!==ch){cw=w;ch=h;renderer.setSize(w,h,false);camera.aspect=w/h;camera.updateProjectionMatrix()}}
@@ -442,6 +453,7 @@ import {jockeyCap} from './core/jockey-caps.js?v=cap-v1';
  animate();
  }catch(err){
   console.error('3D renderer error',err);
-  stage.style.display='none';svg.classList.remove('svg-hidden');controls.style.display='flex';status.textContent='⚠️ 3D読込失敗（旧馬への自動切替なし）：'+String(err?.message||err);document.getElementById('horse-model-version').textContent='⚠️ ANIME HORSE v17 LOAD ERROR';
+  show3DFailure(err?.message||err);
+  document.getElementById('horse-model-version').textContent='⚠ 3D INIT ERROR';
  }
 })();
