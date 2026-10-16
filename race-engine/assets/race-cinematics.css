@@ -223,3 +223,15 @@
  .hero-race .live-sim{padding:5px!important}
  .hero-race #three-stage{height:clamp(210px,64vh,430px)}
 }
+
+/* The mobile rule setting #kyoto-map to display:block inadvertently
+   overrode .svg-hidden, layering the old 2D course above the WebGL canvas.
+   Never expose the flat fallback when the 3D engine has loaded. */
+.hero-race #kyoto-map.svg-hidden{display:none!important}
+.hero-race #three-stage[style*="display: block"]{display:block!important}
+#race-3d-warning{
+ position:absolute;left:8px;right:8px;top:10px;z-index:100;
+ padding:9px 12px;border:1px solid #ffcc8b;border-radius:10px;
+ background:#48251fe8;color:#fff0d4;font-size:12px;line-height:1.45;
+ box-shadow:0 6px 20px #0006
+}
