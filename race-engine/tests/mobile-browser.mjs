@@ -176,8 +176,11 @@ try{
     return {events:window.RACE_PHOTO_EVENTS,finish:window.RACE_PHOTO_DEBUG,
       expected:window.KYOTO_RACE.LIVE.rank.slice(0,3)};
    });
-   for(const step of ['first','second','third','result'])
+   for(const step of ['first','second','third'])
     assert.ok(sequences.events.includes(step),'1-2-3 finish hold missing '+step+': '+JSON.stringify(sequences));
+   // The RAF has confirmed 'result', but the 35ms interval may not yet
+   // have copied the same frame into RACE_PHOTO_EVENTS.
+   assert.equal(sequences.finish.phase,'result');
    const displayed=await page.locator('.cinema-result-cap').allTextContents();
    assert.deepEqual(displayed,sequences.expected.map(String),'after three holds show exact simulated rank');
    assert.equal(await page.locator('#race-photo-cue').isVisible(),true);
