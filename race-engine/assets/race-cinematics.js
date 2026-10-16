@@ -4,7 +4,7 @@
  * All movement comes from the caller's existing race engine.
  * Designed for 3–18 entrants and mobile WebGL1/2.
  */
-import {chooseRaceShot} from './race-shotlist.js?v=director-v5';
+import {chooseRaceShot} from './race-shotlist.js?v=director-v7';
 
 export function createRaceCinematics({THREE,scene,stage,models,config,capFor,path,route,routeLength}){
  const mobile=()=>window.innerWidth<700;
