@@ -101,8 +101,10 @@ export function createRaceCinematics({THREE,scene,stage,models,config,capFor,pat
   '<div class="cinema-duel" id="cinema-duel">'+
    '<span class="cinema-duel-label">FINAL SPRINT / 先頭争い</span>'+
    '<div class="cinema-duel-contenders" id="cinema-duel-contenders"></div></div>'+
-  '<div class="cinema-finish" id="cinema-finish"><small>PHOTO FINISH · 仮想レース</small>'+
-   '<strong id="cinema-winner">WINNER</strong><span id="cinema-finish-caption">ゴール！</span></div>'+
+  '<div class="cinema-finish" id="cinema-finish"><small>PHOTO FINISH · VIRTUAL RACE</small>'+
+   '<strong class="cinema-finish-heading">確定着順 TOP 3</strong>'+
+   '<div class="cinema-podium" id="cinema-podium"></div>'+
+   '<span id="cinema-finish-caption">ゴール！</span></div>'+
   '<div class="cinema-confetti" aria-hidden="true">'+
     Array.from({length:24},(_,i)=>'<i style="--i:'+i+';--x:'+((i*37)%95+2)+'%;--h:'+(i%2?'#f5ce8c':'#a2eee1')+'"></i>').join('')+
   '</div>';
@@ -113,7 +115,7 @@ export function createRaceCinematics({THREE,scene,stage,models,config,capFor,pat
  const duel=ui.querySelector('#cinema-duel');
  const contenders=ui.querySelector('#cinema-duel-contenders');
  const finish=ui.querySelector('#cinema-finish');
- const winner=ui.querySelector('#cinema-winner');
+ const podium=ui.querySelector('#cinema-podium');
  const finishCaption=ui.querySelector('#cinema-finish-caption');
  let lastPhase='',lastPair='',lastFinished=false,lastClock=-1;
 
@@ -127,7 +129,7 @@ export function createRaceCinematics({THREE,scene,stage,models,config,capFor,pat
   if(p<1)return ['photo','TO THE LINE','最後の一完歩！'];
   return ['finish','PHOTO FINISH','仮想レース決着'];
  }
- function update({clock,progress,order,frameDt,camera,desired,look,rate}){
+ function update({clock,progress,order,finishOrder,frameDt,camera,desired,look,rate}){
   const p=clamp(progress,0,1),lead=order[0],runner=models[lead.no-1],
         target=path(lead.p),aspect=camera.aspect;
   const [phase,title,subtitle]=phaseAt(p,clock);
@@ -158,31 +160,47 @@ export function createRaceCinematics({THREE,scene,stage,models,config,capFor,pat
    lastFinished=finished;
   }
   if(finished&&clock!==lastClock){
-   const top=config.horses[lead.no-1];
-   winner.textContent=lead.no+' '+top.name;
-   finishCaption.textContent='🥇 先頭でゴール · 仮想着順';
+   // Use the original simulator's definitive LIVE.rank — never derive a
+   // potentially wrong finish from visually interpolated 3D positions.
+   const placed=Array.isArray(finishOrder)&&finishOrder.length>=3
+    ?finishOrder.slice(0,3):order.slice(0,3).map(o=>o.no);
+   const medals=['🥇','🥈','🥉'];
+   podium.replaceChildren(...placed.map((no,index)=>{
+     const row=document.createElement('div');row.className='cinema-podium-row cinema-podium-'+(index+1);
+     const horse=config.horses[no-1],cap=capFor(horse);
+     const medal=document.createElement('span');medal.className='cinema-medal';medal.textContent=medals[index];
+     const number=document.createElement('b');number.className='cinema-result-cap';
+     number.style.background=cap.hex;number.style.color=cap.text;
+     number.style.borderColor=cap.outline;number.textContent=String(no);
+     const name=document.createElement('strong');name.textContent=horse.name;
+     row.append(medal,number,name);return row;
+   }));
+   finishCaption.textContent='シミュレーション確定着順 · 実際のレース結果ではありません';
   }
   lastClock=clock;
   // DIRECTED CAMERA: fixed story beats; no manual camera buttons.
   // Cameras see the actual simulated horse positions, not fabricated passes.
   const short=aspect<.83;
+  // TV director faces the horses from AHEAD (+forward); the last camera
+  // mostly filmed them from the side. Keep both leaders visible on phones.
   const settings={
-   gate:[11,7,7,short?57:48],
-   break:[13,5,6,short?60:51],
-   pursuit:[15,4.8,4,short?57:47],
-   corner:[24,13,8,short?62:54],
-   attack:[17,7,-3,short?60:50],
-   sprint:[9.5,3.4,2,short?57:47],
-   photo:[7.3,4.1,17,short?61:52],
-   finish:[10,4.6,8,short?58:47]
+   gate:[5.3,4.1,15.0,short?60:51],
+   break:[4.7,3.9,16.0,short?58:50],
+   pursuit:[4.4,4.1,17.5,short?54:46],
+   corner:[6.9,7.3,21.0,short?61:52],
+   attack:[4.4,4.0,17.0,short?55:47],
+   sprint:[3.3,3.4,14.5,short?54:46],
+   photo:[2.4,3.6,17.0,short?55:47],
+   finish:[4.0,4.1,15.5,short?56:49]
   };
   const [side,height,forward,fov]=settings[phase];
-  // During last metres put the camera AHEAD, looking into the runners.
-  const cam=vec(target,side,forward,height);
-  desired.copy(cam);
-  const lookAhead=phase==='photo'?-1.4:phase==='corner'?-2.3:0;
-  const aim=vec(target,0,lookAhead,phase==='gate'?2.4:2.1);
-  look.copy(aim);
+  const second=order[1]&&path(order[1].p);
+  const focus=second?{
+   x:target.x*.77+second.x*.23,y:target.y*.77+second.y*.23,
+   z:target.z*.77+second.z*.23,dx:target.dx,dz:target.dz
+  }:target;
+  desired.copy(vec(focus,side,forward,height));
+  look.copy(vec(focus,0,phase==='photo'?-1:0,phase==='gate'?2.45:2.0));
   const shake=sprint?Math.min(.18,.05+(p-.8)*.55):0;
   if(shake){
    const t=clock*3.3;desired.x+=Math.sin(t*1.9)*shake;
