@@ -42,7 +42,7 @@ function paintedEye(T){
 // illustrated design direction (large expressive eyes, rosy muzzle, tiny rider).
 // Coordinates: forward +Z, up +Y. Four articulated legs stay compatible with
 // chibi-gallop-v1.js and the 18-horse Kyoto race simulator.
-export function createRaceHorse(T,scene,h,silkHex){
+export function createRaceHorse(T,scene,h,silkHex,frameCapHex='#89929B',frameCapOutline='#28323A'){
  const root=new T.Group(),anim=new T.Group();root.add(anim);
  const coatColors=[0x848b91,0x593a30,0x815038,0x995e40,0xb2764c,0x686e75,0x633a30,0x976b4c,0x473b38,0x8b5a40,0x593d35,0x977759,0x754b37,0x69483d,0x805b48,0xa1795c,0x50403a,0x977e66];
  const base=coatColors[(h.no-1)%coatColors.length];
@@ -291,7 +291,7 @@ export function createRaceHorse(T,scene,h,silkHex){
  // match the reference illustration while the original silks remain per runner.
  const rider=new T.Group();anim.add(rider);
  const skin=toon(0xffd3b5),skinShade=toon(0xe3a793);
- const helmetWhite=toon(0xfff9f5),helmetBand=toon(0x2b2a36);
+ const helmetFrame=toon(frameCapHex),helmetTrim=toon(frameCapOutline);
  const boot=toon(0x292930),glove=toon(0x30313c);
  const hair=toon(h.no%3===0?0x623d32:h.no%3===1?0x50352f:0x865238);
  const saddle=ell(rider,leather,0,2.36,-.25,.56,.10,.64);
@@ -313,13 +313,14 @@ export function createRaceHorse(T,scene,h,silkHex){
   ell(rider,hair,side*.34,2.975,.05,.12,.118,.28);
   tuft(rider,hair,side*.35,2.92,-.16,.11,.29,.11,-1.17,side*.15);
  }
- // Helmet remains brighter than the coat. Two silk-colored panels read
- // like the red-and-white competition helmet in the design sheet.
- lined(rider,helmetWhite,0,3.335,.423,.367,.208,.337);
- ell(rider,silk,0,3.438,.493,.092,.112,.287);
- ell(rider,helmetBand,0,3.265,.725,.363,.055,.090);
- // A little glossy front peak and golden helmet buckle.
- ell(rider,helmetBand,0,3.275,.745,.330,.032,.128);
+ // JRA official frame-coloured jockey cap. Body/crown/front panel/peak use
+ // the SAME frame colour. The narrow contrasting seam keeps white and black
+ // identifiable against bright/dark surroundings, without changing silks.
+ lined(rider,helmetFrame,0,3.335,.423,.367,.208,.337);
+ ell(rider,helmetFrame,0,3.438,.493,.092,.112,.287);
+ ell(rider,helmetTrim,0,3.265,.725,.363,.038,.090);
+ // Front peak is also frame-coloured, including white, black, and pink.
+ ell(rider,helmetFrame,0,3.275,.745,.330,.032,.128);
  ell(rider,metal,.29,3.272,.660,.035,.027,.025);
  // Arm + reins: lean forward into the run, tucked like a game character.
  for(const side of [-1,1]){
