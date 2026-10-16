@@ -1,4 +1,4 @@
-/** Shuka Sho 2026: Oct16 evening evidence-balanced Monroe Walk scoring audit; 17 runners, official draw. */
+/** Shuka Sho 2026 10/16 19:08 JST: rebalanced Monroe Walk with verified 1800m pace and JRA-VAN bloodline. */
 export default {
   "schemaVersion": 1,
   "id": "shuka-2026",
@@ -1123,7 +1123,7 @@ export default {
       "武豊": 150
     }
   },
-  "asOf": "2026-10-16T15:21:00+09:00",
+  "asOf": "2026-10-16T19:08:00+09:00",
   "analysisLog": [
     "14要素の基本配点は変更しない。過去レース数の少ない単発結果に過学習しない。",
     "エンネ：10/10CW87.7-11.0最先着、ブリンカーでローズS前より先行可能と判明、training B→A、style差し→好位。",
@@ -1380,7 +1380,7 @@ export default {
     "bias": "未観測。内枠・外枠の当日の有利不利を断定しない。10/17レースの実走結果で補正。"
   },
   "rebalanceReview": {
-    "asOf": "2026-10-16 evening JST",
+    "asOf": "2026-10-16T19:08:00+09:00",
     "reason": "2000m未走の事実をコース・血統・距離の3つで重複マイナスに扱わない。条件に近い実走証拠とJRA-VANの血統分析で補正。",
     "horse": "モンローウォーク",
     "original": {
