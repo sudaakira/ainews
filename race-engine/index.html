@@ -20,7 +20,7 @@
 #kyoto-map .marker{font-size:13px;fill:#e7f4e7;font-weight:700}
 #kyoto-map .hill{font-size:13px;fill:#f3edb3;font-weight:800}
 #kyoto-map .horse-icon{font-size:24px;dominant-baseline:central;text-anchor:middle}
-#kyoto-map .horse-number{font-size:10px;fill:#172f36;font-weight:900;text-anchor:middle;dominant-baseline:central}
+#kyoto-map .horse-number{font-size:10px;font-weight:900;text-anchor:middle;dominant-baseline:central}
 #kyoto-map .gate{fill:#e4f2ed;opacity:.9}
 @media(max-width:650px){.live-stats{grid-template-columns:repeat(3,minmax(0,1fr))}.live-stat b{font-size:15px}.live-buttons button{min-width:65px;font-size:12px;padding:9px 5px}}
 
@@ -203,16 +203,16 @@ try {
  if(config.horses.some((h,i)=>h.no!==i+1||!h.name))throw Error('馬番は1からの連番');
  if(!Number.isFinite(config.distance)||config.distance<800||config.distance>4000)throw Error('距離は800〜4000m');
  const [{createFactors},{createRegression},{createSimulator}]=await Promise.all([
-  import('./core/factors.js?v=shared-v7'),
-  import('./core/regression.js?v=shared-v7'),
-  import('./core/simulator.js?v=shared-v7')
+  import('./core/factors.js?v=shared-v8'),
+  import('./core/regression.js?v=shared-v8'),
+  import('./core/simulator.js?v=shared-v8')
  ]);
  window.RACE_CONFIG=config;
  window.SWAN_FACTORS=createFactors(config);
  window.SWAN_LOOP=createRegression(config,window.SWAN_FACTORS);
  window.RACE_SIM=createSimulator(config,window.SWAN_LOOP);
- await import('./app.js?v=shared-v7');
- await import('./renderer.js?v=shared-v7');
+ await import('./app.js?v=shared-v8');
+ await import('./renderer.js?v=shared-v8');
 } catch(e){
  console.error('Race engine initialization failed',e);
  const errorBox=document.getElementById('bootstrap-error');
