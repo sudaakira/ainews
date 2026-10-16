@@ -20,5 +20,14 @@ export function jockeyCap(horse,config={},resolveFrame){
  const explicit=Number(horse?.frame);
  const inferred=typeof resolveFrame==='function'?Number(resolveFrame(horse)):NaN;
  const number=Number.isInteger(explicit)&&explicit>=1&&explicit<=8?explicit:inferred;
- return Number.isInteger(number)&&number>=1&&number<=8?JRA_JOCKEY_CAPS[number]:UNKNOWN_JOCKEY_CAP;
+ if(!Number.isInteger(number)||number<1||number>8)return UNKNOWN_JOCKEY_CAP;
+ const primary=JRA_JOCKEY_CAPS[number];
+ // JRA exceptional helmets (同枠・同一勝負服): configure explicitly only
+ // after the official entry sheet confirms quartered/eight-part dyeing.
+ // Never infer an exceptional pattern from neighbouring horses alone.
+ const pattern=horse?.capPattern;
+ if(pattern==='quartered'||pattern==='eighths'){
+  return Object.freeze({...primary,pattern,secondary:number===1?'#74D3E8':'#FFFFFF'});
+ }
+ return primary;
 }
