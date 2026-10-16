@@ -62,52 +62,61 @@ for(const id of ['swan-2026','sample-demo','tokyo-20261012-11','tokyo-20261012-1
   assert.ok(config.notes.includes('暫定'));
   assert.equal(config.horses[15].name,'カネコメファミリー');
   assert.ok(config.sources.JRA.startsWith('https://'));
- }else if(id==='shuka-2026'){
+  }else if(id==='shuka-2026'){
   assert.equal(config.date,'2026-10-18');
-  assert.equal(config.horses.length,17,'confirmed field is 17');
+  assert.equal(config.horses.length,17);
   assert.equal(config.finalRunnersConfirmed,true);
-  assert.equal(config.provisionalDraw,true);
-  assert.equal(config.horses.filter(h=>h.name==='スマートプリエール').length,0,'withdrawal must be excluded');
-  assert.equal(config.withdrawn[0].name,'スマートプリエール');
-  assert.equal(config.asOf,'2026-10-15T18:36:00+09:00');
-  assert.equal(config.seed,20261015);
+  assert.equal(config.drawConfirmed,true);
+  assert.equal(config.provisionalDraw,false);
+  assert.equal(config.seed,20261016);
+  assert.equal(config.asOf,'2026-10-16T15:21:00+09:00');
+  assert.equal(config.defaultPace,1);
   assert.equal(config.defaultSimulations,50000);
-  assert.equal(config.horses.filter(h=>h.workout&&h.workout.status==='最終').length,12);
-  assert.equal(config.horses.filter(h=>h.workout&&h.workout.status==='実質最終負荷').length,1);
-  assert.equal(config.horses.filter(h=>h.workout&&h.workout.status==='1週前のみ').length,4);
-  assert.equal(config.horses.filter(h=>h.trainingWeight).length,17);
+  assert.equal(config.horses.filter(h=>h.name==='スマートプリエール').length,0);
+  assert.equal(config.withdrawn[0].name,'スマートプリエール');
+  assert.deepEqual(factor.frameSizes,[2,2,2,2,2,2,2,3]);
+  assert.deepEqual(config.horses.map(h=>h.name),[
+    'ギャラボーグ','テイエムアイラン','マスターソアラ','エンネ',
+    'タイセイボーグ','ラベルセーヌ','バースデイフライト',
+    'モンローウォーク','スウィートハピネス','ナイスプレーアスク',
+    'ガーネットフレア','カナルサンマルタン','ドリームコア',
+    'サムシングスイート','フェスティバルヒル','ハヤブササキチャン','ロザーンジュ'
+  ]);
+  assert.deepEqual(config.horses.map(h=>h.frame),[1,1,2,2,3,3,4,4,5,5,6,6,7,7,8,8,8]);
+  assert.ok(config.horses.every((h,i)=>h.no===i+1&&factor.frame(h)===h.frame&&h.kg===55&&h.age==='牝3'));
+  assert.ok(config.horses.every(h=>h.j&&h.trainer&&h.father&&h.mfather&&h.trainingWeight));
+  assert.ok(config.horses.every(h=>h.pressWorkoutGrade&&Number.isFinite(h.trainingScore)));
+  assert.equal(config.horses.find(h=>h.name==='ドリームコア').no,13);
+  assert.equal(config.horses.find(h=>h.name==='モンローウォーク').no,8);
+  assert.equal(config.horses.find(h=>h.name==='エンネ').no,4);
+  assert.equal(config.inputs[13][0],85,'Dream Core course input follows horse identity');
+  assert.equal(config.inputs[8][1],87,'Monroe Walk lap input follows horse identity');
+  assert.equal(config.horses.find(h=>h.name==='ドリームコア').trainingScore,73);
+  assert.equal(config.horses.find(h=>h.name==='モンローウォーク').trainingScore,90);
+  assert.equal(config.horses.find(h=>h.name==='ラベルセーヌ').trainingScore,90);
+  assert.equal(config.factors.draw.length,9);
+  assert.equal(config.factors.draw[4].p3,5);
+  assert.equal(config.factors.draw[7].n,23);
+  assert.equal(config.weather16.turfMoistureFinishPct,7.9);
+  assert.equal(config.weather16.turfMoisture4CPct,8.5);
+  assert.equal(config.horses.find(h=>h.name==='ドリームコア').trainingWeight.kg,523);
   assert.equal(config.horses.filter(h=>Number.isInteger(h.lastRace4c)).length,8);
-  assert.equal(config.horses.filter(h=>h.officialPeakRating).length,10);
   assert.equal(Object.keys(config.inputs).length,17);
   assert.equal(Object.keys(config.speedAdapt).length,17);
-  assert.equal(config.horses[0].name,'エンネ');
-  assert.equal(config.horses[14].name,'モンローウォーク');
-  assert.equal(config.horses[8].name,'ドリームコア');
-  assert.equal(config.inputs[9][0],85,'reindexed Dream Core course input');
-  assert.equal(config.inputs[15][1],87,'reindexed Monroe Walk lap input');
-  assert.ok(config.notes.includes('仮番号'));
-  assert.equal(config.horses.find(h=>h.name==='ドリームコア').trainingScore,80);
-  assert.equal(config.horses.find(h=>h.name==='ギャラボーグ').trainingScore,90);
-  assert.equal(config.horses.find(h=>h.name==='モンローウォーク').trainingScore,90);
-  assert.equal(config.horses.find(h=>h.name==='ドリームコア').trainingWeight.kg,523);
-  assert.equal(config.horses.find(h=>h.name==='モンローウォーク').trainingWeight.kg,452);
-  assert.equal(config.horses.find(h=>h.name==='サムシングスイート').trainingScore,78);
   assert.equal(config.historicalTrends.kyotoPrev4c.front.other,50);
-  assert.equal(config.historicalTrends.kyotoPrev4c.behind.w,8);
-  const old=JSON.parse(JSON.stringify(config));delete old.historicalTrends;
-  const baseReg=createRegression(old,createFactors(old));
-  const target=config.horses.find(h=>h.name==='マスターソアラ');
-  assert.ok(Math.abs(regression.scores(target,options).pace-baseReg.scores(old.horses.find(h=>h.name===target.name),options).pace)<=3);
-  assert.ok(config.horses.every((h,i)=>h.no===i+1&&h.kg===55&&h.age==='牝3'&&h.j&&h.trainer&&h.father&&h.mfather));
+  const withoutHist=JSON.parse(JSON.stringify(config));delete withoutHist.historicalTrends;
+  const noHistoryReg=createRegression(withoutHist,createFactors(withoutHist));
+  const master=config.horses.find(h=>h.name==='マスターソアラ');
+  assert.ok(Math.abs(regression.scores(master,options).pace-noHistoryReg.scores(master,options).pace)<=3);
+  const noDraw=JSON.parse(JSON.stringify(config));noDraw.factors.draw=[];
+  const noDrawReg=createRegression(noDraw,createFactors(noDraw));
+  const drawDifference=Math.abs(regression.evaluate(config.horses[7],options).rating-noDrawReg.evaluate(config.horses[7],options).rating);
+  assert.ok(drawDifference<=1.1,'draw trend must not overwhelm fundamental ability');
+  assert.notEqual(regression.scores(config.horses[7],options).draw,noDrawReg.scores(config.horses[7],options).draw);
   const first=sim.simulate({...options,pace:config.defaultPace},1000,config.seed);
   assert.deepEqual(first,sim.simulate({...options,pace:config.defaultPace},1000,config.seed));
   assert.ok(Math.abs(first.reduce((a,x)=>a+x.win,0)-100)<1e-6);
   assert.ok(Math.abs(first.reduce((a,x)=>a+x.p3,0)-300)<1e-6);
-  const one=config.horses[0],differentPseudoFrame={...one,no:17};
-  for(const bias of ['inside','outside']){
-    const s={...options,bias};
-    assert.equal(regression.scores(one,s).bias,regression.scores(differentPseudoFrame,s).bias,'provisional frames must not affect bias');
-  }
  }else{
   assert.equal(config.demo,true,'sample must be clearly fictional');
   assert.ok(config.horses.every(h=>factor.factors(h).total===0),'unavailable factors must be neutral');
