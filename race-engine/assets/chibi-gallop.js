@@ -2,11 +2,12 @@
 // Deliberately uses five hand-shaped silhouette poses, smooth transitions,
 // short chunky limbs, a grouped rear kick and compact front-leg recovery.
 // It is stylized game animation, NOT a realistic biomechanical gait.
-export function updateGallop(model,raceTime,visualTime,number){
+export function updateGallop(model,raceTime,visualTime,number,raceProgress=0){
  const clamp=(x,a,b)=>Math.max(a,Math.min(b,x));
  const lerp=(a,b,t)=>a+(b-a)*t;
  const ease=t=>t*t*(3-2*t);
  const active=ease(clamp((raceTime-.09)/1.05,0,1));
+ const sprint=ease(clamp((raceProgress-.77)/.2,0,1));
  const legs=model.legs;
  if(!active){
   model.anim.position.y=0;
@@ -15,6 +16,7 @@ export function updateGallop(model,raceTime,visualTime,number){
   model.tailRig.rotation.x=0;
   model.tailRig.rotation.z=0;
   for(const leg of legs){leg.pivot.rotation.x=0;leg.knee.rotation.x=0}
+  if(model.rider){model.rider.position.y=0;model.rider.rotation.x=0}
   return;
  }
  const time=((visualTime*1.66+number*.013)%1+1)%1;
@@ -35,8 +37,8 @@ export function updateGallop(model,raceTime,visualTime,number){
  for(let i=0;i<legs.length;i++){
   const hip=lerp(a[1][i],b[1][i],t);
   const knee=lerp(a[2][i],b[2][i],t);
-  legs[i].pivot.rotation.x=hip*active;
-  legs[i].knee.rotation.x=knee*active;
+  legs[i].pivot.rotation.x=hip*active*(1+.16*sprint);
+  legs[i].knee.rotation.x=knee*active*(1+.10*sprint);
  }
  // Bounce provides the sense of takeoff. Subtle head motion
  // keeps the cute oversized face steady and recognizable.
@@ -45,5 +47,10 @@ export function updateGallop(model,raceTime,visualTime,number){
  model.headRig.rotation.x=lerp(a[5],b[5],t)*active;
  model.tailRig.rotation.x=.10*Math.sin(time*Math.PI*2-.4)*active;
  model.tailRig.rotation.z=.043*Math.sin(time*Math.PI*2*.7+number)*active;
+ // Final-straight visual surge only; no effect on horse speed or outcome.
+ model.anim.rotation.z=.012*Math.sin(time*Math.PI*2+number)*active*(1+.3*sprint);
+ if(model.rider){model.rider.position.y=.022*Math.sin(time*Math.PI*4+.3)*active;
+  model.rider.rotation.x=-.016*sprint+.009*Math.sin(time*Math.PI*2)*active;}
+
  if(model.shadow)model.shadow.material.opacity=.20-.07*clamp((model.anim.position.y-.04)/.13,0,1);
 }
