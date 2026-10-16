@@ -240,6 +240,12 @@ assert.match(render,/updateGallop\(m,clock,LIVE\.visualTime,h\.no,clock\/LIVE\.d
 assert.match(render,/horse-anime\.js\?v=cinema-v3/);
 assert.match(render,/chibi-gallop\.js\?v=cinema-v3/);
 assert.match(read('assets/horse-anime.js'),/return \{root,anim,rider/);
+assert.match(render,/models\.length===HS\.length/,'live field count not a fixed 18');
+assert.match(render,/m\.artDirection==='anime-pony-v18-kinetic'/,'actual v18 horse rig must be accepted');
+assert.doesNotMatch(render,/models\.every\(m=>m\.artDirection==='anime-pony-v17-softplush'/,'never reject current models with stale version tag');
+assert.match(render,/await import\('\.\/vendor\/three\.module\.js\?v=three-0\.160\.0'\)/,'same origin hosted Three.js required');
+assert.doesNotMatch(render,/cdn\.jsdelivr\.net\/npm\/three@/,'do not silently fall back because third-party CDN is blocked');
+
 
 assert.doesNotMatch(render,/if\(mode==='horse'\)|if\(mode==='wide'\)/,'manual camera modes must be removed');
 assert.match(html,/assets\/race-cinematics\.css\?v=cinema-v3/);
