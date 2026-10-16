@@ -129,6 +129,7 @@ function cards(){
    (h.drawRemark?'<p><b>枠・金曜陣営コメント：</b>'+h.drawRemark+'</p>':'')+
    (h.trainingWeight?'<p><b>JRA調教後馬体重：</b>'+h.trainingWeight.kg+'kg（前走 '+h.trainingWeight.lastKg+'kg）／10月'+h.trainingWeight.day+'日 '+h.trainingWeight.location+'計量。輸送後・当日体重とは異なり採点不使用。</p>':'')+
    (h.latest?'<p style="background:#e7f5ef;padding:9px;border-radius:8px"><b>📅 直近調査：</b>'+h.latest+'</p>':'')+
+   (h.evaluationAudit?'<details style="border:1px solid #b3cbd3;padding:9px;border-radius:8px;background:#f4f9fc"><summary><b>📝 実走証拠に基づく採点再検証（10/16）</b></summary><p>芝2000m未経験をコース・血統・距離で多重減点しない。初距離の不確実性は順位変動（SD）に残す。</p><table class="factor-table"><thead><tr><th>評価</th><th>旧素点</th><th>修正素点</th></tr></thead><tbody>'+[['course','同コース・近接距離'],['lap','ラップ・直接対戦'],['blood','血統'],['distance','距離適性'],['sd','順位変動SD']].map(p=>'<tr><td>'+p[1]+'</td><td>'+h.evaluationAudit.previous[p[0]]+'</td><td>'+h.evaluationAudit.revised[p[0]]+'</td></tr>').join('')+'</tbody></table><p class="small">ローズS1000m58.9秒、ノーステッキで0.5秒差。JRA-VAN血統分析で配合適性を再確認。ほか16頭の入力と採点配点は据え置き。</p></details>':'')+
    '<p><b>強み：</b>'+h.plus+'</p><p class="risk"><b>注意：</b>'+h.minus+'</p>'+
    '<details><summary>14項目の条件回帰採点・血統・近走を表示</summary>'+
    '<table class="factor-table horse-score-table"><thead><tr><th>評価項目</th><th>素点</th><th>配点</th></tr></thead><tbody>'+scoreRows+'</tbody></table>'+
