@@ -38,7 +38,7 @@ function paintedEye(T){
  t.generateMipmaps=true;t.anisotropy=4;t.needsUpdate=true;
  sharedEyeTexture=t;return t;
 }
-// Anime pony v17 soft-plush — original 3D chibi character based on the requested
+// Anime pony v19 kawaii-plush — original 3D chibi character based on the requested
 // illustrated design direction (large expressive eyes, rosy muzzle, tiny rider).
 // Coordinates: forward +Z, up +Y. Four articulated legs stay compatible with
 // chibi-gallop-v1.js and the 18-horse Kyoto race simulator.
@@ -68,7 +68,7 @@ export function createRaceHorse(T,scene,h,silkHex,frameCapHex='#89929B',frameCap
  const cream=toon(0xfff4e2);
  const muzzle=toon(0xffd9c9);
  const muzzleShade=toon(0xe8ad9c);
- const cheekPink=new T.MeshBasicMaterial({color:0xf09aa5,transparent:true,opacity:.55,depthWrite:false});
+ const cheekPink=new T.MeshBasicMaterial({color:0xf09aa5,transparent:true,opacity:.69,depthWrite:false});
  const silk=toon(silkHex);
  const metal=new T.MeshStandardMaterial({color:0xe7d5a9,metalness:.28,roughness:.45});
  const pink=toon(0xe89d88);
@@ -181,7 +181,7 @@ export function createRaceHorse(T,scene,h,silkHex,frameCapHex='#89929B',frameCap
  // Reference direction: large friendly eyes, tiny muzzle, fluffy forelock.
  // Proportions are deliberately stylized, not anatomy-accurate.
  const headRig=new T.Group();headRig.position.set(0,2.45,1.39);
- headRig.scale.set(1.48,1.36,1.32);anim.add(headRig);
+ headRig.scale.set(1.60,1.44,1.37);anim.add(headRig);
  const skull=lined(headRig,coat,0,.045,.105,.353,.373,.326);
  skull.rotation.x=-.10;
  ell(headRig,coat,0,-.205,.215,.331,.335,.307);
@@ -190,26 +190,40 @@ export function createRaceHorse(T,scene,h,silkHex,frameCapHex='#89929B',frameCap
  // Rounded peach mouth as in the supplied character sheet.
  lined(headRig,muzzle,0,-.548,.568,.301,.212,.246);
  ell(headRig,muzzleShade,0,-.692,.609,.256,.065,.146);
- ell(headRig,leather,0,-.699,.738,.138,.019,.013); // subtle smiling mouth
+ // Rounded illustrated smile, clearly visible from the low frontal race camera.
+ const grinCurve=new T.QuadraticBezierCurve3(
+  new T.Vector3(-.128,-.663,.744),
+  new T.Vector3(0,-.715,.769),
+  new T.Vector3(.128,-.663,.744));
+ headRig.add(new T.Mesh(new T.TubeGeometry(grinCurve,10,.012,5,false),mane));
+ ell(headRig,muzzleShade,0,-.702,.713,.070,.018,.013);
+ const ears=[];
  for(const side of [-1,1]){
   // The eye is a layered anime iris, not a single glossy black bead.
   // Nearer camera sees: ink lid, warm sclera, iris, pupil, two catchlights.
   // A hand-painted decal avoids the old round black-button-eyed look.
   const eyeMat=new T.MeshBasicMaterial({map:paintedEye(T),transparent:true,
     side:T.DoubleSide,depthWrite:false,polygonOffset:true,polygonOffsetFactor:-1});
-  const eye=new T.Mesh(new T.PlaneGeometry(.425,.475),eyeMat);
-  eye.position.set(side*.396,.085,.242);eye.rotation.y=side*1.08;headRig.add(eye);
+  const eye=new T.Mesh(new T.PlaneGeometry(.465,.520),eyeMat);
+  eye.position.set(side*.397,.086,.249);eye.rotation.y=side*1.08;headRig.add(eye);
   // Ink eyebrows and warm blush make the pony appear expressive.
-  const eyebrow=ell(headRig,mane,side*.345,.303,.211,.034,.018,.148);
+  const eyebrow=ell(headRig,mane,side*.349,.319,.213,.038,.022,.148);
   eyebrow.rotation.x=-side*.18;
-  ell(headRig,cheekPink,side*.310,-.233,.351,.032,.066,.092);
-  // Upright furry ears with strawberry-pink inner ears.
-  const ear=lined(headRig,coat,side*.235,.496,-.111,.149,.328,.139);
-  ear.rotation.z=-side*.16;
-  const inside=ell(headRig,pink,side*.250,.545,-.028,.070,.193,.058);
-  inside.rotation.z=-side*.16;
+  ell(headRig,cheekPink,side*.327,-.251,.358,.040,.086,.112);
+  // Tiny jointed floppy ears; rosy interiors remain readable on iPhone.
+  const earRig=new T.Group();
+  earRig.position.set(side*.235,.496,-.111);
+  earRig.rotation.z=-side*.16;headRig.add(earRig);
+  lined(earRig,coat,0,0,0,.154,.339,.140);
+  ell(earRig,pink,side*.015,.053,.084,.083,.224,.052);
+  ell(earRig,cream,side*.022,.158,.123,.032,.076,.018);
+  ears.push({rig:earRig,side});
   // Tiny round nostrils, one on each side of the muzzle.
   ell(headRig,muzzleShade,side*.223,-.544,.773,.052,.033,.025);
+  // Soft cheek curls and tiny highlights add personality in closeups.
+  ell(headRig,highlight,side*.362,-.285,.220,.068,.086,.085);
+  ell(headRig,cream,side*.340,-.317,.289,.024,.028,.018);
+  ell(headRig,shine,side*.397,.154,.323,.025,.032,.015);
   // Thin unobtrusive reins and metallic bit; eyes remain unobstructed.
   tube(headRig,leather,[side*.278,.002,.085],[side*.229,-.54,.653],.011,.013);
   ell(headRig,metal,side*.234,-.539,.665,.026,.025,.027);
@@ -381,5 +395,5 @@ export function createRaceHorse(T,scene,h,silkHex,frameCapHex='#89929B',frameCap
  const sprite=new T.Sprite(new T.SpriteMaterial({map:new T.CanvasTexture(label),transparent:true,depthTest:false}));
  sprite.position.set(0,4.04,0);sprite.scale.set(.73,.73,1);root.add(sprite);
  scene.add(root);
- return {root,anim,rider,headRig,tailRig,legs,maneStrands,tailStrands,flutter,sprite,shadow,artDirection:'anime-pony-v18-kinetic'};
+ return {root,anim,rider,headRig,tailRig,legs,ears,maneStrands,tailStrands,flutter,sprite,shadow,artDirection:'anime-pony-v19-kawaii'};
 }
