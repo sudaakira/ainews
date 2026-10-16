@@ -1,8 +1,10 @@
 /* Race-engine shared UI application. Loaded after per-race configuration. */
+import {jockeyCap,JRA_JOCKEY_CAPS} from './core/jockey-caps.js?v=cap-v1';
 const config=window.RACE_CONFIG;
 const FACTOR=window.SWAN_FACTORS,LOOP=window.SWAN_LOOP,SIM=window.RACE_SIM;
 if(!config||!FACTOR||!LOOP||!SIM)throw Error('Race configuration has not loaded');
 const HS=config.horses,FIELD=HS.length,CENTER=(FIELD+1)/2;
+const capFor=h=>jockeyCap(h,config,horse=>FACTOR.frame(horse));
 const distance=Number(config.distance),duration=Number(config.duration)||80;
 // Race-local text, warnings, metadata and limits (not a Kyoto-only UI).
 document.title=config.name+' '+config.date+'｜共通レースシミュレーター';
@@ -164,15 +166,43 @@ const NS='http://www.w3.org/2000/svg';
 const route=el('kyoto-route'), group=el('kyoto-horses');
 const routeLength=route.getTotalLength();
 const routeAt=d=>route.getPointAtLength(config.direction==='左'?routeLength-d:d);
-const silks=['#d33c39','#f6e9e2','#1b6fcb','#eac73a','#d65e91','#50b7ae','#b6b6b6','#f18a35','#713fb3','#c1a447','#e15532','#59b45a','#e9eff3','#a774db','#5ca0ca','#c89a75','#d2db49','#d24e70'];
+// Race markers show jockey CAP colour, not the race-silk colour.
+// Cap colour follows the official JRA frame (1=white through 8=pink).
 function mkSvg(tag,attrs){let e=document.createElementNS(NS,tag);Object.entries(attrs||{}).forEach(([k,v])=>e.setAttribute(k,v));return e}
 HS.forEach(h=>{
- let g=mkSvg('g',{id:'horse-'+h.no,'aria-label':h.no+'番 '+h.name});
+ const cap=capFor(h);
+ let g=mkSvg('g',{id:'horse-'+h.no,'aria-label':h.no+'番 '+h.name+'（'+(cap.frame?cap.frame+'枠・'+cap.name+'帽':'枠未確定')+'）'});
  let glyph=mkSvg('text',{x:0,y:1,class:'horse-icon'});glyph.textContent='🐎';g.appendChild(glyph);
- let bg=mkSvg('circle',{cx:0,cy:-18,r:11,fill:silks[h.no-1],stroke:'#fff','stroke-width':1.8});g.appendChild(bg);
- let num=mkSvg('text',{x:0,y:-18,class:'horse-number'});num.textContent=h.no;g.appendChild(num);
+ let bg=mkSvg('circle',{cx:0,cy:-18,r:11,fill:cap.hex,stroke:cap.outline,'stroke-width':1.8});g.appendChild(bg);
+ // Four/eight-way dyeing is only drawn when the race file explicitly
+ // documents the JRA exceptional capPattern.
+ if(cap.pattern){
+  const sectors=cap.pattern==='quartered'?4:8;
+  for(let i=0;i<sectors;i++){
+   const a=-Math.PI/2+i*Math.PI*2/sectors,b=a+Math.PI*2/sectors,r=10.8;
+   const x1=(Math.cos(a)*r).toFixed(3),y1=(-18+Math.sin(a)*r).toFixed(3);
+   const x2=(Math.cos(b)*r).toFixed(3),y2=(-18+Math.sin(b)*r).toFixed(3);
+   g.appendChild(mkSvg('path',{d:'M0,-18 L'+x1+','+y1+' A'+r+','+r+' 0 0 1 '+x2+','+y2+' Z',fill:i%2?cap.secondary:cap.hex}));
+  }
+  g.appendChild(mkSvg('circle',{cx:0,cy:-18,r:11,fill:'none',stroke:cap.outline,'stroke-width':1.8}));
+ }
+ let num=mkSvg('text',{x:0,y:-18,class:'horse-number',fill:cap.text});num.textContent=h.no;g.appendChild(num);
  group.appendChild(g);
 });
+// Shared JRA helmet swatches: the same palette drives the 3D caps and 2D.
+const liveScreen=document.querySelector('.live-screen');
+if(liveScreen){
+ const legend=document.createElement('div');legend.id='jra-jockey-cap-legend';
+ legend.style.cssText='display:flex;gap:7px 13px;flex-wrap:wrap;align-items:center;margin:7px 0 10px;font-size:12px;color:#dce8e8';
+ const legendTitle=document.createElement('strong');legendTitle.textContent='騎手帽色（JRA枠色）';legend.appendChild(legendTitle);
+ for(const entry of JRA_JOCKEY_CAPS.slice(1)){
+  const item=document.createElement('span');item.style.cssText='display:inline-flex;align-items:center;gap:4px;white-space:nowrap';
+  const dot=document.createElement('span');dot.style.cssText='display:inline-block;width:13px;height:13px;border-radius:50%;background:'+entry.hex+';border:1.5px solid '+entry.outline;
+  item.appendChild(dot);item.appendChild(document.createTextNode(entry.frame+'枠 '+entry.name));legend.appendChild(item);
+ }
+ if(config.provisionalDraw){const note=document.createElement('small');note.textContent='枠未確定の出走馬は灰色で表示';legend.appendChild(note);}
+ liveScreen.parentNode.insertBefore(legend,liveScreen);
+}
 function sampleLiveRace(){
  let s=opts(),r=random((Date.now()%4294967295)>>>0);LIVE.rank=runRace(r,s);LIVE.seed=r()*1000;LIVE.clock=0;LIVE.visualTime=0;LIVE.ready=true;LIVE.playing=false;LIVE.last=0;
  el('live-status').textContent='スタート待機';raceview.lastKey='';el('result-state').textContent='スタート待機';el('race').classList.remove('finished');el('race').innerHTML=['🥇','🥈','🥉'].map((medal,i)=>'<div class="place-card place-'+(i+1)+'"><div class="place-rank">'+medal+' '+(i+1)+'着</div><div class="place-number">—</div><div class="place-name">レース待機中</div></div>').join('');drawLive();
