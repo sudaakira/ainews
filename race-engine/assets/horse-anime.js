@@ -234,6 +234,16 @@ export function createRaceHorse(T,scene,h,silkHex,frameCapHex='#89929B',frameCap
   tuft(headRig,mane,side*.366,.449,.075,.098,.27,.115,
        side===1?-.18:.24,side*.27);
  }
+ // Four articulated forelock ribbons respond to acceleration. They are
+ // light, separate 3D meshes rather than a static texture animation.
+ const maneStrands=[];
+ for(let i=-2;i<=2;i++){
+  const rig=new T.Group();
+  rig.position.set(i*.098,.405,.285);headRig.add(rig);
+  const tuftMesh=tuft(rig,i%2?maneLight:mane,0,.06,-.085,.066,.205,.075,
+    -.73,i*.12);
+  maneStrands.push({rig,baseX:rig.rotation.x,phase:i*.65});
+ }
  // Neck crest is light and tufted so the horse reads as a character.
  for(let i=0;i<9;i++){
   const z=1.45-i*.09,y=2.46-i*.069;
@@ -250,6 +260,13 @@ export function createRaceHorse(T,scene,h,silkHex,frameCapHex='#89929B',frameCap
   tuftBase.rotation.x=-.16;tuftBase.rotation.y=i*.035;
   tuft(tailRig,mane,x*1.32,-.24,-.83-(3-Math.abs(i))*.042,
    .080,.37,.084,-1.25,i*.07);
+ }
+ // Flexible secondary tail ribbons animate out of phase with the main fan.
+ const tailStrands=[];
+ for(let i=-2;i<=2;i++){
+  const rig=new T.Group();rig.position.set(i*.075,-.26,-.48);tailRig.add(rig);
+  const ribbon=tuft(rig,i%2?maneLight:mane,0,-.14,-.16,.063,.32,.08,-1.07,i*.09);
+  tailStrands.push({rig,phase:i*.67});
  }
  // Short stout cartoon legs. Preserve the four-pose hierarchy for
  // chibi-gallop-v1.js, but physically lower the hip pivots as we shorten
@@ -290,11 +307,20 @@ export function createRaceHorse(T,scene,h,silkHex,frameCapHex='#89929B',frameCap
  // Cute anime/chibi jockey. A full-face helmet, shiny eyes and flying hair
  // match the reference illustration while the original silks remain per runner.
  const rider=new T.Group();anim.add(rider);
+ // Extra wind-swept jacket/scarf is rigged separately for readable sprinting.
+ const flutter=new T.Group();rider.add(flutter);
+ flutter.position.set(0,2.73,-.19);
+
  const skin=toon(0xffd3b5),skinShade=toon(0xe3a793);
  const helmetFrame=toon(frameCapHex),helmetTrim=toon(frameCapOutline),helmetSecondary=toon(frameCapSecondary);
  const boot=toon(0x292930),glove=toon(0x30313c);
  const hair=toon(h.no%3===0?0x623d32:h.no%3===1?0x50352f:0x865238);
  const saddle=ell(rider,leather,0,2.36,-.25,.56,.10,.64);
+ for(const side of [-1,1]){
+  const flap=tuft(flutter,silk,side*.19,0,-.13,.11,.27,.075,-1.04,side*.26);
+  flap.rotation.y=side*.2;
+ }
+
  ell(rider,cream,0,2.36,-.43,.30,.23,.30);
  const torso=ell(rider,silk,0,2.69,.07,.30,.33,.30);torso.rotation.x=.58;
  // Big round face, around 65% of helmet width.
@@ -355,5 +381,5 @@ export function createRaceHorse(T,scene,h,silkHex,frameCapHex='#89929B',frameCap
  const sprite=new T.Sprite(new T.SpriteMaterial({map:new T.CanvasTexture(label),transparent:true,depthTest:false}));
  sprite.position.set(0,4.04,0);sprite.scale.set(.73,.73,1);root.add(sprite);
  scene.add(root);
- return {root,anim,rider,headRig,tailRig,legs,sprite,shadow,artDirection:'anime-pony-v17-softplush'};
+ return {root,anim,rider,headRig,tailRig,legs,maneStrands,tailStrands,flutter,sprite,shadow,artDirection:'anime-pony-v18-kinetic'};
 }
