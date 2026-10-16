@@ -1,6 +1,7 @@
+import {kyotoMapPath} from './assets/kyoto-course.js?v=kyoto-v11';
 /* Race-engine shared UI application. Loaded after per-race configuration. */
 import {jockeyCap,JRA_JOCKEY_CAPS} from './core/jockey-caps.js?v=cap-v1';
-import {FINISH_GAP,runOutProgress,playbackEnd,playbackRate,finishCrossings} from './assets/race-playback.js?v=broadcast-v10-1';
+import {FINISH_GAP,runOutProgress,playbackEnd,playbackRate,finishCrossings} from './assets/race-playback.js?v=kyoto-v11';
 const config=window.RACE_CONFIG;
 const FACTOR=window.SWAN_FACTORS,LOOP=window.SWAN_LOOP,SIM=window.RACE_SIM;
 if(!config||!FACTOR||!LOOP||!SIM)throw Error('Race configuration has not loaded');
@@ -183,9 +184,8 @@ const route=el('kyoto-route'), group=el('kyoto-horses');
 // incomplete U-shaped SVG, the model now travels all four corners.
 // The path coordinates are diagram geometry, not surveyed measurements.
 if(config.venue==='京都'&&config.distance===2000&&config.surface==='芝'){
- route.setAttribute('d',
-  'M 475 411 L 210 411 C 125 411 78 353 78 275 C 78 193 125 137 210 137 L 575 137 C 675 137 756 187 756 275 C 756 364 678 411 575 411 L 76 411');
- route.setAttribute('data-course-model','kyoto-2000-inner-4turns');
+ route.setAttribute('d',kyotoMapPath());
+ route.setAttribute('data-course-model','kyoto-inner-A-metric');
 }
 
 const routeLength=route.getTotalLength();
@@ -235,7 +235,7 @@ function ease(t){return t*t*(3-2*t)}
 function horseProgress(no,sec){
  let p=Math.min(1,Math.max(0,sec/LIVE.duration)),h=HS[no-1],rank=LIVE.rank.indexOf(no);
  if(sec>LIVE.duration)return runOutProgress(rank,sec-LIVE.duration,LIVE.duration);
- let early=h.style==='逃げ'?.048:h.style==='好位'?.026:h.style==='中団'?-.006:-.036;
+ let early=h.style==='逃げ'?.012:h.style==='好位'?.0065:h.style==='中団'?-.0015:-.009;
  let shift=early*Math.sin(Math.PI*p)*Math.pow(1-p,.15);
  let pace=+el('pace').value;
  shift+=(h.style==='逃げ'?-.004*pace:h.style==='差し'?.004*pace:0)*Math.sin(Math.PI*p);

@@ -1,6 +1,7 @@
+import {raceCommentary,ANNOUNCER_SVG} from './race-commentary.js?v=kyoto-v11';
 /** Clean cel-racing broadcast. All positions and results are read from the shared engine. */
-import {chooseRaceShot,courseShotCuts,raceCameraPose} from './race-shotlist.js?v=broadcast-v10-1';
-import {finishCrossings,playbackRate} from './race-playback.js?v=broadcast-v10-1';
+import {chooseRaceShot,courseShotCuts,raceCameraPose} from './race-shotlist.js?v=kyoto-v11';
+import {finishCrossings,playbackRate} from './race-playback.js?v=kyoto-v11';
 
 export function createRaceCinematics({THREE,scene,stage,models,config,capFor,path,route,routeLength}){
  const cuts=courseShotCuts(route,routeLength,config);
@@ -12,8 +13,11 @@ export function createRaceCinematics({THREE,scene,stage,models,config,capFor,pat
   '<div class="race-distance"><strong id="race-meters">'+config.distance+'</strong><span id="race-meters-label">m</span><small id="race-speed-label">16×</small></div>'+
   '<div class="cinema-finish" id="cinema-finish"><small>仮想レース結果</small><div class="cinema-podium" id="cinema-podium"></div></div>'+
   '<div id="race-arrival" aria-live="polite"></div>'+
-  '<div class="race-tracking"><div class="tracking-meta"><span id="tracking-caption">スタート待機</span><span>先頭 →</span></div><div id="race-tracking-field"></div></div>';
+  '<div class="race-tracking"><div class="tracking-meta"><span id="tracking-caption">スタート待機</span><span>← 先頭</span></div><div id="race-tracking-field"></div></div>';
+ ui.insertAdjacentHTML('beforeend','<div id="race-commentary-panel"><div class="race-announcer">'+ANNOUNCER_SVG+'</div><div class="race-speech"><strong id="race-commentary-title">実況席</strong><p id="race-commentary-text"></p></div></div>');
  stage.append(ui);
+ const speech=ui.querySelector('#race-commentary-text'),speechTitle=ui.querySelector('#race-commentary-title'),speechPanel=ui.querySelector('#race-commentary-panel');
+ let spokenKey='',speechAt=-Infinity,previousClock=0;
  const phaseTitle=ui.querySelector('#cinema-phase-title'),kicker=ui.querySelector('.cinema-phase-kicker');
  const subtitle=ui.querySelector('#cinema-phase-sub'),meters=ui.querySelector('#race-meters');
  const metersLabel=ui.querySelector('#race-meters-label'),speedLabel=ui.querySelector('#race-speed-label');
@@ -45,7 +49,7 @@ export function createRaceCinematics({THREE,scene,stage,models,config,capFor,pat
  // Original simplified course furniture, soft colored grandstand and hedge rows.
  // Geometry belongs to this app; no game assets or logos are embedded.
  if(config.courseView!=='kyoto-1400-outer'){
-  const stadium=new THREE.Group();stadium.position.set(-8,0,150);scene.add(stadium);
+  const stadium=new THREE.Group();stadium.position.set(-35,0,config.venue==='京都'&&config.distance===2000?220:150);scene.add(stadium);
   const material=c=>new THREE.MeshToonMaterial({color:c});
   const concrete=material(0xe8eee4),seat=material(0x92b6bb),glass=material(0x59939e),roof=material(0xf8f7e4);
   const box=(w,h,d,m,x,y,z)=>{const mesh=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),m);mesh.position.set(x,y,z);stadium.add(mesh);};
@@ -86,10 +90,19 @@ export function createRaceCinematics({THREE,scene,stage,models,config,capFor,pat
   const remaining=Math.max(0,Math.round(config.distance*(1-p)/10)*10);
   meters.textContent=remaining?String(remaining):'GOAL';metersLabel.textContent=remaining?'m':'';
   speedLabel.textContent=playbackRate(rate,clock,duration)+'×'+(runningOut?' 走り抜け':'');
-  subtitle.textContent=clock<=0?'まもなく発走':runningOut?'ゴール後も走り抜け':shot.id==='third-turn'?'馬群全体を俯瞰':'自動カメラ';
+  subtitle.textContent=clock<=0?'まもなく発走':runningOut?'ゴール後も走り抜け':shot.id==='third-turn'?'坂を越えて勝負所へ':'自動カメラ';
+  const call=raceCommentary({clock,progress:p,order,horses:config.horses,crossed,distance:config.distance});
+  // Hold each caption long enough to read, even at 16x. Finish/seek supersedes it.
+  const now=performance.now(),seeked=Math.abs(clock-previousClock)>3||clock<previousClock;
+  if(call.key!==spokenKey&&(now-speechAt>2100||call.tone==='winner'||seeked||clock===0)){
+   speech.textContent=call.text;speechTitle.textContent=call.title;speechPanel.dataset.tone=call.tone;
+   spokenKey=call.key;speechAt=now;
+  }
+  previousClock=clock;
+  for(const [no,marker] of markers)marker.classList.toggle('winner-number',crossed[0]===no);
   const orderKey=order.map(x=>x.no).join(',');
   if(orderKey!==lastOrder){
-   order.toReversed().forEach(o=>tracking.append(markers.get(o.no)));lastOrder=orderKey;
+   order.forEach(o=>tracking.append(markers.get(o.no)));lastOrder=orderKey;
   }
   trackingCaption.textContent=runningOut?'ゴール通過順':clock<=0?'ゲート入り':'現在の隊列';
   if(crossed.length!==lastCrossed){
@@ -130,7 +143,7 @@ export function createRaceCinematics({THREE,scene,stage,models,config,capFor,pat
   }
   chips.instanceMatrix.needsUpdate=true;
   window.RACE_CINEMATIC_DEBUG={shot:shot.id,progress:p,rate,cut,scriptedCuts:4,
-   mode:'cel-four-cut-runout',cuts,position:shot.label,runOut:runningOut,crossed:crossed.length,
+   mode:'kyoto-leaders-commentary',cuts,position:shot.label,runOut:runningOut,crossed:crossed.length,
    sideOn:shot.ahead===0,pose};
   return {cut,shot:shot.id};
  }

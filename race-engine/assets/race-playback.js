@@ -1,5 +1,5 @@
 /** Presentation timing only. Sampled finishing order and forecast stay in core/. */
-export const FINISH_GAP=.0038;
+export const FINISH_GAP=.00135;
 export function runOutProgress(rank,secondsAfterFinish,duration){
  return 1-rank*FINISH_GAP+Math.max(0,secondsAfterFinish)/duration;
 }

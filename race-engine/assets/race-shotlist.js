@@ -1,70 +1,33 @@
-/** Four broadcast cuts. The fourth camera stays side-on through the run-out. */
+import {KYOTO_CUTS,runnerLane} from './kyoto-course.js?v=kyoto-v11';
+/** Four cuts; the camera follows the leaders through the finish without freezing. */
 export const RACE_SHOT_LIST=Object.freeze([
- Object.freeze({id:'start',until:.23,kicker:'01 / START',label:'スタート',side:44,height:18,ahead:0,fov:43}),
- Object.freeze({id:'second-turn',until:.52,kicker:'02 / CLOSE UP',label:'2コーナー',side:27,height:8,ahead:6,fov:43}),
- Object.freeze({id:'third-turn',until:.76,kicker:'03 / OVERHEAD',label:'3コーナー',side:37,height:65,ahead:0,fov:49}),
- Object.freeze({id:'straight',until:Infinity,kicker:'04 / SIDE VIEW',label:'最後の直線',side:58,height:7,ahead:0,fov:37})
+ Object.freeze({id:'start',until:.28,kicker:'01 / START',label:'スタート',side:25,height:7,ahead:0,fov:42}),
+ Object.freeze({id:'second-turn',until:.60,kicker:'02 / CLOSE UP',label:'2コーナー・向正面',side:20,height:5,ahead:7,fov:40}),
+ Object.freeze({id:'third-turn',until:.836,kicker:'03 / THE CHARGE',label:'3・4コーナー 勝負所',side:15,height:7,ahead:17,fov:44}),
+ Object.freeze({id:'straight',until:Infinity,kicker:'04 / FINISHING BATTLE',label:'最後の直線',side:23,height:4.3,ahead:0,fov:35})
 ]);
 export function chooseRaceShot(progress,cuts=RACE_SHOT_LIST.map(s=>s.until)){
  const p=Number.isFinite(progress)?Math.max(0,progress):0;
  return RACE_SHOT_LIST[cuts.findIndex(x=>p<x)]||RACE_SHOT_LIST[3];
 }
-// Cut at the actual joins of the schematic Kyoto path, not arbitrary timers.
 export function courseShotCuts(route,routeLength,config){
- if(config.venue!=='京都'||config.distance!==2000||config.surface!=='芝')
-  return [.18,.52,.80,Infinity];
- const anchors=[{x:78,y:275},{x:575,y:137},{x:575,y:411}];
- return [...anchors.map((anchor,index)=>{
-  let best=Infinity,progress=0;
-  for(let i=1;i<1600;i++){
-   const p=i/1600;
-   if(p<[.12,.35,.61][index]||p>[.36,.65,.88][index])continue;
-   const q=route.getPointAtLength(p*routeLength),d=(q.x-anchor.x)**2+(q.y-anchor.y)**2;
-   if(d<best){best=d;progress=p;}
-  }
-  return progress;
- }),Infinity];
+ return config.venue==='京都'&&config.distance===2000&&config.surface==='芝'?[...KYOTO_CUTS]:[.18,.52,.80,Infinity];
 }
-/** Pure camera geometry. +side is camera-side; offsetPoint's +lane is the
- * OPPOSITE side, where the finish board belongs. */
 export function raceCameraPose({shot,progress,order,path,aspect=1}){
- const clamp=(n,a,b)=>Math.max(a,Math.min(b,n));
- const full=shot.id==='start'||shot.id==='third-turn';
- const group=full?order:order.slice(0,shot.id==='straight'?3:5);
- const p=(group[0].p+group.at(-1).p)/2;
- let focus=path(p),side=shot.side,height=shot.height;
- if(shot.id==='straight'){
-  // The horses keep running across and out of a fixed finishing frame.
-  const t=clamp((progress-.93)/.055,0,1),s=t*t*(3-2*t),end=path(1);
-  const finish={x:end.x-end.dx*5,y:end.y,z:end.z-end.dz*5,dx:end.dx,dz:end.dz};
-  focus={x:focus.x*(1-s)+finish.x*s,y:focus.y*(1-s)+finish.y*s,
-   z:focus.z*(1-s)+finish.z*s,dx:finish.dx,dz:finish.dz};
- }
- if(full){
-  // Fit the real field's projected width, not progress * track length.
-  // Using side-distance alone over-zoomed the overhead camera on phones.
-  const release=clamp(progress/.03,0,1),spacing=1.51*(1-release)+1.054*release;
-  const field=group.map(o=>{
-   const q=path(o.p),lane=((order.length+1)/2-o.no)*spacing;
-   return {x:q.x-q.dz*lane,y:q.y,z:q.z+q.dx*lane};
-  });
-  focus={...focus,
-   x:(Math.min(...field.map(q=>q.x))+Math.max(...field.map(q=>q.x)))/2,
-   z:(Math.min(...field.map(q=>q.z))+Math.max(...field.map(q=>q.z)))/2};
-  const along=field.map(q=>(q.x-focus.x)*focus.dx+(q.z-focus.z)*focus.dz);
-  const across=field.map(q=>(q.x-focus.x)*focus.dz-(q.z-focus.z)*focus.dx);
-  const width=Math.max(...along)-Math.min(...along)+8;
-  const depth=Math.max(...across)-Math.min(...across);
-  const dist=Math.hypot(side,height-1.9),tan=Math.tan(shot.fov*Math.PI/360);
-  const vertical=depth*(height-1.9)/dist+5*side/dist;
-  const fit=Math.max(width/(Math.max(.5,aspect)*2*tan),(vertical+5)/(2*tan))+depth*.45;
-  const scale=Math.max(1,fit/dist);side*=scale;height=1.9+(height-1.9)*scale;
- }
- const point=(lateral,forward,y)=>({
-  x:focus.x+focus.dz*lateral+focus.dx*forward,
-  y:focus.y+y,z:focus.z-focus.dx*lateral+focus.dz*forward
- });
- return {position:point(side,shot.ahead,height),look:point(0,0,1.9),
-  fov:shot.fov,forward:{x:focus.dx,z:focus.dz},side};
+ const full=shot.id==='start',group=full?order:order.slice(0,5);
+ const p=(group[0].p+group.at(-1).p)/2,heading=path(p);
+ const field=group.map(o=>{const q=path(o.p),lane=runnerLane(o.no,order.length,progress);return {x:q.x-q.dz*lane,y:q.y,z:q.z+q.dx*lane}});
+ const focus={...heading,x:(Math.min(...field.map(q=>q.x))+Math.max(...field.map(q=>q.x)))/2,z:(Math.min(...field.map(q=>q.z))+Math.max(...field.map(q=>q.z)))/2};
+ let side=shot.side,height=shot.height,ahead=shot.ahead;
+ // Fit only the selected leaders. Camera-space fit respects perspective and
+ // narrow phones without reverting to a bird's-eye field-wide composition.
+ const norm=Math.hypot(side,ahead),rx=(heading.dx*side-heading.dz*ahead)/norm,rz=(heading.dz*side+heading.dx*ahead)/norm;
+ const horizontal=field.map(q=>(q.x-focus.x)*rx+(q.z-focus.z)*rz);
+ const width=Math.max(...horizontal)-Math.min(...horizontal)+4.2;
+ const fit=width/(2*Math.tan(shot.fov*Math.PI/360)*Math.max(.42,aspect));
+ const scale=Math.max(1,fit/Math.hypot(norm,height));
+ side*=scale;ahead*=scale;
+ // Deliberately retain low elevation even when width requires more distance.
+ const point=(lateral,forward,y)=>({x:focus.x+heading.dz*lateral+heading.dx*forward,y:focus.y+y,z:focus.z-heading.dx*lateral+heading.dz*forward});
+ return {position:point(side,ahead,height),look:point(0,0,1.35),fov:shot.fov,forward:{x:heading.dx,z:heading.dz},side,subjects:group.map(o=>o.no)};
 }
-

@@ -1,377 +1,93 @@
-// Dedicated painted anime eye decal. Shared across all 18 horses to keep GPU memory low.
-// Three.js planes wrap the cheek diagonally, readable from side and front 3/4 views.
-let sharedEyeTexture=null;
-function paintedEye(T){
- if(sharedEyeTexture)return sharedEyeTexture;
- const c=document.createElement('canvas');c.width=128;c.height=128;
- const g=c.getContext('2d');g.clearRect(0,0,128,128);
- g.fillStyle='#352923';g.beginPath();g.ellipse(64,64,54,42,-.16,0,Math.PI*2);g.fill();
- g.fillStyle='#a66d3e';g.beginPath();g.ellipse(68,69,33,33,0,0,Math.PI*2);g.fill();
- g.fillStyle='#1b2224';g.beginPath();g.ellipse(65,61,24,30,0,0,Math.PI*2);g.fill();
- g.fillStyle='#ffffff';g.beginPath();g.ellipse(48,44,10,11,0,0,Math.PI*2);g.fill();
- g.fillStyle='#dbbd8f';g.beginPath();g.ellipse(82,86,7,5,0,0,Math.PI*2);g.fill();
- sharedEyeTexture=new T.CanvasTexture(c);sharedEyeTexture.colorSpace=T.SRGBColorSpace;
- return sharedEyeTexture;
-}
-// Original cel racehorse v10 — original 3D chibi character based on the requested
-// illustrated design direction (large expressive eyes, rosy muzzle, tiny rider).
-// Coordinates: forward +Z, up +Y. Four articulated legs stay compatible with
-// chibi-gallop-v1.js and the 18-horse Kyoto race simulator.
-export function createRaceHorse(T,scene,h,silkHex,frameCapHex='#89929B',frameCapOutline='#28323A',frameCapPattern=null,frameCapSecondary='#FFFFFF'){
+/** Original anatomical cel thoroughbred. Metre scale, forward +Z.
+ * Continuous torso/neck surfaces, articulated scapula/knee/hock, racing crouch.
+ * No assets from the reference game are used. */
+export function createRaceHorse(T,scene,h,silkHex,frameCapHex='#89929b',frameCapOutline='#28323a',frameCapPattern=null,frameCapSecondary='#ffffff'){
  const root=new T.Group(),anim=new T.Group();root.add(anim);
- const coatColors=[0x848b91,0x593a30,0x815038,0x995e40,0xb2764c,0x686e75,0x633a30,0x976b4c,0x473b38,0x8b5a40,0x593d35,0x977759,0x754b37,0x69483d,0x805b48,0xa1795c,0x50403a,0x977e66];
- const base=coatColors[(h.no-1)%coatColors.length];
- // Hand-painted anime proportions; broad cel-shaded highlights rather than pixelated noise.
- // All 18 coats retain their own color while eye highlights, blush and face stay readable.
- // Gentle eight-step shading: the old four hard bands exaggerated geometry seams.
- // Keep anime illustration colour without a plastic polygon-faceted surface.
- const shades=[136,196,242,255];
- const gradient=new T.DataTexture(new Uint8Array(
-  shades.flatMap(v=>[v,v,v,255])
- ),shades.length,1,T.RGBAFormat);gradient.needsUpdate=true;
- gradient.minFilter=T.NearestFilter;gradient.magFilter=T.NearestFilter;
- gradient.generateMipmaps=false;
- const color=v=>new T.Color(v);
- const toon=v=>new T.MeshToonMaterial({color:v,gradientMap:gradient});
- const coat=toon(base);
- const shade=toon(color(base).multiplyScalar(.71));
- const highlight=toon(color(base).lerp(color(0xffe4bf),.28));
- const mane=toon(h.no%4===0?0x644030:0x402725);
- const maneLight=toon(h.no%4===0?0x9b6748:0x775039);
- const hoofMat=toon(0x332f38);
- const leather=toon(0x38292c);
- const cream=toon(0xfff4e2);
- const muzzle=toon(0x8e8272);
- const muzzleShade=toon(0x5d554c);
- const cheekPink=new T.MeshBasicMaterial({color:0xf09aa5,transparent:true,opacity:.69,depthWrite:false});
- const silk=toon(silkHex);
- const metal=new T.MeshStandardMaterial({color:0xe7d5a9,metalness:.28,roughness:.45});
- const pink=toon(0xe89d88);
- const sclera=new T.MeshBasicMaterial({color:0xfff8f3});
- const iris=toon(0x9a582f);
- const irisLight=new T.MeshBasicMaterial({color:0xd58a51});
- const pupil=new T.MeshBasicMaterial({color:0x24151d});
- const shine=new T.MeshBasicMaterial({color:0xffffff});
- const outlineMat=new T.MeshBasicMaterial({color:0x422b2b,side:T.BackSide});
- const sphere=new T.SphereGeometry(1,16,11);
- const cone=new T.ConeGeometry(1,1,7);
- const ell=(parent,material,x,y,z,sx,sy,sz)=>{
-  const mesh=new T.Mesh(sphere,material);mesh.position.set(x,y,z);mesh.scale.set(sx,sy,sz);parent.add(mesh);return mesh;
- };
- // Inverted backface shells give a thin hand-drawn line on major silhouettes.
- const lined=(parent,material,x,y,z,sx,sy,sz)=>{
-  const shape=ell(parent,material,x,y,z,sx,sy,sz);
-  const shell=ell(parent,outlineMat,x,y,z,sx+.010,sy+.010,sz+.010);
-  shell.renderOrder=-1;return shape;
- };
- const tuft=(parent,material,x,y,z,rx,ry,rz,tiltX=0,tiltZ=0)=>{
-  const m=new T.Mesh(cone,material);
-  m.position.set(x,y,z);m.scale.set(rx,ry,rz);m.rotation.x=tiltX;m.rotation.z=tiltZ;
-  parent.add(m);return m;
- };
- const box=(parent,material,x,y,z,sx,sy,sz)=>{
-  const mesh=new T.Mesh(new T.BoxGeometry(sx,sy,sz),material);mesh.position.set(x,y,z);parent.add(mesh);return mesh;
- };
- const tube=(parent,material,a,b,radA,radB)=>{
-  const p=new T.Vector3(...a),q=new T.Vector3(...b),v=q.clone().sub(p);
-  const m=new T.Mesh(new T.CylinderGeometry(radB,radA,v.length(),10),material);
-  m.position.copy(p.add(q).multiplyScalar(.5));
-  m.quaternion.setFromUnitVectors(new T.Vector3(0,1,0),v.normalize());parent.add(m);return m;
- };
- // Rounded Catmull-Rom rings: body cross-sections in the XY plane, advancing +Z.
- function loft(parent,material,rings,segments=36,steps=6){
-  const points=[];
-  const cr=(a,b,c,d,t)=>.5*(2*b+(-a+c)*t+(2*a-5*b+4*c-d)*t*t+(-a+3*b-3*c+d)*t*t*t);
-  for(let i=0;i<rings.length-1;i++)for(let q=0;q<steps;q++){
-   const t=q/steps;
-   points.push(rings[i].map((_,j)=>cr(rings[Math.max(0,i-1)][j],rings[i][j],rings[i+1][j],rings[Math.min(rings.length-1,i+2)][j],t)));
-  }
-  points.push(rings[rings.length-1]);
-  const v=[],uv=[],idx=[];
-  points.forEach(([x,y,z,rx,ry],i)=>{
-   for(let k=0;k<=segments;k++){
-    const a=2*Math.PI*k/segments;
-    v.push((x+Math.cos(a)*Math.max(.01,rx))*.90,y+.28+Math.sin(a)*Math.max(.01,ry)*.92,z*1.06);
-    uv.push(k/segments,i/(points.length-1));
-   }
-  });
-  for(let i=0;i<points.length-1;i++)for(let k=0;k<segments;k++){
-   const a=i*(segments+1)+k,b=a+segments+1;
-   idx.push(a,a+1,b,a+1,b+1,b);
-  }
-  const g=new T.BufferGeometry();g.setAttribute('position',new T.Float32BufferAttribute(v,3));
-  g.setAttribute('uv',new T.Float32BufferAttribute(uv,2));g.setIndex(idx);g.computeVertexNormals();
-  // The ring duplicates angle 0 at 2pi for UVs. Smooth the two normals:
-  // otherwise each ring displays a visible vertical seam in grazing light.
-  const normal=g.getAttribute('normal');
-  if(normal){
-   for(let row=0;row<points.length;row++){
-    const a=row*(segments+1),b=a+segments;
-    let nx=normal.getX(a)+normal.getX(b),ny=normal.getY(a)+normal.getY(b),nz=normal.getZ(a)+normal.getZ(b);
-    const len=Math.hypot(nx,ny,nz)||1;nx/=len;ny/=len;nz/=len;
-    normal.setXYZ(a,nx,ny,nz);normal.setXYZ(b,nx,ny,nz);
-   }
-   normal.needsUpdate=true;
-  }
-  const m=new T.Mesh(g,material);parent.add(m);return m;
+ const colors=[0x777d82,0x382722,0x703f28,0x914b2c,0xa96337,0x5c6063,0x452922,0x825232,0x2a2526,0x6b3722,0x47302a,0x9b7050,0x71422b,0x4f3027,0x6a4431,0x986644,0x352823,0x8b6b52];
+ const base=colors[(h.no-1)%colors.length],shades=[100,168,225,255];
+ const gradient=new T.DataTexture(new Uint8Array(shades.flatMap(v=>[v,v,v,255])),4,1,T.RGBAFormat);gradient.needsUpdate=true;gradient.minFilter=gradient.magFilter=T.NearestFilter;
+ const toon=c=>new T.MeshToonMaterial({color:c,gradientMap:gradient});
+ const coat=toon(base),dark=toon(new T.Color(base).multiplyScalar(.63)),mane=toon(0x211c1b),hoof=toon(0x282626),white=toon(0xf0eee3),leather=toon(0x262126),skin=toon(0xe0b591),silk=toon(silkHex),cap=toon(frameCapHex),black=toon(0x17212a);
+ const sphere=new T.SphereGeometry(1,14,10);
+ const ell=(parent,m,x,y,z,a,b,c)=>{const o=new T.Mesh(sphere,m);o.position.set(x,y,z);o.scale.set(a,b,c);parent.add(o);return o};
+ const bone=(parent,m,a,b,r1,r2)=>{const p=new T.Vector3(...a),q=new T.Vector3(...b),v=q.clone().sub(p),o=new T.Mesh(new T.CylinderGeometry(r2,r1,v.length(),8),m);o.position.copy(p.add(q).multiplyScalar(.5));o.quaternion.setFromUnitVectors(new T.Vector3(0,1,0),v.normalize());parent.add(o);return o};
+ function loft(parent,m,rings){
+  const v=[],idx=[],n=20;
+  for(const [y,z,rx,ry] of rings)for(let k=0;k<=n;k++){const a=k*2*Math.PI/n;v.push(Math.cos(a)*rx,y+Math.sin(a)*ry,z)}
+  for(let i=0;i<rings.length-1;i++)for(let k=0;k<n;k++){const a=i*(n+1)+k,b=a+n+1;idx.push(a,a+1,b,a+1,b+1,b)}
+  const g=new T.BufferGeometry();g.setAttribute('position',new T.Float32BufferAttribute(v,3));g.setIndex(idx);g.computeVertexNormals();
+  const nm=g.getAttribute('normal');for(let i=0;i<rings.length;i++){const a=i*(n+1),b=a+n,p=new T.Vector3(nm.getX(a)+nm.getX(b),nm.getY(a)+nm.getY(b),nm.getZ(a)+nm.getZ(b)).normalize();nm.setXYZ(a,p.x,p.y,p.z);nm.setXYZ(b,p.x,p.y,p.z)}
+  const mesh=new T.Mesh(g,m);parent.add(mesh);return mesh;
  }
- // Continuous cel-shaded torso. All of the shoulders, rump and belly are now one
- // continuous organic surface; the old pasted-on ellipsoids caused obvious
- // intersecting "lumps" and harsh dark seams around the hips.
- // More radial faces and finely spaced profiles produce an even silhouette.
- loft(anim,coat,[
-  [0,1.74,-1.49,.025,.035],
-  [0,1.67,-1.42,.25,.31],
-  [0,1.64,-1.32,.42,.46],
-  [0,1.62,-1.22,.56,.59],
-  [0,1.59,-1.07,.68,.70],
-  [0,1.57,-.87,.76,.77],
-  [0,1.56,-.63,.795,.805],
-  [0,1.55,-.37,.815,.825],
-  [0,1.55,-.08,.82,.835],
-  [0,1.57,.19,.81,.83],
-  [0,1.61,.43,.77,.80],
-  [0,1.66,.64,.71,.76],
-  [0,1.72,.82,.61,.69],
-  [0,1.80,.97,.48,.57],
-  [0,1.87,1.09,.28,.35],
-  [0,1.92,1.16,.025,.045]
- ],32,4);
- // Short, softly arched neck. Its wide lower rings are buried inside the
- // continuous torso instead of sitting visibly atop it as a second cylinder.
- loft(anim,coat,[
-  [0,1.90,.72,.43,.40],
-  [0,1.97,.84,.44,.44],
-  [0,2.04,.99,.43,.45],
-  [0,2.15,1.12,.39,.41],
-  [0,2.26,1.23,.34,.37],
-  [0,2.36,1.33,.29,.31],
-  [0,2.45,1.39,.23,.25],
-  [0,2.50,1.43,.14,.17]
- ],28,4);
- // Shoulder and haunch volume live in the loft itself; no overlapping
- // side-spheres or bright "patch" blobs on the outside of the coat.
- // Derby Stallion 2-inspired original character proportions.
- // No long tapered mesh: rounded forehead + cheek + short downturned muzzle.
- // Reference direction: large friendly eyes, tiny muzzle, fluffy forelock.
- // Proportions are deliberately stylized, not anatomy-accurate.
- const headRig=new T.Group();headRig.position.set(0,2.73,1.49);
- headRig.scale.set(1.28,1.34,1.58);anim.add(headRig);
- const skull=lined(headRig,coat,0,.045,.105,.353,.373,.326);
- skull.rotation.x=-.10;
- ell(headRig,coat,0,-.205,.215,.331,.335,.307);
- const nose=ell(headRig,coat,0,-.356,.405,.261,.282,.257);
- nose.rotation.x=.25;
- // Rounded peach mouth as in the supplied character sheet.
- lined(headRig,muzzle,0,-.548,.568,.301,.212,.246);
- ell(headRig,muzzleShade,0,-.692,.609,.256,.065,.146);
+ loft(anim,coat,[[1.36,-.91,.03,.05],[1.34,-.80,.23,.30],[1.32,-.63,.32,.36],[1.27,-.39,.34,.33],[1.25,-.12,.31,.30],[1.30,.16,.32,.37],[1.35,.38,.30,.39],[1.40,.55,.23,.31],[1.43,.66,.05,.11]]);
+ // Neck rises from the chest and tapers to the poll, with a clear throat latch.
+ loft(anim,coat,[[1.41,.35,.24,.31],[1.54,.48,.23,.34],[1.71,.61,.20,.32],[1.86,.72,.16,.27],[1.98,.80,.125,.20],[2.04,.87,.08,.10]]);
+ for(const side of [-1,1]){
+  const shoulder=ell(anim,coat,side*.20,1.29,.36,.15,.29,.25);shoulder.rotation.x=-.3;
+  ell(anim,coat,side*.20,1.32,-.65,.17,.28,.24);
+ }
+ const headRig=new T.Group();headRig.position.set(0,2.03,.88);anim.add(headRig);
+ const skull=ell(headRig,coat,0,-.06,.09,.14,.22,.18);skull.rotation.x=-.3;
+ const face=ell(headRig,coat,0,-.25,.27,.107,.27,.125);face.rotation.x=-.65;
+ ell(headRig,dark,0,-.435,.405,.12,.095,.105);
+ ell(headRig,dark,0,-.48,.32,.09,.045,.15);
  const ears=[];
  for(const side of [-1,1]){
-  // The eye is a layered anime iris, not a single glossy black bead.
-  // Nearer camera sees: ink lid, warm sclera, iris, pupil, two catchlights.
-  // A hand-painted decal avoids the old round black-button-eyed look.
-  const eyeMat=new T.MeshBasicMaterial({map:paintedEye(T),transparent:true,
-    side:T.DoubleSide,depthWrite:false,polygonOffset:true,polygonOffsetFactor:-1});
-  const eye=new T.Mesh(new T.PlaneGeometry(.315,.280),eyeMat);
-  eye.position.set(side*.397,.086,.249);eye.rotation.y=side*1.08;headRig.add(eye);
-  // Ink eyebrows and warm blush make the pony appear expressive.
-  const eyebrow=ell(headRig,mane,side*.349,.319,.213,.038,.022,.148);
-  eyebrow.rotation.x=-side*.18;
-  // Tiny jointed floppy ears; rosy interiors remain readable on iPhone.
-  const earRig=new T.Group();
-  earRig.position.set(side*.235,.496,-.111);
-  earRig.rotation.z=-side*.16;headRig.add(earRig);
-  lined(earRig,coat,0,0,0,.154,.339,.140);
-  ell(earRig,pink,side*.015,.053,.084,.083,.224,.052);
-  ell(earRig,cream,side*.022,.158,.123,.032,.076,.018);
-  ears.push({rig:earRig,side});
-  // Tiny round nostrils, one on each side of the muzzle.
-  ell(headRig,muzzleShade,side*.223,-.544,.773,.052,.033,.025);
-  // Soft cheek curls and tiny highlights add personality in closeups.
-  ell(headRig,highlight,side*.362,-.285,.220,.068,.086,.085);
-  ell(headRig,cream,side*.340,-.317,.289,.024,.028,.018);
-  ell(headRig,shine,side*.397,.154,.323,.025,.032,.015);
-  // Thin unobtrusive reins and metallic bit; eyes remain unobstructed.
-  tube(headRig,leather,[side*.278,.002,.085],[side*.229,-.54,.653],.011,.013);
-  ell(headRig,metal,side*.234,-.539,.665,.026,.025,.027);
+  ell(headRig,black,side*.128,-.07,.19,.025,.018,.033);
+  ell(headRig,white,side*.145,-.066,.2,.004,.005,.009);
+  ell(headRig,black,side*.099,-.425,.475,.019,.022,.014);
+  const rig=new T.Group();rig.position.set(side*.09,.13,.015);headRig.add(rig);
+  const ear=ell(rig,coat,0,.105,0,.044,.14,.045);ear.rotation.x=.13;
+  ell(rig,dark,0,.12,.035,.021,.08,.012);ears.push({rig,side});
+  bone(headRig,leather,[side*.13,.06,.03],[side*.12,-.42,.38],.009,.009);
+  ell(headRig,white,side*.12,-.40,.38,.021,.021,.018);
  }
- tube(headRig,leather,[-.249,-.586,.725],[.249,-.586,.725],.016,.016);
- // Wide ivory blaze makes the face recognizable at mobile sizes.
- if(h.no%4!==2){
-  const blaze=ell(headRig,cream,0,.105,.427,.090,.245,.025);
-  blaze.rotation.x=.10;
-  ell(headRig,cream,0,-.233,.553,.060,.109,.027);
- }
- // Fluffy forelock with tapered highlights, soft rounded bases.
- for(let k=0;k<7;k++){
-  const x=(k-3)*.084,ry=.20+(k%3)*.047;
-  ell(headRig,mane,x,.372,.289,.105,.118,.131);
-  tuft(headRig,k%3===0?maneLight:mane,x,.465,.320,
-   .100,ry,.118,.70,(k-3)*.09);
- }
- // Forehead side fringe, separated from the eyes.
- for(const side of [-1,1]){
-  ell(headRig,mane,side*.345,.339,.075,.112,.169,.165);
-  tuft(headRig,mane,side*.366,.449,.075,.098,.27,.115,
-       side===1?-.18:.24,side*.27);
- }
- // Four articulated forelock ribbons respond to acceleration. They are
- // light, separate 3D meshes rather than a static texture animation.
- const maneStrands=[];
- for(let i=-2;i<=2;i++){
-  const rig=new T.Group();
-  rig.position.set(i*.098,.405,.285);headRig.add(rig);
-  const tuftMesh=tuft(rig,i%2?maneLight:mane,0,.06,-.085,.066,.205,.075,
-    -.73,i*.12);
-  maneStrands.push({rig,baseX:rig.rotation.x,phase:i*.65});
- }
- // Neck crest is light and tufted so the horse reads as a character.
- for(let i=0;i<9;i++){
-  const z=1.53-i*.09,y=2.74-i*.069;
-  ell(anim,mane,0,y,z,.107,.101,.111);
-  tuft(anim,i%3===0?maneLight:mane,0,y+.067,z-.02,.086,.20,.10,
-   -.20,i%2===0?.19:-.16);
- }
- // Layered flowing tail — a fan of glossy manga hair, not rigid sticks.
- const tailRig=new T.Group();tailRig.position.set(0,2.11,-1.53);anim.add(tailRig);
- ell(tailRig,mane,0,-.090,-.275,.192,.197,.40);
- for(let i=-3;i<=3;i++){
-  const x=i*.072;
-  const tuftBase=ell(tailRig,i%2?maneLight:mane,x,-.17,-.52,.088,.120,.38);
-  tuftBase.rotation.x=-.16;tuftBase.rotation.y=i*.035;
-  tuft(tailRig,mane,x*1.32,-.24,-.83-(3-Math.abs(i))*.042,
-   .080,.37,.084,-1.25,i*.07);
- }
- // Flexible secondary tail ribbons animate out of phase with the main fan.
- const tailStrands=[];
- for(let i=-2;i<=2;i++){
-  const rig=new T.Group();rig.position.set(i*.075,-.26,-.48);tailRig.add(rig);
-  const ribbon=tuft(rig,i%2?maneLight:mane,0,-.14,-.16,.063,.32,.08,-1.07,i*.09);
-  tailStrands.push({rig,phase:i*.67});
- }
- // Articulated, longer racing legs. Preserve the four-pose hierarchy for
- // chibi-gallop-v1.js, but physically lower the hip pivots as we shorten
- // the bones so the resting hoof still touches the ground.
+ if(h.no%3!==0){const blaze=ell(headRig,white,0,-.19,.235,.025,.20,.012);blaze.rotation.x=-.65}
+ bone(headRig,leather,[-.11,-.40,.43],[.11,-.40,.43],.012,.012);
+ for(let i=0;i<8;i++)ell(anim,mane,0,1.68+i*.047,.38+i*.062,.045,.11,.10);
+ ell(headRig,mane,0,.14,.065,.10,.08,.11);
+ const maneStrands=[],tailStrands=[],tailRig=new T.Group();tailRig.position.set(0,1.54,-.83);anim.add(tailRig);
+ for(let i=0;i<5;i++){const o=ell(tailRig,mane,(i-2)*.026,-.14,-.26-i*.035,.04,.09,.34);o.rotation.x=-.35}
  const legs=[];
  for(const front of [true,false])for(const side of [-1,1]){
-  const upper=front?.71:.73,lower=.70;
-  const pivot=new T.Group();
-  pivot.position.set(side*.42,1.40,front?.74:-1.04);
-  pivot.scale.set(.88,1,.90);anim.add(pivot);
-  // Rounded plush upper limb with a gentle taper into the knee.
-  const muscle=ell(pivot,coat,0,-upper*.37,0,front?.245:.275,upper*.66,.215);
-  const knee=new T.Group();knee.position.set(0,-upper,0);pivot.add(knee);
-  // Reduce the bulging knee/ankle spheres that made the legs look jointed
-  // like chunky Lego pieces, while retaining the reliable pivot hierarchy.
-  ell(knee,coat,0,0,0,.136,.137,.129);
-  const cannon=ell(knee,coat,0,-lower*.44,0,.123,lower*.60,.119);
-  ell(knee,coat,0,-lower+.080,.012,.110,.133,.120);
-  // Cute white fetlocks and chunky black hooves, still legible in motion.
-  if((h.no+side+(front?0:2))%3!==0){
-   ell(knee,cream,0,-lower*.75,.009,.143,.173,.140);
-  }
-  const foot=lined(knee,hoofMat,0,-lower+.025,.13,.175,.112,.204);
-  foot.rotation.x=-.13;
-  legs.push({pivot,knee,front,side,upper,lower});
+  const pivot=new T.Group();pivot.position.set(side*.22,front?1.17:1.24,front?.40:-.63);anim.add(pivot);
+  const upper=front?.53:.59,lower=.59;
+  bone(pivot,coat,[0,0,0],[0,-upper,front?.02:.10],front?.095:.13,.045);
+  const muscle=ell(pivot,coat,0,-.16,front?0:.035,front?.085:.12,.24,.105);muscle.rotation.x=front?0:-.2;
+  const knee=new T.Group();knee.position.set(0,-upper,front?.02:.10);pivot.add(knee);
+  ell(knee,dark,0,0,0,.050,.055,.055);
+  bone(knee,coat,[0,0,0],[0,-lower+.09,.01],.035,.027);
+  if(h.no%3!==0)bone(knee,white,[0,-lower+.20,.01],[0,-lower+.045,.02],.031,.035);
+  ell(knee,hoof,0,-lower+.025,.045,.047,.045,.065);
+  legs.push({pivot,knee,upper,lower,front,side});
  }
- // Jockey and saddlecloth (18 unique race numbers).
- ell(anim,leather,0,2.63,-.24,.52,.12,.65);
- // JRA-inspired Japanese saddlecloth: large white race number and
- // the HORSE'S OWN NAME, both flanks. No floating number above its head.
- // The cloth is deep indigo and deliberately distinct from frame-cap colors.
- const c=document.createElement('canvas');c.width=512;c.height=448;
- const g=c.getContext('2d');
- g.fillStyle='#2b2545';g.fillRect(0,0,c.width,c.height);
- g.strokeStyle='#f5f3e6';g.lineWidth=14;g.strokeRect(12,12,488,424);
- g.fillStyle='#e7d7a7';g.textAlign='left';g.textBaseline='middle';
- g.font='bold 30px system-ui';g.fillText('JRA',28,47);
- g.fillStyle='#ffffff';g.textAlign='center';g.textBaseline='middle';
- g.font='900 260px sans-serif';g.fillText(String(h.no),256,198,465);
- g.fillStyle='#e9d7a0';g.fillRect(30,310,452,3);
- g.fillStyle='#fffdf4';
- const name=String(h.name||'');
- g.font='900 64px "Hiragino Kaku Gothic ProN","Yu Gothic","Noto Sans JP",sans-serif';
- g.fillText(name,256,379,462);
- const clothTex=new T.CanvasTexture(c);clothTex.colorSpace=T.SRGBColorSpace;
- clothTex.magFilter=T.LinearFilter;clothTex.minFilter=T.LinearMipmapLinearFilter;
- clothTex.anisotropy=4;
- const clothMat=new T.MeshBasicMaterial({map:clothTex,side:T.DoubleSide});
+ ell(anim,leather,0,1.64,-.10,.29,.055,.34);
+ // Each flank has its own legible saddlecloth and reins, without floating labels.
+ const cv=document.createElement('canvas');cv.width=256;cv.height=192;const g=cv.getContext('2d');g.fillStyle='#192632';g.fillRect(0,0,256,192);g.fillStyle='#ffffff';g.textAlign='center';g.font='bold 126px sans-serif';g.fillText(String(h.no),128,132);g.font='bold 20px sans-serif';g.fillText(h.name,128,171,240);
+ const tex=new T.CanvasTexture(cv);tex.colorSpace=T.SRGBColorSpace;
+ for(const side of [-1,1]){const cloth=new T.Mesh(new T.PlaneGeometry(.62,.44),new T.MeshBasicMaterial({map:tex,side:T.DoubleSide}));cloth.position.set(side*.325,1.41,-.12);cloth.rotation.y=side*Math.PI/2;anim.add(cloth)}
+ const rider=new T.Group();anim.add(rider);
+ // Folded racing seat: hip behind the shoulder, torso pitched towards the neck.
+ const body=ell(rider,silk,0,1.99,.10,.16,.25,.13);body.rotation.x=.90;
+ ell(rider,white,0,1.77,-.14,.19,.10,.20);
+ ell(rider,skin,0,2.20,.34,.105,.13,.10);
+ ell(rider,cap,0,2.30,.33,.125,.08,.12);
+ ell(rider,cap,0,2.27,.44,.125,.014,.055);
+ ell(rider,black,0,2.22,.427,.10,.032,.015);
+ if(frameCapPattern){
+  const sections=frameCapPattern==='quartered'?4:8,secondary=toon(frameCapSecondary);
+  for(let i=0;i<sections;i++){const m=new T.Mesh(new T.SphereGeometry(1,8,8,i*2*Math.PI/sections,2*Math.PI/sections,0,Math.PI/2),i%2?secondary:cap);m.position.set(0,2.30,.33);m.scale.set(.126,.081,.121);rider.add(m)}
+ }
  for(const side of [-1,1]){
-  const p=new T.Mesh(new T.PlaneGeometry(1.31,1.12),clothMat);
-  p.position.set(side*.750,2.08,-.20);
-  p.rotation.y=side*Math.PI/2;anim.add(p);
+  bone(rider,silk,[side*.13,2.05,.15],[side*.16,1.91,.46],.055,.039);
+  ell(rider,skin,side*.16,1.89,.48,.043,.035,.035);
+  bone(rider,white,[side*.13,1.78,-.14],[side*.32,1.54,.12],.07,.047);
+  bone(rider,black,[side*.32,1.54,.12],[side*.34,1.24,-.05],.047,.033);
+  ell(rider,black,side*.34,1.23,.0,.045,.04,.08);
+  bone(rider,leather,[side*.16,1.89,.48],[side*.12,1.63,1.25],.006,.006);
+  bone(anim,white,[side*.30,1.54,-.11],[side*.31,1.02,-.09],.015,.015);
  }
- // Cel-shaded jockey. A full-face helmet, shiny eyes and flying hair
- // match the reference illustration while the original silks remain per runner.
- const riderMount=new T.Group();riderMount.position.y=.28;anim.add(riderMount);
- const rider=new T.Group();riderMount.add(rider);
- // Extra wind-swept jacket/scarf is rigged separately for readable sprinting.
- const flutter=new T.Group();rider.add(flutter);
- flutter.position.set(0,2.73,-.19);
-
- const skin=toon(0xffd3b5),skinShade=toon(0xe3a793);
- const helmetFrame=toon(frameCapHex),helmetTrim=toon(frameCapOutline),helmetSecondary=toon(frameCapSecondary);
- const boot=toon(0x292930),glove=toon(0x30313c);
- const hair=toon(h.no%3===0?0x623d32:h.no%3===1?0x50352f:0x865238);
- const saddle=ell(rider,leather,0,2.36,-.25,.56,.10,.64);
- for(const side of [-1,1]){
-  const flap=tuft(flutter,silk,side*.19,0,-.13,.11,.27,.075,-1.04,side*.26);
-  flap.rotation.y=side*.2;
- }
-
- ell(rider,cream,0,2.36,-.43,.30,.23,.30);
- const torso=ell(rider,silk,0,2.69,.07,.30,.33,.30);torso.rotation.x=.58;
- // Big round face, around 65% of helmet width.
- lined(rider,skin,0,3.035,.455,.295,.283,.278);
- ell(rider,skinShade,0,2.844,.618,.18,.061,.12);
- // Small goggles and a tucked riding face; no oversized face decals.
- ell(rider,leather,0,3.085,.706,.245,.074,.042);
- for(const side of [-1,1]){
-  ell(rider,metal,side*.115,3.087,.741,.099,.057,.027);
-  ell(rider,hair,side*.245,3.008,.304,.060,.104,.071);
- }
- // JRA official frame-coloured jockey cap. Body/crown/front panel/peak use
- // the SAME frame colour. The narrow contrasting seam keeps white and black
- // identifiable against bright/dark surroundings, without changing silks.
- if(frameCapPattern==='quartered'||frameCapPattern==='eighths'){
-  const sections=frameCapPattern==='quartered'?4:8;
-  // Real geometric sectors (not a flat decal): alternate frame colour and
-  // white; 1枠 uses light blue as the JRA exception. Shared mesh position
-  // prevents seams becoming uncoloured on the animated helmet.
-  const shell=ell(rider,outlineMat,0,3.335,.423,.384,.225,.354);
-  shell.renderOrder=-1;
-  for(let q=0;q<sections;q++){
-   const geometry=new T.SphereGeometry(1,Math.max(5,24/sections),14,q*2*Math.PI/sections,2*Math.PI/sections,0,Math.PI);
-   const part=new T.Mesh(geometry,q%2===0?helmetFrame:helmetSecondary);
-   part.position.set(0,3.335,.423);part.scale.set(.367,.208,.337);rider.add(part);
-  }
-  ell(rider,helmetSecondary,0,3.438,.493,.092,.112,.287);
- }else{
-  lined(rider,helmetFrame,0,3.335,.423,.367,.208,.337);
-  ell(rider,helmetFrame,0,3.438,.493,.092,.112,.287);
- }
- ell(rider,helmetTrim,0,3.265,.725,.363,.038,.090);
- // Front peak is also frame-coloured, including white, black, and pink.
- ell(rider,helmetFrame,0,3.275,.745,.330,.032,.128);
- ell(rider,metal,.29,3.272,.660,.035,.027,.025);
- // Arm + reins: lean forward into the run, tucked like a game character.
- for(const side of [-1,1]){
-  tube(rider,silk,[side*.24,2.81,.24],[side*.355,2.59,.64],.122,.100);
-  ell(rider,glove,side*.357,2.576,.651,.111,.103,.109);
-  tube(rider,cream,[side*.25,2.34,-.40],[side*.40,2.085,.11],.133,.106);
-  tube(rider,boot,[side*.40,2.085,.11],[side*.43,1.85,.30],.106,.084);
-  ell(rider,boot,side*.43,1.83,.362,.112,.109,.18);
-  tube(rider,leather,[side*.353,2.581,.65],[side*.31,2.02,2.11],.014,.012);
- }
- // Keep the horse's grounded shadow; only the floating NUMBER is removed.
- const shadow=new T.Mesh(new T.CircleGeometry(1,20),
-  new T.MeshBasicMaterial({color:0x173c20,transparent:true,opacity:.20,
-   depthWrite:false,side:T.DoubleSide}));
- shadow.rotation.x=-Math.PI/2;shadow.position.y=.018;
- shadow.scale.set(1,1.65,1);root.add(shadow);
- // No head-top billboard: only the saddlecloth carries number/name.
- const sprite=null;
+ const shadow=new T.Mesh(new T.CircleGeometry(1,24),new T.MeshBasicMaterial({color:0x172c19,transparent:true,opacity:.22,depthWrite:false,side:T.DoubleSide}));shadow.rotation.x=-Math.PI/2;shadow.position.y=.015;shadow.scale.set(.46,1.23,1);root.add(shadow);
  scene.add(root);
- return {root,anim,rider,headRig,tailRig,legs,ears,maneStrands,tailStrands,flutter,sprite,shadow,artDirection:'cel-racehorse-v10'};
+ return {root,anim,rider,headRig,tailRig,legs,ears,maneStrands,tailStrands,flutter:null,sprite:null,shadow,artDirection:'thoroughbred-cel-v11'};
 }
-

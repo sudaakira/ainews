@@ -1,3 +1,4 @@
+import {kyotoPath,kyotoHeight,KYOTO_INNER,runnerLane} from './assets/kyoto-course.js?v=kyoto-v11';
 
 /* True WebGL 3D horses and racecourse. CDN failure retains the self-contained SVG view. */
 import {jockeyCap} from './core/jockey-caps.js?v=cap-v1';
@@ -22,9 +23,10 @@ import {jockeyCap} from './core/jockey-caps.js?v=cap-v1';
  const api=window.KYOTO_RACE;
  if(!api)throw Error('Race state unavailable');
  const {HS,LIVE,route,routeLength,horseProgress,config}=api;const CENTER=(HS.length+1)/2;const distance=config.distance;
+ const metricKyoto=config.venue==='京都'&&distance===2000&&config.surface==='芝';
  const capFor=h=>jockeyCap(h,config,horse=>window.SWAN_FACTORS.frame(horse));
- const scene=new THREE.Scene();scene.background=new THREE.Color(0x9dd8f0);scene.fog=new THREE.FogExp2(0xc5e7ef,.0010);
- const camera=new THREE.PerspectiveCamera(50,1,.1,1000);
+ const scene=new THREE.Scene();scene.background=new THREE.Color(0x9dd8f0);scene.fog=new THREE.FogExp2(0xc5e7ef,.00055);
+ const camera=new THREE.PerspectiveCamera(50,1,.1,2200);
  const renderer=new THREE.WebGLRenderer({antialias:true,powerPreference:'default',alpha:false,preserveDrawingBuffer:false});
  // Fewer GPU pixels on phones preserve frame rate when all up to 18 animated horses are visible.
  renderer.setPixelRatio(Math.min(window.devicePixelRatio||1,window.innerWidth<800?1.2:1.8)); // Restore sharp full-resolution 3D.
@@ -41,7 +43,7 @@ import {jockeyCap} from './core/jockey-caps.js?v=cap-v1';
   if(config.courseView==='kyoto-1400-outer'){
    const venue=await import("./assets/kyoto-scenery.js?v=shared-v1");
    venue.buildScenery(THREE,scene,mat);
-  }else{
+  }else if(!metricKyoto){
    // Stylized generic scenery; not a mapped reproduction of any track.
    const stand=new THREE.Mesh(new THREE.BoxGeometry(165,16,24),mat(0xc4d9df));
    stand.position.set(-10,8,240);scene.add(stand);
@@ -87,7 +89,7 @@ import {jockeyCap} from './core/jockey-caps.js?v=cap-v1';
  const turf=new THREE.MeshStandardMaterial({map:grassMap,color:0xd7efba,roughness:.98,side:THREE.DoubleSide});
  const turfAlt=turf,white=mat(0xf1f2e8),darkRail=mat(0xcad8d2),soil=mat(0x786748);
  const lawnMap=grassMap.clone();lawnMap.needsUpdate=true;lawnMap.repeat.set(14,10);
- const ground=new THREE.Mesh(new THREE.PlaneGeometry(850,900),new THREE.MeshStandardMaterial({map:lawnMap,color:0xa9cd87,roughness:1}));
+ const ground=new THREE.Mesh(new THREE.PlaneGeometry(1600,1300),new THREE.MeshStandardMaterial({map:lawnMap,color:0xa9cd87,roughness:1}));
  ground.rotation.x=-Math.PI/2;ground.position.y=-.32;scene.add(ground);
  const W=.245;
  function heightAt(t){
@@ -102,6 +104,7 @@ import {jockeyCap} from './core/jockey-caps.js?v=cap-v1';
   return 4.3*(u*u*(3-2*u));
  }
  function path(t){
+  if(metricKyoto)return kyotoPath(t);
   const normalized=Math.max(0,Math.min(1,t));
   const sign=config.direction==='左'?-1:1;
   const d=(sign===-1?1-normalized:normalized)*routeLength;
@@ -111,13 +114,36 @@ import {jockeyCap} from './core/jockey-caps.js?v=cap-v1';
   const runOut=Math.max(0,t-1)*routeLength*W;
   return {x:(p.x-430)*W+dx/l*runOut,z:(p.y-277)*W+dz/l*runOut,dx:dx/l,dz:dz/l,y:heightAt(normalized)};
  }
- const count=320,half=12.8;
+ const count=800,half=metricKyoto?13.5:12.8,trackEnd=metricKyoto?KYOTO_INNER.lap/2000:1.22;
  function offsetPoint(t,lane,yOffset=0){let p=path(t);return new THREE.Vector3(p.x-p.dz*lane,p.y+yOffset,p.z+p.dx*lane)}
  const verts=[],norm=[],uv=[],idx=[];
- for(let i=0;i<=count;i++){let t=i/count*1.22;for(let side of [-1,1]){let p=offsetPoint(t,side*half,.015);verts.push(p.x,p.y,p.z);uv.push(side===-1?0:1,t*20)}}
+ for(let i=0;i<=count;i++){let t=i/count*trackEnd;for(let side of [-1,1]){let p=offsetPoint(t,side*half,.015);verts.push(p.x,p.y,p.z);uv.push(side===-1?0:1,t*20)}}
  for(let i=0;i<count;i++){let k=i*2;idx.push(k,k+1,k+2,k+1,k+3,k+2)}
  let geo=new THREE.BufferGeometry();geo.setAttribute('position',new THREE.Float32BufferAttribute(verts,3));geo.setAttribute('uv',new THREE.Float32BufferAttribute(uv,2));geo.setIndex(idx);geo.computeVertexNormals();
  const track=new THREE.Mesh(geo,turfAlt);track.material.side=THREE.DoubleSide;scene.add(track);
+ // Kyoto's inner/outer split, infield dirt circuit and backstretch chute.
+ // The hill is a graded surface, not a floating strip over a flat lawn.
+ if(metricKyoto){
+  const ribbon=(laneAt,width,material,heightScale=1)=>{
+   const v=[],uv=[],ix=[];
+   for(let i=0;i<=800;i++){const t=i/800*trackEnd;for(const side of [-1,1]){
+    const q=offsetPoint(t,laneAt(t)+side*width/2,0);q.y=q.y*heightScale-.045;
+    v.push(q.x,q.y,q.z);uv.push(side===-1?0:1,i/20);
+   }}
+   for(let i=0;i<800;i++){const k=i*2;ix.push(k,k+1,k+2,k+1,k+3,k+2)}
+   const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.Float32BufferAttribute(v,3));g.setAttribute('uv',new THREE.Float32BufferAttribute(uv,2));g.setIndex(ix);g.computeVertexNormals();scene.add(new THREE.Mesh(g,material));
+  };
+  ribbon(()=>0,75,turf);
+  ribbon(()=>40,22,new THREE.MeshLambertMaterial({color:0xc5a77d,side:THREE.DoubleSide}),.96);
+  // Outer bend separates from the inner at 3C and rejoins at 4C.
+  const outer=t=>{const u=(t-.51)/(.836-.51);return u>0&&u<1?-38*Math.sin(Math.PI*u):0};
+  ribbon(outer,27,turf);
+  const outerPts=[];for(let i=0;i<=500;i++){const t=i/500*trackEnd;outerPts.push(offsetPoint(t,outer(t)-14,.9))}
+  const curve=new THREE.CatmullRomCurve3(outerPts),rail=new THREE.Mesh(new THREE.TubeGeometry(curve,1000,.08,5),white);scene.add(rail);
+  const chute=path(.46),v=new THREE.Vector3(chute.dx,0,chute.dz),center=new THREE.Vector3(chute.x,chute.y,chute.z).addScaledVector(v,-220);
+  const spur=new THREE.Mesh(new THREE.PlaneGeometry(27,440),turf);spur.rotation.set(-Math.PI/2,0,-Math.atan2(chute.dx,chute.dz));spur.position.copy(center);spur.position.y=-.06;scene.add(spur);
+  const lake=new THREE.Mesh(new THREE.CircleGeometry(1,60),new THREE.MeshStandardMaterial({color:0x638f9b,roughness:.26}));lake.rotation.x=-Math.PI/2;lake.position.set(-10,-.15,0);lake.scale.set(95,43,1);scene.add(lake);
+ }
  // Sparse actual 3D grass tufts on the turf, instanced in one draw call for mobile performance.
  const bladeGeo=new THREE.BufferGeometry();
  bladeGeo.setAttribute('position',new THREE.Float32BufferAttribute([-.035,0,0,.035,0,0,0,.23,0],3));
@@ -138,26 +164,26 @@ import {jockeyCap} from './core/jockey-caps.js?v=cap-v1';
  blades.instanceMatrix.needsUpdate=true;scene.add(blades);
  function tube(points,r,color){let curve=new THREE.CatmullRomCurve3(points);let mesh=new THREE.Mesh(new THREE.TubeGeometry(curve,Math.max(16,points.length*2),r,5,false),color);scene.add(mesh);return mesh}
  for(let lane of [-half-.8,half+.8]){
-  let pts=[];for(let i=0;i<=count;i++)pts.push(offsetPoint(i/count*1.22,lane,.75));
+  let pts=[];for(let i=0;i<=count;i++)pts.push(offsetPoint(i/count*trackEnd,lane,.75));
   tube(pts,.10,white);
-  for(let i=0;i<=count;i+=9){let p=offsetPoint(i/count*1.22,lane,.1);let post=new THREE.Mesh(new THREE.CylinderGeometry(.065,.075,.8,6),darkRail);post.position.copy(p).add(new THREE.Vector3(0,.33,0));scene.add(post)}
+  for(let i=0;i<=count;i+=9){let p=offsetPoint(i/count*trackEnd,lane,.1);let post=new THREE.Mesh(new THREE.CylinderGeometry(.065,.075,.8,6),darkRail);post.position.copy(p).add(new THREE.Vector3(0,.33,0));scene.add(post)}
  }
- for(let lane of [-6.3,0,6.3]){
+ for(let lane of []){
   let pts=[];for(let i=0;i<=count;i++)pts.push(offsetPoint(i/count,lane,.035));
   tube(pts,.025,mat(0xb5d59c));
  }
  function box(w,h,d,material,parent,x,y,z){let m=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),material);m.position.set(x,y,z);parent.add(m);return m}
  const silkColors=['#d63e3e','#e8e4df','#2670db','#edc33a','#dd63a5','#4ebbb0','#c7c7c7','#f2932f','#7144bd','#bda144','#db5e32','#62b55c','#e4edf4','#9c78d7','#5b9bd1','#c5a07c','#d6dc45','#cb5171'];
- const {updateGallop}=await import("./assets/chibi-gallop.js?v=broadcast-v10-1");
+ const {updateGallop}=await import("./assets/chibi-gallop.js?v=kyoto-v11");
  const models=[];
  let horseV3Ready=false,modelError='';
  try{
-  const horseV3=await import("./assets/horse-anime.js?v=broadcast-v10-1");
+  const horseV3=await import("./assets/horse-anime.js?v=kyoto-v11");
   for(const h of HS){
    const frameCap=capFor(h);
    models.push(horseV3.createRaceHorse(THREE,scene,h,silkColors[h.no-1],frameCap.hex,frameCap.outline,frameCap.pattern||null,frameCap.secondary||'#FFFFFF'));
   }
-  horseV3Ready=models.length===HS.length&&models.every(m=>m.artDirection==='cel-racehorse-v10');
+  horseV3Ready=models.length===HS.length&&models.every(m=>m.artDirection==='thoroughbred-cel-v11');
   if(!horseV3Ready)throw new Error('アニメ馬モデルと出走'+HS.length+'頭の整合性を確認できませんでした');
  }catch(e){
   modelError=String(e?.stack||e);
@@ -175,15 +201,16 @@ import {jockeyCap} from './core/jockey-caps.js?v=cap-v1';
  gateRoot.position.z-=startDir.dz*1.6;
  gateRoot.rotation.y=Math.atan2(startDir.dx,startDir.dz);scene.add(gateRoot);
  const gateSteel=mat(0x347f79),gateWhite=mat(0xf4f6ee),gateDark=mat(0x1c514e),gateYellow=mat(0xf8d54f),gateNumberMat=mat(0x253b45);
- const stallWidth=1.51,stallDepth=4.9,stallCount=HS.length,gateDoors=[];
+ const stallWidth=1.20,stallDepth=3.2,stallCount=HS.length,gateDoors=[];
  const beam=(parent,x,y,z,w,h,d,m)=>{let v=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),m);v.position.set(x,y,z);parent.add(v);return v};
  for(let i=0;i<stallCount;i++){
   const x=(i-(stallCount-1)/2)*stallWidth;
   for(let sx of [-.5,.5])for(let sz of [-1,1]){
-   beam(gateRoot,x+sx*stallWidth,1.63,sz*stallDepth/2,.075,3.25,.075,gateSteel);
+   beam(gateRoot,x+sx*stallWidth,1.45,sz*stallDepth/2,.055,2.9,.055,gateSteel);
   }
-  beam(gateRoot,x,3.23,0,stallWidth,.18,stallDepth+.4,gateSteel);
-  beam(gateRoot,x,3.46,0,stallWidth,.18,stallDepth+.4,gateWhite);
+  beam(gateRoot,x,2.85,0,stallWidth,.13,stallDepth+.4,gateSteel);
+  beam(gateRoot,x,3.05,0,stallWidth,.13,stallDepth+.4,gateWhite);
+  for(const side of [-1,1])beam(gateRoot,x+side*stallWidth/2,1.65,-.4,.06,.72,stallDepth*.68,gateWhite);
   // Open side rails keep the new side-on start from looking through a solid wall.
   for(let side of [-1,1])for(const y of [.50,1.25,2.05])
    beam(gateRoot,x+side*stallWidth/2,y,0,.055,.065,stallDepth,gateSteel);
@@ -201,16 +228,22 @@ import {jockeyCap} from './core/jockey-caps.js?v=cap-v1';
   const cv=document.createElement('canvas');cv.width=128;cv.height=128;
   const g=cv.getContext('2d');g.fillStyle='#f8d54f';g.fillRect(0,0,128,128);g.fillStyle='#24343b';g.textAlign='center';g.textBaseline='middle';g.font='bold 92px sans-serif';g.fillText(String(i+1),64,69);
   const tex=new THREE.CanvasTexture(cv);
-  const label=new THREE.Mesh(new THREE.PlaneGeometry(stallWidth*.88,1.08),new THREE.MeshBasicMaterial({map:tex,side:THREE.DoubleSide}));
-  label.position.set(x,4.1,stallDepth/2+.10);gateRoot.add(label);
+  const label=new THREE.Mesh(new THREE.PlaneGeometry(stallWidth*.78,.52),new THREE.MeshBasicMaterial({map:tex,side:THREE.DoubleSide}));
+  label.position.set(x,3.34,stallDepth/2+.10);gateRoot.add(label);
  }
- beam(gateRoot,0,4.82,0,stallWidth*stallCount+2,.85,1.4,gateDark);
+ beam(gateRoot,0,3.92,0,stallWidth*stallCount+2,.55,1.4,gateDark);
  const banner=document.createElement('canvas');banner.width=1024;banner.height=128;
  const bc=banner.getContext('2d');bc.fillStyle='#245f5b';bc.fillRect(0,0,1024,128);
- bc.fillStyle='#ffffff';bc.textAlign='center';bc.textBaseline='middle';bc.font='bold 75px sans-serif';bc.fillText(config.venue+' RACE',512,67);
+ bc.fillStyle='#ffffff';bc.textAlign='center';bc.textBaseline='middle';bc.font='bold 75px sans-serif';bc.fillText(config.venue+'競馬場  '+config.name,512,67);
  const bannerTex=new THREE.CanvasTexture(banner);bannerTex.colorSpace=THREE.SRGBColorSpace;
- const sign=new THREE.Mesh(new THREE.PlaneGeometry(stallWidth*stallCount,1.1),new THREE.MeshBasicMaterial({map:bannerTex,side:THREE.DoubleSide}));
- sign.position.set(0,5.05,stallDepth/2+.12);gateRoot.add(sign);
+ const sign=new THREE.Mesh(new THREE.PlaneGeometry(stallWidth*stallCount,.55),new THREE.MeshBasicMaterial({map:bannerTex,side:THREE.DoubleSide}));
+ sign.position.set(0,3.92,stallDepth/2+.12);gateRoot.add(sign);
+ // Mobile bridge legs and transport wheels outside the occupied stalls.
+ for(const side of [-1,1]){
+  const x=side*(stallCount*stallWidth/2+.8);
+  beam(gateRoot,x,2,0,.22,4,1,gateSteel);
+  for(const z of [-1.4,1.4]){const wheel=new THREE.Mesh(new THREE.CylinderGeometry(.43,.43,.24,16),mat(0x262b2c));wheel.rotation.z=Math.PI/2;wheel.position.set(x,.43,z);gateRoot.add(wheel)}
+ }
  // At the stalls, scale the chibi runners slightly down to fit; blend back to normal as they accelerate.
  function updateGates(clock){
   const opening=Math.max(0,Math.min(1,clock/.65));
@@ -221,9 +254,9 @@ import {jockeyCap} from './core/jockey-caps.js?v=cap-v1';
  // and ivory nested racetrack arches with floodlights). It is not a gate.
  let goalRig=null,goalBoard=null;
  if(config.venue==='京都'&&config.surface==='芝'){
-  const {createKyotoGoalBoard}=await import('./assets/kyoto-goal-board.js?v=broadcast-v10-1');
+  const {createKyotoGoalBoard}=await import('./assets/kyoto-goal-board.js?v=kyoto-v11');
   goalBoard=createKyotoGoalBoard({THREE,scene,offsetPoint,path,half});
-  goalRig=goalBoard.root;
+  goalRig=goalBoard.root;goalRig.scale.setScalar(.58);
  }else{
   // Kyoto-inspired freestanding finish monument on the infield side, not a banner over the track.
   goalRig=new THREE.Group();
@@ -260,15 +293,15 @@ import {jockeyCap} from './core/jockey-caps.js?v=cap-v1';
  const {createJRAFurlongPosts}=await import("./assets/jra-furlong-posts.js?v=geo-v6");
  const furlongPosts=createJRAFurlongPosts({THREE,scene,offsetPoint,distance,half});
  // Cinematic director replaces manual angle selection for every race.
- const {createRaceCinematics}=await import("./assets/race-cinematics.js?v=broadcast-v10-1");
+ const {createRaceCinematics}=await import("./assets/race-cinematics.js?v=kyoto-v11");
  const cinematics=createRaceCinematics({THREE,scene,stage,models,config,capFor,path,route,routeLength});
  controls.style.display='none';
  document.querySelector('.camera-more')?.setAttribute('hidden','');
  stage.style.display='block';svg.classList.add('svg-hidden');
  status.textContent='3D RACE · '+models.length+'頭';
  document.getElementById('horse-model-version').textContent='CEL RACE · 4 CUTS';
- window.KYOTO_RENDER_STATUS={ready:true,model:'cel-racehorse-v10',venue:venueReady?'full':'fallback',
-  horses:models.length,camera:'side-start-2c-close-3c-overhead-side-finish',courseView:config.courseView,
+ window.KYOTO_RENDER_STATUS={ready:true,model:'thoroughbred-cel-v11',venue:venueReady?'full':'fallback',
+  horses:models.length,camera:'side-start-2c-close-3c-forward-side-leaders',courseView:config.courseView,
   cinematic:true,saddleclothNames:true,goalBoard:!!goalBoard,gateDisappears:true,
   continuousRunOut:true,goalBoardSide:'far',furlongDigits:furlongPosts.map(x=>x.digit)};
  let cw=0,ch=0;
@@ -305,17 +338,18 @@ import {jockeyCap} from './core/jockey-caps.js?v=cap-v1';
    // At zero time all race horses are physically inside their own starting stalls.
    // Stall coordinates are in the gate's local frame; after the break the model
    // transitions smoothly onto the course's racing lanes.
-   const lane=(CENTER-h.no)*(1.51*(1-release)+1.054*release);
-   const gateX=gateRoot.position.x+startDir.dz*(h.no-CENTER)*1.51;
-   const gateZ=gateRoot.position.z-startDir.dx*(h.no-CENTER)*1.51;
+   const lane=runnerLane(h.no,HS.length,clock/LIVE.duration);
+   const gateX=gateRoot.position.x+startDir.dz*(h.no-CENTER)*1.20;
+   const gateZ=gateRoot.position.z-startDir.dx*(h.no-CENTER)*1.20;
    const staging=Math.max(0,1-Math.min(1,clock/.8));
    m.root.position.set(
     (d.x-d.dz*lane)*(1-staging)+gateX*staging,
     d.y+.12,
     (d.z+d.dx*lane)*(1-staging)+gateZ*staging
    );
-   const size=.88+.12*Math.max(0,Math.min(1,clock/3.0));m.root.scale.setScalar(size);
+   m.root.scale.setScalar(1);
    m.root.rotation.y=Math.atan2(d.dx,d.dz);
+   if(metricKyoto){const slope=(kyotoHeight(p+.0005)-kyotoHeight(p-.0005))/2;m.root.rotation.x=-Math.atan(slope);}
    // Articulated four-leg gallop, driven by smooth screen time.
    // The same playback clock drives limbs before and after the finish.
    const visualTime=LIVE.visualTime;
@@ -361,7 +395,8 @@ import {jockeyCap} from './core/jockey-caps.js?v=cap-v1';
    goalBoardVisible:!!goalRig?.visible,goalInFrame,goalScreen,
    shot:shotDirection?.shot,goalSide:'far',
    runOut:clock>LIVE.duration,clock,visualTime:LIVE.visualTime,
-   positions:models.map(m=>({x:m.root.position.x,z:m.root.position.z})),
+   positions:models.map(m=>({x:m.root.position.x,y:m.root.position.y,z:m.root.position.z})),
+   course:metricKyoto?KYOTO_INNER:null,
    cameraForwardDot:(camera.position.x-smoothLook.x)*path(1).dx+(camera.position.z-smoothLook.z)*path(1).dz,
    goalDepth,goalBehindHorses:goalDepth!==null&&goalDepth>farthestHorse,
    gallopPhase:models[0].legs[0].pivot.rotation.x,

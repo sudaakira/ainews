@@ -137,3 +137,31 @@ body.premium-immersive .hero-race .result-head{display:flex!important}
 body.premium-immersive .hero-race .live-note{display:block!important}
 
 .hero-race .place-number,.hero-race .place-rank,.hero-race .place-name{text-shadow:none!important}
+/* v11: readable broadcast desk, left-leading tracker, winning number accent. */
+.race-tracking{bottom:96px;min-height:42px;padding:5px 12px;background:#183d35e8;border-top:1px solid #c7d9ac}
+#race-tracking-field{justify-content:flex-start}
+.tracking-number:first-child{outline:2px solid #ffdc69;outline-offset:1px}
+.tracking-number.winner-number{box-shadow:0 0 0 3px #ffdc69;transform:translateY(-2px)}
+#race-commentary-panel{position:absolute;bottom:0;left:0;right:0;height:96px;display:flex;align-items:center;gap:16px;padding:6px 24px;background:linear-gradient(100deg,#122f3cf5,#214e40f5 65%,#355c3bf5);border-top:2px solid #c9bf76;color:#fffef1;box-sizing:border-box}
+.race-announcer{width:76px;height:88px;flex-shrink:0;align-self:flex-end;overflow:hidden}
+.race-announcer svg{width:100%;height:100%;display:block}
+.race-speech{max-width:900px;min-width:0}
+#race-commentary-title{font-size:10px;color:#c7dcd0;letter-spacing:.08em}
+#race-commentary-text{font-size:16px;line-height:1.5;font-weight:700;margin:4px 0 0;letter-spacing:.02em;color:#fffef1}
+#race-commentary-panel[data-tone=excited]{border-top-color:#f4d760}
+#race-commentary-panel[data-tone=winner]{background:linear-gradient(110deg,#3d3520f5,#214b38f5);border-top-color:#ffe17a}
+#race-commentary-panel[data-tone=winner] #race-commentary-title{color:#ffdf70;font-weight:900}
+@media(max-width:700px){
+ .race-tracking{bottom:90px;min-height:40px;padding:4px 8px 6px}
+ #race-commentary-panel{height:90px;padding:5px 9px 5px 4px;gap:8px}
+ .race-announcer{width:54px;height:76px}
+ #race-commentary-text{font-size:12px;line-height:1.45;margin-top:2px}
+ #race-commentary-title{font-size:9px}
+ .cinema-finish{top:91px;width:185px;max-width:52%}
+}
+@media(max-width:700px) and (max-height:620px){
+ .race-tracking{bottom:73px;min-height:33px;padding-top:3px}.tracking-meta{display:none}
+ #race-commentary-panel{height:73px;gap:5px}.race-announcer{height:62px;width:44px}
+ #race-commentary-text{font-size:10px;line-height:1.4}#race-commentary-title{font-size:8px}
+ #race-course-guide{display:none}.cinema-phase{top:39px}.race-distance{top:39px}
+}

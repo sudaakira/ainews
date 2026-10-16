@@ -14,10 +14,10 @@ try{
    console.error('WEBGL BOOT',await page.evaluate(()=>({renderer:window.KYOTO_RENDER_STATUS,error:document.getElementById('bootstrap-error')?.textContent})),errors);throw e;
   });
   const model=await page.evaluate(()=>window.KYOTO_RENDER_STATUS);
-  assert.equal(model.model,'cel-racehorse-v10');assert.equal(model.horses,17);
+  assert.equal(model.model,'thoroughbred-cel-v11');assert.equal(model.horses,17);
   assert.equal(model.continuousRunOut,true);assert.equal(model.goalBoardSide,'far');
   assert.equal(await page.locator('#kyoto-map').isVisible(),false);
-  assert.equal(await page.locator('#race-course-guide').isVisible(),true);
+  assert.equal(await page.locator('#race-commentary-panel').isVisible(),true);
   assert.equal(await page.locator('.tracking-number').count(),17);
   const canvas=await page.locator('#three-stage canvas').boundingBox();
   assert.ok(canvas.width>200&&canvas.height>200);
@@ -34,7 +34,8 @@ try{
   if(vp.width===390||vp.width===1280){
    await page.waitForFunction(()=>window.RACE_CAMERA_AUDIT?.opening===window.RACE_CAMERA_AUDIT?.total,null,{timeout:8000});
    const cuts=await page.evaluate(()=>window.RACE_CINEMATIC_DEBUG.cuts);
-   const checks=[[.05,'start'],[(cuts[0]+cuts[1])/2,'second-turn'],[(cuts[1]+cuts[2])/2,'third-turn'],[.987,'straight']];
+   await page.screenshot({path:'/tmp/race-mobile-shots/shuka-'+vp.width+'-gate.png'});
+   const checks=[[.05,'start'],[(cuts[0]+cuts[1])/2,'second-turn'],[(cuts[1]+cuts[2])/2,'third-turn'],[.999,'straight']];
    for(const [p,id] of checks){
     await seek(Math.round(p*1000));
     await page.waitForFunction(shot=>window.RACE_SCENE_AUDIT?.shot===shot,id,{timeout:10000});
@@ -42,8 +43,9 @@ try{
     const state=await page.evaluate(()=>({director:window.RACE_CINEMATIC_DEBUG,scene:window.RACE_SCENE_AUDIT}));
     assert.equal(state.director.scriptedCuts,4);
     if(id==='third-turn'){
-     assert.ok(state.director.pose.position.y-state.director.pose.look.y>50);
-     assert.equal(await page.evaluate(()=>window.RACE_CAMERA_AUDIT.opening),17,'overhead frames entire field');
+     assert.ok(state.director.pose.position.y-state.director.pose.look.y<10);
+     assert.equal(state.director.pose.subjects.length,5);
+     assert.ok(state.scene.positions.some(q=>q.y>1),'horses climb Kyoto hill');
     }
     if(id==='straight'){
      await page.waitForFunction(()=>window.RACE_SCENE_AUDIT?.goalInFrame&&window.RACE_SCENE_AUDIT?.goalBehindHorses,null,{timeout:10000});
@@ -52,6 +54,9 @@ try{
      assert.ok(Math.abs(end.cameraForwardDot)<.001,'straight is perpendicular, not diagonal');
      assert.equal(end.goalBehindHorses,true,'finish monument is deeper than every running lane');
     }
+    assert.ok((await page.locator('#race-commentary-text').textContent()).length>10);
+    const visibleOrder=await page.locator('.tracking-number').allTextContents();
+    assert.equal(Number(visibleOrder[0]),state.director.pose.subjects[0]);
     await page.screenshot({path:'/tmp/race-mobile-shots/shuka-'+vp.width+'-'+id+'.png'});
    }
    // Observe real playback across the winner's line: translation AND gait continue.
@@ -85,7 +90,7 @@ try{
    assert.equal(await page.locator('.cinema-podium-row').count(),0);
    console.log('PASS four cuts, far-side board, all-horse continuous run-out, pause/resume/reset',vp);
   }else{
-   await seek(987);
+   await seek(999);
    await page.waitForFunction(()=>window.RACE_SCENE_AUDIT?.goalInFrame&&window.RACE_SCENE_AUDIT?.goalBehindHorses,null,{timeout:10000});
    await page.screenshot({path:'/tmp/race-mobile-shots/shuka-'+vp.width+'-straight.png'});
   }

@@ -1,10 +1,11 @@
 // Run locally or in GitHub Actions: node race-engine/tests/smoke.mjs
 import assert from 'node:assert/strict';
 import {readFileSync,existsSync} from 'node:fs';
-import {resolve} from 'node:path';
+import {resolve,dirname,relative} from 'node:path';
 const root=resolve(import.meta.dirname??new URL('.',import.meta.url).pathname,'..');
 const read=(p)=>readFileSync(resolve(root,p),'utf8');
-const load=(p)=>import('data:text/javascript;base64,'+Buffer.from(read(p)).toString('base64'));
+const moduleURL=p=>'data:text/javascript;base64,'+Buffer.from(read(p).replace(/from ['"](\.[^'"]+)['"]/g,(_,spec)=>"from '"+moduleURL(relative(root,resolve(root,dirname(p),spec.split('?')[0])))+"'")).toString('base64');
+const load=p=>import(moduleURL(p));
 const [{createFactors},{createRegression},{createSimulator},{JRA_JOCKEY_CAPS,UNKNOWN_JOCKEY_CAP,jockeyCap}]=await Promise.all([
  load('core/factors.js'),load('core/regression.js'),load('core/simulator.js'),load('core/jockey-caps.js')
 ]);
@@ -184,7 +185,7 @@ assert.match(render,/frameCap\.hex,frameCap\.outline,frameCap\.pattern/);
 assert.match(app,/const cap=capFor\(h\)/);
 assert.match(app,/jra-jockey-cap-legend/);
 assert.match(app,/h\.evaluationAudit/);
-assert.match(anime,/lined\(rider,helmetFrame/);
+assert.match(anime,/toon\(frameCapHex\)/);
 assert.match(anime,/frameCapPattern==='quartered'/);
 assert.doesNotMatch(anime,/helmetWhite/);
 assert.match(html,/shared-v9/);
@@ -242,14 +243,11 @@ for(const angle of [0,Math.PI/2,Math.PI,Math.PI*1.5]){
    const forwardDot=(pose.position.x-pose.look.x)*dx+(pose.position.z-pose.look.z)*dz;
    assert.ok(Math.abs(forwardDot)<1e-8,'start and straight must look exactly across the running direction');
    assert.ok(pose.side>0,'camera remains on the same rail side');
-   if(id==='straight'){
-    const later=raceCameraPose({shot,progress:1,order:order.map(o=>({...o,p:o.p+.13})),path,aspect});
-    assert.deepEqual(pose,later,'camera locks to finish so the runners leave the frame');
-   }
+
   }
  }
 }
-assert.ok(RACE_SHOT_LIST[2].height>RACE_SHOT_LIST[2].side,'third turn is an overhead composition');
+assert.ok(RACE_SHOT_LIST[2].height<RACE_SHOT_LIST[2].side&&RACE_SHOT_LIST[2].ahead>0,'3C is an elevated forward close-up');
 assert.ok(RACE_SHOT_LIST[1].side<RACE_SHOT_LIST[0].side,'2C is closer than start');
 for(const field of [3,6,17,18])for(const duration of [68,120,180]){
  const rank=Array.from({length:field},(_,i)=>field-i);
@@ -288,7 +286,24 @@ assert.match(cinemaCSS,/prefers-reduced-motion/);
 assert.match(cinemaCSS,/env\(safe-area-inset-bottom/);
 assert.match(cinemaCSS,/height:100dvh/);
 assert.match(cinemaJS,/finishOrder\.slice\(0,3\)/);
-assert.match(render,/cel-racehorse-v10/);
-assert.match(anime,/cel-racehorse-v10/);
-assert.match(html,/broadcast-v10/);
+assert.match(render,/thoroughbred-cel-v11/);
+assert.match(anime,/thoroughbred-cel-v11/);
+assert.match(html,/kyoto-v11/);
 console.log('Four cuts, perpendicular side cameras, fixed far-side finish, continuous all-horse run-out, exact rank and responsive HUD ✓');
+
+const {kyotoPath,kyotoHeight,KYOTO_INNER,KYOTO_CUTS}=await load('assets/kyoto-course.js');
+let measured=0;
+for(let i=1;i<=20000;i++){const a=kyotoPath((i-1)/20000),b=kyotoPath(i/20000);measured+=Math.hypot(b.x-a.x,b.z-a.z)}
+assert.ok(Math.abs(measured-2000)<.15,'2000 metre route, not miniature');
+const startPoint=kyotoPath(0),goalPoint=kyotoPath(1),exit=kyotoPath(KYOTO_CUTS[2]);
+assert.ok(Math.abs(Math.hypot(startPoint.x-goalPoint.x,startPoint.z-goalPoint.z)-217.2)<.02);
+assert.ok(Math.abs(Math.hypot(exit.x-goalPoint.x,exit.z-goalPoint.z)-328.4)<.02);
+assert.equal(kyotoHeight(.57),3.1);assert.equal(kyotoHeight(.9),0);
+assert.ok(kyotoHeight(.50)>kyotoHeight(.45));assert.ok(kyotoHeight(.66)<kyotoHeight(.60));
+const {raceCommentary}=await load('assets/race-commentary.js');
+const testHorses=[{no:1,name:'先頭馬'},{no:2,name:'追走馬'},{no:3,name:'後続馬'}];
+const order=[{no:2,p:.98},{no:1,p:.9798},{no:3,p:.978}];
+assert.match(raceCommentary({clock:110,progress:.98,order,horses:testHorses,crossed:[]}).text,/追走馬.*先頭馬/);
+assert.equal(raceCommentary({clock:120,progress:1,order,horses:testHorses,crossed:[2]}).winner,2);
+assert.doesNotMatch(cinemaJS,/toReversed/,'leader is on left');
+console.log('Kyoto metric route, goal offset, 3C elevation, left-leading order and data-driven commentary ✓');

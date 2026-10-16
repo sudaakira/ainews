@@ -47,13 +47,13 @@ export function updateGallop(model,raceTime,visualTime,number,raceProgress=0){
  for(let i=0;i<legs.length;i++){
   const step=lerp(a[1][i],b[1][i],t);
   const bend=lerp(a[2][i],b[2][i],t);
-  legs[i].pivot.rotation.x=step*active*(1+.13*sprint);
-  legs[i].knee.rotation.x=bend*active*(1+.15*sprint);
+  legs[i].pivot.rotation.x=step*active*(1+.08*sprint);
+  legs[i].knee.rotation.x=bend*active*(1+.10*sprint);
   // Tiny opposite-plane offsets give the front view true spatial depth.
   legs[i].pivot.rotation.z=((i%2?-.055:.055)*Math.sin(phase*pi2+i*.26))*active;
  }
  const bounce=lerp(a[3],b[3],t);
- model.anim.position.y=bounce*.72*active*(1+.10*sprint);
+ model.anim.position.y=bounce*.32*active*(1+.10*sprint);
  model.anim.rotation.x=lerp(a[4],b[4],t)*active;
  model.anim.rotation.z=(.013*Math.sin(pi2*phase+number*.38))*(1+.30*sprint)*active;
  const nod=lerp(a[5],b[5],t)*active;
@@ -65,7 +65,7 @@ export function updateGallop(model,raceTime,visualTime,number,raceProgress=0){
   ear.rig.rotation.z=(-ear.side*.16+ear.side*.10*Math.sin(pi2*phase+ear.side*.7))*active;
   ear.rig.rotation.x=(.055+.065*sprint)*Math.sin(pi2*phase-1+i*.9)*active;
  });
- model.tailRig.rotation.x=(.12+.15*sprint)*Math.sin(pi2*phase-.6)*active;
+ model.tailRig.rotation.x=(.12+.10*sprint)*Math.sin(pi2*phase-.6)*active;
  model.tailRig.rotation.z=(.105+.08*sprint)*Math.sin(pi2*phase*.75+number*.47)*active;
  // Hair and tail have slightly lagged secondary spring-like waves.
  model.maneStrands?.forEach(({rig,phase:offset},i)=>{
