@@ -1,5 +1,6 @@
 
 /* True WebGL 3D horses and racecourse. CDN failure retains the self-contained SVG view. */
+import {jockeyCap} from './core/jockey-caps.js?v=cap-v1';
 (async()=>{
  const stage=document.getElementById('three-stage'),svg=document.getElementById('kyoto-map'),controls=document.getElementById('camera-controls');
  const status=document.getElementById('three-status');
@@ -10,6 +11,7 @@
  const api=window.KYOTO_RACE;
  if(!api)throw Error('Race state unavailable');
  const {HS,LIVE,route,routeLength,horseProgress,config}=api;const CENTER=(HS.length+1)/2;const distance=config.distance;
+ const capFor=h=>jockeyCap(h,config,horse=>window.SWAN_FACTORS.frame(horse));
  const scene=new THREE.Scene();scene.background=new THREE.Color(0x9edbf7);scene.fog=new THREE.FogExp2(0xb9e1ee,.0015);
  const camera=new THREE.PerspectiveCamera(50,1,.1,1000);
  const renderer=new THREE.WebGLRenderer({antialias:true,powerPreference:'high-performance',alpha:false});
@@ -150,7 +152,7 @@
   let coat=new THREE.MeshStandardMaterial({color:palette[h.no-1],roughness:.79,metalness:0}),
       coatDark=new THREE.MeshStandardMaterial({color:new THREE.Color(palette[h.no-1]).multiplyScalar(.69),roughness:.86}),
       mane=new THREE.MeshStandardMaterial({color:h.no%3===0?0x624438:0x302729,roughness:.95}),
-      hoof=anime(0x36333d),skin=anime(0xf6c3a6),silk=anime(silkColors[h.no-1]),pants=anime(0xf8f4ed),helmet=anime(silkColors[h.no-1]),reins=anime(0x353038);
+      hoof=anime(0x36333d),skin=anime(0xf6c3a6),silk=anime(silkColors[h.no-1]),pants=anime(0xf8f4ed),helmet=anime(capFor(h).hex),reins=anime(0x353038);
   // Anatomical shapes: rump, chest, shoulders, arched neck, muzzle and two ears
   ellipsoid(anim,coat,0,1.57,0,.88,.76,1.34);
   ellipsoid(anim,coat,0,1.29,.16,.72,.34,1.08);
@@ -257,16 +259,20 @@
   segment(anim,reins,[.45,2.64,.85],[.65,3.13,-.35],.015,.012);
   // Racing number billboard
   const cn=document.createElement('canvas');cn.width=128;cn.height=128;const ctx=cn.getContext('2d');
-  ctx.fillStyle=silkColors[h.no-1];ctx.beginPath();ctx.arc(64,64,55,0,Math.PI*2);ctx.fill();
-  ctx.lineWidth=7;ctx.strokeStyle='#ffffff';ctx.stroke();ctx.font='bold 67px system-ui';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillStyle='#172c34';ctx.fillText(String(h.no),64,67);
+  const frameCap=capFor(h);
+  ctx.fillStyle=frameCap.hex;ctx.beginPath();ctx.arc(64,64,55,0,Math.PI*2);ctx.fill();
+  ctx.lineWidth=7;ctx.strokeStyle=frameCap.outline;ctx.stroke();ctx.font='bold 67px system-ui';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillStyle=frameCap.text;ctx.fillText(String(h.no),64,67);
   const texture=new THREE.CanvasTexture(cn),sprite=new THREE.Sprite(new THREE.SpriteMaterial({map:texture,depthTest:false,transparent:true}));sprite.position.set(0,4.35,0);sprite.scale.set(1.7,1.7,1);root.add(sprite);
   scene.add(root);return {root,anim,legs,sprite,headRig,tailRig};
  }
  // Never silently show the old horse when the requested new model fails.
  let horseV3Ready=false,modelError='';
  try{
-  const horseV3=await import("./assets/horse-anime.js?v=shared-v1");
-  for(const h of HS)models.push(horseV3.createRaceHorse(THREE,scene,h,silkColors[h.no-1]));
+  const horseV3=await import("./assets/horse-anime.js?v=cap-v1");
+  for(const h of HS){
+   const frameCap=capFor(h);
+   models.push(horseV3.createRaceHorse(THREE,scene,h,silkColors[h.no-1],frameCap.hex,frameCap.outline));
+  }
   horseV3Ready=models.length===HS.length&&models.every(m=>m.artDirection==='anime-pony-v17-softplush');
   if(!horseV3Ready)throw new Error('アニメ馬モデル18頭の整合性を確認できませんでした');
  }catch(e){
