@@ -103,12 +103,33 @@ function raceview(v,final=false){
  el('result-state').textContent=final?'🏁 確定着順':'● 走行中・暫定順位';
  el('race').classList.toggle('finished',final);
  el('race').innerHTML=v.slice(0,3).map((no,k)=>{
-   const h=HS[no-1];
-   const cap=capFor(h);
+   const h=HS[no-1],cap=capFor(h);
    const capStyle='background:'+cap.hex+';color:'+cap.text+';border-color:'+cap.outline;
    return '<div class="place-card place-'+(k+1)+'"><div class="place-rank">'+labels[k]+' '+(k+1)+'着</div>'+
     '<div class="place-number">'+(config.provisionalDraw?'仮'+no:no)+'</div><div class="place-name">'+h.name+'</div>'+
     '<div class="place-jockey"><span class="place-frame" style="'+capStyle+'">'+(cap.frame?cap.frame+'枠':'枠未定')+'</span> '+h.j+' 騎手</div></div>';
+ }).join('');
+}
+const formatFactor=n=>(n>0?'+':'')+n.toFixed(2);
+function renderFactors(s){
+ const rows=HS.map(h=>({h,ev:LOOP.evaluate(h,s)})).sort((a,b)=>b.ev.rating-a.ev.rating);
+ el('factor-deltas').innerHTML='<table class="factor-table"><thead><tr><th>馬</th><th>100点評価</th><th>得意項目</th><th>枠</th></tr></thead><tbody>'+
+  rows.map(({h,ev})=>{
+   const best=LOOP.FEATURES.filter(f=>ev.detail[f.id].effectiveWeight>0)
+    .sort((a,b)=>ev.detail[b.id].score-ev.detail[a.id].score)
+    .slice(0,2).map(f=>f.label).join('・');
+   return '<tr><td><b>'+(config.provisionalDraw?'仮'+h.no:h.no)+' '+h.name+'</b><small>'+h.j+'</small></td>'+
+    '<td><strong>'+ev.rating.toFixed(1)+'</strong></td><td>'+best+'</td><td>'+(config.provisionalDraw?'枠未確定':FACTOR.frame(h.no)+'枠')+'</td></tr>';
+  }).join('')+'</tbody></table>';
+}
+function cards(){
+ const scenario=opts();
+ el('horses').innerHTML=HS.map(h=>{
+  const p=probs.find(x=>x.no===h.no),v=LOOP.evaluate(h,scenario);
+  const scoreRows=LOOP.FEATURES.map(f=>{
+   const d=v.detail[f.id];
+   return '<tr><td>'+f.label+'<small>'+f.confidence+'</small></td><td>'+
+    d.score.toFixed(1)+'</td><td>'+d.effectiveWeight.toFixed(1)+'</td></tr>';
   }).join('');
   return '<article class="horse" id="h'+h.no+'"><h3>'+(config.provisionalDraw?'仮'+h.no:h.no)+' '+h.name+'</h3>'+
    '<span class="pill">'+h.age+'</span><span class="pill">'+(config.provisionalDraw?'枠未確定':FACTOR.frame(h.no)+'枠')+'</span>'+
