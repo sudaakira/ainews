@@ -314,3 +314,29 @@
  #race-cinematic-overlay .cinema-cap{width:20px;height:20px;font-size:10px}
  .cinema-finish{top:50%!important}
 }
+
+/* v7 course geography — unobtrusive, persistent route locator.
+   Drawn from the SAME SVG path as horse movement, not a disconnected map. */
+#race-course-guide{position:absolute;left:8px;top:50px;z-index:19;
+ width:134px;padding:7px 8px 5px;background:#071925d9;color:#e9f3f4;
+ border:1px solid #c6dfec66;border-radius:10px;backdrop-filter:blur(8px);
+ box-shadow:0 4px 12px #0005;pointer-events:none;
+ display:flex;flex-direction:column;align-items:stretch;gap:1px}
+#race-course-guide>strong{font-size:10px;line-height:1.2;color:#f6e1b3;font-weight:800}
+#race-course-guide>svg{display:block;width:100%;height:67px;overflow:visible}
+#race-course-guide #race-course-position{display:block;font-size:10px;line-height:1.2;
+ font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#race-course-guide>small{font-size:8px;line-height:1.1;color:#a7bdc6}
+@media(max-width:700px){
+ #race-course-guide{top:46px;left:5px;width:108px;padding:5px 6px 4px;
+  border-radius:7px}
+ #race-course-guide>svg{height:52px}
+ #race-course-guide>strong{font-size:9px}
+ #race-course-guide #race-course-position{font-size:9px}
+ #race-course-guide>small{font-size:7px}
+}
+/* Four continuous angles; subtle overlays only, no misleading 16x cut titles
+   over the racing surface. */
+#race-cinematic-overlay[data-shot="establish"] .cinema-duel,
+#race-cinematic-overlay[data-shot="follow"] .cinema-duel,
+#race-cinematic-overlay[data-shot="turn"] .cinema-duel{display:none!important}
