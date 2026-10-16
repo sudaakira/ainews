@@ -12,6 +12,7 @@ export function updateGallop(model,raceTime,visualTime,number,raceProgress=0){
  if(!active){
   model.anim.position.y=0;
   model.anim.rotation.x=0;
+  model.anim.rotation.z=0;
   model.headRig.rotation.x=0;
   model.tailRig.rotation.x=0;
   model.tailRig.rotation.z=0;
