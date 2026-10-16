@@ -233,3 +233,15 @@ body.premium-immersive .live-buttons{flex-shrink:0}
  html{scroll-behavior:auto}
  *,*:before,*:after{transition-duration:.01ms!important;animation-duration:.01ms!important}
 }
+
+/* Shared podium cap-colour key, independent from result medals or silks. */
+.place-frame{display:inline-flex;align-items:center;justify-content:center;min-width:23px;height:20px;border-radius:6px;border:1px solid #243341;font-size:10px;font-weight:850;margin-right:5px;padding:0 4px;vertical-align:middle}
+.bar .n{cursor:pointer}
+.bar .n:focus-visible{outline:3px solid #f3cd7c;border-radius:5px;outline-offset:3px}
+:target{scroll-margin-top:77px}
+@media (max-width:680px){
+  .premium-focus{font-size:10px;padding:7px 8px;min-height:36px}
+  .premium-view-focus #premium-focus-button{margin-left:auto}
+  .premium-view-focus .live-head{gap:5px}
+  #premium-camera-cycle{white-space:nowrap}
+}
