@@ -42,7 +42,7 @@ function paintedEye(T){
 // illustrated design direction (large expressive eyes, rosy muzzle, tiny rider).
 // Coordinates: forward +Z, up +Y. Four articulated legs stay compatible with
 // chibi-gallop-v1.js and the 18-horse Kyoto race simulator.
-export function createRaceHorse(T,scene,h,silkHex,frameCapHex='#89929B',frameCapOutline='#28323A'){
+export function createRaceHorse(T,scene,h,silkHex,frameCapHex='#89929B',frameCapOutline='#28323A',frameCapPattern=null,frameCapSecondary='#FFFFFF'){
  const root=new T.Group(),anim=new T.Group();root.add(anim);
  const coatColors=[0x848b91,0x593a30,0x815038,0x995e40,0xb2764c,0x686e75,0x633a30,0x976b4c,0x473b38,0x8b5a40,0x593d35,0x977759,0x754b37,0x69483d,0x805b48,0xa1795c,0x50403a,0x977e66];
  const base=coatColors[(h.no-1)%coatColors.length];
@@ -291,7 +291,7 @@ export function createRaceHorse(T,scene,h,silkHex,frameCapHex='#89929B',frameCap
  // match the reference illustration while the original silks remain per runner.
  const rider=new T.Group();anim.add(rider);
  const skin=toon(0xffd3b5),skinShade=toon(0xe3a793);
- const helmetFrame=toon(frameCapHex),helmetTrim=toon(frameCapOutline);
+ const helmetFrame=toon(frameCapHex),helmetTrim=toon(frameCapOutline),helmetSecondary=toon(frameCapSecondary);
  const boot=toon(0x292930),glove=toon(0x30313c);
  const hair=toon(h.no%3===0?0x623d32:h.no%3===1?0x50352f:0x865238);
  const saddle=ell(rider,leather,0,2.36,-.25,.56,.10,.64);
@@ -316,8 +316,23 @@ export function createRaceHorse(T,scene,h,silkHex,frameCapHex='#89929B',frameCap
  // JRA official frame-coloured jockey cap. Body/crown/front panel/peak use
  // the SAME frame colour. The narrow contrasting seam keeps white and black
  // identifiable against bright/dark surroundings, without changing silks.
- lined(rider,helmetFrame,0,3.335,.423,.367,.208,.337);
- ell(rider,helmetFrame,0,3.438,.493,.092,.112,.287);
+ if(frameCapPattern==='quartered'||frameCapPattern==='eighths'){
+  const sections=frameCapPattern==='quartered'?4:8;
+  // Real geometric sectors (not a flat decal): alternate frame colour and
+  // white; 1枠 uses light blue as the JRA exception. Shared mesh position
+  // prevents seams becoming uncoloured on the animated helmet.
+  const shell=ell(rider,outlineMat,0,3.335,.423,.384,.225,.354);
+  shell.renderOrder=-1;
+  for(let q=0;q<sections;q++){
+   const geometry=new T.SphereGeometry(1,Math.max(5,24/sections),14,q*2*Math.PI/sections,2*Math.PI/sections,0,Math.PI);
+   const part=new T.Mesh(geometry,q%2===0?helmetFrame:helmetSecondary);
+   part.position.set(0,3.335,.423);part.scale.set(.367,.208,.337);rider.add(part);
+  }
+  ell(rider,helmetSecondary,0,3.438,.493,.092,.112,.287);
+ }else{
+  lined(rider,helmetFrame,0,3.335,.423,.367,.208,.337);
+  ell(rider,helmetFrame,0,3.438,.493,.092,.112,.287);
+ }
  ell(rider,helmetTrim,0,3.265,.725,.363,.038,.090);
  // Front peak is also frame-coloured, including white, black, and pink.
  ell(rider,helmetFrame,0,3.275,.745,.330,.032,.128);
