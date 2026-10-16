@@ -4,6 +4,7 @@
  * Run against the ACTUAL _site output after same-origin Three.js is vendored.
  */
 import assert from 'node:assert/strict';
+import {mkdirSync} from 'node:fs';
 const pkg=process.env.PLAYWRIGHT_ENTRY||'/tmp/race-playwright/node_modules/playwright/index.mjs';
 const {chromium}=await import(pkg);
 const url=process.env.RACE_URL||'http://127.0.0.1:8765/race-engine/?race=shuka-2026';
@@ -53,6 +54,42 @@ try{
   assert.ok(top3.y+top3.height<=viewportLimit,'top-three podium must fit first viewport '+JSON.stringify({vp,top3}));
   assert.ok(scene.y>=0,'3D screen starts within viewport');
   assert.ok(top3.y>=play.y,'top3 shown after the race playback controls');
+  // Inspect the actual 16x directing rhythm, not just source-string checks.
+  if(vp.width===390){
+   await page.locator('#live-rate').evaluate(el=>{
+    el.value='16';el.dispatchEvent(new Event('change',{bubbles:true}));
+   });
+   const checks=[
+    [.11,'launch'],[.26,'long'],[.40,'close'],[.54,'reverse'],
+    [.66,'bend'],[.78,'turn'],[.90,'dash'],[.96,'line']
+   ];
+   for(const [progress,shot] of checks){
+    await page.locator('#live-scrub').evaluate((el,value)=>{
+     el.value=String(Math.round(value*1000));
+     el.dispatchEvent(new Event('input',{bubbles:true}));
+    },progress);
+    await page.waitForFunction(expected=>window.RACE_CINEMATIC_DEBUG?.shot===expected,shot,{timeout:4500});
+   }
+   const composition=await page.evaluate(()=>{
+    const stage=document.getElementById('three-stage').getBoundingClientRect();
+    const title=document.querySelector('.cinema-phase').getBoundingClientRect();
+    const duel=document.getElementById('cinema-duel').getBoundingClientRect();
+    return {stageHeight:stage.height,titleTop:title.top-stage.top,
+     titleBottom:title.bottom-stage.top,titleWidth:title.width/stage.width,
+     duelBottom:stage.bottom-duel.bottom,rate:document.getElementById('live-rate').value,
+     director:window.RACE_CINEMATIC_DEBUG};
+   });
+   assert.equal(composition.rate,'16');
+   assert.ok(composition.titleBottom<composition.stageHeight*.38,
+    'cinematic text must stay in upper safe region '+JSON.stringify(composition));
+   assert.ok(composition.titleWidth<.55,'story titles may not cover entire screen');
+   assert.ok(composition.duelBottom<85,
+    'duel info should stay near edge, not obscure the ponies');
+   assert.equal(composition.director.mode,'16x-broadcast');
+   mkdirSync('/tmp/race-mobile-shots',{recursive:true});
+   await page.screenshot({path:'/tmp/race-mobile-shots/shuka-390x844-last400.png'});
+   console.log('PASS Real 16x storyboard 8 cuts, unobstructed HUD',composition);
+  }
   // The finished leaderboard uses the ORIGINAL race engine final order.
   await page.locator('#live-scrub').evaluate(el=>{
    el.value='1000';el.dispatchEvent(new Event('input',{bubbles:true}));
@@ -62,6 +99,7 @@ try{
   const actual=await page.locator('.cinema-result-cap').allTextContents();
   assert.deepEqual(actual,expected,'cinematic podium must match exact simulator finish order');
   assert.equal(await page.locator('#race .place-card').count(),3);
+  if(vp.width===390)await page.screenshot({path:'/tmp/race-mobile-shots/shuka-390x844-finish.png'});
   assert.ok(!errors.some(x=>/Uncaught|Cannot read|module/i.test(x)),'browser JS errors '+JSON.stringify(errors));
   console.log('PASS Mobile WebGL cinematic, exact 1–3 finish and single viewport',vp,model.model);
   await page.close();
