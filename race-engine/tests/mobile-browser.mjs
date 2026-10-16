@@ -148,6 +148,12 @@ try{
    // Manual seek still reveals the canonical finish instantly. Autoplay,
    // however, must hold 1st/2nd/3rd one by one BEFORE the podium appears.
    await page.locator('#live-reset').click();
+   // Exercise real autoplay-to-goal without waiting for the expensive
+   // SwiftShader browser to render all 2000m. Start the final 5% and let
+   // LIVE.playbackAtFinish (rather than seeking to 100%) trigger the cue.
+   await page.locator('#live-scrub').evaluate(el=>{
+    el.value='945';el.dispatchEvent(new Event('input',{bubbles:true}));
+   });
    await page.evaluate(()=>{
     window.RACE_PHOTO_EVENTS=[];
     window.__PHOTO_WATCH=setInterval(()=>{
@@ -156,7 +162,15 @@ try{
     },35);
    });
    await page.locator('#live-play').click();
-   await page.waitForFunction(()=>window.RACE_PHOTO_DEBUG?.phase==='result',undefined,{timeout:30000});
+   await page.waitForFunction(()=>window.RACE_PHOTO_DEBUG?.phase==='result',undefined,{timeout:20000})
+    .catch(async error=>{
+     console.error('PHOTO PLAYBACK TIMEOUT',await page.evaluate(()=>({
+      live:{clock:window.KYOTO_RACE.LIVE.clock,duration:window.KYOTO_RACE.LIVE.duration,
+       playing:window.KYOTO_RACE.LIVE.playing,autoplayFinish:window.KYOTO_RACE.LIVE.playbackAtFinish},
+      photo:window.RACE_PHOTO_DEBUG,events:window.RACE_PHOTO_EVENTS
+     })));
+     throw error;
+    });
    const sequences=await page.evaluate(()=>{
     clearInterval(window.__PHOTO_WATCH);
     return {events:window.RACE_PHOTO_EVENTS,finish:window.RACE_PHOTO_DEBUG,
