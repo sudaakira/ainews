@@ -1,6 +1,6 @@
 /** Clean cel-racing broadcast. All positions and results are read from the shared engine. */
-import {chooseRaceShot,courseShotCuts,raceCameraPose} from './race-shotlist.js?v=broadcast-v10';
-import {finishCrossings,playbackRate} from './race-playback.js?v=broadcast-v10';
+import {chooseRaceShot,courseShotCuts,raceCameraPose} from './race-shotlist.js?v=broadcast-v10-1';
+import {finishCrossings,playbackRate} from './race-playback.js?v=broadcast-v10-1';
 
 export function createRaceCinematics({THREE,scene,stage,models,config,capFor,path,route,routeLength}){
  const cuts=courseShotCuts(route,routeLength,config);

@@ -148,11 +148,11 @@ import {jockeyCap} from './core/jockey-caps.js?v=cap-v1';
  }
  function box(w,h,d,material,parent,x,y,z){let m=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),material);m.position.set(x,y,z);parent.add(m);return m}
  const silkColors=['#d63e3e','#e8e4df','#2670db','#edc33a','#dd63a5','#4ebbb0','#c7c7c7','#f2932f','#7144bd','#bda144','#db5e32','#62b55c','#e4edf4','#9c78d7','#5b9bd1','#c5a07c','#d6dc45','#cb5171'];
- const {updateGallop}=await import("./assets/chibi-gallop.js?v=broadcast-v10");
+ const {updateGallop}=await import("./assets/chibi-gallop.js?v=broadcast-v10-1");
  const models=[];
  let horseV3Ready=false,modelError='';
  try{
-  const horseV3=await import("./assets/horse-anime.js?v=broadcast-v10");
+  const horseV3=await import("./assets/horse-anime.js?v=broadcast-v10-1");
   for(const h of HS){
    const frameCap=capFor(h);
    models.push(horseV3.createRaceHorse(THREE,scene,h,silkColors[h.no-1],frameCap.hex,frameCap.outline,frameCap.pattern||null,frameCap.secondary||'#FFFFFF'));
@@ -184,7 +184,9 @@ import {jockeyCap} from './core/jockey-caps.js?v=cap-v1';
   }
   beam(gateRoot,x,3.23,0,stallWidth,.18,stallDepth+.4,gateSteel);
   beam(gateRoot,x,3.46,0,stallWidth,.18,stallDepth+.4,gateWhite);
-  for(let side of [-1,1])beam(gateRoot,x+side*stallWidth/2,1.35,0,.055,1.8,stallDepth,gateSteel);
+  // Open side rails keep the new side-on start from looking through a solid wall.
+  for(let side of [-1,1])for(const y of [.50,1.25,2.05])
+   beam(gateRoot,x+side*stallWidth/2,y,0,.055,.065,stallDepth,gateSteel);
   // Front doors pivot open from both edges of each stall.
   const doors=[];
   for(let side of [-1,1]){
@@ -219,7 +221,7 @@ import {jockeyCap} from './core/jockey-caps.js?v=cap-v1';
  // and ivory nested racetrack arches with floodlights). It is not a gate.
  let goalRig=null,goalBoard=null;
  if(config.venue==='京都'&&config.surface==='芝'){
-  const {createKyotoGoalBoard}=await import('./assets/kyoto-goal-board.js?v=broadcast-v10');
+  const {createKyotoGoalBoard}=await import('./assets/kyoto-goal-board.js?v=broadcast-v10-1');
   goalBoard=createKyotoGoalBoard({THREE,scene,offsetPoint,path,half});
   goalRig=goalBoard.root;
  }else{
@@ -258,7 +260,7 @@ import {jockeyCap} from './core/jockey-caps.js?v=cap-v1';
  const {createJRAFurlongPosts}=await import("./assets/jra-furlong-posts.js?v=geo-v6");
  const furlongPosts=createJRAFurlongPosts({THREE,scene,offsetPoint,distance,half});
  // Cinematic director replaces manual angle selection for every race.
- const {createRaceCinematics}=await import("./assets/race-cinematics.js?v=broadcast-v10");
+ const {createRaceCinematics}=await import("./assets/race-cinematics.js?v=broadcast-v10-1");
  const cinematics=createRaceCinematics({THREE,scene,stage,models,config,capFor,path,route,routeLength});
  controls.style.display='none';
  document.querySelector('.camera-more')?.setAttribute('hidden','');
@@ -330,13 +332,13 @@ import {jockeyCap} from './core/jockey-caps.js?v=cap-v1';
   const shotDirection=cinematics.update({clock,progress:raceProgress,order,finishOrder:LIVE.rank,frameDt,camera,desired,look,rate});
   // Framerate-independent camera tracking, responsive enough for 16x playback.
   // Each requested cut switches directly. Tracking is smoothed within a shot.
-  const stableAlpha=1-Math.exp(-frameDt*(4.6+rate*.19));
+  const stableAlpha=1-Math.exp(-frameDt*(12+rate*2));
   if(first||shotDirection?.cut){camera.position.copy(desired);smoothLook.copy(look);first=false}
   else{camera.position.lerp(desired,stableAlpha);smoothLook.lerp(look,stableAlpha)}
   camera.lookAt(smoothLook);
   camera.updateMatrixWorld();
   // Verify the opening camera actually frames every projected horse body.
-  if(raceProgress<.19){
+  if(shotDirection?.shot==='start'||shotDirection?.shot==='third-turn'){
    let inside=0;const projected=new THREE.Vector3();
    for(const h of models){
     projected.set(0,2.0,0);h.root.localToWorld(projected);projected.project(camera);
@@ -362,7 +364,8 @@ import {jockeyCap} from './core/jockey-caps.js?v=cap-v1';
    positions:models.map(m=>({x:m.root.position.x,z:m.root.position.z})),
    cameraForwardDot:(camera.position.x-smoothLook.x)*path(1).dx+(camera.position.z-smoothLook.z)*path(1).dz,
    goalDepth,goalBehindHorses:goalDepth!==null&&goalDepth>farthestHorse,
-   gallopPhase:models[0].legs[0].pivot.rotation.x};
+   gallopPhase:models[0].legs[0].pivot.rotation.x,
+   cameraTrackingError:camera.position.distanceTo(desired)+smoothLook.distanceTo(look)};
   renderer.render(scene,camera);
  }
  animate();

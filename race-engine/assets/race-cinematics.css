@@ -135,3 +135,5 @@ body.premium-immersive #three-stage{height:100%!important}
 .hero-race .place-jockey{display:none!important}
 body.premium-immersive .hero-race .result-head{display:flex!important}
 body.premium-immersive .hero-race .live-note{display:block!important}
+
+.hero-race .place-number,.hero-race .place-rank,.hero-race .place-name{text-shadow:none!important}

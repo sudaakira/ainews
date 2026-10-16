@@ -38,9 +38,13 @@ try{
    for(const [p,id] of checks){
     await seek(Math.round(p*1000));
     await page.waitForFunction(shot=>window.RACE_SCENE_AUDIT?.shot===shot,id,{timeout:10000});
+    await page.waitForFunction(()=>window.RACE_SCENE_AUDIT?.cameraTrackingError<.2,null,{timeout:10000});
     const state=await page.evaluate(()=>({director:window.RACE_CINEMATIC_DEBUG,scene:window.RACE_SCENE_AUDIT}));
     assert.equal(state.director.scriptedCuts,4);
-    if(id==='third-turn')assert.ok(state.director.pose.position.y-state.director.pose.look.y>50);
+    if(id==='third-turn'){
+     assert.ok(state.director.pose.position.y-state.director.pose.look.y>50);
+     assert.equal(await page.evaluate(()=>window.RACE_CAMERA_AUDIT.opening),17,'overhead frames entire field');
+    }
     if(id==='straight'){
      await page.waitForFunction(()=>window.RACE_SCENE_AUDIT?.goalInFrame&&window.RACE_SCENE_AUDIT?.goalBehindHorses,null,{timeout:10000});
      const end=await page.evaluate(()=>window.RACE_SCENE_AUDIT);
@@ -57,7 +61,8 @@ try{
    await page.waitForFunction(t=>window.RACE_SCENE_AUDIT?.clock>t+.8,before.clock,{timeout:10000});
    const after=await page.evaluate(()=>({scene:window.RACE_SCENE_AUDIT,playing:window.KYOTO_RACE.LIVE.playing}));
    assert.equal(after.playing,true,'autoplay does not stop at goal');
-   assert.ok(after.scene.visualTime>before.visualTime,'legs keep animating');
+   assert.ok(after.scene.visualTime>before.visualTime,'animation clock keeps advancing');
+   assert.ok(Math.abs(after.scene.gallopPhase-before.gallopPhase)>1e-5,'actual leg joint keeps moving');
    before.positions.forEach((a,i)=>{
     const b=after.scene.positions[i];assert.ok(Math.hypot(b.x-a.x,b.z-a.z)>.1,'horse '+(i+1)+' moves through the line');
    });

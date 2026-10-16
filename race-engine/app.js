@@ -1,6 +1,6 @@
 /* Race-engine shared UI application. Loaded after per-race configuration. */
 import {jockeyCap,JRA_JOCKEY_CAPS} from './core/jockey-caps.js?v=cap-v1';
-import {FINISH_GAP,runOutProgress,playbackEnd,playbackRate,finishCrossings} from './assets/race-playback.js?v=broadcast-v10';
+import {FINISH_GAP,runOutProgress,playbackEnd,playbackRate,finishCrossings} from './assets/race-playback.js?v=broadcast-v10-1';
 const config=window.RACE_CONFIG;
 const FACTOR=window.SWAN_FACTORS,LOOP=window.SWAN_LOOP,SIM=window.RACE_SIM;
 if(!config||!FACTOR||!LOOP||!SIM)throw Error('Race configuration has not loaded');
@@ -289,7 +289,7 @@ function liveFrame(t){
 el('live-play').onclick=()=>{if(!LIVE.ready||LIVE.clock>=playbackEnd(LIVE.duration,FIELD))sampleLiveRace();LIVE.playing=true;LIVE.last=0;el('live-status').textContent='● シミュレーション再生中';};
 el('live-pause').onclick=()=>{LIVE.playing=false;LIVE.last=0;el('live-status').textContent='一時停止';};
 el('live-reset').onclick=()=>sampleLiveRace();
-el('live-scrub').oninput=v=>{LIVE.clock=LIVE.duration*(+v.target.value)/1000;LIVE.playing=false;LIVE.last=0;LIVE.playbackAtFinish=false;drawLive();};
+el('live-scrub').oninput=v=>{LIVE.clock=LIVE.duration*(+v.target.value)/1000;LIVE.playing=false;LIVE.last=0;LIVE.playbackAtFinish=false;el('live-status').textContent=LIVE.clock>0?'一時停止':'スタート待機';drawLive();};
 const oldSim=el('simulate').onclick;el('simulate').onclick=()=>{oldSim();sampleLiveRace();};
 sampleLiveRace();LIVE.raf=requestAnimationFrame(liveFrame);
 window.KYOTO_RACE={HS,LIVE,route,routeLength,horseProgress,config};

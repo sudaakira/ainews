@@ -41,9 +41,24 @@ export function raceCameraPose({shot,progress,order,path,aspect=1}){
    z:focus.z*(1-s)+finish.z*s,dx:finish.dx,dz:finish.dz};
  }
  if(full){
-  const spread=Math.abs(group[0].p-group.at(-1).p)*520+9;
-  const fit=spread/(Math.max(.65,aspect)*2*Math.tan(shot.fov*Math.PI/360))+13;
-  const scale=Math.max(1,fit/side);side*=scale;height*=Math.min(scale,1.6);
+  // Fit the real field's projected width, not progress * track length.
+  // Using side-distance alone over-zoomed the overhead camera on phones.
+  const release=clamp(progress/.03,0,1),spacing=1.51*(1-release)+1.054*release;
+  const field=group.map(o=>{
+   const q=path(o.p),lane=((order.length+1)/2-o.no)*spacing;
+   return {x:q.x-q.dz*lane,y:q.y,z:q.z+q.dx*lane};
+  });
+  focus={...focus,
+   x:(Math.min(...field.map(q=>q.x))+Math.max(...field.map(q=>q.x)))/2,
+   z:(Math.min(...field.map(q=>q.z))+Math.max(...field.map(q=>q.z)))/2};
+  const along=field.map(q=>(q.x-focus.x)*focus.dx+(q.z-focus.z)*focus.dz);
+  const across=field.map(q=>(q.x-focus.x)*focus.dz-(q.z-focus.z)*focus.dx);
+  const width=Math.max(...along)-Math.min(...along)+8;
+  const depth=Math.max(...across)-Math.min(...across);
+  const dist=Math.hypot(side,height-1.9),tan=Math.tan(shot.fov*Math.PI/360);
+  const vertical=depth*(height-1.9)/dist+5*side/dist;
+  const fit=Math.max(width/(Math.max(.5,aspect)*2*tan),(vertical+5)/(2*tan))+depth*.45;
+  const scale=Math.max(1,fit/dist);side*=scale;height=1.9+(height-1.9)*scale;
  }
  const point=(lateral,forward,y)=>({
   x:focus.x+focus.dz*lateral+focus.dx*forward,
