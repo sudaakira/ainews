@@ -284,8 +284,8 @@ import {jockeyCap} from './core/jockey-caps.js?v=cap-v1';
    const frameCap=capFor(h);
    models.push(horseV3.createRaceHorse(THREE,scene,h,silkColors[h.no-1],frameCap.hex,frameCap.outline,frameCap.pattern||null,frameCap.secondary||'#FFFFFF'));
   }
-  horseV3Ready=models.length===HS.length&&models.every(m=>m.artDirection==='anime-pony-v17-softplush');
-  if(!horseV3Ready)throw new Error('アニメ馬モデル18頭の整合性を確認できませんでした');
+  horseV3Ready=models.length===HS.length&&models.every(m=>m.artDirection==='anime-pony-v18-kinetic');
+  if(!horseV3Ready)throw new Error('アニメ馬モデルと出走'+HS.length+'頭の整合性を確認できませんでした');
  }catch(e){
   modelError=String(e?.stack||e);
   console.error("Horse model loading failed",e);
