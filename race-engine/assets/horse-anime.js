@@ -402,8 +402,13 @@ export function createRaceHorse(T,scene,h,silkHex,frameCapHex='#89929B',frameCap
   ell(rider,boot,side*.43,1.83,.362,.112,.109,.18);
   tube(rider,leather,[side*.353,2.581,.65],[side*.31,2.02,2.11],.014,.012);
  }
- // No head-top billboard: the race number and the name are stitched into
- // the saddlecloth panels, while the HUD identifies the contenders.
+ // Keep the horse's grounded shadow; only the floating NUMBER is removed.
+ const shadow=new T.Mesh(new T.CircleGeometry(1,20),
+  new T.MeshBasicMaterial({color:0x173c20,transparent:true,opacity:.20,
+   depthWrite:false,side:T.DoubleSide}));
+ shadow.rotation.x=-Math.PI/2;shadow.position.y=.018;
+ shadow.scale.set(1,1.65,1);root.add(shadow);
+ // No head-top billboard: only the saddlecloth carries number/name.
  const sprite=null;
  scene.add(root);
  return {root,anim,rider,headRig,tailRig,legs,ears,maneStrands,tailStrands,flutter,sprite,shadow,artDirection:'anime-pony-v20-saddlecloth'};
