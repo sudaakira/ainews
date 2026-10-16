@@ -243,7 +243,7 @@ assert.match(cinemaCSS,/@keyframes cinema-speed/);
 assert.match(cinemaCSS,/@keyframes cinema-fall/);
 assert.match(cinemaCSS,/#race-cinematic-overlay/);
 assert.match(cinemaCSS,/prefers-reduced-motion/);
-assert.match(render,/await import\("\.\/assets\/race-cinematics\.js\?v=cinema-v7"\)/);
+assert.match(render,/await import\("\.\/assets\/race-cinematics\.js\?v=cinema-v8"\)/);
 assert.match(render,/cinematics\.update\(\{clock,progress:raceProgress,order,finishOrder:LIVE\.rank,frameDt,camera,desired,look,rate\}\)/);
 assert.match(render,/camera:'start-2c-4c-sidefinish'/);
 const gallop=read('assets/chibi-gallop.js');
@@ -262,8 +262,8 @@ assert.doesNotMatch(render,/cdn\.jsdelivr\.net\/npm\/three@/,'do not silently fa
 
 
 assert.doesNotMatch(render,/if\(mode==='horse'\)|if\(mode==='wide'\)/,'manual camera modes must be removed');
-assert.match(html,/assets\/race-cinematics\.css\?v=cinema-v7/);
-assert.match(html,/import\('\.\/renderer\.js\?v=cinema-v7'\)/);
+assert.match(html,/assets\/race-cinematics\.css\?v=cinema-v8/);
+assert.match(html,/import\('\.\/renderer\.js\?v=cinema-v8'\)/);
 assert.match(html,/CINEMATIC 3D RACE/);
 assert.doesNotMatch(cinemaJS,/SIM\.simulate|LOOP\.evaluate|horseProgress\s*=|scores\(/,'camera must not compute forecast scores');
 
@@ -342,7 +342,8 @@ assert.match(render,/kyoto-goal-board\.js\?v=goal-v8/);
 assert.match(render,/gateRoot\.visible=clock<=Math\.min\(6,LIVE\.duration\*\.055\)/);
 assert.match(render,/photoHorseProgress\(h\.no,base,LIVE\.rank/);
 assert.match(render,/photo\.priorPlaying/);
-assert.match(render,/photo\.completed/);
+assert.match(render,/photo\\.completed/);
+assert.match(render,/window\\.RACE_SCENE_AUDIT/);
 assert.match(render,/window\.RACE_PHOTO_DEBUG/);
 assert.match(cinemaCSS,/#race-photo-cue/);
 const finishPost=read('assets/kyoto-goal-board.js');
