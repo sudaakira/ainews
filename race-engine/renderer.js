@@ -279,12 +279,12 @@ import {jockeyCap} from './core/jockey-caps.js?v=cap-v1';
  // Never silently show the old horse when the requested new model fails.
  let horseV3Ready=false,modelError='';
  try{
-  const horseV3=await import("./assets/horse-anime.js?v=cinema-v5");
+  const horseV3=await import("./assets/horse-anime.js?v=cinema-v6");
   for(const h of HS){
    const frameCap=capFor(h);
    models.push(horseV3.createRaceHorse(THREE,scene,h,silkColors[h.no-1],frameCap.hex,frameCap.outline,frameCap.pattern||null,frameCap.secondary||'#FFFFFF'));
   }
-  horseV3Ready=models.length===HS.length&&models.every(m=>m.artDirection==='anime-pony-v19-kawaii');
+  horseV3Ready=models.length===HS.length&&models.every(m=>m.artDirection==='anime-pony-v20-saddlecloth');
   if(!horseV3Ready)throw new Error('アニメ馬モデルと出走'+HS.length+'頭の整合性を確認できませんでした');
  }catch(e){
   modelError=String(e?.stack||e);
@@ -372,22 +372,18 @@ import {jockeyCap} from './core/jockey-caps.js?v=cap-v1';
  const finishGeo=new THREE.PlaneGeometry(half*2,1.0),finishMat=new THREE.MeshBasicMaterial({color:0xf2f5f3,side:THREE.DoubleSide});
  const finish=new THREE.Mesh(finishGeo,finishMat);finish.rotation.x=-Math.PI/2;finish.rotation.z=0;finish.position.copy(end);finish.position.y+=.05;scene.add(finish);
  for(let side of [-1,1]){let p=offsetPoint(1,side*(half+.8),.0);let pole=new THREE.Mesh(new THREE.CylinderGeometry(.15,.15,5,8),mat(0xf7f7f0));pole.position.copy(p);pole.position.y+=2.5;scene.add(pole)}
- // Draw distance signposts: positions use nominal model progress
- for(let meters of [1000,800,600,400,200].filter(x=>x<distance)){
-  let t=1-meters/distance,p=offsetPoint(t,half+3,0);
-  let post=new THREE.Mesh(new THREE.CylinderGeometry(.12,.12,2.7,8),white);post.position.copy(p);post.position.y+=1.35;scene.add(post);
-  let cv=document.createElement('canvas');cv.width=128;cv.height=64;let c=cv.getContext('2d');c.fillStyle='#fafafa';c.fillRect(0,0,128,64);c.fillStyle='#1b514b';c.font='bold 40px sans-serif';c.textAlign='center';c.fillText(meters,64,45);
-  let label=new THREE.Sprite(new THREE.SpriteMaterial({map:new THREE.CanvasTexture(cv)}));label.position.copy(p);label.position.y+=3.2;label.scale.set(4,2,1);scene.add(label);
- }
+ // Correct JRA-style red/white posts with round numbered plaques (2=200m).
+ const {createJRAFurlongPosts}=await import("./assets/jra-furlong-posts.js?v=geo-v6");
+ const furlongPosts=createJRAFurlongPosts({THREE,scene,offsetPoint,distance,half});
  // Cinematic director replaces manual angle selection for every race.
- const {createRaceCinematics}=await import("./assets/race-cinematics.js?v=cinema-v5");
+ const {createRaceCinematics}=await import("./assets/race-cinematics.js?v=cinema-v6");
  const cinematics=createRaceCinematics({THREE,scene,stage,models,config,capFor,path});
  controls.style.display='none';
  document.querySelector('.camera-more')?.setAttribute('hidden','');
  stage.style.display='block';svg.classList.add('svg-hidden');
  status.textContent='🎬 CINEMATIC 3D · '+models.length+'頭';
  document.getElementById('horse-model-version').textContent='CINEMATIC RACE · DIRECTOR v1';
- window.KYOTO_RENDER_STATUS={ready:true,model:'anime-pony-v19-kawaii',venue:venueReady?'full':'fallback',
+ window.KYOTO_RENDER_STATUS={ready:true,model:'anime-pony-v20-saddlecloth',venue:venueReady?'full':'fallback',
   horses:models.length,camera:'automatic-cinematic',courseView:config.courseView,cinematic:true};
  let cw=0,ch=0;
  function resize(){let w=stage.clientWidth,h=stage.clientHeight;if(!w||!h)return;if(w!==cw||h!==ch){cw=w;ch=h;renderer.setSize(w,h,false);camera.aspect=w/h;camera.updateProjectionMatrix()}}
@@ -432,7 +428,7 @@ import {jockeyCap} from './core/jockey-caps.js?v=cap-v1';
    m.root.rotation.y=Math.atan2(d.dx,d.dz);
    // Entirely new ground-contact + two-bone IK gait, loaded from gallop-ik.js.
    updateGallop(m,clock,LIVE.visualTime,h.no,clock/LIVE.duration);
-   m.sprite.material.opacity=order.slice(0,3).some(x=>x.no===h.no)?1:.88;
+   // No floating head numbers: genuine saddlecloth number/name on the flanks.
   }
   updateGates(clock);
   // The starting gate remains a permanent 3D venue object, including in the outside camera.
@@ -445,14 +441,11 @@ import {jockeyCap} from './core/jockey-caps.js?v=cap-v1';
   const shotDirection=cinematics.update({clock,progress:raceProgress,order,finishOrder:LIVE.rank,frameDt,camera,desired,look,rate});
   // Framerate-independent camera tracking, responsive enough for 16x playback.
   const followAlpha=1-Math.exp(-frameDt*(8+rate*1.5));
-  // A deliberate 16x cut is a new shot, not a dizzying several-second
-  // camera orbit across the whole course. Between cuts, track smoothly.
-  if(first||shotDirection?.cut){
-   camera.position.copy(desired);smoothLook.copy(look);first=false;
-  }else{
-   camera.position.lerp(desired,followAlpha);
-   smoothLook.lerp(look,followAlpha);
-  }
+  // Keep the racing direction geographically continuous. With only four
+  // positive-side compositions, tracking interpolates instead of snapping.
+  const stableAlpha=1-Math.exp(-frameDt*(4.6+rate*.19));
+  if(first){camera.position.copy(desired);smoothLook.copy(look);first=false}
+  else{camera.position.lerp(desired,stableAlpha);smoothLook.lerp(look,stableAlpha)}
   camera.lookAt(smoothLook);
   renderer.render(scene,camera);
  }
