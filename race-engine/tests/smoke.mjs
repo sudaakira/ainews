@@ -262,8 +262,8 @@ assert.doesNotMatch(render,/cdn\.jsdelivr\.net\/npm\/three@/,'do not silently fa
 
 
 assert.doesNotMatch(render,/if\(mode==='horse'\)|if\(mode==='wide'\)/,'manual camera modes must be removed');
-assert.match(html,/assets\/race-cinematics\.css\?v=cinema-v8/);
-assert.match(html,/import\('\.\/renderer\.js\?v=cinema-v8'\)/);
+assert.match(html,/assets\/race-cinematics\.css\?v=cinema-v9/);
+assert.match(html,/import\('\.\/renderer\.js\?v=cinema-v9'\)/);
 assert.match(html,/CINEMATIC 3D RACE/);
 assert.doesNotMatch(cinemaJS,/SIM\.simulate|LOOP\.evaluate|horseProgress\s*=|scores\(/,'camera must not compute forecast scores');
 
@@ -341,7 +341,8 @@ assert.equal(photoHorseProgress(4,.982,[8,6,3],2),.982);
 assert.match(render,/kyoto-goal-board\.js\?v=goal-v8/);
 assert.match(render,/gateRoot\.visible=clock<=Math\.min\(6,LIVE\.duration\*\.055\)/);
 assert.match(render,/photoHorseProgress\(h\.no,base,LIVE\.rank/);
-assert.match(render,/photo\.priorPlaying/);
+assert.match(read('app.js'),/playbackAtFinish=true/);
+assert.match(render,/LIVE\.playbackAtFinish/);
 assert.match(render,/photo\.completed/);
 assert.match(render,/window\.RACE_SCENE_AUDIT/);
 assert.match(render,/window\.RACE_PHOTO_DEBUG/);
