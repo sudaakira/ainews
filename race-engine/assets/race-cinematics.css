@@ -340,3 +340,24 @@
 #race-cinematic-overlay[data-shot="establish"] .cinema-duel,
 #race-cinematic-overlay[data-shot="follow"] .cinema-duel,
 #race-cinematic-overlay[data-shot="turn"] .cinema-duel{display:none!important}
+
+/* ═══ v8: goal-line readability, discrete photo finish ═══ */
+#race-photo-cue{
+ position:absolute;top:14%;left:50%;z-index:36;pointer-events:none;
+ transform:translate(-50%,-8px) scale(.97);opacity:0;
+ max-width:calc(100% - 28px);overflow:hidden;text-overflow:ellipsis;
+ white-space:nowrap;padding:8px 16px;border:1px solid #e8ca83;
+ border-radius:999px;background:#092536ee;color:#fff2c6;
+ box-shadow:0 5px 30px #071d36aa;text-align:center;
+ font-size:clamp(12px,2vw,18px);font-weight:900;
+ transition:opacity .075s,transform .075s;
+}
+#race-photo-cue.photo-visible{opacity:1;transform:translate(-50%,0) scale(1)}
+#race-cinematic-overlay[data-shot="straight"] .cinema-duel,
+#race-cinematic-overlay[data-shot="result"] .cinema-duel{display:flex!important}
+#race-cinematic-overlay[data-shot="start"] .cinema-duel,
+#race-cinematic-overlay[data-shot="second-turn"] .cinema-duel,
+#race-cinematic-overlay[data-shot="fourth-turn"] .cinema-duel{display:none!important}
+@media(max-width:700px){
+ #race-photo-cue{top:16%;font-size:12px;padding:6px 10px;border-radius:8px}
+}
