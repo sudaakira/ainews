@@ -38,7 +38,7 @@ function projectPoint(q,pos,look,fov,aspect){
 function pickSubjects(shot,order,distance,aspect){
  if(shot.subjects==='all')return order.slice();
  const lead=order[0],gap=o=>(lead.p-o.p)*distance;
- if(shot.subjects==='pack')return order.slice(0,aspect<.85?4:7).filter((o,i)=>i<(aspect<.85?4:6)||gap(o)<=12);
+ if(shot.subjects==='pack')return order.slice(0,7).filter((o,i)=>i<6||gap(o)<=12);
  if(shot.subjects==='frontpack'){
   // Three-quarter entry from the outer rail: five foreground competitors.
   // The remaining pack is visible in depth behind, not framing the lens.
@@ -162,10 +162,19 @@ export function raceCameraPose({shot,progress,order,path,aspect=1,clock=Infinity
   scale*=1.08;
  }
  if(!raw?.length)throw new Error('No horse group visible to broadcast lens');
- // Reference pictures are turf-led with almost no wasted sky.
- // The old screen-space centroid correction counteracted this downward pitch.
- pose.look.y=focus.y-(isGate?13:shot.id==='third-entry'?10:
-  shot.id==='fourth-turn'?9:shot.id==='first-corner'?7:6);
+ // Broadcast operator vertical framing: solve for the selected horses'
+ // actual projected screen Y instead of guessing a pitch. This prevents the
+ // tight corner cameras clipping jockeys off-screen or filming mostly sky.
+ const targetNdcY=isGate?.12:shot.id==='first-corner'?.07:
+  shot.id==='third-entry'?.13:shot.id==='fourth-turn'?.10:.05;
+ for(let step=0;step<6;step++){
+  const projected=imagePoints(pose).filter(p=>p.visible);
+  if(!projected.length)break;
+  const cy=(Math.min(...projected.map(x=>x.y))+Math.max(...projected.map(x=>x.y)))/2;
+  const horizontal=Math.hypot(pose.position.x-pose.look.x,pose.position.z-pose.look.z);
+  const change=clamp((cy-targetNdcY)*horizontal*Math.tan(fov*Math.PI/360)*.8,-6,6);
+  pose.look.y+=change;
+ }
  raw=imagePoints(pose).filter(p=>p.visible);
  let lensShiftX=0;
  if(isGate){
