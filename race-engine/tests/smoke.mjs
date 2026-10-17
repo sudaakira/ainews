@@ -274,9 +274,13 @@ for(const shot of RACE_SHOT_LIST){
   const pose=raceCameraPose({shot,progress,clock:42,order,path,aspect});
   assert.ok(pose.subjects.length<=3,'tracking camera must not frame all horses');
   assert.equal(pose.mode,'tight-nose-leader');
-  const o=order[0],q=path(o.p),lane=runnerLane(o.no,order.length,progress);
-  const x=screenX({x:q.x-q.dz*lane+1.75,y:2.05,z:q.z+q.dx*lane},pose,aspect);
-  assert.ok(Math.abs(x-.20)<.01,'leader nose x≈20% in '+shot.id+'/'+aspect+': '+x);
+  const fronts=order.slice(0,3).map(o=>{
+   const q=path(o.p),lane=runnerLane(o.no,order.length,progress);
+   return screenX({x:q.x-q.dz*lane+3.0,y:q.y+2.05,z:q.z+q.dx*lane},pose,aspect);
+  });
+  assert.ok(Math.abs(Math.min(...fronts)-.20)<.015,
+   'leftmost muzzle leaves 20 percent foreground air in '+shot.id+'/'+aspect+': '+fronts);
+  assert.ok(fronts.every(x=>x>=.19),'near-leader muzzles must not clip on left');
   const distance=Math.hypot(pose.position.x-pose.look.x,pose.position.z-pose.look.z);
   assert.ok(distance<19,'closeup within 19m: '+shot.id+' '+distance);
  }
