@@ -1,104 +1,94 @@
-/**
- * Equine transverse gallop v14.
- * Joint-driven animation from 12 photographic key poses of a running horse,
- * rather than arbitrary circular IK hoof targets.
- * Measurements: https://www.hemispheregames.com/eddybox_cs_ubc/projects/533B/angles.txt
- * Camera reference: https://motionzoo.net/horse-gallop-reference/
- * No simulation order, horse speed, probability or race state is modified.
- */
-import {sampleEquineFrame,hoofEndpoint,EQUINE_BONE_LENGTHS} from './equine-motion-frames.js';
-export const GALLOP_BEATS=Object.freeze([
- {limb:'hind',lead:false,start:0},
- {limb:'hind',lead:true,start:2/12},
- {limb:'front',lead:false,start:4/12},
- {limb:'front',lead:true,start:7/12}
-]);
+/** v15 sagittal horse gallop, not rotating stick legs. Pure render. */
+import {sampleHorseGallop,STRIKES,HOOF_SOLE} from './equine-gallop-v15.js';
+export {STRIKES};
 const TAU=Math.PI*2;
-const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
-const lerp=(a,b,t)=>a+(b-a)*t;
-const smooth=t=>{t=clamp(t,0,1);return t*t*(3-2*t)};
-/** Diagnostic: real measured 4-joint pose and hoof clearance at any phase. */
+const clamp=(x,a,b)=>Math.max(a,Math.min(b,x));
+const mix=(a,b,t)=>a+(b-a)*t;
+const smooth=x=>{x=clamp(x,0,1);return x*x*(3-2*x)};
+export const GALLOP_BEATS=STRIKES;
+const STANDING_FORE=[
+ {y:1.34,z:.48},{y:.99,z:.43},{y:.59,z:.49},{y:.18,z:.53},{y:HOOF_SOLE,z:.57}
+];
+const STANDING_HIND=[
+ {y:1.37,z:-.69},{y:1.06,z:-.44},{y:.69,z:-.93},
+ {y:.18,z:-.79},{y:HOOF_SOLE,z:-.77}
+];
 export function sampleGallop(phase,lead=1){
- const p=sampleEquineFrame(phase,lead===-1?'left':'right');
- return [2,6,10,14].map((offset,i)=>{
-  const front=i<2,angles=p.slice(offset,offset+4);
-  const pos=hoofEndpoint(angles,front?EQUINE_BONE_LENGTHS.front:EQUINE_BONE_LENGTHS.hind,
-    front?1.24:1.27,front?.38:-.66);
-  return {front,side:i%2?1:-1,angles,hoofY:pos.y,hoofZ:pos.z};
- });
+ return sampleHorseGallop(phase,lead===-1?'left':'right');
 }
+/**
+ * The renderer passes wall-clock frameDt (not accelerated race delta).
+ * Always uses Y/Z sagittal points; X stays fixed per leg. No sideways paddling.
+ */
 export function updateGallop(model,raceTime,visualTime,number,raceProgress=0,options={}){
- const active=smooth((raceTime-.08)/.85);
- const speed=Number.isFinite(options.speedMps)?options.speedMps:14;
- const cadence=clamp(speed/5.3,1.85,2.75);
+ const active=smooth((raceTime-.08)/.78);
  const targetLead=options.lead==='left'?-1:1;
- if(!model.gaitState||visualTime<model.gaitState.time-.001||raceTime<=0){
-  model.gaitState={phase:(number*.61803398875)%1,time:visualTime,lead:targetLead};
+ const mps=Number.isFinite(options.speedMps)?options.speedMps:14;
+ const cadence=clamp(mps/6.55,1.70,2.65);
+ if(!model.gaitState||visualTime<model.gaitState.time-.002||raceTime<=0){
+  model.gaitState={phase:(number*.61803398875)%1,lead:targetLead,time:visualTime};
  }
  const state=model.gaitState;
  const dt=clamp(Number.isFinite(options.frameDt)?
-   (options.playing?options.frameDt:0):visualTime-state.time,0,.050);
- state.phase=(state.phase+dt*cadence)%1;
- state.time=visualTime;
- state.lead=lerp(state.lead,targetLead,smooth(dt*3));
- const right=sampleEquineFrame(state.phase,'right');
- const left=sampleEquineFrame(state.phase,'left');
- const blend=(state.lead+1)*.5;
- const pose=right.map((v,i)=>lerp(left[i],v,blend));
- const hoofs=[];
+   (options.playing?options.frameDt:0):visualTime-state.time,0,.05);
+ state.time=visualTime;state.phase=(state.phase+dt*cadence)%1;
+ state.lead=mix(state.lead,targetLead,smooth(dt*4.5));
+ const right=sampleHorseGallop(state.phase,'right');
+ const left=sampleHorseGallop(state.phase,'left');
+ const rt=(state.lead+1)/2;
+ const audit=[];
  for(let i=0;i<4;i++){
-  const leg=model.legs[i],k=i===0?2:i===1?6:i===2?10:14;
-  const angles=pose.slice(k,k+4);
-  if(!leg.joints||leg.joints.length!==4){
-   throw Error('Four-segment equine rig missing for horse '+number);
-  }
-  // Angles in the measured dataset are relative to the previous segment,
-  // positive toward +Y from the +Z horizontal.
-  for(let j=0;j<4;j++){
-   leg.joints[j].rotation.x=-(j===0?lerp(-Math.PI/2,angles[j],active):angles[j]*active);
-   leg.joints[j].rotation.y=0;
-   leg.joints[j].rotation.z=0; // no lateral scuttling / crab-walk
-  }
-  const foot=hoofEndpoint(angles,leg.segmentLengths,leg.pivot.position.y,leg.pivot.position.z);
-  hoofs.push({...foot,front:leg.front,side:leg.side,angles});
+  const leg=model.legs[i],stand=leg.front?STANDING_FORE:STANDING_HIND;
+  const points=right[i].points.map((p,k)=>({
+    y:mix(stand[k].y,mix(left[i].points[k].y,p.y,rt),active),
+    z:mix(stand[k].z,mix(left[i].points[k].z,p.z,rt),active)
+  }));
+  model.setLegPose(leg,points);
+  const contact=(rt>.5?right:left)[i].contact&&active>.8;
+  const first=points[0],second=points[1];
+  audit.push({
+    side:leg.side,front:leg.front,contact,
+    hip:Math.atan2(second.z-first.z,first.y-second.y),
+    knee:Math.atan2(points[2].z-second.z,second.y-points[2].y),
+    hoofY:points[4].y,hoofZ:points[4].z,
+    joints:points.map(q=>({y:q.y,z:q.z}))
+  });
  }
- // The torso of a thoroughbred is relatively stiff (not cheetah flexion).
- // Track grounding comes from the measured foot heights; during the collected
- // suspension the lowest hoof is allowed to stay above the ground.
- const minFoot=Math.min(...hoofs.map(f=>f.y));
- const support=Math.min(.065,minFoot);
- const rootCompensation=-.085-support;
- const gallopPitch=.020*Math.cos(TAU*(state.phase-.13));
- const suspension=smooth((state.phase-.74)/.07)*(1-smooth((state.phase-.96)/.04));
- model.anim.position.y=lerp(0,rootCompensation+.022*suspension,active);
- model.anim.rotation.set(gallopPitch*active,0,0);
- model.headRig.rotation.x=active*(.040*Math.sin(TAU*(state.phase-.30))-.035*(pose[0]-2.25));
- model.headRig.position.y=2.03+.011*active*Math.cos(TAU*(state.phase-.20));
+ const noHoofContact=active>.95&&audit.every(x=>!x.contact);
+ const flight=smooth((state.phase-.68)/.09)*(1-smooth((state.phase-.95)/.05));
+ const sprint=smooth((raceProgress-.76)/.20);
+ const pitch=active*(.045*Math.sin(TAU*(state.phase-.11))-.013*flight);
+ model.anim.position.y=active*(-.125+.045*Math.sin(TAU*(state.phase+.16))+.07*flight);
+ model.anim.rotation.set(pitch,0,0);
+ model.headRig.rotation.x=active*(-.027*Math.sin(TAU*(state.phase-.23))-.023*flight);
  model.headRig.rotation.z=0;
- model.tailRig.rotation.x=active*(.10*Math.sin(TAU*state.phase-1.1)-.04);
- model.tailRig.rotation.z=active*.04*Math.sin(TAU*state.phase+.4);
+ model.headRig.position.y=2.03+.014*active*Math.sin(TAU*(state.phase-.3));
+ model.tailRig.rotation.x=active*(.10*Math.sin(TAU*state.phase-.83)-.04*sprint);
+ model.tailRig.rotation.z=active*.046*Math.sin(TAU*state.phase+.20);
  model.maneStrands?.forEach(({rig,phase:lag})=>{
-  rig.rotation.x=active*.07*Math.sin(TAU*state.phase-.8-lag);
-  rig.rotation.z=0;
+   rig.rotation.x=.065*active*Math.sin(TAU*state.phase-.82-lag);
+   rig.rotation.z=0;
  });
  model.tailStrands?.forEach(({rig,phase:lag})=>{
-  rig.rotation.x=active*.10*Math.sin(TAU*state.phase-1.0-lag);
-  rig.rotation.z=active*.06*Math.sin(TAU*state.phase-lag);
+   rig.rotation.x=.11*active*Math.sin(TAU*state.phase-1.0-lag);
+   rig.rotation.z=.045*active*Math.sin(TAU*state.phase-lag);
  });
- model.ears?.forEach(({rig,side})=>{rig.rotation.x=active*.018*Math.sin(TAU*state.phase+.5);rig.rotation.z=-side*.07});
+ model.ears?.forEach(({rig,side})=>{
+   rig.rotation.z=-side*.07;
+   rig.rotation.x=.025*active*Math.sin(TAU*state.phase-.6);
+ });
  if(model.rider){
-  model.rider.position.y=-.40*model.anim.position.y+active*.008*Math.sin(TAU*state.phase+.2);
-  model.rider.rotation.x=-.7*model.anim.rotation.x-.015*active;
+  model.rider.position.y=-model.anim.position.y*.48+.017*active*Math.sin(TAU*state.phase+.1);
+  model.rider.rotation.x=-pitch*.68-.015*active;
   model.rider.rotation.z=0;
  }
- if(model.shadow){model.shadow.material.opacity=.22-.075*suspension;model.shadow.scale.x=.46-.022*suspension}
+ if(model.shadow){
+  model.shadow.material.opacity=.23-.09*flight;
+  model.shadow.scale.x=.47-.035*flight;
+ }
  model.gallopAudit={
-  phase:state.phase,lead:state.lead,cadence,flight:suspension,
-  hoofs:hoofs.map((f,i)=>({
-   side:f.side,front:f.front,hip:-f.angles[0],knee:-f.angles[1],
-   jointAngles:f.angles,hoofY:f.y+model.anim.position.y+.12,
-   hoofZ:f.z
-  })),
-  sampledFrom:'measured-muybridge-12-frames',bodyPitch:model.anim.rotation.x
+  phase:state.phase,lead:state.lead,flight,noHoofContact,cadence,
+  hoofs:audit,beatOrder:STRIKES.map(x=>x.front?'F':'H'),
+  sampledFrom:'v15-sagittal-anatomical-contacts'
  };
 }
