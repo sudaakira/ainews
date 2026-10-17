@@ -162,9 +162,10 @@ export function raceCameraPose({shot,progress,order,path,aspect=1,clock=Infinity
   scale*=1.08;
  }
  if(!raw?.length)throw new Error('No horse group visible to broadcast lens');
- const yCenter=(Math.max(...raw.map(p=>p.y))+Math.min(...raw.map(p=>p.y)))/2;
- // Keep horse bodies in the middle third rather than wasting 50% on sky.
- pose.look.y+=yCenter*.43-(isGate?6.0:Math.max(3.5,Math.min(9,side*.13)));
+ // Reference pictures are turf-led with almost no wasted sky.
+ // The old screen-space centroid correction counteracted this downward pitch.
+ pose.look.y=focus.y-(isGate?13:shot.id==='third-entry'?10:
+  shot.id==='fourth-turn'?9:shot.id==='first-corner'?7:6);
  raw=imagePoints(pose).filter(p=>p.visible);
  let lensShiftX=0;
  if(isGate){
