@@ -6,10 +6,10 @@ import {KYOTO_CUTS,runnerLane,kyotoOuterCourseOffset,KYOTO_INNER} from './kyoto-
  * Track-side positions are outside the outermost turf rail at all cuts.
  */
 export const RACE_SHOT_LIST=Object.freeze([
- Object.freeze({id:'start',until:.075,kicker:'01 / START',label:'スタート',subjects:'all',side:29,ahead:32,height:8,fov:22}),
- Object.freeze({id:'first-corner',until:.29,kicker:'02 / POSITION',label:'1コーナー 位置どり',subjects:'pack',side:31,ahead:12,height:9,fov:26}),
- Object.freeze({id:'third-entry',until:.67,kicker:'03 / ATTACK ZONE',label:'3コーナー進入',subjects:'frontpack',side:34,ahead:58,height:9.5,fov:26}),
- Object.freeze({id:'fourth-turn',until:.84,kicker:'04 / THE MOVE',label:'4コーナー 仕掛け',subjects:'leaders',side:34,ahead:28,height:8,fov:21}),
+ Object.freeze({id:'start',until:.12,kicker:'01 / START',label:'スタート',subjects:'all',side:29,ahead:32,height:8,fov:22}),
+ Object.freeze({id:'first-corner',until:.32,kicker:'02 / POSITION',label:'1コーナー 位置どり',subjects:'pack',side:31,ahead:12,height:6.4,fov:26}),
+ Object.freeze({id:'third-entry',until:.67,kicker:'03 / ATTACK ZONE',label:'3コーナー進入',subjects:'frontpack',side:34,ahead:58,height:6.8,fov:26}),
+ Object.freeze({id:'fourth-turn',until:.84,kicker:'04 / THE MOVE',label:'4コーナー 仕掛け',subjects:'leaders',side:34,ahead:64,height:6.2,fov:24}),
  Object.freeze({id:'finish',until:Infinity,kicker:'05 / FINISH',label:'ゴール前',subjects:'finish',side:31,ahead:0,height:6.8,fov:21})
 ]);
 export function chooseRaceShot(progress,cuts=RACE_SHOT_LIST.map(s=>s.until)){
@@ -46,9 +46,9 @@ function pickSubjects(shot,order,distance,aspect){
   return pack.length>=(aspect<.85?3:5)?pack:order.slice(0,aspect<.85?3:5);
  }
  if(shot.subjects==='leaders'){
-  const firstFive=order.slice(0,aspect<.85?3:5);
+  const firstFive=order.slice(0,aspect<.85?5:7);
   const pack=firstFive.filter((o,i)=>i<3||(i===3?gap(o)<=16:gap(o)<=10&&(firstFive[3].p-o.p)*distance<=2.6));
-  return aspect<.85?order.slice(0,3):(pack.length>=4?pack:firstFive.slice(0,4));
+  return aspect<.85?order.slice(0,5):(pack.length>=4?pack:firstFive.slice(0,6));
  }
  if(shot.subjects==='finish'){
   const threeOrFour=order.slice(0,4).filter((o,i)=>i<3||gap(o)<=6.5);
@@ -282,6 +282,11 @@ export function followLockedCameraPose(rig,order,path,{distance=2000,venue='京�
   z:station.z+(q.x-startStation.x)*sin+(q.z-startStation.z)*cos
  });
  const position=rotate(rig.pose.position),look=rotate(rig.pose.look);
+ // Keep the finishing straight level: no elevation bob or pitch variation.
+ if(rig.pose.shotId==='finish'){
+  position.y=rig.pose.position.y;
+  look.y=rig.pose.look.y;
+ }
  const right=direction!=='左';
  const half=venue==='京都'&&distance===2000?KYOTO_INNER.width/2:13.5;
  const railLane=(venue==='京都'&&distance===2000?kyotoOuterCourseOffset(currentProgress):0)+(right?-half:half);
