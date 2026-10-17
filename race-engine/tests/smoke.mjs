@@ -309,3 +309,67 @@ assert.match(raceCommentary({clock:110,progress:.98,order,horses:testHorses,cros
 assert.equal(raceCommentary({clock:120,progress:1,order,horses:testHorses,crossed:[2]}).winner,2);
 assert.doesNotMatch(cinemaJS,/toReversed/,'leader is on left');
 console.log('Kyoto metric route, goal offset, 3C elevation, left-leading order and data-driven commentary ✓');
+
+
+// Actual transverse four-beat gait: non-leading hind -> leading hind ->
+// non-leading fore -> leading fore -> ONE suspension. Both leads must mirror.
+const {GALLOP_BEATS,hoofTrajectory,sampleGallop,solveLegIK,updateGallop}=await load('assets/chibi-gallop.js');
+assert.deepEqual(GALLOP_BEATS.map(x=>[x.limb,x.lead]),[
+ ['hind',false],['hind',true],['front',false],['front',true]
+]);
+assert.deepEqual(GALLOP_BEATS.map(x=>x.start),[0,.15,.31,.47]);
+for(const lead of [-1,1]){
+ const first=sampleGallop(.04,lead).filter(l=>l.contact);
+ assert.deepEqual(first.map(l=>[l.front,l.side]),[[false,-lead]]);
+ const second=sampleGallop(.20,lead).filter(l=>l.contact&&l.beatIndex===1);
+ assert.deepEqual(second.map(l=>[l.front,l.side]),[[false,lead]]);
+ const third=sampleGallop(.39,lead).filter(l=>l.contact&&l.beatIndex===2);
+ assert.deepEqual(third.map(l=>[l.front,l.side]),[[true,-lead]]);
+ const fourth=sampleGallop(.57,lead).filter(l=>l.contact&&l.beatIndex===3);
+ assert.deepEqual(fourth.map(l=>[l.front,l.side]),[[true,lead]]);
+ for(const p of [.72,.78,.84,.90])assert.ok(sampleGallop(p,lead).every(l=>!l.contact),'flight must have zero planted hooves');
+ for(let beat=0;beat<4;beat++){
+  const landing=hoofTrajectory(GALLOP_BEATS[beat].start+.02,beat);
+  assert.equal(landing.height,.052,'contact stays at turf');
+ }
+}
+for(const front of [true,false]){
+ const upper=front?.61:.68,lower=front?.735:.755;
+ for(let z=-.28;z<=.28;z+=.04)for(let down=1.08;down<1.32;down+=.04){
+  const {hip,knee}=solveLegIK(upper,lower,z,down,front);
+  const y=upper*Math.cos(hip)+lower*Math.cos(hip+knee);
+  const forward=-upper*Math.sin(hip)-lower*Math.sin(hip+knee);
+  assert.ok(Math.hypot(y-down,forward-z)<1e-8,'IK must reach the planted foot without floating');
+ }
+}
+// UI controls must only affect the rendered skeleton; race results remain untouched.
+assert.match(render,/speedMps,lead/);
+assert.match(render,/gallopAudit/);
+assert.match(anime,/hoofRig/);
+assert.match(anime,/gallopRig:'four-beat-ik-v1'/);
+assert.match(html,/renderer\.js\?v=fourbeat-v12/);
+const makeRotation=()=>({x:0,y:0,z:0,set(x,y,z){this.x=x;this.y=y;this.z=z;}});
+const rig={
+ legs:[true,false].flatMap(front=>[-1,1].map(side=>({
+  front,side,upper:front?.61:.68,lower:front?.76:.78,
+  pivot:{position:{y:front?1.17:1.24,z:front?.40:-.63},rotation:makeRotation()},
+  knee:{rotation:makeRotation()},hoofRig:{rotation:makeRotation()}
+ }))),
+ anim:{position:{y:0},rotation:makeRotation()},
+ headRig:{position:{y:2.03},rotation:makeRotation()},
+ tailRig:{rotation:makeRotation()},ears:[],maneStrands:[],tailStrands:[],
+ rider:{position:{y:0},rotation:makeRotation()},
+ shadow:{material:{opacity:.22},scale:{x:.46}}
+};
+rig.gaitState={phase:.49,time:1,lead:1};
+updateGallop(rig,3,1,1,.25,{speedMps:16,lead:'right'});
+for(let i=0;i<rig.legs.length;i++){
+ const leg=rig.legs[i],hip=leg.pivot.rotation.x,knee=leg.knee.rotation.x,pitch=rig.anim.rotation.x;
+ const y=.12+rig.anim.position.y+
+  (leg.pivot.position.y-leg.upper*Math.cos(hip)-(leg.lower-.025)*Math.cos(hip+knee))*Math.cos(pitch)-
+  (leg.pivot.position.z-leg.upper*Math.sin(hip)-(leg.lower-.025)*Math.sin(hip+knee))*Math.sin(pitch);
+ if(sampleGallop(.49,1)[i].contact)
+  assert.ok(Math.abs(y-.052)<1e-8,'planted hoof must touch ground at exact stance height');
+}
+assert.ok(rig.gallopAudit.cadence>=1.85&&rig.gallopAudit.cadence<=3.0);
+console.log('Four-beat footfalls, left/right lead, IK planted hooves, single suspension and speed-linked cadence ✓');
