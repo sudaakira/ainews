@@ -462,7 +462,10 @@ import {jockeyCap} from './core/jockey-caps.js?v=cap-v1';
    const leaderNose=models[order[0].no-1].root.localToWorld(new THREE.Vector3(0,2.05,1.75)).project(camera);
    // Mark the foremost 3-5 runners so their saddlecloth numbers remain
    // legible at the smaller iPhone display size. Never cover the picture at the gate.
-   const pictured=new Set(window.RACE_CINEMATIC_DEBUG?.pose?.subjects||[]);
+   const broadcastSubjects=new Set(window.RACE_CINEMATIC_DEBUG?.pose?.subjects||[]);
+    // The wide 4C shot includes 12-15 horses, but number chips belong only
+    // to the first five runners; otherwise the mobile picture is obscured.
+    const pictured=new Set(order.filter(o=>broadcastSubjects.has(o.no)).slice(0,5).map(o=>o.no));
    const placed=[];
    for(const [no,node] of leaderLabels){
     if(clock<2||!pictured.has(no)){node.style.display='none';continue}
