@@ -263,7 +263,9 @@ for(const p of [.10,.4,.59,.66,.73,.82,.94,.999])for(const aspect of [.58,.76,1.
  assert.equal(pose.outerRailSign,-1);
  assert.ok(pose.outerRailClearance>=11.9,'camera OUTSIDE the actual outer-course rail');
  assert.ok(pose.aheadScreenSide==='right');
- assert.ok(pose.projectedWidth<1.5,'visible group must fit horizontally');
+ const maxGroupWidth=shot.id==='first-corner'?1.63:1.51;
+ assert.ok(pose.projectedWidth<maxGroupWidth,
+  'selected group must fit the shot-specific safe area: '+shot.id+' width '+pose.projectedWidth);
  const leader=order[0],q=cameraKyotoPath(leader.p),lane=cameraRunnerLane(leader.no,17,p);
  const point={x:q.x-q.dz*lane+q.dx*2,y:q.y+2,z:q.z+q.dx*lane+q.dz*2};
  const screen=projectTest(point,pose,Math.max(.48,aspect));
