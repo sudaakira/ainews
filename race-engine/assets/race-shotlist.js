@@ -298,35 +298,30 @@ export function followLockedCameraPose(rig,order,path,{distance=2000,venue='京�
  const leader=order?.[0];
  if(!leader)return rig.pose;
  if(rig.pose.shotId==='fourth-turn'){
-  // Low front-facing tracking vehicle: NO PAN, NO ZOOM. The entire camera
-  // translates by the leader's world displacement, with its optical axis
-  // frozen at the first frame. This avoids steering/yaw oscillations on 4C.
-  const noseAt=(p,no)=>{
-   const q=path(p),lane=runnerLane(no,order.length,p);
-   return {x:q.x-q.dz*lane+q.dx*2.7,y:q.y+2,
-    z:q.z+q.dx*lane+q.dz*2.7};
-  };
-  const initial=noseAt(rig.startLeaderProgress,rig.pose.leadNumber||leader.no);
-  const current=noseAt(leader.p,leader.no);
-  const station=path(rig.startLeaderProgress+95/distance);
-  const right=direction!=='左',sign=right?1:-1;
-  const half=venue==='京都'&&distance===2000?KYOTO_INNER.width/2:13.5;
-  const rail=(venue==='京都'&&distance===2000?kyotoOuterCourseOffset(rig.startLeaderProgress+95/distance):0)+(right?-half:half);
-  const outside=rail-sign*58;
-  const dx=current.x-initial.x,dz=current.z-initial.z;
-  const position={x:station.x-station.dz*outside+dx,
-   y:current.y+3.8,z:station.z+station.dx*outside+dz};
-  const look={x:current.x,y:current.y+0.7,z:current.z};
-  const stationNow=path(leader.p+95/distance);
-  const railNow=(venue==='京都'&&distance===2000?kyotoOuterCourseOffset(leader.p+95/distance):0)+(right?-half:half);
-  const laneNow=-(position.x-stationNow.x)*stationNow.dz+(position.z-stationNow.z)*stationNow.dx;
-  const clearance=right?railNow-laneNow:laneNow-railNow;
-  // Fixed lens and fixed bearing; no lateral correction that would pan.
-  return {...rig.pose,position,look,fov:20,lensShiftX:0,
-   outerRailClearance:clearance,cameraLane:laneNow,railLane:railNow,
-   railOutsideVerified:clearance>=11.9,leadNumber:leader.no,
-   lockedCamera:true,cameraTrackYaw:0,baseShotId:'fourth-turn',
-   leadNoseViewportTarget:.5,forwardGap:.5};
+  // Front-facing lead-horse tracking shot: camera exactly 10 metres ahead
+  // of the leader's NOSE, moving backwards at the horse's speed.
+  // The lens remains fixed; no pan, zoom, or auto-fit adjustments.
+  const q=path(leader.p),lane=runnerLane(leader.no,order.length,leader.p);
+  const nose={x:q.x-q.dz*lane+q.dx*2.7,y:q.y+2,
+   z:q.z+q.dx*lane+q.dz*2.7};
+  const initial=path(rig.startLeaderProgress);
+  const firstLane=runnerLane(rig.pose.leadNumber||leader.no,order.length,rig.startLeaderProgress);
+  const firstNose={x:initial.x-initial.dz*firstLane+initial.dx*2.7,
+   y:initial.y+2,z:initial.z+initial.dx*firstLane+initial.dz*2.7};
+  // Freeze camera heading on cut entry and translate the entire rig by
+  // the leader's displacement. Exactly 10m front clearance at entry.
+  const initialPosition={x:firstNose.x+initial.dx*10,y:firstNose.y+1.8,
+   z:firstNose.z+initial.dz*10};
+  const delta={x:nose.x-firstNose.x,y:nose.y-firstNose.y,z:nose.z-firstNose.z};
+  const position={x:initialPosition.x+delta.x,y:initialPosition.y+delta.y,
+   z:initialPosition.z+delta.z};
+  const look={x:nose.x,y:nose.y+.2,z:nose.z};
+  return {...rig.pose,position,look,fov:36,lensShiftX:0,
+   outerRailClearance:null,cameraLane:null,railLane:null,
+   railOutsideVerified:false,leadNumber:leader.no,lockedCamera:true,
+   cameraTrackYaw:0,baseShotId:'fourth-turn',
+   leadNoseViewportTarget:.5,forwardGap:.5,
+   cameraLeadDistanceMeters:10,trackingMode:'leader-front-10m-no-pan'};
  }
  const advance=rig.pose.stationAheadMeters||0;
  const startStation=path(rig.pose.referenceProgress+advance/distance);
