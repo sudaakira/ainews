@@ -27,20 +27,37 @@ export function raceCameraPose({shot,progress,order,path,aspect=1}){
  const tan=Math.tan(shot.fov*Math.PI/360)*Math.max(.42,aspect);
  const fit=Math.max(...field.map((q,i)=>(Math.abs(horizontal[i])+1.9)/tan+(q.x-focus.x)*cx+(q.z-focus.z)*cz));
  let scale=Math.max(1,fit/norm);
- // Lead horse at ~20% from the LEFT edge: the left 20% stays clear.
- // Retain the start's all-horse gate framing; apply this to tracking shots.
+ // Leave ~20% clear to the LEFT of the leader in every tracking camera cut.
+ // Solve using each horse's true perspective depth, not a flat world offset:
+ // the forward-facing 3C shot foreshortens much more than a side-on camera.
+ // Keep the entire starting-gate field centered at t=0.
  const leadViewportX=.20;
  if(!full){
-  const leaderHorizontal=horizontal[0];
-  const behindSpan=Math.max(0,...horizontal.map(x=>leaderHorizontal-x));
-  // Ensure that the remaining 75-80% fits the chasing horses on phones.
-  const minimumHalfWidth=(behindSpan+3.8)/1.48;
-  scale=Math.max(scale,minimumHalfWidth/(norm*tan));
-  const halfWidth=norm*scale*tan;
-  const wantedLeadHorizontal=(1-2*leadViewportX)*halfWidth;
-  const shift=leaderHorizontal-wantedLeadHorizontal;
-  focus.x+=rx*shift;
-  focus.z+=rz*shift;
+  const perspectiveDepth=(q,k)=>{
+   const ox=heading.dz*side*k+heading.dx*ahead*k;
+   const oz=-heading.dx*side*k+heading.dz*ahead*k;
+   const fy=1.35-height,flen=Math.hypot(ox,fy,oz);
+   // Forward = (-ox,fy,-oz), camera = focus+(ox,height,oz).
+   return ((q.x-focus.x-ox)*(-ox)+(q.z-focus.z-oz)*(-oz)+(q.y+1.35-height)*fy)/flen;
+  };
+  for(let attempt=0;attempt<16;attempt++){
+   const ld=Math.max(1,perspectiveDepth(field[0],scale));
+   const wantedLead=(1-2*leadViewportX)*ld*tan;
+   const shift=horizontal[0]-wantedLead;
+   const fits=field.every((q,i)=>{
+    const d=Math.max(1,perspectiveDepth(q,scale));
+    const viewportX=.5-(horizontal[i]-shift)/(2*d*tan);
+    // Reserve a small buffer for the horse body and riders.
+    const bodyMargin=Math.min(.09,1.9/(2*d*tan));
+    return viewportX>=bodyMargin&&viewportX<=1-bodyMargin;
+   });
+   if(fits||attempt===15){
+    focus.x+=rx*shift;
+    focus.z+=rz*shift;
+    break;
+   }
+   scale*=1.22;
+  }
  }
  side*=scale;ahead*=scale;
  // Pan/dolly keep the same rail-side and low broadcast elevation.
