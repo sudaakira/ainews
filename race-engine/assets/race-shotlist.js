@@ -6,10 +6,10 @@ import {KYOTO_CUTS,runnerLane,kyotoOuterCourseOffset,KYOTO_INNER} from './kyoto-
  * Track-side positions are outside the outermost turf rail at all cuts.
  */
 export const RACE_SHOT_LIST=Object.freeze([
- Object.freeze({id:'start',until:.075,kicker:'01 / START',label:'スタート',subjects:'all',side:28,ahead:35,height:8,fov:31}),
- Object.freeze({id:'first-corner',until:.29,kicker:'02 / POSITION',label:'1コーナー 位置どり',subjects:'pack',side:31,ahead:12,height:9,fov:28}),
+ Object.freeze({id:'start',until:.075,kicker:'01 / START',label:'スタート',subjects:'all',side:29,ahead:32,height:8,fov:22}),
+ Object.freeze({id:'first-corner',until:.29,kicker:'02 / POSITION',label:'1コーナー 位置どり',subjects:'pack',side:31,ahead:12,height:9,fov:26}),
  Object.freeze({id:'third-entry',until:.67,kicker:'03 / ATTACK ZONE',label:'3コーナー進入',subjects:'frontpack',side:34,ahead:58,height:9.5,fov:26}),
- Object.freeze({id:'fourth-turn',until:.84,kicker:'04 / THE MOVE',label:'4コーナー 仕掛け',subjects:'leaders',side:34,ahead:28,height:8,fov:26}),
+ Object.freeze({id:'fourth-turn',until:.84,kicker:'04 / THE MOVE',label:'4コーナー 仕掛け',subjects:'leaders',side:34,ahead:28,height:8,fov:21}),
  Object.freeze({id:'finish',until:Infinity,kicker:'05 / FINISH',label:'ゴール前',subjects:'finish',side:31,ahead:0,height:6.8,fov:21})
 ]);
 export function chooseRaceShot(progress,cuts=RACE_SHOT_LIST.map(s=>s.until)){
@@ -38,7 +38,7 @@ function projectPoint(q,pos,look,fov,aspect){
 function pickSubjects(shot,order,distance){
  if(shot.subjects==='all')return order.slice();
  const lead=order[0],gap=o=>(lead.p-o.p)*distance;
- if(shot.subjects==='pack')return order.filter((o,i)=>i<10||gap(o)<=17).slice(0,12);
+ if(shot.subjects==='pack')return order.slice(0,7).filter((o,i)=>i<6||gap(o)<=12);
  if(shot.subjects==='frontpack'){
   // Three-quarter entry from the outer rail: five foreground competitors.
   // The remaining pack is visible in depth behind, not framing the lens.
@@ -93,7 +93,7 @@ export function raceCameraPose({shot,progress,order,path,aspect=1,clock=Infinity
  const side=isGate?Math.max(shot.side,half+12):Math.max(shot.side||31,outsideNeeded);
  const a=Math.max(.48,Number(aspect)||1);
  const baseFov=shot.fov||28;
- const fov=isGate?(a>1.45?32:a<.85?51:39):
+ const fov=isGate?(a>1.45?24:a<.85?51:38):
   a>1.45?Math.max(16,baseFov-5):a<.85?Math.min(38,baseFov+6):baseFov;
  const height=shot.height||8;
  const setPose=scale=>{
@@ -138,7 +138,7 @@ export function raceCameraPose({shot,progress,order,path,aspect=1,clock=Infinity
  };
  // Zoom in to the actual competition, but back off only as much as needed
  // to keep the picture's selected 3–5 runners uncut.
- let scale=isGate?.75:1,pose,raw;
+ let scale=1,pose,raw;
  for(let i=0;i<35;i++){
   pose=setPose(scale);
   raw=imagePoints(pose).filter(p=>p.visible);
