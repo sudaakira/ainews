@@ -305,14 +305,15 @@ import {jockeyCap} from './core/jockey-caps.js?v=cap-v1';
  document.getElementById('horse-model-version').textContent='EQUINE v16 · SKELETAL GALLOP';
  const liveTitle=document.querySelector('.live-head strong');if(liveTitle)liveTitle.textContent+=' · v16';
  window.KYOTO_RENDER_STATUS={ready:true,model:'skinned-thoroughbred-v16',gait:'authored-skeletal-v16',venue:venueReady?'full':'fallback',
-  horses:models.length,camera:'outer-rail-front-3to5-ids',courseView:config.courseView,
+  horses:models.length,camera:'outside-rail-corrected-smooth-live-five-cuts',courseView:config.courseView,
   cinematic:true,saddleclothNames:true,goalBoard:!!goalBoard,gateDisappears:true,
   continuousRunOut:true,goalBoardSide:'far',furlongDigits:furlongPosts.map(x=>x.digit)};
  let cw=0,ch=0;
  function resize(){let w=stage.clientWidth,h=stage.clientHeight;if(!w||!h)return;if(w!==cw||h!==ch){cw=w;ch=h;renderer.setSize(w,h,false);camera.aspect=w/h;camera.updateProjectionMatrix()}}
  const tmp=new THREE.Vector3(),look=new THREE.Vector3(),desired=new THREE.Vector3();
- let first=true,lastFrame=0,frame=0,lastHud=0;
+ let first=true,lastFrame=0,frame=0,lastHud=0,lastCamClock=NaN;
  const smoothLook=new THREE.Vector3();
+ let smoothFov=50,smoothLensShift=0;
  // TV-style lightweight horse-number chips above the leading runners.
  // Camera perspective determines their locations; this does not change rankings.
  const leaderLabelLayer=document.createElement('div');
@@ -393,14 +394,32 @@ import {jockeyCap} from './core/jockey-caps.js?v=cap-v1';
   gateRoot.visible=clock<=Math.min(6,LIVE.duration*.055);
   const raceProgress=Math.min(1,Math.max(0,clock/LIVE.duration));
   const rate=+document.getElementById('live-rate').value;
-  // Four-cut broadcast camera and compact racing HUD.
-  // Does not touch horseProgress, standings or any forecast calculation.
+  // Five-cut outer-rail TV broadcast. Only the five edit points switch
+  // composition directly. Tracking, optical zoom and lens shift are damped.
+  // This affects presentation only, never the predicted order or horses.
   const shotDirection=cinematics.update({clock,progress:raceProgress,order,finishOrder:LIVE.rank,frameDt,camera,desired,look,rate});
-  // Framerate-independent camera tracking, responsive enough for 16x playback.
-  // Each requested cut switches directly. Tracking is smoothed within a shot.
-  const stableAlpha=1-Math.exp(-frameDt*(12+rate*2));
-  if(first||shotDirection?.cut){camera.position.copy(desired);smoothLook.copy(look);first=false}
-  else{camera.position.lerp(desired,stableAlpha);smoothLook.lerp(look,stableAlpha)}
+  const clockJump=Number.isFinite(lastCamClock)&&
+   (Math.abs(clock-lastCamClock)>Math.max(1.4,frameDt*rate*4)||clock<lastCamClock-.001);
+  lastCamClock=clock;
+  // Seeking/paused states render their requested position exactly; live
+  // footage moves with frame-rate-independent filters for no micro-jitters.
+  const snap=first||shotDirection?.cut||clockJump||!LIVE.playing;
+  const trackAlpha=1-Math.exp(-frameDt*(10+Math.min(16,rate)*.65));
+  const lensAlpha=1-Math.exp(-frameDt*(8+Math.min(16,rate)*.50));
+  if(snap){
+   camera.position.copy(desired);smoothLook.copy(look);
+   smoothFov=shotDirection.fov;smoothLensShift=shotDirection.lensShiftX;
+  }else{
+   camera.position.lerp(desired,trackAlpha);
+   smoothLook.lerp(look,trackAlpha);
+   smoothFov+=(shotDirection.fov-smoothFov)*lensAlpha;
+   smoothLensShift+=(shotDirection.lensShiftX-smoothLensShift)*lensAlpha;
+  }
+  first=false;
+  camera.fov=smoothFov;
+  camera.updateProjectionMatrix();
+  camera.projectionMatrix.elements[8]=smoothLensShift;
+  camera.projectionMatrixInverse.copy(camera.projectionMatrix).invert();
   camera.lookAt(smoothLook);
   camera.updateMatrixWorld();
   // Verify the opening camera actually frames every projected horse body.
@@ -477,7 +496,11 @@ import {jockeyCap} from './core/jockey-caps.js?v=cap-v1';
    cameraForwardDot:(camera.position.x-smoothLook.x)*path(1).dx+(camera.position.z-smoothLook.z)*path(1).dz,
    goalDepth,goalBehindHorses:goalDepth!==null&&goalDepth>farthestHorse,
    gallopPhase:models[0].gallopAudit?.phase,gallopLead:models[0].gallopAudit?.lead,gallopFlight:models[0].gallopAudit?.flight,gallopHoofs:models[0].gallopAudit?.hoofs,
-   cameraTrackingError:camera.position.distanceTo(desired)+smoothLook.distanceTo(look)};
+   cameraTrackingError:camera.position.distanceTo(desired)+smoothLook.distanceTo(look),
+   cameraRenderedFov:smoothFov,cameraRenderedLensShift:smoothLensShift,
+   cameraOuterRailClearance:window.RACE_CINEMATIC_DEBUG?.pose?.outerRailClearance,
+   cameraOutsideLane:window.RACE_CINEMATIC_DEBUG?.pose?.cameraLane,
+   cameraRailLane:window.RACE_CINEMATIC_DEBUG?.pose?.railLane};
   renderer.render(scene,camera);
  }
  animate();
