@@ -1,4 +1,4 @@
-import {kyotoPath,kyotoHeight,KYOTO_INNER,runnerLane} from './assets/kyoto-course.js?v=kyoto-v11-1';
+import {kyotoPath,kyotoHeight,KYOTO_INNER,runnerLane,kyotoOuterCourseOffset} from './assets/kyoto-course.js?v=kyoto-v12';
 
 /* True WebGL 3D horses and racecourse. CDN failure retains the self-contained SVG view. */
 import {jockeyCap} from './core/jockey-caps.js?v=cap-v1';
@@ -136,7 +136,7 @@ import {jockeyCap} from './core/jockey-caps.js?v=cap-v1';
   ribbon(()=>0,75,turf);
   ribbon(()=>40,22,new THREE.MeshLambertMaterial({color:0xc5a77d,side:THREE.DoubleSide}),.96);
   // Outer bend separates from the inner at 3C and rejoins at 4C.
-  const outer=t=>{const u=(t-.51)/(.836-.51);return u>0&&u<1?-38*Math.sin(Math.PI*u):0};
+  const outer=kyotoOuterCourseOffset;
   ribbon(outer,27,turf);
   const outerPts=[];for(let i=0;i<=500;i++){const t=i/500*trackEnd;outerPts.push(offsetPoint(t,outer(t)-14,.9))}
   const curve=new THREE.CatmullRomCurve3(outerPts),rail=new THREE.Mesh(new THREE.TubeGeometry(curve,1000,.08,5),white);scene.add(rail);
