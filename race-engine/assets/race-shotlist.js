@@ -267,6 +267,19 @@ export function raceCameraPose({shot,progress,order,path,aspect=1,clock=Infinity
    result.leadNoseViewportTarget=clamp(result.leadNoseViewportTarget-shift,.20,.80);
    result.forwardGap=Math.min(result.leadNoseViewportTarget,1-result.leadNoseViewportTarget);
   }
+  // The cut can be entered directly at any progress (seek/deep link).
+  // Reconcile the REAL leader's projected nose at this exact entry point;
+  // the precomposed arc alone assumes an earlier cut entrance.
+  const q=path(lead.p),lane=runnerLane(lead.no,order.length,progress);
+  const nose={x:q.x-q.dz*lane+q.dx*2,y:q.y+2,z:q.z+q.dx*lane+q.dz*2};
+  const projected=projectPoint(nose,result.position,result.look,result.fov,a);
+  if(projected.visible){
+   const actual=.5+.5*(projected.x-result.lensShiftX);
+   const correction=actual-clamp(actual,.24,.76);
+   result.lensShiftX+=2*correction;
+   result.leadNoseViewportTarget=clamp(result.leadNoseViewportTarget-correction,.20,.80);
+   result.forwardGap=Math.min(result.leadNoseViewportTarget,1-result.leadNoseViewportTarget);
+  }
  }
  return result;
 }
