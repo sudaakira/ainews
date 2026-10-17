@@ -37,8 +37,15 @@ export function raceCameraPose({shot,progress,order,path,aspect=1,clock=Infinity
  if(!lead)return {position:{x:0,y:9,z:40},look:{x:0,y:2,z:0},fov:39,side:40,subjects:[],lensShiftX:0,mode:'empty'};
  const isGate=shot.id==='start'&&clock<=1.8;
  const outerSign=direction==='左'?1:-1;
- const maxGap=Math.min(19,distance*.0095);
- let group=isGate?order.slice():order.slice(0,5).filter((o,i)=>i<3||(lead.p-o.p)*distance<=maxGap);
+ const maxGap=Math.min(16,distance*.008);
+ const firstFive=order.slice(0,5);
+ let group=isGate?order.slice():firstFive.filter((o,i)=>{
+  const gap=(lead.p-o.p)*distance;
+  if(i<3)return true;
+  if(i===3)return gap<=maxGap;
+  // Show fifth place only while it is genuinely disputing the first four.
+  return gap<=11&&(firstFive[3].p-o.p)*distance<=2.6;
+ });
  // Positions in this simulator have no measured lateral running telemetry.
  // We do not pretend sixth place is running wide, but reveal it immediately
  // after it joins the first five. Five is the maximum size of the live closeup.
@@ -64,7 +71,7 @@ export function raceCameraPose({shot,progress,order,path,aspect=1,clock=Infinity
  const ahead=isGate?32:shot.id==='third-turn'?4:shot.id==='second-turn'?2:0;
  const height=isGate?8.5:shot.id==='third-turn'?9.1:7.2;
  const a=Math.max(.48,Number(aspect)||1);
- const fov=isGate?43:a>1.45?20:a<.85?34:29;
+ const fov=isGate?43:a>1.45?16.5:a<.85?27:23;
  const poseAt=(scale)=>{
   const lateral=outerSign*side*scale,forward=ahead*scale;
   return {position:{x:focus.x+track.dz*lateral+track.dx*forward,
