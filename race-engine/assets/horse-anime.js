@@ -112,5 +112,5 @@ export function createRaceHorse(T,scene,h,silkHex,frameCapHex='#89929b',frameCap
  }
  const shadow=new T.Mesh(new T.CircleGeometry(1,24),new T.MeshBasicMaterial({color:0x172c19,transparent:true,opacity:.22,depthWrite:false,side:T.DoubleSide}));shadow.rotation.x=-Math.PI/2;shadow.position.y=.015;shadow.scale.set(.46,1.23,1);root.add(shadow);
  scene.add(root);
- return {root,anim,rider,headRig,tailRig,legs,ears,maneStrands,tailStrands,flutter:null,sprite:null,shadow,artDirection:'thoroughbred-cel-v11',gallopRig:'four-beat-ik-v1'};
+ return {root,anim,rider,headRig,tailRig,legs,ears,maneStrands,tailStrands,flutter:null,sprite:null,shadow,artDirection:'thoroughbred-cel-v11',gallopRig:'muybridge-four-segment-v14'};
 }
