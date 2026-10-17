@@ -57,35 +57,38 @@ try{
    console.log('OPENING_CAMERA_CHECK',JSON.stringify({vp,opening:openingAudit.audit,gate:openingAudit.gate,poseMode:openingAudit.pose?.mode}));
    assert.ok(openingAudit.audit?.opening>=openingAudit.audit?.total-2,
     'opening gate needs nearly all horses visible: '+JSON.stringify(openingAudit));
-   const checks=[[.05,'start'],[(cuts[0]+cuts[1])/2,'second-turn'],[.57,'third-turn'],[.999,'straight']];
+   const checks=[[.04,'start'],[.18,'first-corner'],[.56,'third-entry'],[.77,'fourth-turn'],[.999,'finish']];
    for(const [p,id] of checks){
     await seek(Math.round(p*1000));
     await page.waitForFunction(shot=>window.RACE_SCENE_AUDIT?.shot===shot,id,{timeout:10000});
     await page.waitForFunction(()=>window.RACE_SCENE_AUDIT?.cameraTrackingError<.2,null,{timeout:10000});
     const state=await page.evaluate(()=>({director:window.RACE_CINEMATIC_DEBUG,scene:window.RACE_SCENE_AUDIT}));
-    assert.equal(state.director.scriptedCuts,4);
+    assert.equal(state.director.scriptedCuts,5);
     assert.equal(state.scene.leadersOccluded,0,'buildings never occlude leading horses');
-    assert.equal(state.director.pose.mode,'outer-rail-3to5','race broadcast must follow leading 3-5 from outside rail');
+    assert.equal(state.director.pose.mode,'outer-rail-'+id,'outside-rail camera composition must match cut');
     assert.equal(state.director.pose.outerRailSign,-1);
     assert.ok(state.director.pose.fov<=34,'leader shot should use the tighter telephoto camera');
-    if(id==='third-turn'||id==='straight'){
+    if(id==='fourth-turn'||id==='finish'){
      const visibleLabels=await page.locator('#race-front-labels b:visible').count();
-     assert.ok(visibleLabels>=(id==='third-turn'?2:1)&&visibleLabels<=5,
+     assert.ok(visibleLabels>=(id==='fourth-turn'?2:1)&&visibleLabels<=5,
        'show visible leader IDs; only in-frame labels at the finish: '+visibleLabels);
     }
-    assert.ok(state.director.pose.subjects.length>=3&&state.director.pose.subjects.length<=5,
-     'front 3-5 horses must stay in the picture');
+    const expectedSubjects=id==='start'?[17,17]:id==='first-corner'?[10,12]:
+     id==='third-entry'?[6,8]:id==='fourth-turn'?[4,5]:[3,4];
+    assert.ok(state.director.pose.subjects.length>=expectedSubjects[0]&&
+     state.director.pose.subjects.length<=expectedSubjects[1],
+     'subject count '+id+': '+state.director.pose.subjects.length+' expected '+expectedSubjects);
     assert.equal(state.director.pose.aheadScreenSide,'right','Kyoto outer-rail camera sees race advance rightward');
     assert.ok(state.director.pose.outerRailClearance>=11.9,'camera physically beyond Kyoto outermost rail');
     assert.ok(state.scene.leadVisible,'leader visible while tracking the five-horse contest');
     assert.ok(state.scene.leadScreenX>=.08&&state.scene.leadScreenX<=.94,
      'leader should remain in the group frame: '+state.scene.leadScreenX);
     assert.ok(state.director.pose.side>=24,'camera outside track with safe lateral elevation');
-    if(id==='third-turn'){
+    if(id==='third-entry'){
      assert.ok(state.director.pose.position.y-state.director.pose.look.y<15);
      assert.ok(state.scene.positions.some(q=>q.y>1),'horses climb Kyoto hill');
     }
-    if(id==='straight'){
+    if(id==='finish'){
      const end=await page.evaluate(()=>window.RACE_SCENE_AUDIT);
      assert.equal(end.gateVisible,false);
      assert.ok(Math.abs(end.cameraForwardDot)<.05,'straight must be an outer-rail lateral broadcast');
@@ -132,7 +135,7 @@ try{
    before.positions.forEach((a,i)=>{
     const b=after.scene.positions[i];assert.ok(Math.hypot(b.x-a.x,b.z-a.z)>.1,'horse '+(i+1)+' moves through the line');
    });
-   assert.equal(after.scene.shot,'straight','no fifth camera cut at result');
+   assert.equal(after.scene.shot,'finish','no sixth camera cut after result');
    await page.waitForFunction(()=>document.querySelectorAll('.cinema-podium-row').length===3,null,{timeout:12000});
    const expected=await page.evaluate(()=>window.KYOTO_RACE.LIVE.rank.slice(0,3).map(String));
    assert.deepEqual(await page.locator('.cinema-result-cap').allTextContents(),expected);
@@ -149,11 +152,11 @@ try{
    await page.locator('#live-reset').click();
    await page.waitForFunction(()=>window.RACE_SCENE_AUDIT?.gateVisible&&window.RACE_CINEMATIC_DEBUG?.shot==='start',null,{timeout:10000});
    assert.equal(await page.locator('.cinema-podium-row').count(),0);
-   console.log('PASS four cuts, far-side board, all-horse continuous run-out, pause/resume/reset',vp);
+   console.log('PASS five cuts, far-side board, all-horse continuous run-out, pause/resume/reset',vp);
   }else{
    await seek(999);
    await page.waitForFunction(()=>window.RACE_SCENE_AUDIT?.goalInFrame,null,{timeout:10000});
-   await page.screenshot({path:'/tmp/race-mobile-shots/shuka-'+vp.width+'-straight.png'});
+   await page.screenshot({path:'/tmp/race-mobile-shots/shuka-'+vp.width+'-finish.png'});
   }
   assert.deepEqual(errors,[],'no JavaScript errors');
   console.log('PASS mobile/desktop WebGL and viewport controls',vp);
