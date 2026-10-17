@@ -1,6 +1,6 @@
 import {raceCommentary,ANNOUNCER_SVG} from './race-commentary.js?v=kyoto-v11-1';
 /** Clean cel-racing broadcast. All positions and results are read from the shared engine. */
-import {chooseRaceShot,courseShotCuts,raceCameraPose} from './race-shotlist.js?v=outer-rail-v6';
+import {chooseRaceShot,courseShotCuts,raceCameraPose} from './race-shotlist.js?v=outer-rail-v7-five-cuts';
 import {finishCrossings,playbackRate} from './race-playback.js?v=kyoto-v11-1';
 
 export function createRaceCinematics({THREE,scene,stage,models,config,capFor,path,route,routeLength}){
@@ -90,7 +90,11 @@ export function createRaceCinematics({THREE,scene,stage,models,config,capFor,pat
   const remaining=Math.max(0,Math.ceil(config.distance*(1-p)/10)*10);
   meters.textContent=remaining?String(remaining):'GOAL';metersLabel.textContent=remaining?'m':'';
   speedLabel.textContent=playbackRate(rate,clock,duration)+'×'+(runningOut?' 走り抜け':'');
-  subtitle.textContent=clock<=0?'まもなく発走':runningOut?'ゴール後も走り抜け':shot.id==='third-turn'?'坂を越えて勝負所へ':'自動カメラ';
+  subtitle.textContent=clock<=0?'まもなく発走':runningOut?'ゴール後も走り抜け':
+   shot.id==='first-corner'?'1コーナーへ向けた位置どり':
+   shot.id==='third-entry'?'3コーナーへ進入、隊列を確認':
+   shot.id==='fourth-turn'?'4コーナーで各馬が仕掛ける勝負所':
+   shot.id==='finish'?'ゴール前の先頭争い':'スタート直後';
   const call=raceCommentary({clock,progress:p,order,horses:config.horses,crossed,distance:config.distance,venue:config.venue,surface:config.surface});
   // Hold each caption long enough to read, even at 16x. Finish/seek supersedes it.
   const now=performance.now(),seeked=Math.abs(clock-previousClock)>3||clock<previousClock;
@@ -146,8 +150,8 @@ export function createRaceCinematics({THREE,scene,stage,models,config,capFor,pat
    dummy.scale.setScalar(size);dummy.updateMatrix();chips.setMatrixAt(j,dummy.matrix);
   }
   chips.instanceMatrix.needsUpdate=true;
-  window.RACE_CINEMATIC_DEBUG={shot:shot.id,progress:p,rate,cut,scriptedCuts:4,
-   mode:'kyoto-leaders-commentary',cuts,position:shot.label,runOut:runningOut,crossed:crossed.length,
+  window.RACE_CINEMATIC_DEBUG={shot:shot.id,progress:p,rate,cut,scriptedCuts:5,
+   mode:'kyoto-five-cut-broadcast',cuts,position:shot.label,runOut:runningOut,crossed:crossed.length,
    sideOn:shot.ahead===0,pose};
   return {cut,shot:shot.id};
  }
