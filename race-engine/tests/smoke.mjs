@@ -316,6 +316,22 @@ assert.match(cinemaJS,/lockedRig/);
 assert.match(cinemaJS,/mustRebase/);
 console.log('iPhone five cuts: 400+ smooth course-relative locked bearings, zero zoom jitter, leader always visible ✓');
 
+// The finish replay runs beyond p=1; its bearing must never reverse.
+{
+ const start=.84,group=p=>Array.from({length:17},(_,i)=>({no:i+1,p:p-i*.0022}));
+ const base=raceCameraPose({shot:chooseRaceShot(start),progress:start,
+  order:group(start),clock:120*start,path:cameraKyotoPath,aspect:.54});
+ const rig={pose:base,startLeaderProgress:start};
+ let prev=0;
+ for(let p=1;p<=1.14;p+=.004){
+  const f=followLockedCameraPose(rig,group(p),cameraKyotoPath,{distance:2000,venue:'京都'});
+  const angle=f.cameraTrackYaw;
+  assert.ok(Math.abs(Math.atan2(Math.sin(angle-prev),Math.cos(angle-prev)))<.1,
+   'finish replay must not turn camera 180 degrees after crossing the line');
+  assert.ok(f.outerRailClearance>=14.9);
+  prev=angle;
+ }
+}
 const startingOrder=Array.from({length:17},(_,i)=>({no:i+1,p:0}));
 for(const aspect of [.58,.76,1.8]){
  const pose=raceCameraPose({shot:RACE_SHOT_LIST[0],progress:0,clock:0,
