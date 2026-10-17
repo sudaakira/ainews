@@ -270,7 +270,9 @@ for(const p of [.10,.4,.59,.66,.73,.82,.94,.999])for(const aspect of [.58,.76,1.
  assert.ok(pose.forwardGap>=.19&&pose.forwardGap<=.5,'>=19% uncluttered space ahead');
  assert.ok(pose.outerRailClearance>=11.9,'camera OUTSIDE the actual outer-course rail');
  assert.ok(pose.shotPerspective.startsWith('outside-'),'camera is always outside');
- const maxGroupWidth=shot.id==='first-corner'?1.63:1.51;
+ // Wide-field shots deliberately cover 12-17 runners rather than the old 3-5.
+  // Their valid full-frame projection can occupy up to 95% of the image width.
+  const maxGroupWidth=shot.id==='backstretch'||shot.id==='fourth-turn'?1.91:shot.id==='first-corner'?1.63:1.51;
  assert.ok(pose.projectedWidth<maxGroupWidth,
   'selected group must fit the shot-specific safe area: '+shot.id+' width '+pose.projectedWidth);
  const leader=order[0],q=cameraKyotoPath(leader.p),lane=cameraRunnerLane(leader.no,17,p);
