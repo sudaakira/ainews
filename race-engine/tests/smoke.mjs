@@ -93,7 +93,12 @@ for(const id of ['swan-2026','sample-demo','tokyo-20261012-11','tokyo-20261012-1
   assert.equal(config.provisionalDraw,false);
   assert.equal(config.seed,20261016);
   assert.equal(config.asOf,'2026-10-16T19:08:00+09:00');
-  assert.equal(config.defaultPace,1);
+  assert.equal(config.defaultPace,0);
+   assert.equal(config.defaultBias,"front");
+   assert.equal(config.defaultVol,5);
+   assert.equal(config.defaultPlaybackRate,8);
+   assert.equal(config.weather17.cushion,10.8);
+   assert.equal(config.weather17.turfMoisture4CPct,7.7);
   assert.equal(config.defaultSimulations,50000);
   assert.equal(config.horses.filter(h=>h.name==='スマートプリエール').length,0);
   assert.equal(config.withdrawn[0].name,'スマートプリエール');
