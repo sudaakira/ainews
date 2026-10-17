@@ -13,55 +13,41 @@ export function chooseRaceShot(progress,cuts=RACE_SHOT_LIST.map(s=>s.until)){
 export function courseShotCuts(route,routeLength,config){
  return config.venue==='京都'&&config.distance===2000&&config.surface==='芝'?[...KYOTO_CUTS]:[.18,.52,.80,Infinity];
 }
-export function raceCameraPose({shot,progress,order,path,aspect=1}){
- const full=shot.id==='start',group=full?order:order.slice(0,shot.id==='straight'&&aspect<1?3:5);
- const p=(group[0].p+group.at(-1).p)/2,heading=path(p);
- const field=group.map(o=>{const q=path(o.p),lane=runnerLane(o.no,order.length,progress);return {x:q.x-q.dz*lane,y:q.y,z:q.z+q.dx*lane}});
- const focus={...heading,x:(Math.min(...field.map(q=>q.x))+Math.max(...field.map(q=>q.x)))/2,z:(Math.min(...field.map(q=>q.z))+Math.max(...field.map(q=>q.z)))/2};
- let side=shot.side,height=shot.height,ahead=shot.ahead;
- // Fit only the selected leaders. Camera-space fit respects perspective and
- // narrow phones without reverting to a bird's-eye field-wide composition.
- const norm=Math.hypot(side,ahead),rx=(heading.dx*side-heading.dz*ahead)/norm,rz=(heading.dz*side+heading.dx*ahead)/norm;
- const horizontal=field.map(q=>(q.x-focus.x)*rx+(q.z-focus.z)*rz);
- const cx=(heading.dz*side+heading.dx*ahead)/norm,cz=(-heading.dx*side+heading.dz*ahead)/norm;
- const tan=Math.tan(shot.fov*Math.PI/360)*Math.max(.42,aspect);
- const fit=Math.max(...field.map((q,i)=>(Math.abs(horizontal[i])+1.9)/tan+(q.x-focus.x)*cx+(q.z-focus.z)*cz));
- let scale=Math.max(1,fit/norm);
- // Leave ~20% clear to the LEFT of the leader in every tracking camera cut.
- // Solve using each horse's true perspective depth, not a flat world offset:
- // the forward-facing 3C shot foreshortens much more than a side-on camera.
- // Keep the entire starting-gate field centered at t=0.
- const leadViewportX=.20;
- if(!full){
-  const perspectiveDepth=(q,k)=>{
-   const ox=heading.dz*side*k+heading.dx*ahead*k;
-   const oz=-heading.dx*side*k+heading.dz*ahead*k;
-   const fy=1.35-height,flen=Math.hypot(ox,fy,oz);
-   // Forward = (-ox,fy,-oz), camera = focus+(ox,height,oz).
-   return ((q.x-focus.x-ox)*(-ox)+(q.z-focus.z-oz)*(-oz)+(q.y+1.35-height)*fy)/flen;
-  };
-  for(let attempt=0;attempt<16;attempt++){
-   const ld=Math.max(1,perspectiveDepth(field[0],scale));
-   const wantedLead=(1-2*leadViewportX)*ld*tan;
-   const shift=horizontal[0]-wantedLead;
-   const fits=field.every((q,i)=>{
-    const d=Math.max(1,perspectiveDepth(q,scale));
-    const viewportX=.5-(horizontal[i]-shift)/(2*d*tan);
-    // Reserve a small buffer for the horse body and riders.
-    const bodyMargin=Math.min(.09,1.9/(2*d*tan));
-    return viewportX>=bodyMargin&&viewportX<=1-bodyMargin;
-   });
-   if(fits||attempt===15){
-    focus.x+=rx*shift;
-    focus.z+=rz*shift;
-    break;
-   }
-   scale*=1.22;
-  }
+/** Camera framing contract:
+ * Opening gate: wide establishing shot for the first four race seconds.
+ * Once running: a tight three-quarter/side tracking lens, keeping the LEADING
+ * horse in the left 22% of the projection with the ground visible ahead.
+ * Never dolly outward merely to include the back of the field.
+ */
+export function raceCameraPose({shot,progress,order,path,aspect=1,clock=Infinity}){
+ const gate=shot.id==='start'&&clock<=4;
+ const leaders=order.slice(0,Math.min(3,order.length));
+ const leader=order[0];
+ if(!leader)return {position:{x:0,y:12,z:25},look:{x:0,y:1.7,z:0},fov:38,side:25,subjects:[],targetLeadViewportX:null,lensShiftX:0};
+ if(gate){
+  // Full field only when the stalls are still the subject of the picture.
+  const group=order,p=(group[0].p+group.at(-1).p)/2,heading=path(p);
+  const field=group.map(o=>{const q=path(o.p),lane=runnerLane(o.no,order.length,progress);return {x:q.x-q.dz*lane,y:q.y,z:q.z+q.dx*lane};});
+  const focus={...heading,x:(Math.min(...field.map(q=>q.x))+Math.max(...field.map(q=>q.x)))/2,z:(Math.min(...field.map(q=>q.z))+Math.max(...field.map(q=>q.z)))/2};
+  const side=25,height=7,ahead=0,fov=42;
+  const halfWidth=field.reduce((max,q)=>Math.max(max,Math.hypot(q.x-focus.x,q.z-focus.z)),0)+2;
+  const tan=Math.tan(fov*Math.PI/360)*Math.max(.42,aspect);
+  const distance=Math.max(side,halfWidth/tan);
+  return {position:{x:focus.x+heading.dz*distance,y:focus.y+height,z:focus.z-heading.dx*distance},
+   look:{x:focus.x,y:focus.y+1.7,z:focus.z},fov,side:distance,subjects:group.map(o=>o.no),
+   targetLeadViewportX:null,lensShiftX:0,mode:'establishing-gate'};
  }
- side*=scale;ahead*=scale;
- // Pan/dolly keep the same rail-side and low broadcast elevation.
- const point=(lateral,forward,y)=>({x:focus.x+heading.dz*lateral+heading.dx*forward,y:focus.y+y,z:focus.z-heading.dx*lateral+heading.dz*forward});
- return {position:point(side,ahead,height),look:point(0,0,1.35),fov:shot.fov,forward:{x:heading.dx,z:heading.dz},side,subjects:group.map(o=>o.no),
-  targetLeadViewportX:full?null:leadViewportX};
+ // Close-up distance is independent of fifth place and beyond.
+ const shotCamera=shot.id==='third-turn'?{side:17.5,ahead:12,height:5.6,fov:36}:
+  shot.id==='straight'?{side:20.5,ahead:0,height:5.3,fov:37}:
+  shot.id==='second-turn'?{side:19.5,ahead:4,height:5.2,fov:37}:
+  {side:19,ahead:0,height:5.3,fov:39};
+ const {side,ahead,height,fov}=shotCamera;
+ const heading=path(leader.p),lane=runnerLane(leader.no,order.length,progress);
+ const cx=heading.x-heading.dz*lane,cz=heading.z+heading.dx*lane;
+ const position={x:cx+heading.dz*side+heading.dx*ahead,y:heading.y+height,z:cz-heading.dx*side+heading.dz*ahead};
+ const look={x:cx,y:heading.y+1.85,z:cz};
+ // Off-axis projection keeps the leader near x=22.5%, even on corners.
+ return {position,look,fov,side,subjects:leaders.map(o=>o.no),
+  lensShiftX:.55,targetLeadViewportX:.225,mode:'tight-leader-follow'};
 }
