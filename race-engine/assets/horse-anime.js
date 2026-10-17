@@ -59,30 +59,34 @@ export function createRaceHorse(T,scene,h,silkHex,frameCapHex='#89929b',frameCap
   tailStrands.push({rig,phase:i*.31});
  }
  const legs=[];
- // Four articulated anatomical segments per limb, reproducing the reference
- // shoulder/antebrachium/cannon/pastern and thigh/crus/metatarsus/pastern.
- // Segment neutral axis is +Z; measured Muybridge angles are from +Z horizon.
+ // v15: the skeleton consists of continuous, non-overextended anatomical
+ // joints. Segment endpoints move in the horse sagittal plane (Y,Z).
+ // Never rotate four independent sticks around the hip; that was the crab bug.
  for(const front of [true,false])for(const side of [-1,1]){
-  const segmentLengths=front?[.440,.434,.287,.130]:[.460,.434,.353,.135];
-  const pivot=new T.Group();pivot.position.set(side*.22,front?1.24:1.27,front?.38:-.66);anim.add(pivot);
-  const legCoat=side===-1?legShade:coat;
-  const joints=[pivot];
-  const radii=front?[[.11,.083],[.082,.049],[.043,.031],[.036,.027]]:
-                     [[.142,.113],[.106,.065],[.049,.033],[.037,.028]];
-  let parent=pivot;
+  const near=side===1,legCoat=near?coat:legShade;
+  const pivot=new T.Group();pivot.position.set(side*.23,front?1.34:1.37,front?.48:-.69);anim.add(pivot);
+  const radii=front?[[.115,.155],[.077,.095],[.040,.057],[.033,.046]]:
+     [[.145,.193],[.087,.137],[.044,.061],[.035,.052]];
+  const segments=[];
   for(let i=0;i<4;i++){
-   const L=segmentLengths[i],material=i===3?dark:i===2&&h.no%3!==0?white:legCoat;
-   bone(parent,material,[0,0,0],[0,0,L],radii[i][0],radii[i][1]);
-   if(i===0){const muscle=ell(parent,legCoat,0,0,L*.32,front?.095:.135,front?.105:.145,L*.36);muscle.rotation.x=.1}
-   if(i<3){
-    const next=new T.Group();next.position.z=L;parent.add(next);
-    ell(next,legCoat,0,0,0,i===0?.062:.041,i===0?.064:.043,i===0?.068:.046);
-    joints.push(next);parent=next;
-   }
+   const [top,bottom]=radii[i];
+   const material=i===3?dark:(i===2&&h.no%3!==0?white:legCoat);
+   const mesh=new T.Mesh(new T.CylinderGeometry(top,bottom,1,10,1),material);
+   anim.add(mesh);segments.push(mesh);
   }
-  ell(parent,hoof,0,0,segmentLengths[3]+.032,.054,.041,.092);
-  legs.push({pivot,knee:joints[1],hoofRig:joints[3],joints,
-    segmentLengths,front,side,upper:segmentLengths[0],lower:segmentLengths[1]});
+  const knuckles=[];
+  for(let i=0;i<3;i++){
+   const p=ell(anim,near?coat:legShade,side*.23,.6,0,
+      (front?[.105,.068,.048]:[.15,.085,.050])[i],
+      (front?[.103,.069,.052]:[.143,.088,.054])[i],
+      (front?[.116,.072,.055]:[.150,.093,.060])[i]);
+   knuckles.push(p);
+  }
+  // The hooves are solid masses, not point-size beads at the end of a wire.
+  const hoofMesh=ell(anim,hoof,side*.23,.055,0,.077,.058,.117);
+  const fetlockTuft=ell(anim,dark,side*.23,.15,0,.054,.058,.056);
+  legs.push({pivot,front,side,segments,knuckles,hoofMesh,fetlockTuft,
+    x:side*.23,coat:legCoat});
  }
  ell(anim,leather,0,1.64,-.10,.29,.055,.34);
  // Each flank has its own legible saddlecloth and reins, without floating labels.
@@ -112,5 +116,5 @@ export function createRaceHorse(T,scene,h,silkHex,frameCapHex='#89929b',frameCap
  }
  const shadow=new T.Mesh(new T.CircleGeometry(1,24),new T.MeshBasicMaterial({color:0x172c19,transparent:true,opacity:.22,depthWrite:false,side:T.DoubleSide}));shadow.rotation.x=-Math.PI/2;shadow.position.y=.015;shadow.scale.set(.46,1.23,1);root.add(shadow);
  scene.add(root);
- return {root,anim,rider,headRig,tailRig,legs,ears,maneStrands,tailStrands,flutter:null,sprite:null,shadow,artDirection:'thoroughbred-cel-v11',gallopRig:'muybridge-four-segment-v14'};
+ return {root,anim,rider,headRig,tailRig,legs,ears,maneStrands,tailStrands,flutter:null,sprite:null,shadow,artDirection:'thoroughbred-cel-v11',gallopRig:'anatomical-endpoint-v15'};
 }
