@@ -1,6 +1,6 @@
 import {raceCommentary,ANNOUNCER_SVG} from './race-commentary.js?v=kyoto-v11-1';
 /** Clean cel-racing broadcast. All positions and results are read from the shared engine. */
-import {chooseRaceShot,courseShotCuts,raceCameraPose} from './race-shotlist.js?v=leader-broadcast-v3';
+import {chooseRaceShot,courseShotCuts,raceCameraPose} from './race-shotlist.js?v=outer-rail-v1';
 import {finishCrossings,playbackRate} from './race-playback.js?v=kyoto-v11-1';
 
 export function createRaceCinematics({THREE,scene,stage,models,config,capFor,path,route,routeLength}){
@@ -10,7 +10,7 @@ export function createRaceCinematics({THREE,scene,stage,models,config,capFor,pat
  const ui=document.createElement('div');ui.id='race-cinematic-overlay';
  ui.setAttribute('aria-live','off');
  ui.innerHTML='<div class="cinema-phase"><span class="cinema-phase-kicker"></span><strong id="cinema-phase-title"></strong><span id="cinema-phase-sub"></span></div>'+
-  '<div class="race-distance"><strong id="race-meters">'+config.distance+'</strong><span id="race-meters-label">m</span><small id="race-speed-label">16×</small></div>'+
+  '<div class="race-distance"><strong id="race-meters">'+config.distance+'</strong><span id="race-meters-label">m</span><small id="race-speed-label">8×</small></div>'+
   '<div class="cinema-finish" id="cinema-finish"><small>仮想レース結果</small><div class="cinema-podium" id="cinema-podium"></div></div>'+
   '<div id="race-arrival" aria-live="polite"></div>'+
   '<div class="race-tracking"><div class="tracking-meta"><span id="tracking-caption">スタート待機</span><span>← 先頭</span></div><div id="race-tracking-field"></div></div>';
@@ -81,9 +81,9 @@ export function createRaceCinematics({THREE,scene,stage,models,config,capFor,pat
  const perHorse=3,chips=new THREE.InstancedMesh(new THREE.PlaneGeometry(.11,.20),
   new THREE.MeshBasicMaterial({color:0x93c15b,transparent:true,opacity:.7,side:THREE.DoubleSide,depthWrite:false}),models.length*perHorse);
  chips.frustumCulled=false;scene.add(chips);const dummy=new THREE.Object3D();
- let lastShot='',lastOrder='',lastResult='',lastCrossed=-1;
+ let lastShot='',lastMode='',lastOrder='',lastResult='',lastCrossed=-1;
  function update({clock,progress,order,finishOrder,frameDt,camera,desired,look,rate}){
-  const p=Math.max(0,Math.min(1,progress)),shot=chooseRaceShot(p,cuts),cut=shot.id!==lastShot;
+  const p=Math.max(0,Math.min(1,progress)),shot=chooseRaceShot(p,cuts);let cut=shot.id!==lastShot;
   if(cut){ui.dataset.shot=shot.id;kicker.textContent=shot.kicker;phaseTitle.textContent=shot.label;lastShot=shot.id;}
   const crossed=finishCrossings(finishOrder,clock,duration),runningOut=clock>duration;
   ui.dataset.phase=clock<=0?'gate':runningOut?'run-out':shot.id;
@@ -127,8 +127,9 @@ export function createRaceCinematics({THREE,scene,stage,models,config,capFor,pat
   const at=route.getPointAtLength(d);
   routeDot.setAttribute('cx',String(at.x.toFixed(1)));routeDot.setAttribute('cy',String(at.y.toFixed(1)));
   locText.textContent=runningOut?'ゴール':shot.label;
-  const pose=raceCameraPose({shot,progress:p,order,path,aspect:camera.aspect,clock});
-  desired.set(pose.position.x,pose.position.y,pose.position.z);look.set(pose.look.x,pose.look.y,pose.look.z);
+  const pose=raceCameraPose({shot,progress:p,order,path,aspect:camera.aspect,clock,direction:config.direction,distance:config.distance});
+  if(pose.mode!==lastMode){cut=true;lastMode=pose.mode;}
+   desired.set(pose.position.x,pose.position.y,pose.position.z);look.set(pose.look.x,pose.look.y,pose.look.z);
   camera.fov=pose.fov;camera.updateProjectionMatrix();
    // Shift the optical axis rather than extending the field-wide shot.
    camera.projectionMatrix.elements[8]=pose.lensShiftX||0;
