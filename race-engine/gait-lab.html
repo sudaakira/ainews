@@ -55,6 +55,22 @@ try{
  const $=id=>document.getElementById(id);
  let playing=true,elapsed=0,last=0;
  const footNames=['左前','右前','左後','右後'];
+ // Stable browser inspection API for actual Three.js model checks.
+ window.EQUINE_GAIT_LAB={
+  version:'v15',
+  seek(phase){
+   playing=false;$('play').textContent='▶ 再生';
+   if(model.gaitState)model.gaitState.phase=((phase%1)+1)%1;
+  },
+  snapshot(){
+   return {phase:model.gallopAudit?.phase,lead:model.gallopAudit?.lead,
+    hoofs:model.gallopAudit?.hoofs,rig:model.gallopRig,
+    segments:model.legs.map(l=>l.segments.map(s=>({
+      x:s.position.x,y:s.position.y,z:s.position.z,length:s.scale.y
+    })))};
+  }
+ };
+
  function setCamera(){
   const c=$('camera').value;
   camera.position.set(c==='side'?7:c==='front'?0:6,c==='front'?2.45:3.15,c==='side'?0:c==='front'?7:5.8);
