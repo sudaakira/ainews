@@ -1,6 +1,6 @@
 <!doctype html>
 <html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>競走馬ギャロップ検証 | MOTION v13</title>
+<title>競走馬ギャロップ検証 | EQUINE v14</title>
 <style>
 *{box-sizing:border-box}body{margin:0;background:#edf4e9;color:#183b30;font:15px -apple-system,BlinkMacSystemFont,"Hiragino Kaku Gothic ProN",sans-serif}
 header,main{max-width:990px;margin:auto;padding:14px}header h1{margin:4px 0;font-size:clamp(21px,4vw,31px)}
@@ -19,7 +19,7 @@ select{background:#ecf4f3;color:#1c5049;border:1px solid #b5d2c9}
 #phase-label{font-weight:800;margin:9px 0}
 @media(max-width:480px){.legend{gap:3px}.foot{font-size:11px}.controls{gap:5px}.controls button,.controls select{padding:10px 8px;min-width:0;flex:1;font-size:12px}}
 </style></head><body>
-<header><a href="./?race=shuka-2026&motion=v13">← レース本編へ</a><h1>🐎 ギャロップ4拍子・動作検証 v13</h1>
+<header><a href="./?race=shuka-2026&motion=v14">← レース本編へ</a><h1>🐎 ギャロップ4拍子・動作検証 v14</h1>
 <p>本編と同じ馬モデル・同じアニメーションモジュールを使用。左右の脚が同時に動いていないか、1コマずつ確認できます。</p></header>
 <main><div class="panel">
 <div id="stage"></div>
@@ -31,14 +31,14 @@ select{background:#ecf4f3;color:#1c5049;border:1px solid #b5d2c9}
 </div>
 <div class="phase"><div id="marker"></div></div>
 <p id="phase-label">ロード中...</p><div class="legend" id="legend"></div>
-<p class="small">接地順：非先導後肢 → 先導後肢 → 非先導前肢 → 先導前肢 → 空中浮遊。演出用の手続き型動作です。</p>
+<p class="small">12コマの実測関節角度に基づくモーション。接地順：非先導後肢 → 先導後肢 → 非先導前肢 → 先導前肢 → 空中浮遊。演出用の手続き型動作です。</p>
 <div id="error" style="color:#b23637" role="alert"></div>
 </div></main>
 <script type="module">
 try{
  const T=await import('./vendor/three.module.js');
- const {createRaceHorse}=await import('./assets/horse-anime.js?v=distinct-v13');
- const {updateGallop,sampleGallop}=await import('./assets/chibi-gallop.js?v=distinct-v13');
+ const {createRaceHorse}=await import('./assets/horse-anime.js?v=equine-v14');
+ const {updateGallop,sampleGallop}=await import('./assets/chibi-gallop.js?v=equine-v14');
  const stage=document.getElementById('stage');
  const scene=new T.Scene();scene.background=new T.Color(0xc6e5f5);
  const camera=new T.PerspectiveCamera(37,1,.1,100);
@@ -78,9 +78,9 @@ try{
   const audit=model.gallopAudit,feet=sampleGallop(audit.phase,lead==='right'?1:-1);
   $('marker').style.left=(audit.phase*100).toFixed(1)+'%';
   $('phase-label').textContent='1ストライド '+(audit.phase*100).toFixed(0)+'%｜'+
-   (feet.some(x=>x.contact)?'4肢が順に接地・蹴り出し中':'空中浮遊｜全蹄離地');
+   (feet.some(x=>x.hoofY<.10)?'4肢の着地・蹴り出し':'空中浮遊｜4肢を収縮');
   $('legend').innerHTML=feet.map((x,i)=>'<div class="foot '+(x.contact?'down':'up')+'"><b>'+footNames[i]+'</b>'+
-   (x.contact?'● 接地':'○ 浮遊')+'</div>').join('');
+   (x.hoofY<.095?'● 地面付近':'○ 離地')+'</div>').join('');
   const w=stage.clientWidth,h=stage.clientHeight;
   if(renderer.domElement.width!==Math.round(w*renderer.getPixelRatio())||
      renderer.domElement.height!==Math.round(h*renderer.getPixelRatio())){
