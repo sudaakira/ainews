@@ -8,8 +8,8 @@ import {KYOTO_CUTS,runnerLane,kyotoOuterCourseOffset,KYOTO_INNER} from './kyoto-
 export const RACE_SHOT_LIST=Object.freeze([
  Object.freeze({id:'start',until:.12,kicker:'01 / START',label:'スタート',subjects:'all',side:29,ahead:32,height:8,fov:22}),
  Object.freeze({id:'first-corner',until:.32,kicker:'02 / POSITION',label:'1コーナー 位置どり',subjects:'pack',side:31,ahead:12,height:6.4,fov:26}),
- Object.freeze({id:'backstretch',until:.67,kicker:'03 / BACKSTRETCH',label:'向こう正面 隊列',subjects:'field',side:40,ahead:0,height:6.3,fov:30}),
- Object.freeze({id:'fourth-turn',until:.84,kicker:'04 / THE MOVE',label:'4コーナー 仕掛け',subjects:'moves',side:38,ahead:46,height:6.5,fov:29}),
+ Object.freeze({id:'backstretch',until:.67,kicker:'03 / BACKSTRETCH',label:'向こう正面 隊列',subjects:'backstretch-pack',side:31,ahead:0,height:6.4,fov:26}),
+ Object.freeze({id:'fourth-turn',until:.84,kicker:'04 / THE MOVE',label:'4コーナー 仕掛け',subjects:'moves',side:38,ahead:115,height:6.5,fov:29}),
  Object.freeze({id:'finish',until:Infinity,kicker:'05 / FINISH',label:'ゴール前',subjects:'finish',side:31,ahead:0,height:6.8,fov:21})
 ]);
 export function chooseRaceShot(progress,cuts=RACE_SHOT_LIST.map(s=>s.until)){
@@ -37,6 +37,7 @@ function projectPoint(q,pos,look,fov,aspect){
 /** Shot-specific cast: all 17 at gate, front pack at corners, leaders at finish. */
 function pickSubjects(shot,order,distance,aspect){
  if(shot.subjects==='all'||shot.subjects==='field')return order.slice();
+ if(shot.subjects==='backstretch-pack')return order.slice(0,Math.min(order.length,aspect<.85?7:7));
  if(shot.subjects==='moves')return order.slice(0,Math.min(order.length,aspect<.85?12:15));
  const lead=order[0],gap=o=>(lead.p-o.p)*distance;
  if(shot.subjects==='pack')return order.slice(0,7).filter((o,i)=>i<6||gap(o)<=12);
@@ -97,9 +98,9 @@ export function raceCameraPose({shot,progress,order,path,aspect=1,clock=Infinity
  // A single continuous TV dolly needs rail clearance for the WHOLE cut,
  // including the full 38m outside flare of Kyoto's 3C/4C.
  const reserveBulge=(venue==='京都'&&distance===2000&&
-  (shot.id==='backstretch'||shot.id==='fourth-turn'))?38:0;
+  shot.id==='fourth-turn')?38:0;
  const outsideNeeded=Math.max(groupBulge,stationBulge,reserveBulge)+half+
-  (shot.id==='backstretch'?23:17);
+  17;
  const side=isGate?Math.max(shot.side,half+12):Math.max(shot.side||31,outsideNeeded);
  const a=Math.max(.48,Number(aspect)||1);
  const baseFov=shot.fov||28;
