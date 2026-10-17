@@ -302,7 +302,16 @@ for(const [start,end] of [[.085,.28],[.30,.66],[.68,.83],[.84,.99]]){
   const angle=camera.cameraTrackYaw,co=Math.cos(angle),si=Math.sin(angle);
   const target=[initial[0]*co-initial[2]*si,initial[1],initial[0]*si+initial[2]*co];
   const diff=vector(camera).map((v,i)=>Math.abs(v-target[i]));
-  assert.ok(Math.max(...diff)<1e-8,'camera must keep fixed bearing RELATIVE to curved rail: '+diff);
+  if(shot.id==='fourth-turn'){
+   // Fourth turn uses a leader-centered forward-oblique crane rather than
+   // the previous fixed-bearing rail camera. Check the optical axis itself.
+   const lead=order(p)[0],q=cameraKyotoPath(lead.p),lane=cameraRunnerLane(lead.no,17,p);
+   const nose={x:q.x-q.dz*lane+q.dx*2.7,y:q.y+2,z:q.z+q.dx*lane+q.dz*2.7};
+   const centered=projectTest(nose,camera,.54);
+   assert.ok(Math.abs(centered.x-.5)<.12,'4C leader must stay near optical center: '+centered.x);
+  }else{
+   assert.ok(Math.max(...diff)<1e-8,'camera must keep fixed bearing RELATIVE to curved rail: '+diff);
+  }
   if(j>0){
    assert.ok(Math.abs(Math.atan2(Math.sin(angle-prevAngle),Math.cos(angle-prevAngle)))<.2,
     'course dolly must rotate CONTINUOUSLY across ±π, not jump '+JSON.stringify({start,j,p,angle,prevAngle}));
