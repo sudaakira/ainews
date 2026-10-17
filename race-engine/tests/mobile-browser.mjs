@@ -66,7 +66,11 @@ try{
     assert.equal(state.director.scriptedCuts,5);
     assert.equal(state.scene.leadersOccluded,0,'buildings never occlude leading horses');
     assert.equal(state.director.pose.mode,'rail-broadcast-'+id,'outside-rail camera composition must match cut');
-    assert.equal(state.director.pose.outerRailSign,-1);
+    assert.equal(state.director.pose.outerRailSign,1,'Kyoto outer rail lies on negative lane');
+    assert.ok(state.scene.cameraOutsideLane<state.scene.cameraRailLane-11,
+      'actual camera must be outside physical rail: camera lane '+
+       state.scene.cameraOutsideLane+' rail '+state.scene.cameraRailLane);
+    assert.ok(state.scene.cameraOuterRailClearance>11,'outer-rail clearance from 3D geometry');
     assert.ok(id==='start'||state.director.pose.fov<=34,'post-start shot should use the tighter telephoto camera');
     if(id==='fourth-turn'||id==='finish'){
      const visibleLabels=await page.locator('#race-front-labels b:visible').count();
@@ -84,6 +88,10 @@ try{
     assert.ok(state.scene.leadScreenX>=.08&&state.scene.leadScreenX<=.94,
      'leader should remain in the group frame: '+state.scene.leadScreenX);
     assert.ok(state.director.pose.side>=24,'camera outside track with safe lateral elevation');
+    assert.ok(Math.abs(state.scene.cameraRenderedFov-state.director.pose.fov)<.15,
+      'seeked cut must settle rendered lens exactly');
+    assert.ok(Math.abs(state.scene.cameraRenderedLensShift-state.director.pose.lensShiftX)<.015,
+      'seeked cut must settle rendered optical shift exactly');
     if(id==='third-entry'){
      assert.ok(state.director.pose.position.y-state.director.pose.look.y>4&&state.director.pose.position.y-state.director.pose.look.y<32,
       'high outside camera looks DOWN at approaching horses, not at the horizon');
