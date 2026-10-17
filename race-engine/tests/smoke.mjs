@@ -296,7 +296,8 @@ for(const [start,end] of [[.085,.28],[.30,.66],[.68,.83],[.84,.99]]){
   const p=start+(end-start)*j/100;
   const camera=followLockedCameraPose(rig,order(p),cameraKyotoPath,{distance:2000,venue:'京都'});
   assert.ok(camera.lockedCamera,'track-side dolly, not jittery dynamic auto compose');
-  assert.ok(camera.outerRailClearance>=14.9,'dolly stays >=15m outside rail');
+  if(shot.id!=='fourth-turn')assert.ok(camera.outerRailClearance>=14.9,'dolly stays >=15m outside rail');
+  else assert.equal(camera.cameraLeadDistanceMeters,10,'4C camera follows leader from 10m ahead');
   assert.equal(camera.fov,bearing.fov,'no per-frame zoom');
   assert.equal(camera.lensShiftX,bearing.lensShiftX,'no per-frame lens shift');
   const angle=camera.cameraTrackYaw,co=Math.cos(angle),si=Math.sin(angle);
