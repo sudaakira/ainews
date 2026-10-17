@@ -59,20 +59,30 @@ export function createRaceHorse(T,scene,h,silkHex,frameCapHex='#89929b',frameCap
   tailStrands.push({rig,phase:i*.31});
  }
  const legs=[];
+ // Four articulated anatomical segments per limb, reproducing the reference
+ // shoulder/antebrachium/cannon/pastern and thigh/crus/metatarsus/pastern.
+ // Segment neutral axis is +Z; measured Muybridge angles are from +Z horizon.
  for(const front of [true,false])for(const side of [-1,1]){
-  const pivot=new T.Group();pivot.position.set(side*.22,front?1.17:1.24,front?.40:-.63);anim.add(pivot);
-  const legCoat=side===-1?legShade:coat; // distinguish far/near silhouettes in side views
-  const upper=front?.74:.80,lower=front?.90:.92;
-  bone(pivot,legCoat,[0,0,0],[0,-upper,0],front?.095:.13,.045);
-  const muscle=ell(pivot,legCoat,0,-.16,front?0:.035,front?.085:.12,.24,.105);muscle.rotation.x=front?0:-.2;
-  const knee=new T.Group();knee.position.set(0,-upper,0);pivot.add(knee);
-  ell(knee,dark,0,0,0,.050,.055,.055);
-  bone(knee,legCoat,[0,0,0],[0,-lower+.09,.01],.035,.027);
-  if(h.no%3!==0)bone(knee,white,[0,-lower+.20,.01],[0,-lower+.045,.02],.031,.035);
-  // Counter-rotating distal hoof: the sole stays level while planted.
-  const hoofRig=new T.Group();hoofRig.position.set(0,-lower+.025,0);knee.add(hoofRig);
-  ell(hoofRig,hoof,0,0,.045,.047,.045,.065);
-  legs.push({pivot,knee,hoofRig,upper,lower,front,side});
+  const segmentLengths=front?[.440,.434,.287,.130]:[.460,.434,.353,.135];
+  const pivot=new T.Group();pivot.position.set(side*.22,front?1.24:1.27,front?.38:-.66);anim.add(pivot);
+  const legCoat=side===-1?legShade:coat;
+  const joints=[pivot];
+  const radii=front?[[.11,.083],[.082,.049],[.043,.031],[.036,.027]]:
+                     [[.142,.113],[.106,.065],[.049,.033],[.037,.028]];
+  let parent=pivot;
+  for(let i=0;i<4;i++){
+   const L=segmentLengths[i],material=i===3?dark:i===2&&h.no%3!==0?white:legCoat;
+   bone(parent,material,[0,0,0],[0,0,L],radii[i][0],radii[i][1]);
+   if(i===0){const muscle=ell(parent,legCoat,0,0,L*.32,front?.095:.135,front?.105:.145,L*.36);muscle.rotation.x=.1}
+   if(i<3){
+    const next=new T.Group();next.position.z=L;parent.add(next);
+    ell(next,legCoat,0,0,0,i===0?.062:.041,i===0?.064:.043,i===0?.068:.046);
+    joints.push(next);parent=next;
+   }
+  }
+  ell(parent,hoof,0,0,segmentLengths[3]+.032,.054,.041,.092);
+  legs.push({pivot,knee:joints[1],hoofRig:joints[3],joints,
+    segmentLengths,front,side,upper:segmentLengths[0],lower:segmentLengths[1]});
  }
  ell(anim,leather,0,1.64,-.10,.29,.055,.34);
  // Each flank has its own legible saddlecloth and reins, without floating labels.
