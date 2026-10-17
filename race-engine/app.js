@@ -183,10 +183,10 @@ initWeightControls();run();
 // Same replay ID + same race settings -> same rankings and camera follow.
 const replayQuery=new URLSearchParams(location.search);
 const rawReplaySeed=replayQuery.get('replay');
-const fixedSeed=rawReplaySeed!==null&&/^\\d{1,10}$/.test(rawReplaySeed)&&
+const fixedSeed=rawReplaySeed!==null&&/^\d{1,10}$/.test(rawReplaySeed)&&
  Number(rawReplaySeed)<=4294967295?Number(rawReplaySeed)>>>0:null;
 const rawReplayAt=replayQuery.get('at');
-const initialPosition=rawReplayAt!==null&&/^\\d{1,4}$/.test(rawReplayAt)&&
+const initialPosition=rawReplayAt!==null&&/^\d{1,4}$/.test(rawReplayAt)&&
  +rawReplayAt<=1000?+rawReplayAt:null;
 let firstRace=true;
 const LIVE = {playing:false,clock:0,visualTime:0,last:0,rank:[],seed:0,
