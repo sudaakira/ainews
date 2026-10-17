@@ -1,6 +1,6 @@
 import {raceCommentary,ANNOUNCER_SVG} from './race-commentary.js?v=kyoto-v11-1';
 /** Clean cel-racing broadcast. All positions and results are read from the shared engine. */
-import {chooseRaceShot,courseShotCuts,raceCameraPose} from './race-shotlist.js?v=kyoto-v11-2';
+import {chooseRaceShot,courseShotCuts,raceCameraPose} from './race-shotlist.js?v=leader-broadcast-v1';
 import {finishCrossings,playbackRate} from './race-playback.js?v=kyoto-v11-1';
 
 export function createRaceCinematics({THREE,scene,stage,models,config,capFor,path,route,routeLength}){
@@ -127,9 +127,12 @@ export function createRaceCinematics({THREE,scene,stage,models,config,capFor,pat
   const at=route.getPointAtLength(d);
   routeDot.setAttribute('cx',String(at.x.toFixed(1)));routeDot.setAttribute('cy',String(at.y.toFixed(1)));
   locText.textContent=runningOut?'ゴール':shot.label;
-  const pose=raceCameraPose({shot,progress:p,order,path,aspect:camera.aspect});
+  const pose=raceCameraPose({shot,progress:p,order,path,aspect:camera.aspect,clock});
   desired.set(pose.position.x,pose.position.y,pose.position.z);look.set(pose.look.x,pose.look.y,pose.look.z);
   camera.fov=pose.fov;camera.updateProjectionMatrix();
+   // Shift the optical axis rather than extending the field-wide shot.
+   camera.projectionMatrix.elements[8]=pose.lensShiftX||0;
+   camera.projectionMatrixInverse.copy(camera.projectionMatrix).invert();
   let j=0;
   for(let i=0;i<models.length;i++)for(let k=0;k<perHorse;k++,j++){
    const root=models[i].root,t=(clock*.16+i*.37+k/perHorse)%1;
