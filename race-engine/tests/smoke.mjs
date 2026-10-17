@@ -273,7 +273,7 @@ for(const aspect of [.58,.76,1.8]){
   order:startingOrder,path:cameraKyotoPath,aspect,direction:'右',venue:'京都',distance:2000});
  assert.equal(pose.mode,'establishing-gate');
  assert.equal(pose.subjects.length,17);
- assert.ok(Math.abs(pose.gateScreenX-.1)<.01,'start gate toward trailing LEFT edge');
+ assert.ok(Math.abs(pose.gateScreenX-.055)<.01,'entire starting gate trailing edge at x≈5%');
  assert.ok(pose.position.y>pose.look.y,'camera elevated over outside rail');
 }
 console.log('OUTERMOST-rail clearance, racing leader 3-5, start gate left trailing 10 percent ✓');
