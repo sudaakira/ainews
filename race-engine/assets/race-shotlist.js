@@ -9,7 +9,7 @@ export const RACE_SHOT_LIST=Object.freeze([
  Object.freeze({id:'start',until:.12,kicker:'01 / START',label:'スタート',subjects:'all',side:29,ahead:32,height:8,fov:22}),
  Object.freeze({id:'first-corner',until:.32,kicker:'02 / POSITION',label:'1コーナー 位置どり',subjects:'pack',side:31,ahead:12,height:6.4,fov:26}),
  Object.freeze({id:'backstretch',until:.67,kicker:'03 / BACKSTRETCH',label:'向こう正面 隊列',subjects:'backstretch-pack',side:31,ahead:0,height:6.4,fov:26}),
- Object.freeze({id:'fourth-turn',until:.84,kicker:'04 / THE MOVE',label:'4コーナー 仕掛け',subjects:'moves',side:38,ahead:60,height:6.5,fov:29}),
+ Object.freeze({id:'fourth-turn',until:.84,kicker:'04 / THE MOVE',label:'4コーナー 仕掛け',subjects:'moves',side:38,ahead:78,height:6.5,fov:29}),
  Object.freeze({id:'finish',until:Infinity,kicker:'05 / FINISH',label:'ゴール前',subjects:'finish',side:31,ahead:0,height:6.8,fov:21})
 ]);
 export function chooseRaceShot(progress,cuts=RACE_SHOT_LIST.map(s=>s.until)){
@@ -80,10 +80,11 @@ export function raceCameraPose({shot,progress,order,path,aspect=1,clock=Infinity
   const q=path(o.p),lane=runnerLane(o.no,order.length,progress);
   return {x:q.x-q.dz*lane,y:q.y,z:q.z+q.dx*lane,dx:q.dx,dz:q.dz,no:o.no,p:o.p};
  });
+ const framingField=shot.id==='backstretch'?field.slice(0,5):shot.id==='fourth-turn'?field.slice(0,4):field;
  const focus=isGate?{x:center.x,y:center.y,z:center.z}:{
-  x:field.reduce((a,q)=>a+q.x,0)/field.length,
-  y:field.reduce((a,q)=>a+q.y,0)/field.length,
-  z:field.reduce((a,q)=>a+q.z,0)/field.length
+  x:framingField.reduce((a,q)=>a+q.x,0)/framingField.length,
+  y:framingField.reduce((a,q)=>a+q.y,0)/framingField.length,
+  z:framingField.reduce((a,q)=>a+q.z,0)/framingField.length
  };
  // Unlike a game chase-camera, a real 3C outside camera waits ahead of
  // approaching horses, producing the foreshortened head-on TV perspective.
@@ -124,8 +125,8 @@ export function raceCameraPose({shot,progress,order,path,aspect=1,clock=Infinity
  };
  const bounds=isGate?{left:.06,right:.95,lower:.14,upper:.90}:
   shot.id==='first-corner'?{left:.07,right:.86,lower:.11,upper:.90}:
-  shot.id==='backstretch'?{left:.05,right:.95,lower:.11,upper:.88}:
-  shot.id==='fourth-turn'?{left:.12,right:.79,lower:.11,upper:.88}:
+  shot.id==='backstretch'?{left:.07,right:.86,lower:.11,upper:.90}:
+  shot.id==='fourth-turn'?{left:.10,right:.83,lower:.11,upper:.88}:
   {left:.14,right:.80,lower:.13,upper:.88};
  const imagePoints=(pose)=>{
   const pixels=[];
