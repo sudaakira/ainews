@@ -1,6 +1,6 @@
 import {raceCommentary,ANNOUNCER_SVG} from './race-commentary.js?v=kyoto-v11-1';
 /** Clean cel-racing broadcast. All positions and results are read from the shared engine. */
-import {chooseRaceShot,courseShotCuts,raceCameraPose,followLockedCameraPose} from './race-shotlist.js?v=mobile-camera-v23';
+import {chooseRaceShot,courseShotCuts,raceCameraPose,followLockedCameraPose} from './race-shotlist.js?v=mobile-camera-v24';
 import {finishCrossings,playbackRate} from './race-playback.js?v=kyoto-v11-1';
 
 export function createRaceCinematics({THREE,scene,stage,models,config,capFor,path,route,routeLength}){
@@ -93,7 +93,7 @@ export function createRaceCinematics({THREE,scene,stage,models,config,capFor,pat
   speedLabel.textContent=playbackRate(rate,clock,duration)+'×'+(runningOut?' 走り抜け':'');
   subtitle.textContent=clock<=0?'まもなく発走':runningOut?'ゴール後も走り抜け':
    shot.id==='first-corner'?'1コーナーへ向けた位置どり':
-   shot.id==='third-entry'?'3コーナーへ進入、隊列を確認':
+   shot.id==='backstretch'?'向こう正面、真横から全馬の隊列を確認':
    shot.id==='fourth-turn'?'4コーナーで各馬が仕掛ける勝負所':
    shot.id==='finish'?'ゴール前の先頭争い':'スタート直後';
   const call=raceCommentary({clock,progress:p,order,horses:config.horses,crossed,distance:config.distance,venue:config.venue,surface:config.surface});
