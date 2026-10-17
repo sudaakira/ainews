@@ -88,6 +88,26 @@ export function createRaceHorse(T,scene,h,silkHex,frameCapHex='#89929b',frameCap
   legs.push({pivot,front,side,segments,knuckles,hoofMesh,fetlockTuft,
     x:side*.23,coat:legCoat});
  }
+ const axialUp=new T.Vector3(0,1,0),aV=new T.Vector3(),bV=new T.Vector3(),deltaV=new T.Vector3();
+ function setLegPose(leg,points){
+  // Translate and orient a *tapered volume* between actual anatomical
+  // vertices. The hoof does not inherit the shin orientation.
+  const x=leg.x;
+  for(let i=0;i<4;i++){
+   const p=points[i],q=points[i+1],mesh=leg.segments[i];
+   aV.set(x,p.y,p.z);bV.set(x,q.y,q.z);
+   deltaV.copy(bV).sub(aV);
+   const length=deltaV.length();
+   mesh.position.copy(aV).add(bV).multiplyScalar(.5);
+   mesh.quaternion.setFromUnitVectors(axialUp,deltaV.multiplyScalar(1/Math.max(length,1e-6)));
+   mesh.scale.set(1,length,1);
+  }
+  for(let i=0;i<3;i++)leg.knuckles[i].position.set(x,points[i+1].y,points[i+1].z);
+  const p=points[4],fetlock=points[3];
+  leg.hoofMesh.position.set(x,p.y+.027,p.z+.025);
+  leg.hoofMesh.rotation.x=0;
+  leg.fetlockTuft.position.set(x,fetlock.y,fetlock.z);
+ }
  ell(anim,leather,0,1.64,-.10,.29,.055,.34);
  // Each flank has its own legible saddlecloth and reins, without floating labels.
  const cv=document.createElement('canvas');cv.width=256;cv.height=192;const g=cv.getContext('2d');g.fillStyle='#192632';g.fillRect(0,0,256,192);g.fillStyle='#ffffff';g.textAlign='center';g.font='bold 126px sans-serif';g.fillText(String(h.no),128,132);g.font='bold 20px sans-serif';g.fillText(h.name,128,171,240);
@@ -116,5 +136,5 @@ export function createRaceHorse(T,scene,h,silkHex,frameCapHex='#89929b',frameCap
  }
  const shadow=new T.Mesh(new T.CircleGeometry(1,24),new T.MeshBasicMaterial({color:0x172c19,transparent:true,opacity:.22,depthWrite:false,side:T.DoubleSide}));shadow.rotation.x=-Math.PI/2;shadow.position.y=.015;shadow.scale.set(.46,1.23,1);root.add(shadow);
  scene.add(root);
- return {root,anim,rider,headRig,tailRig,legs,ears,maneStrands,tailStrands,flutter:null,sprite:null,shadow,artDirection:'thoroughbred-cel-v11',gallopRig:'anatomical-endpoint-v15'};
+ return {root,anim,rider,headRig,tailRig,legs,ears,maneStrands,tailStrands,setLegPose,flutter:null,sprite:null,shadow,artDirection:'thoroughbred-cel-v11',gallopRig:'anatomical-endpoint-v15'};
 }
