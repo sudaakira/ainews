@@ -229,7 +229,7 @@ export function raceCameraPose({shot,progress,order,path,aspect=1,clock=Infinity
   : (venue==='京都'&&distance===2000?kyotoOuterCourseOffset(pCenter+(isGate?0:inFront/distance)):0)+half;
  const outsideDist=rightCircuit?railLane-cameraLane:cameraLane-railLane;
  if(outsideDist<8)throw new Error('Outside-rail camera is INSIDE track: '+outsideDist.toFixed(2)+'m');
- const result={...pose,fov,side:side*scale,subjects:group.map(o=>o.no),
+ const result={...pose,shotId:shot.id,fov,side:side*scale,subjects:group.map(o=>o.no),
   lensShiftX,outerRailSign:outsideSign,tracked:group.length,
   mode:isGate?'gate-front-broadcast':'rail-broadcast-'+shot.id,
   outerRailClearance:outsideDist,cameraLane,railLane,railOutsideVerified:true,outerCourseBulge:groupBulge,
