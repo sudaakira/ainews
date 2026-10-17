@@ -124,4 +124,32 @@ try{
   console.log('PASS mobile/desktop WebGL and viewport controls',vp);
   await page.close();
  }
+
+ // Real Three.js 3D render verification for the independent single-horse
+ // inspection page. Screenshot multiple poses and views, not only 2D angles.
+ const lab=await browser.newPage({viewport:{width:960,height:820}});
+ const labErrors=[];lab.on('pageerror',e=>labErrors.push(e.message));
+ await lab.goto(new URL('gait-lab.html',url).href,{waitUntil:'domcontentloaded'});
+ await lab.waitForFunction(()=>window.EQUINE_GAIT_LAB?.snapshot().rig==='anatomical-endpoint-v15',
+   null,{timeout:30000});
+ const baseline=[];
+ for(const [phase,view] of [[.04,'side'],[.40,'side'],[.56,'three'],[.81,'front']]){
+  await lab.locator('#camera').selectOption(view);
+  await lab.evaluate(p=>window.EQUINE_GAIT_LAB.seek(p),phase);
+  await lab.waitForTimeout(120);
+  const snap=await lab.evaluate(()=>window.EQUINE_GAIT_LAB.snapshot());
+  assert.ok(Math.abs(snap.phase-phase)<1e-6,'manual gallop pose is reproducible');
+  assert.equal(snap.segments.length,4);
+  assert.ok(snap.segments.every(l=>l.length===4));
+  assert.ok(snap.segments.flat().every(s=>Number.isFinite(s.length)&&s.length>.03&&s.length<1));
+  baseline.push({phase,view,front:snap.hoofs.slice(0,2),hind:snap.hoofs.slice(2)});
+  await lab.screenshot({path:'/tmp/race-mobile-shots/gallop-v15-'+view+'-'+phase+'.png'});
+ }
+ assert.ok(Math.abs(baseline[0].hind[0].hoofZ-baseline[0].hind[1].hoofZ)>.14);
+ assert.ok(Math.abs(baseline[1].front[0].hoofZ-baseline[1].front[1].hoofZ)>.14);
+ assert.ok(baseline[3].front.every(f=>!f.contact)&&baseline[3].hind.every(h=>!h.contact),
+   'suspension really lifts all four hoof contact flags');
+ assert.deepEqual(labErrors,[],'gait lab emits no WebGL script error');
+ await lab.close();
+ console.log('PASS v15 real-3D four anatomical meshes, airborne pose, side/three/front screenshots ✓');
 }finally{await browser.close();}
