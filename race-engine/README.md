@@ -190,3 +190,16 @@ GitHub Actions の公開工程でも実行します。18頭スワンS・18頭東
 - **時間制御**：アニメーション時間を描画フレームの実経過秒から計算し、16倍速時でも脚運びを約2ストライド/秒に抑える。再生停止中は脚の位相も停止。
 - **見分けるための画面**：[4拍子・ギャロップ動作検証](gait-lab.html)。本編と同じ `horse-anime.js` / `chibi-gallop.js` を使い、0.25倍速、コマ送り、横/斜前/正面で接地順を確認できる。
 - **再発防止**：`tests/smoke.mjs` は左右の肢の角度差・低FPSでの視認性を、`tests/mobile-browser.mjs` は実WebGL再生中の前後肢の角度差と見えるバージョン表示を確認する。予想・着順計算には変更なし。
+
+## 走行モーション v14：写真から計測された馬の関節角度に基づく実装（2026-10-17）
+
+**v12/v13の蹄目標IK（カニ走りを引き起こした2関節近似）を廃止。** 12連続写真に基づく角度データを4関節の脚モデルに適用し、周期的に補間する。足の角度を適当に回転させる方式ではない。
+
+- 研究資料：[モーション動物園](https://motionzoo.net/horse-gallop-reference/)、[Muybridgeの16連続写真（NGA）](https://www.nga.gov/artworks/167044-plate-number-626-annie-g-galloping)、[UBCの2002年馬ギャロップ2Dモデル](https://www.hemispheregames.com/eddybox_cs_ubc/projects/533B/index.html)、[その12姿勢の計測関節角度](https://www.hemispheregames.com/eddybox_cs_ubc/projects/533B/angles.txt)、[馬のtransverse gallopの力学](https://pmc.ncbi.nlm.nih.gov/articles/PMC2696142/)。
+- `assets/equine-motion-frames.js`：上記UBCの角度数値18列×12行を収録。各脚4セグメントの相対角度をCatmull–Romでループ補間。左手前は左右の脚ブロックを交換する。
+- `assets/horse-anime.js`：前肢は肩・前腕・管・蹄、後肢は大腿・下腿・管・蹄の4節リグに再設計。X方向に左右へ振る「カニ走り」はしない。全脚の回転軸は前後の矢状面。
+- `assets/chibi-gallop.js`：足先目標への2ボーンIKを廃止し、写真計測データから骨格角度を直接アニメーション。最小蹄高で胴体位置を調整。実時間に沿って周期更新するので16倍速でストロボ化しない。左手前/右手前は左右対称に反転。
+- `gait-lab.html`：本編と同一の馬モデルを独立表示して、0.25倍/0.5倍/1倍、コマ送り、前後/真横視点で確認。
+- `tests/smoke.mjs`：写真12姿勢、左右手前、継ぎ目、4関節、浮遊、停止、倍率非依存の回帰テスト。`tests/mobile-browser.mjs`：実WebGL再生中の四肢角度差と画面描画を検査。
+
+**限界**：2D写真から測られた関節角度を3Dに転用した近似。実際の競走馬の個体差、撮影角度からの奥行き推定、体幹の正確な3D変形、蹄の地面への完全固定、レース映像との同一フレーム比較は未検証。目視の完成判定は実機WebGLで行う必要がある。予想ロジックは変更していない。
