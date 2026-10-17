@@ -70,7 +70,8 @@ try{
     assert.ok(state.director.pose.fov<=34,'leader shot should use the tighter telephoto camera');
     if(id==='third-turn'||id==='straight'){
      const visibleLabels=await page.locator('#race-front-labels b:visible').count();
-     assert.ok(visibleLabels>=2&&visibleLabels<=5,'show 2-5 colored identifiers for the front runners: '+visibleLabels);
+     assert.ok(visibleLabels>=(id==='third-turn'?2:1)&&visibleLabels<=5,
+       'show visible leader IDs; only in-frame labels at the finish: '+visibleLabels);
     }
     assert.ok(state.director.pose.subjects.length>=3&&state.director.pose.subjects.length<=5,
      'front 3-5 horses must stay in the picture');
