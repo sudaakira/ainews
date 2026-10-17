@@ -1,10 +1,16 @@
 import {KYOTO_CUTS,runnerLane} from './kyoto-course.js?v=kyoto-v11-1';
-/** Four cuts; the camera follows the leaders through the finish without freezing. */
+/**
+ * Racing broadcast grammar — not a horse portrait camera.
+ * Main race: operator on the OUTER rail, first five runners and adjacent outside
+ * challengers visible together. Space is left AHEAD of the field in SCREEN
+ * coordinates (right in a natural outer-rail/right-handed Kyoto shot).
+ * Source: PR Center official JRA 2018 camera breakdown.
+ */
 export const RACE_SHOT_LIST=Object.freeze([
- Object.freeze({id:'start',until:.28,kicker:'01 / START',label:'スタート',side:25,height:7,ahead:0,fov:42}),
- Object.freeze({id:'second-turn',until:.60,kicker:'02 / CLOSE UP',label:'2コーナー・向正面',side:20,height:5,ahead:7,fov:40}),
- Object.freeze({id:'third-turn',until:.836,kicker:'03 / THE CHARGE',label:'3・4コーナー 勝負所',side:15,height:7,ahead:17,fov:44}),
- Object.freeze({id:'straight',until:Infinity,kicker:'04 / FINISHING BATTLE',label:'最後の直線',side:23,height:4.3,ahead:0,fov:35})
+ Object.freeze({id:'start',until:.28,kicker:'01 / START',label:'スタート・第1角',side:35,height:9,ahead:0,fov:41}),
+ Object.freeze({id:'second-turn',until:.60,kicker:'02 / THE FIELD',label:'2コーナー・向正面',side:38,height:7.8,ahead:2,fov:40}),
+ Object.freeze({id:'third-turn',until:.836,kicker:'03 / THE MOVE',label:'3・4コーナー 勝負所',side:43,height:9.4,ahead:6,fov:40}),
+ Object.freeze({id:'straight',until:Infinity,kicker:'04 / THE FINISH',label:'最後の直線・先頭争い',side:43,height:7.5,ahead:0,fov:38})
 ]);
 export function chooseRaceShot(progress,cuts=RACE_SHOT_LIST.map(s=>s.until)){
  const p=Number.isFinite(progress)?Math.max(0,progress):0;
@@ -13,57 +19,99 @@ export function chooseRaceShot(progress,cuts=RACE_SHOT_LIST.map(s=>s.until)){
 export function courseShotCuts(route,routeLength,config){
  return config.venue==='京都'&&config.distance===2000&&config.surface==='芝'?[...KYOTO_CUTS]:[.18,.52,.80,Infinity];
 }
-/** Camera framing contract:
- * Opening gate: wide establishing shot for the first four race seconds.
- * Once running: a tight three-quarter/side tracking lens, keeping the LEADING
- * horse in the left 22% of the projection with the ground visible ahead.
- * Never dolly outward merely to include the back of the field.
- */
-export function raceCameraPose({shot,progress,order,path,aspect=1,clock=Infinity}){
- const gate=shot.id==='start'&&clock<=4;
- const leaders=order.slice(0,Math.min(3,order.length));
- const leader=order[0];
- if(!leader)return {position:{x:0,y:12,z:25},look:{x:0,y:1.7,z:0},fov:38,side:25,subjects:[],targetLeadViewportX:null,lensShiftX:0};
- if(gate){
-  // Full field only when the stalls are still the subject of the picture.
-  const group=order,p=(group[0].p+group.at(-1).p)/2,heading=path(p);
-  const field=group.map(o=>{const q=path(o.p),lane=runnerLane(o.no,order.length,progress);return {x:q.x-q.dz*lane,y:q.y,z:q.z+q.dx*lane};});
-  const focus={...heading,x:(Math.min(...field.map(q=>q.x))+Math.max(...field.map(q=>q.x)))/2,z:(Math.min(...field.map(q=>q.z))+Math.max(...field.map(q=>q.z)))/2};
-  const side=25,height=7,ahead=0,fov=42;
-  const halfWidth=field.reduce((max,q)=>Math.max(max,Math.hypot(q.x-focus.x,q.z-focus.z)),0)+2;
-  const tan=Math.tan(fov*Math.PI/360)*Math.max(.42,aspect);
-  const distance=Math.max(side,halfWidth/tan);
-  return {position:{x:focus.x+heading.dz*distance,y:focus.y+height,z:focus.z-heading.dx*distance},
-   look:{x:focus.x,y:focus.y+1.7,z:focus.z},fov,side:distance,subjects:group.map(o=>o.no),
-   targetLeadViewportX:null,lensShiftX:0,mode:'establishing-gate'};
+const clamp=(x,a,b)=>Math.min(b,Math.max(a,x));
+function projectPoint(q,pos,look,fov,aspect){
+ const vx=look.x-pos.x,vy=look.y-pos.y,vz=look.z-pos.z;
+ const len=Math.hypot(vx,vy,vz),fx=vx/len,fy=vy/len,fz=vz/len;
+ const rightX=-fz/Math.hypot(fx,fz),rightZ=fx/Math.hypot(fx,fz);
+ const upX=-fy*rightZ,upY=Math.hypot(fx,fz),upZ=fy*rightX;
+ const dx=q.x-pos.x,dy=q.y-pos.y,dz=q.z-pos.z;
+ const depth=dx*fx+dy*fy+dz*fz;
+ if(depth<.1)return {x:0,y:0,visible:false};
+ const tan=Math.tan(fov*Math.PI/360);
+ return {x:(dx*rightX+dz*rightZ)/(depth*tan*aspect),
+  y:(dx*upX+dy*upY+dz*upZ)/(depth*tan),visible:true};
+}
+export function raceCameraPose({shot,progress,order,path,aspect=1,clock=Infinity,direction='右',distance=2000}){
+ const leader=order?.[0];
+ if(!leader)return {position:{x:0,y:9,z:35},look:{x:0,y:2,z:0},fov:41,side:35,subjects:[],mode:'empty',lensShiftX:0};
+ const outerSign=direction==='左'?1:-1;
+ const isGate=shot.id==='start'&&clock<=3.8;
+ // Only the opening gate uses all runners. From the first few seconds onwards
+ // any sudden fall-away in the pack is excluded from the live race shot.
+ const maxLeadGap=clamp(distance*.016,22,34);
+ let group=order.slice(0,isGate?order.length:5);
+ if(!isGate)group=group.filter((h,i)=>i<3||(leader.p-h.p)*distance<=maxLeadGap);
+ if(!isGate&&order.length>5){
+  const fifth=group.at(-1);
+  // If a sixth horse is genuinely attached to the leading five, include it
+  // rather than chopping off an outside challenger at the screen boundary.
+  const adjacent=order.slice(5,7).filter(h=>(fifth.p-h.p)*distance<3.0&&(leader.p-h.p)*distance<maxLeadGap);
+  group=group.concat(adjacent);
  }
- // Close-up distance is independent of fifth place and beyond.
- const shotCamera=shot.id==='third-turn'?{side:12,ahead:7,height:5.5,fov:33}:
-  shot.id==='straight'?{side:15,ahead:0,height:5.0,fov:34}:
-  shot.id==='second-turn'?{side:12.8,ahead:2.5,height:5.1,fov:34}:
-  {side:13,ahead:0,height:5.1,fov:35};
- const {side,ahead,height,fov}=shotCamera;
- const heading=path(leader.p),lane=runnerLane(leader.no,order.length,progress);
- const cx=heading.x-heading.dz*lane,cz=heading.z+heading.dx*lane;
- const position={x:cx+heading.dz*side+heading.dx*ahead,y:heading.y+height,z:cz-heading.dx*side+heading.dz*ahead};
- const look={x:cx,y:heading.y+1.85,z:cz};
- // Keep the entire nearest leader cluster out of the left-edge crop.
- // 20% negative space is measured from the leftmost prospective muzzle of
- // the first three horses, not from the root of only the current leader.
- // A 3.0m forward envelope also covers head reach during gallop.
- const fx=look.x-position.x,fy=look.y-position.y,fz=look.z-position.z;
- const flen=Math.hypot(fx,fy,fz),tan=Math.tan(fov*Math.PI/360)*Math.max(.42,aspect);
- const frontSamples=leaders.map(o=>{
-  const q=path(o.p),l=runnerLane(o.no,order.length,progress);
-  const nx=q.x-q.dz*l+q.dx*3.0,nz=q.z+q.dx*l+q.dz*3.0;
-  const vx=nx-position.x,vy=q.y+2.05-position.y,vz=nz-position.z;
-  const depth=Math.max(1,(vx*fx+vy*fy+vz*fz)/flen);
-  return {no:o.no,ndc:(-fz*vx+fx*vz)/(flen*depth*tan)};
+ const pCenter=group.reduce((sum,h,i)=>sum+h.p*(i===0?2:1),0)/(group.length+1);
+ const track=path(pCenter),head=path(leader.p);
+ const field=group.map(o=>{
+  const q=path(o.p),lane=runnerLane(o.no,order.length,progress);
+  return {x:q.x-q.dz*lane,y:q.y,z:q.z+q.dx*lane,no:o.no,p:o.p,
+   dx:q.dx,dz:q.dz};
  });
- const leftmost=Math.min(...frontSamples.map(x=>x.ndc));
- // Projection matrix[8] is subtracted from NDC. +0.60 sets the leftmost
- // projected muzzle at screen x=0.20, keeping race direction clear.
- const lensShiftX=leftmost+.60;
- return {position,look,fov,side,subjects:leaders.map(o=>o.no),
-  lensShiftX,targetLeadViewportX:.20,mode:'tight-nose-leader',frontSamples};
+ const focus={x:field.reduce((s,q)=>s+q.x,0)/field.length,
+  y:field.reduce((s,q)=>s+q.y,0)/field.length,z:field.reduce((s,q)=>s+q.z,0)/field.length};
+ let side=isGate?48:shot.side,ahead=isGate?0:shot.ahead;
+ const height=shot.height,fov=isGate?42:shot.fov;
+ const aspectRatio=Math.max(.45,Number(aspect)||1);
+ const poseAt=scale=>{
+  const lateral=outerSign*side*scale,forward=ahead*scale;
+  return {position:{x:focus.x+track.dz*lateral+track.dx*forward,
+   y:focus.y+height+Math.log2(scale)*.8,
+   z:focus.z-track.dx*lateral+track.dz*forward},
+   look:{x:focus.x,y:focus.y+2.0,z:focus.z}};
+ };
+ const imagePoints=(pos,look)=>{
+  const data=[];
+  for(const q of field){
+   // Hoof/shoulder/head margins and lateral horses are model geometry
+   // envelopes; not simply projected saddlecloth centers.
+   for(const longitudinal of [-2.35,0,2.7])
+    for(const transverse of [-.65,.65])
+     for(const h of [.15,1.6,3.0]){
+      const point={x:q.x+q.dx*longitudinal-q.dz*transverse,
+       y:q.y+h,z:q.z+q.dz*longitudinal+q.dx*transverse};
+      data.push(projectPoint(point,pos,look,fov,aspectRatio));
+     }
+  }
+  return data;
+ };
+ let scale=1,projected,pose,ext;
+ const boundary=isGate?{left:.055,right:.945,lower:.08,upper:.93}:
+  {left:.075,right:.805,lower:.16,upper:.82};
+ for(let iteration=0;iteration<28;iteration++){
+  pose=poseAt(scale);projected=imagePoints(pose.position,pose.look);
+  const valid=projected.filter(q=>q.visible);
+  if(valid.length!==projected.length){scale*=1.22;continue}
+  const xs=valid.map(q=>q.x),ys=valid.map(q=>q.y);
+  ext={minX:Math.min(...xs),maxX:Math.max(...xs),minY:Math.min(...ys),maxY:Math.max(...ys)};
+  // Off-axis optical framing shifts the LEFT edge of the group into frame.
+  // Right-facing outer-rail coverage reserves ~20% on the leader's AHEAD side.
+  const allowedWidth=(boundary.right-boundary.left)*2;
+  const allowedHeight=(boundary.upper-boundary.lower)*2;
+  if(ext.maxX-ext.minX<=allowedWidth&&ext.maxY-ext.minY<=allowedHeight)break;
+  scale*=1.12;
+ }
+ const lensShiftX=ext?ext.maxX-2*(boundary.right-.5):0;
+ // Vertical tilt centers jockeys while keeping hooves (not empty sky).
+ // Existing camera controls use the actual perspective projection.
+ const frameY=ext?(ext.minY+ext.maxY)/2:0;
+ pose.look.y+=frameY*.42;
+ // Re-evaluate horizontal shift after adjusting camera look direction.
+ const refined=imagePoints(pose.position,pose.look).filter(q=>q.visible);
+ const xmax=refined.length?Math.max(...refined.map(q=>q.x)):0;
+ const shift=xmax-2*(boundary.right-.5);
+ return {...pose,fov,side:side*scale,subjects:group.map(h=>h.no),
+  mode:isGate?'establishing-gate':'outer-rail-group',
+  lensShiftX:shift,outerRailSign:outerSign,tracked:group.length,
+  lookDirection:'racing-broadcast',aheadScreenSide:'right',aheadSpace:1-boundary.right,
+  projectedWidth:ext?ext.maxX-ext.minX:null,dollyScale:scale,
+  railCourseHeading:{x:head.dx,z:head.dz}};
 }
