@@ -309,7 +309,7 @@ import {jockeyCap} from './core/jockey-caps.js?v=cap-v1';
  document.getElementById('horse-model-version').textContent='EQUINE v16 · SKELETAL GALLOP';
  const liveTitle=document.querySelector('.live-head strong');if(liveTitle)liveTitle.textContent+=' · v16';
  window.KYOTO_RENDER_STATUS={ready:true,model:'skinned-thoroughbred-v16',gait:'authored-skeletal-v16',venue:venueReady?'full':'fallback',
-  horses:models.length,camera:'outside-rail-corrected-smooth-live-five-cuts',courseView:config.courseView,
+  horses:models.length,camera:'mobile-first-fixed-direction-five-cut-dolly-v19',courseView:config.courseView,
   cinematic:true,saddleclothNames:true,goalBoard:!!goalBoard,gateDisappears:true,
   continuousRunOut:true,goalBoardSide:'far',furlongDigits:furlongPosts.map(x=>x.digit),landmarks:kyotoLandmarks?.audit||null};
  let cw=0,ch=0;
@@ -512,7 +512,12 @@ import {jockeyCap} from './core/jockey-caps.js?v=cap-v1';
    cameraRenderedFov:smoothFov,cameraRenderedLensShift:smoothLensShift,
    cameraOuterRailClearance:window.RACE_CINEMATIC_DEBUG?.pose?.outerRailClearance,
    cameraOutsideLane:window.RACE_CINEMATIC_DEBUG?.pose?.cameraLane,
-   cameraRailLane:window.RACE_CINEMATIC_DEBUG?.pose?.railLane};
+   cameraRailLane:window.RACE_CINEMATIC_DEBUG?.pose?.railLane,
+   cameraLockedDirection:window.RACE_CINEMATIC_DEBUG?.lockedDirection===true,
+   cameraRebases:window.RACE_CINEMATIC_DEBUG?.cameraRebases,
+   cameraRenderedPosition:{x:camera.position.x,y:camera.position.y,z:camera.position.z},
+   cameraRenderedBearing:(()=>{const v=smoothLook.clone().sub(camera.position).normalize();
+     return {x:v.x,y:v.y,z:v.z}})()};
   renderer.render(scene,camera);
  }
  animate();
