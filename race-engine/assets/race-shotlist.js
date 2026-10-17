@@ -261,8 +261,8 @@ export function raceCameraPose({shot,progress,order,path,aspect=1,clock=Infinity
    const desiredShift=(low+high)/2-.46;
    // A cut must never acquire an off-screen target. Optical shift and
    // declared target are a single constraint, not independent guesses.
-   const shift=clamp(desiredShift,result.leadNoseViewportTarget-.80,
-    result.leadNoseViewportTarget-.20);
+   const shift=clamp(desiredShift,result.leadNoseViewportTarget-.68,
+    result.leadNoseViewportTarget-.32);
    result.lensShiftX+=2*shift;
    result.leadNoseViewportTarget-=shift;
    result.forwardGap=Math.min(result.leadNoseViewportTarget,1-result.leadNoseViewportTarget);
