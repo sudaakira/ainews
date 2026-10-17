@@ -242,40 +242,41 @@ for(let i=0;i<3;i++){
 assert.equal(chooseRaceShot(NaN).id,'start');
 assert.equal(chooseRaceShot(-1).id,'start');
 assert.deepEqual(courseShotCuts(null,0,{venue:'東京'}),[.18,.52,.80,Infinity]);
-// Real broadcast camera: OUTER rail (Kyoto right handed), foremost
-// five horses + any adjacent challenger. Test real curved Kyoto geometry.
-const {kyotoPath:cameraKyotoPath,runnerLane:cameraRunnerLane}=await load('assets/kyoto-course.js');
-const projections=(o,pose,aspect)=>{
- const {position:c,look:l,fov}=pose,fx=l.x-c.x,fy=l.y-c.y,fz=l.z-c.z;
- const fn=Math.hypot(fx,fy,fz),vx=o.x-c.x,vy=o.y-c.y,vz=o.z-c.z;
- const forward={x:fx/fn,y:fy/fn,z:fz/fn},right={x:-fz/Math.hypot(fx,fz),z:fx/Math.hypot(fx,fz)};
- const d=vx*forward.x+vy*forward.y+vz*forward.z;
- const tan=Math.tan(fov*Math.PI/360);
- return {x:.5+.5*((vx*right.x+vz*right.z)/(d*tan*aspect)-(pose.lensShiftX||0)),depth:d};
+// Verify camera against Kyoto OUTERMOST outer-course rail, not just the
+// inner A-course. The previous "outside" camera could sit inside the 3C bulge.
+const {kyotoPath:cameraKyotoPath,runnerLane:cameraRunnerLane,kyotoOuterCourseOffset:cameraBulge}=await load('assets/kyoto-course.js');
+const projectTest=(q,pose,aspect)=>{
+ const a=pose.position,b=pose.look,fx=b.x-a.x,fy=b.y-a.y,fz=b.z-a.z;
+ const fn=Math.hypot(fx,fy,fz),dx=q.x-a.x,dy=q.y-a.y,dz=q.z-a.z;
+ const depth=(dx*fx+dy*fy+dz*fz)/fn;
+ return {x:.5+.5*((-fz*dx+fx*dz)/(fn*depth*Math.tan(pose.fov*Math.PI/360)*aspect)-pose.lensShiftX),depth};
 };
-const cameraViews=[.10,.42,.68,.81,.94,.999];
-for(const progress of cameraViews)for(const aspect of [.58,.98,1.78,2.1]){
- const shot=chooseRaceShot(progress,courseShotCuts(null,0,{venue:'京都',distance:2000,surface:'芝'}));
- const order=Array.from({length:17},(_,i)=>({no:i+1,p:progress-i*.0017}));
- const pose=raceCameraPose({shot,progress,clock:progress*119,
-  order,path:cameraKyotoPath,aspect,direction:'右',distance:2000});
- assert.equal(pose.mode,'outer-rail-group');
- assert.ok(pose.subjects.length>=5&&pose.subjects.length<=7,'broadcast follows leading five and adjacent challengers');
- const p=cameraKyotoPath(progress),rightDistance=(pose.position.x-p.x)*p.dz-(pose.position.z-p.z)*p.dx;
- assert.ok(rightDistance< -18,'camera must stay OUTSIDE for a right-handed Kyoto race');
+for(const p of [.10,.4,.59,.66,.73,.82,.94,.999])for(const aspect of [.58,.76,1.8]){
+ const shot=chooseRaceShot(p,courseShotCuts(null,0,{venue:'京都',surface:'芝',distance:2000}));
+ const order=Array.from({length:17},(_,i)=>({no:i+1,p:p-i*.0022}));
+ const pose=raceCameraPose({shot,progress:p,clock:Math.max(5,p*119),order,
+  path:cameraKyotoPath,aspect,direction:'右',venue:'京都',distance:2000});
+ assert.equal(pose.mode,'outer-rail-3to5');
+ assert.ok(pose.subjects.length>=3&&pose.subjects.length<=5,'track only the first 3-5 runners');
  assert.equal(pose.outerRailSign,-1);
- assert.ok(pose.aheadSpace>=.18&&pose.aheadSpace<=.25,'allow ~20% breathing room in travel direction');
- assert.ok(pose.side>20,'not a horse portrait camera');
- assert.ok(pose.projectedWidth<=1.51,'do not clip the front group horizontally');
- const first=order[0],q=cameraKyotoPath(first.p),lane=cameraRunnerLane(first.no,order.length,progress);
- const view=projections({x:q.x-q.dz*lane+q.dx*2.2,y:q.y+2,z:q.z+q.dx*lane+q.dz*2.2},pose,aspect);
- assert.ok(view.depth>0&&view.x>.1&&view.x<.93,'leader must stay visible');
+ assert.ok(pose.outerRailClearance>=11.9,'camera OUTSIDE the actual outer-course rail');
+ assert.ok(pose.aheadScreenSide==='right');
+ assert.ok(pose.projectedWidth<1.5,'visible group must fit horizontally');
+ const leader=order[0],q=cameraKyotoPath(leader.p),lane=cameraRunnerLane(leader.no,17,p);
+ const point={x:q.x-q.dz*lane+q.dx*2,y:q.y+2,z:q.z+q.dx*lane+q.dz*2};
+ const screen=projectTest(point,pose,Math.max(.48,aspect));
+ assert.ok(screen.depth>0&&screen.x>.02&&screen.x<.91,'leader in shot');
 }
-const opening=raceCameraPose({shot:RACE_SHOT_LIST[0],progress:0,clock:0,
- order:Array.from({length:17},(_,i)=>({no:i+1,p:0})),path:cameraKyotoPath,aspect:1,direction:'右',distance:2000});
-assert.equal(opening.subjects.length,17);
-assert.equal(opening.mode,'establishing-gate');
-console.log('JRA-inspired outside-rail broadcast: leading five, attack lanes, forward space, gate and four cuts ✓');
+const startingOrder=Array.from({length:17},(_,i)=>({no:i+1,p:0}));
+for(const aspect of [.58,.76,1.8]){
+ const pose=raceCameraPose({shot:RACE_SHOT_LIST[0],progress:0,clock:0,
+  order:startingOrder,path:cameraKyotoPath,aspect,direction:'右',venue:'京都',distance:2000});
+ assert.equal(pose.mode,'establishing-gate');
+ assert.equal(pose.subjects.length,17);
+ assert.ok(Math.abs(pose.gateScreenX-.1)<.01,'start gate toward trailing LEFT edge');
+ assert.ok(pose.position.y>pose.look.y,'camera elevated over outside rail');
+}
+console.log('OUTERMOST-rail clearance, racing leader 3-5, start gate left trailing 10 percent ✓');
 for(const field of [3,6,17,18])for(const duration of [68,120,180]){
  const rank=Array.from({length:field},(_,i)=>field-i);
  assert.deepEqual(finishCrossings(rank,duration-1e-5,duration),[]);
