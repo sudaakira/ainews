@@ -59,8 +59,11 @@ export function raceCameraPose({shot,progress,order,path,aspect=1,clock=Infinity
  const focus={x:field.reduce((s,q)=>s+q.x,0)/field.length,
   y:field.reduce((s,q)=>s+q.y,0)/field.length,z:field.reduce((s,q)=>s+q.z,0)/field.length};
  let side=isGate?48:shot.side,ahead=isGate?0:shot.ahead;
- const height=shot.height,fov=isGate?42:shot.fov;
  const aspectRatio=Math.max(.45,Number(aspect)||1);
+ // Desktop ultrawide broadcasts use a narrower telephoto lens, while
+ // portrait phones prioritize keeping five horses and outside moves in view.
+ const broadcastLens=aspectRatio>1.45?Math.max(.72,1.45/aspectRatio):1;
+ const height=shot.height,fov=isGate?42:shot.fov*broadcastLens;
  const poseAt=scale=>{
   const lateral=outerSign*side*scale,forward=ahead*scale;
   return {position:{x:focus.x+track.dz*lateral+track.dx*forward,
