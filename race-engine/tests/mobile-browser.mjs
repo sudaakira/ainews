@@ -82,6 +82,12 @@ try{
       'leading horse owns broadcast framing');
      assert.ok(state.director.pose.forwardGap>=.19&&state.director.pose.forwardGap<=.5,
       'at least 19% forward room around leading horse: '+state.director.pose.forwardGap);
+     const target=state.director.pose.leadNoseViewportTarget;
+     const actual=state.scene.leadNoseScreenX;
+     console.log('LEADER_AIR',JSON.stringify({vp:vp.width,cut:id,target,actual,
+      railClearance:state.scene.cameraOuterRailClearance}));
+     assert.ok(Number.isFinite(actual)&&Math.abs(actual-target)<.18,
+      'actual 3D lead horse nose must follow front-space target: '+actual+' vs '+target);
     }
     assert.ok(id==='start'||state.director.pose.fov<=34,'post-start shot should use the tighter telephoto camera');
     if(id==='fourth-turn'||id==='finish'){
