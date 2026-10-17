@@ -278,8 +278,8 @@ for(const p of [.10,.4,.59,.66,.73,.82,.94,.999])for(const aspect of [.58,.76,1.
  const screen=projectTest(point,pose,Math.max(.48,aspect));
  assert.ok(screen.depth>0&&screen.x>.02&&screen.x<.91,'leader in shot');
 }
-// Broadcast stability at iPhone portrait aspect: the lens/bearing must never
-// change BETWEEN editorial cuts. Only translation tracks the lead horse.
+// Kyoto corners turn: the camera's heading follows the COURSE smoothly,
+// but never points to each newly-leading horse. Lens/framing remain fixed.
 for(const [start,end] of [[.085,.28],[.30,.66],[.68,.83],[.84,.99]]){
  const shot=chooseRaceShot(start),order=p=>Array.from({length:17},(_,i)=>({no:i+1,p:p-i*.0022}));
  const base=raceCameraPose({shot,progress:start,clock:start*120,order:order(start),
@@ -287,24 +287,33 @@ for(const [start,end] of [[.085,.28],[.30,.66],[.68,.83],[.84,.99]]){
  const rig={pose:base,startLeaderProgress:start};
  const bearing=followLockedCameraPose(rig,order(start),cameraKyotoPath,{distance:2000,venue:'京都'});
  const vector=p=>[p.look.x-p.position.x,p.look.y-p.position.y,p.look.z-p.position.z];
- const expected=vector(bearing);let previous=bearing;
+ const initial=vector(bearing);let previous=bearing,prevAngle=0;
  for(let j=0;j<=100;j++){
   const p=start+(end-start)*j/100;
   const camera=followLockedCameraPose(rig,order(p),cameraKyotoPath,{distance:2000,venue:'京都'});
-  assert.ok(camera.lockedCamera,'must use fixed TV dolly instead of frame-by-frame auto compose');
-  assert.ok(camera.outerRailClearance>=14.9,'dolly stays at least 15m beyond rail');
-  assert.equal(camera.fov,bearing.fov,'no jitter in zoom/FOV within cut');
-  assert.equal(camera.lensShiftX,bearing.lensShiftX,'no optical-axis jitter within cut');
-  const diff=vector(camera).map((v,i)=>Math.abs(v-expected[i]));
-  assert.ok(Math.max(...diff)<1e-8,'no yaw, tilt or roll changes within TV cut: '+diff);
-  if(j>0)assert.ok(Math.hypot(camera.position.x-previous.position.x,
+  assert.ok(camera.lockedCamera,'track-side dolly, not jittery dynamic auto compose');
+  assert.ok(camera.outerRailClearance>=14.9,'dolly stays >=15m outside rail');
+  assert.equal(camera.fov,bearing.fov,'no per-frame zoom');
+  assert.equal(camera.lensShiftX,bearing.lensShiftX,'no per-frame lens shift');
+  const angle=camera.cameraTrackYaw,co=Math.cos(angle),si=Math.sin(angle);
+  const target=[initial[0]*co-initial[2]*si,initial[1],initial[0]*si+initial[2]*co];
+  const diff=vector(camera).map((v,i)=>Math.abs(v-target[i]));
+  assert.ok(Math.max(...diff)<1e-8,'camera must keep fixed bearing RELATIVE to curved rail: '+diff);
+  if(j>0){
+   assert.ok(Math.abs(angle-prevAngle)<.2,'course dolly must rotate CONTINUOUSLY, not jump');
+   assert.ok(Math.hypot(camera.position.x-previous.position.x,
     camera.position.z-previous.position.z)<80,'world-space dolly has no teleport');
-  previous=camera;
+  }
+  const lead=order(p)[0],q=cameraKyotoPath(lead.p),lane=cameraRunnerLane(lead.no,17,p);
+  const nose={x:q.x-q.dz*lane+q.dx*2.7,y:q.y+2,z:q.z+q.dx*lane+q.dz*2.7};
+  const xy=projectTest(nose,camera,.54);
+  assert.ok(xy.x>.04&&xy.x<.88,'LEADER must stay on portrait screen: '+shot.id+' '+p+' => '+xy.x);
+  previous=camera;prevAngle=angle;
  }
 }
 assert.match(cinemaJS,/lockedRig/);
 assert.match(cinemaJS,/mustRebase/);
-console.log('iPhone-fixed five cut camera: angle, zoom and optical shift locked for 400+ frames ✓');
+console.log('iPhone five cuts: 400+ smooth course-relative locked bearings, zero zoom jitter, leader always visible ✓');
 
 const startingOrder=Array.from({length:17},(_,i)=>({no:i+1,p:0}));
 for(const aspect of [.58,.76,1.8]){
