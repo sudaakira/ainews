@@ -258,7 +258,11 @@ export function raceCameraPose({shot,progress,order,path,aspect=1,clock=Infinity
    const low=Math.min(...screens),high=Math.max(...screens);
    // Center the extreme projected positions in the usable portrait frame.
    // A constant shift preserves the no-zoom/no-jitter broadcast requirement.
-   const shift=(low+high)/2-.46;
+   const desiredShift=(low+high)/2-.46;
+   // A cut must never acquire an off-screen target. Optical shift and
+   // declared target are a single constraint, not independent guesses.
+   const shift=clamp(desiredShift,result.leadNoseViewportTarget-.80,
+    result.leadNoseViewportTarget-.20);
    result.lensShiftX+=2*shift;
    result.leadNoseViewportTarget-=shift;
    result.forwardGap=Math.min(result.leadNoseViewportTarget,1-result.leadNoseViewportTarget);
