@@ -80,7 +80,7 @@ export function raceCameraPose({shot,progress,order,path,aspect=1,clock=Infinity
   const q=path(o.p),lane=runnerLane(o.no,order.length,progress);
   return {x:q.x-q.dz*lane,y:q.y,z:q.z+q.dx*lane,dx:q.dx,dz:q.dz,no:o.no,p:o.p};
  });
- const framingField=shot.id==='backstretch'?field.slice(0,5):shot.id==='fourth-turn'?field.slice(0,4):field;
+ const framingField=shot.id==='backstretch'?field.slice(0,4):shot.id==='fourth-turn'?field.slice(0,3):field;
  const focus=isGate?{x:center.x,y:center.y,z:center.z}:{
   x:framingField.reduce((a,q)=>a+q.x,0)/framingField.length,
   y:framingField.reduce((a,q)=>a+q.y,0)/framingField.length,
@@ -156,7 +156,7 @@ export function raceCameraPose({shot,progress,order,path,aspect=1,clock=Infinity
   const one=setPose(1),pre=imagePoints(one).filter(q=>q.visible);
   if(pre.length){
    const pw=Math.max(...pre.map(q=>q.x))-Math.min(...pre.map(q=>q.x));
-   const correction=clamp(pw/1.30,.35,1);
+   const correction=clamp(pw/(shot.id==='backstretch'||shot.id==='fourth-turn'?1.52:1.40),.35,1);
    fov=Math.max(10.5,fov*correction);
   }
  }
@@ -346,6 +346,19 @@ export function followLockedCameraPose(rig,order,path,{distance=2000,venue='äº¬é
   const correction=clamp(current-intended,-24,24);
   position.x+=rightX*correction;position.z+=rightZ*correction;
   look.x+=rightX*correction;look.z+=rightZ*correction;
+ }
+ // A forward-oblique fourth-turn camera must remain attached to the leader,
+ // not merely to the rail station. Translate the complete locked camera rig
+ // towards the moving lead horse without changing its focal length or pitch.
+ if(rig.pose.shotId==='fourth-turn'){
+  const q=path(leader.p),lane=runnerLane(leader.no,order.length,leader.p);
+  const nose={x:q.x-q.dz*lane+q.dx*2.7,z:q.z+q.dx*lane+q.dz*2.7};
+  const original=path(rig.startLeaderProgress),originalLane=runnerLane(leader.no,order.length,rig.startLeaderProgress);
+  const originalNose={x:original.x-original.dz*originalLane+original.dx*2.7,z:original.z+original.dx*originalLane+original.dz*2.7};
+  const expected=rotate({...originalNose,y:original.y+2});
+  const followX=clamp(nose.x-expected.x,-18,18),followZ=clamp(nose.z-expected.z,-18,18);
+  position.x+=followX;look.x+=followX;
+  position.z+=followZ;look.z+=followZ;
  }
  // Keep the finishing straight level: no elevation bob or pitch variation.
  if(rig.pose.shotId==='finish'){
