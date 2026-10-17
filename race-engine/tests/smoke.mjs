@@ -303,7 +303,7 @@ for(const [start,end] of [[.085,.28],[.30,.66],[.68,.83],[.84,.99]]){
   assert.ok(Math.max(...diff)<1e-8,'camera must keep fixed bearing RELATIVE to curved rail: '+diff);
   if(j>0){
    assert.ok(Math.abs(Math.atan2(Math.sin(angle-prevAngle),Math.cos(angle-prevAngle)))<.2,
-    'course dolly must rotate CONTINUOUSLY across ±π, not jump');
+    'course dolly must rotate CONTINUOUSLY across ±π, not jump '+JSON.stringify({start,j,p,angle,prevAngle}));
    assert.ok(Math.hypot(camera.position.x-previous.position.x,
     camera.position.z-previous.position.z)<80,'world-space dolly has no teleport');
   }
@@ -425,13 +425,13 @@ console.log('Kyoto metric route, goal offset, 3C elevation, left-leading order a
 
 
 // The runtime now uses an authored skin, not endpoint cylinders.
-const glb=readFileSync(resolve(root,'assets/models/horse-v16.glb'));
+const glb=readFileSync(resolve(root,'assets/models/horse-sprint-v19.glb'));
 assert.equal(glb.readUInt32LE(0),0x46546c67);
 const asset=JSON.parse(glb.subarray(20,20+glb.readUInt32LE(12)).toString());
-assert.deepEqual(asset.animations.map(x=>x.name),['Gallop_Left','Gallop_Right','Idle']);
+assert.deepEqual(asset.animations.map(x=>x.name),['Sprint_Left','Sprint_Right','Idle']);
 assert.ok(asset.skins[0].joints.length>=40);
 assert.match(render,/await horseV3.preloadRaceHorse/);
-assert.match(anime,/skinned-cc0-v16/);
+assert.match(anime,/racing-sprint-v19/);
 assert.doesNotMatch(anime,/setLegPose/);
 assert.ok(existsSync(resolve(root,'assets/models/CC0-1.0.txt')));
-console.log('v16 skeletal asset and shared preload ✓; visual acceptance uses browser renders');
+console.log('v19 sprint asset and shared preload ✓; visual acceptance uses browser renders');

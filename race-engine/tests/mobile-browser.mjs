@@ -22,7 +22,7 @@ let baselineRank=null;
 const browser=await chromium.launch({headless:true,args:['--use-gl=angle','--use-angle=swiftshader','--enable-webgl','--enable-unsafe-swiftshader','--disable-dev-shm-usage']});
 mkdirSync('/tmp/race-mobile-shots',{recursive:true});
 try{
- for(const vp of [{width:390,height:844},{width:320,height:568},{width:430,height:932},{width:1280,height:800}]){
+ for(const vp of (process.env.GAIT_ONLY?[]:[{width:390,height:844},{width:320,height:568},{width:430,height:932},{width:1280,height:800}])){
   const page=await browser.newPage({viewport:vp,deviceScaleFactor:1,isMobile:vp.width<700,hasTouch:vp.width<700});
   await serveLocal(page);
   const errors=[];page.on('pageerror',e=>errors.push(e.message));
@@ -38,7 +38,7 @@ try{
   if(baselineRank===null)baselineRank=original.rank;
   else assert.deepEqual(original.rank,baselineRank,'all viewport screenshots use the exact same race');
   const model=await page.evaluate(()=>window.KYOTO_RENDER_STATUS);
-  assert.equal(model.model,'skinned-thoroughbred-v16');assert.equal(model.horses,17);
+  assert.equal(model.model,'skinned-thoroughbred-v16');assert.equal(model.gait,'racing-sprint-v19');assert.equal(model.horses,17);
   assert.equal(model.continuousRunOut,true);assert.equal(model.goalBoardSide,'far');
   assert.equal(model.landmarks?.visionScreenWidth,64,'JRA Turf Vision width 64m');
   assert.equal(model.landmarks?.visionScreenHeight,10.8,'JRA Turf Vision height 10.8m');
@@ -209,8 +209,14 @@ try{
    assert.ok(limbFrames.filter(x=>x.hind>.12).length>=8,'3D hind hooves must not synchronize');
    assert.ok(limbFrames.filter(x=>x.front>.12||x.hind>.12).length>=16,
     '3D fore/hind pairs should not look synchronized');
-   assert.equal((await page.locator('.live-head').textContent()).includes('v16'),true);
-   await page.screenshot({path:'/tmp/race-mobile-shots/shuka-'+vp.width+'-gallop-v16.png'});
+   assert.equal((await page.locator('.live-head').textContent()).includes('v19'),true);
+   const labels=await page.locator('#race-front-labels b:visible').evaluateAll(nodes=>nodes.map(n=>({no:n.dataset.no,name:n.querySelector('.runner-name')?.textContent,rect:n.getBoundingClientRect().toJSON()})));
+   assert.ok(labels.length>=3,'leading runners have number AND name labels');
+   for(const [i,label] of labels.entries()){
+    assert.ok(label.name?.length>1);assert.ok(label.rect.x>=-1&&label.rect.right<=vp.width+1);
+    for(const other of labels.slice(i+1))assert.ok(label.rect.right<=other.rect.left||other.rect.right<=label.rect.left||label.rect.bottom<=other.rect.top||other.rect.bottom<=label.rect.top,'runner names must not overlap');
+   }
+   await page.screenshot({path:'/tmp/race-mobile-shots/shuka-'+vp.width+'-sprint-v19.png'});
    // Observe real playback across the winner's line: translation AND gait continue.
    await seek(980);await page.locator('#live-play').click();
    await page.waitForFunction(()=>window.RACE_SCENE_AUDIT?.runOut===true,null,{timeout:15000});
@@ -257,10 +263,10 @@ try{
  await serveLocal(lab);
  const labErrors=[];lab.on('pageerror',e=>labErrors.push(e.message));
  await lab.goto(new URL('gait-lab.html',url).href,{waitUntil:'domcontentloaded'});
- await lab.waitForFunction(()=>window.EQUINE_GAIT_LAB?.snapshot().rig==='skinned-cc0-v16',
+ await lab.waitForFunction(()=>window.EQUINE_GAIT_LAB?.snapshot().rig==='racing-sprint-v19',
    null,{timeout:30000});
  const baseline=[];
- for(const lead of ['left','right'])for(const view of ['side','three','front'])for(const phase of [0,.25,.5,.75]){
+ for(const lead of ['left','right'])for(const view of ['side','three','front'])for(const phase of [0,.2,.42,.6,.78,.9]){
   await lab.evaluate(l=>window.EQUINE_GAIT_LAB.setLead(l),lead);
   await lab.locator('#camera').selectOption(view);
   await lab.evaluate(p=>window.EQUINE_GAIT_LAB.seek(p),phase);
@@ -269,13 +275,15 @@ try{
   assert.ok(Math.abs(snap.phase-phase)<1e-6,'manual gallop pose is reproducible');
   assert.equal(snap.hoofs.length,4);
   assert.ok(snap.hoofs.every(h=>h.y>-.003),'actual deformed hoof vertices stay above turf');
-  if(phase===.25)assert.ok(snap.hoofs.every(h=>h.y>.035),'gathered suspension is airborne');
-  const limbs=snap.bones.filter(b=>/^(FrontUpperLeg|FrontLowerLeg|BackLeg|BackUpperLeg|BackLowerLeg)/.test(b.name));
+  if(phase===.9)assert.ok(snap.hoofs.every(h=>h.y>.035),'gathered suspension is airborne');
+  // FrontUpperLeg is the translating elbow attachment (scapular slide), not
+  // the length of the radius. Its child FrontLowerLeg measures that rigid bone.
+  const limbs=snap.bones.filter(b=>/^(FrontLowerLeg|BackLeg|BackUpperLeg|BackLowerLeg)/.test(b.name));
   if(baseline.length)limbs.forEach((b,i)=>assert.ok(Math.abs(b.length-baseline[0][i].length)<.0001,'limb bones do not stretch'));
   baseline.push(limbs);
-  await lab.screenshot({path:'/tmp/race-mobile-shots/gallop-v16-'+lead+'-'+view+'-'+phase+'.png'});
+  await lab.screenshot({path:'/tmp/race-mobile-shots/sprint-v19-'+lead+'-'+view+'-'+phase+'.png'});
  }
  assert.deepEqual(labErrors,[],'gait lab emits no WebGL script error');
  await lab.close();
- console.log('PASS v16 real-3D skinned limbs, airborne pose, side/three/front screenshots ✓');
+ console.log('PASS v19 real-3D sprint, airborne pose, side/three/front screenshots ✓');
 }finally{await browser.close();}

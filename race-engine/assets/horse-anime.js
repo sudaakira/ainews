@@ -1,4 +1,4 @@
-/** V16: Quaternius CC0 skinned horse, authored skeletal gallop, articulated rider.
+/** V19: Quaternius CC0 skin, rebuilt racing sprint, articulated rider.
  * Metres, forward +Z. Rendering only; no prediction/RNG/race-position imports.
  * Asset provenance and conversion are in docs/gallop-v16.md and tools/.
  */
@@ -10,8 +10,8 @@ export async function preloadRaceHorse(T){
   const [{GLTFLoader},skeleton,geometry]=await Promise.all([
    import('../vendor/GLTFLoader.js'),import('../vendor/SkeletonUtils.js'),import('../vendor/BufferGeometryUtils.js')]);
   const [gltf,motion]=await Promise.all([
-   new GLTFLoader().loadAsync(new URL('./models/horse-v16.glb',import.meta.url).href),
-   fetch(new URL('./models/horse-motion.json',import.meta.url)).then(r=>{if(!r.ok)throw Error('Horse motion '+r.status);return r.json()})]);
+   new GLTFLoader().loadAsync(new URL('./models/horse-sprint-v19.glb',import.meta.url).href),
+   fetch(new URL('./models/sprint-motion-v19.json',import.meta.url)).then(r=>{if(!r.ok)throw Error('Horse motion '+r.status);return r.json()})]);
   helpers={clone:skeleton.clone,merge:geometry.mergeGeometries};
   gltf.scene.updateMatrixWorld(true);gltf.scene.traverse(m=>{if(m.isSkinnedMesh)m.skeleton.update()});
   const meshes=[];gltf.scene.traverse(o=>{if(o.isSkinnedMesh)meshes.push(o)});
@@ -55,6 +55,7 @@ function interpolateFeet(phase){
  return samples[a].map((p,i)=>{const q=samples[(a+1)%n][i];return {name:p.name,x:p.x+(q.x-p.x)*f,y:p.y+(q.y-p.y)*f,z:p.z+(q.z-p.z)*f}});
 }
 function floorOffset(phase){
+ if(source.motion.grounded)return 0;
  const p=((phase%1)+1)%1;
  const at=t=>.004-Math.min(...interpolateFeet(t).map(f=>f.y*SCALE));
  // Only the gathered-flight interval is unsupported. Preserve its authored
@@ -70,7 +71,7 @@ export function createRaceHorse(T,scene,h,silkHex,frameCapHex='#89929b',frameCap
  const coat=asset.getObjectByName('RaceHorseCoat');coat.material=coat.material.clone();coat.material.color.setHex(colors[(h.no-1)%colors.length]);
  const details=asset.getObjectByName('RaceHorseDetails'),bones={};asset.traverse(o=>{if(o.isBone)bones[o.name]=o});
  const mixer=new T.AnimationMixer(asset),actions={};
- for(const [key,name] of [['left','Gallop_Left'],['right','Gallop_Right'],['idle','Idle']]){
+ for(const [key,name] of [['left','Sprint_Left'],['right','Sprint_Right'],['idle','Idle']]){
   const clip=T.AnimationClip.findByName(source.gltf.animations,name);if(!clip)throw Error('Missing '+name);
   actions[key]=mixer.clipAction(clip).play();actions[key].paused=true;
  }
@@ -87,9 +88,14 @@ export function createRaceHorse(T,scene,h,silkHex,frameCapHex='#89929b',frameCap
  }
  // Saddle, number and name remain explicit attachments, not part of horse skin.
  const saddle=new T.Group();root.add(saddle);ell(saddle,leather,0,0,0,.28,.055,.32);
- const cv=document.createElement('canvas');cv.width=256;cv.height=192;const ctx=cv.getContext('2d');ctx.fillStyle='#172633';ctx.fillRect(0,0,256,192);ctx.fillStyle='#fff';ctx.textAlign='center';ctx.font='bold 126px sans-serif';ctx.fillText(String(h.no),128,132);ctx.font='bold 20px sans-serif';ctx.fillText(h.name,128,171,240);
- const texture=new T.CanvasTexture(cv);texture.colorSpace=T.SRGBColorSpace;
- for(const side of [-1,1]){const c=new T.Mesh(new T.PlaneGeometry(.62,.42),new T.MeshBasicMaterial({map:texture,side:T.DoubleSide}));c.position.set(side*.36,-.20,-.04);c.rotation.y=side*Math.PI/2;saddle.add(c)}
+ const cv=document.createElement('canvas');cv.width=1024;cv.height=640;const ctx=cv.getContext('2d');
+ ctx.fillStyle='#102a3c';ctx.fillRect(0,0,1024,640);ctx.strokeStyle='#fff';ctx.lineWidth=14;ctx.strokeRect(14,14,996,612);
+ ctx.fillStyle='#fff';ctx.textAlign='center';ctx.font='900 405px sans-serif';ctx.fillText(String(h.no),570,430);
+ ctx.font='900 88px sans-serif';ctx.fillText(h.name,512,571,960);
+ const texture=new T.CanvasTexture(cv);texture.colorSpace=T.SRGBColorSpace;texture.anisotropy=8;
+ // The name occupies its own full-width strip below the boot, rather than
+ // being squeezed into a 20px texture caption. Both sides read left-to-right.
+ for(const side of [-1,1]){const c=new T.Mesh(new T.PlaneGeometry(.88,.55),new T.MeshBasicMaterial({map:texture,side:T.FrontSide}));c.position.set(side*.39,-.27,-.10);c.rotation.y=side*Math.PI/2;saddle.add(c)}
  const rider=new T.Group();root.add(rider);
  const neck=segment(rider,skin,.045,.04);
  const torso=ell(rider,silk,0,0,0,.145,.24,.115),pelvis=ell(rider,white,0,0,0,.15,.08,.14);
@@ -111,7 +117,7 @@ export function createRaceHorse(T,scene,h,silkHex,frameCapHex='#89929b',frameCap
  const shadow=makeShadow(1.15,2.9),footShadows=Array.from({length:4},()=>makeShadow(.26,.30));
  const localPoint=(bone,out=new T.Vector3())=>{bone.getWorldPosition(out);return out.applyMatrix4(inverse)};
  const joint=(a,b,l1,l2,pole)=>{const d=b.clone().sub(a),len=Math.max(.0001,d.length());d.divideScalar(len);const along=Math.min(l1,(l1*l1-l2*l2+len*len)/(2*len));const normal=pole.clone().addScaledVector(d,-pole.dot(d)).normalize();return a.clone().addScaledVector(d,along).addScaledVector(normal,Math.sqrt(Math.max(0,l1*l1-along*along)))};
- const model={root,anim,asset,rider,shadow,gallopRig:'skinned-cc0-v16',artDirection:'skinned-thoroughbred-v16',gaitState:null};
+ const model={root,anim,asset,rider,shadow,gallopRig:'racing-sprint-v19',artDirection:'skinned-thoroughbred-v16',gaitState:null};
  model.pose=(phase,active,rightWeight,sprint=0)=>{
   actions.left.setEffectiveWeight(active*(1-rightWeight));actions.right.setEffectiveWeight(active*rightWeight);actions.idle.setEffectiveWeight(1-active);
   actions.left.time=actions.right.time=phase*source.motion.duration;actions.idle.time=0;mixer.update(0);
@@ -123,9 +129,9 @@ export function createRaceHorse(T,scene,h,silkHex,frameCapHex='#89929b',frameCap
   // knees/elbows articulate. The rider is not a rigid bobbing statuette.
   const hipY=sy+.22-(sy-1.49)*.56*active;
   const hip=new T.Vector3(0,hipY,sz-.16);
-  const shoulder=new T.Vector3(0,hipY+.25+.08*(1-active),sz+.28+.035*sprint);
+  const shoulder=new T.Vector3(0,hipY+.02+.31*(1-active),sz+.40+.035*sprint);
   pelvis.position.copy(hip);connect(torso,hip,shoulder);torso.scale.y*=.55;
-  head.position.copy(shoulder).add(new T.Vector3(0,.145,.13));head.rotation.x=-pitch*.18;connect(neck,shoulder.clone().add(new T.Vector3(0,.01,.04)),head.position.clone().add(new T.Vector3(0,-.075,-.02)));
+  head.position.copy(shoulder).add(new T.Vector3(0,.11,.13));head.rotation.x=-pitch*.18;connect(neck,shoulder.clone().add(new T.Vector3(0,.01,.04)),head.position.clone().add(new T.Vector3(0,-.075,-.02)));
   const mouth=bones.Head.localToWorld(source.mouth.clone()).applyMatrix4(inverse);
   for(const l of limbs){
    const x=l.side;const ankle=new T.Vector3(x*.38,sy-.27,sz-.065),hipSide=hip.clone().add(new T.Vector3(x*.12,0,0));
@@ -145,7 +151,7 @@ export function createRaceHorse(T,scene,h,silkHex,frameCapHex='#89929b',frameCap
   shadow.material.opacity=flight?.64:.88;
   hoofs.forEach((f,i)=>{const m=footShadows[i];m.position.set(f.hoofX,.008,f.hoofZ);m.material.opacity=active*Math.max(0,.85-f.hoofY*3.5)});
   root.updateMatrixWorld(true);
-  model.gallopAudit={phase,lead:rightWeight*2-1,flight,noHoofContact:flight,hoofs,sampledFrom:'quaternius-authored-skeleton-v16'};
+  model.gallopAudit={phase,lead:rightWeight*2-1,flight,noHoofContact:flight,hoofs,sampledFrom:'constructed-racing-sprint-v19'};
  };
  model.renderedHoofs=()=>{
   root.updateMatrixWorld(true);details.skeleton.update();const inv=root.matrixWorld.clone().invert();

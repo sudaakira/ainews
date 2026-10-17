@@ -178,11 +178,11 @@ import {jockeyCap} from './core/jockey-caps.js?v=cap-v1';
  }
  function box(w,h,d,material,parent,x,y,z){let m=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),material);m.position.set(x,y,z);parent.add(m);return m}
  const silkColors=['#d63e3e','#e8e4df','#2670db','#edc33a','#dd63a5','#4ebbb0','#c7c7c7','#f2932f','#7144bd','#bda144','#db5e32','#62b55c','#e4edf4','#9c78d7','#5b9bd1','#c5a07c','#d6dc45','#cb5171'];
- const {updateGallop}=await import("./assets/chibi-gallop.js?v=skin-v16");
+ const {updateGallop}=await import("./assets/chibi-gallop.js?v=sprint-v19");
  const models=[];
  let horseV3Ready=false,modelError='';
  try{
-  const horseV3=await import("./assets/horse-anime.js?v=skin-v16");
+  const horseV3=await import("./assets/horse-anime.js?v=sprint-v19");
   await horseV3.preloadRaceHorse(THREE);
   for(const h of HS){
    const frameCap=capFor(h);
@@ -306,9 +306,9 @@ import {jockeyCap} from './core/jockey-caps.js?v=cap-v1';
  document.querySelector('.camera-more')?.setAttribute('hidden','');
  stage.style.display='block';svg.classList.add('svg-hidden');
  status.textContent='3D RACE · '+models.length+'頭';
- document.getElementById('horse-model-version').textContent='EQUINE v16 · SKELETAL GALLOP';
- const liveTitle=document.querySelector('.live-head strong');if(liveTitle)liveTitle.textContent+=' · v16';
- window.KYOTO_RENDER_STATUS={ready:true,model:'skinned-thoroughbred-v16',gait:'authored-skeletal-v16',venue:venueReady?'full':'fallback',
+ document.getElementById('horse-model-version').textContent='EQUINE v19 · RACING SPRINT';
+ const liveTitle=document.querySelector('.live-head strong');if(liveTitle)liveTitle.textContent+=' · v19';
+ window.KYOTO_RENDER_STATUS={ready:true,model:'skinned-thoroughbred-v16',gait:'racing-sprint-v19',venue:venueReady?'full':'fallback',
   horses:models.length,camera:'mobile-first-fixed-direction-five-cut-dolly-v19',courseView:config.courseView,
   cinematic:true,saddleclothNames:true,goalBoard:!!goalBoard,gateDisappears:true,
   continuousRunOut:true,goalBoardSide:'far',furlongDigits:furlongPosts.map(x=>x.digit),landmarks:kyotoLandmarks?.audit||null};
@@ -324,16 +324,23 @@ import {jockeyCap} from './core/jockey-caps.js?v=cap-v1';
  leaderLabelLayer.id='race-front-labels';
  leaderLabelLayer.style.cssText='position:absolute;inset:0;z-index:13;pointer-events:none;overflow:hidden;';
  stage.append(leaderLabelLayer);
+ const labelLines=document.createElementNS('http://www.w3.org/2000/svg','svg');
+ labelLines.style.cssText='position:absolute;inset:0;width:100%;height:100%;overflow:visible;';leaderLabelLayer.append(labelLines);
+ const leaderLines=new Map();
  const leaderLabels=new Map(HS.map(h=>{
+  const line=document.createElementNS('http://www.w3.org/2000/svg','line');line.setAttribute('stroke','#ffffffcc');line.setAttribute('stroke-width','1');line.style.display='none';labelLines.append(line);leaderLines.set(h.no,line);
   const cap=capFor(h),node=document.createElement('b');
   node.dataset.no=String(h.no);
   node.setAttribute('aria-label',h.no+'番 '+h.name);
   node.title=h.name;
-  node.textContent=String(h.no);
-  node.style.cssText='position:absolute;display:none;place-items:center;min-width:19px;height:19px;'+
-   'padding:0 3px;box-sizing:border-box;border:1px solid '+cap.outline+';'+
-   'border-radius:5px;background:'+cap.hex+';color:'+cap.text+';'+
-   'font:900 12px/1 sans-serif;box-shadow:0 1px 4px #10231cbb;'+
+  const number=document.createElement('span'),name=document.createElement('span');
+  number.textContent=String(h.no);number.className='runner-number';
+  number.style.cssText='display:grid;place-items:center;min-width:22px;padding:0 3px;background:'+cap.hex+';color:'+cap.text+';font-size:14px;';
+  name.textContent=h.name;name.className='runner-name';name.style.cssText='padding:0 5px;';node.append(number,name);
+  node.style.cssText='position:absolute;display:none;align-items:center;height:23px;'+
+   'box-sizing:border-box;border:1px solid #ffffffdd;'+
+   'border-radius:4px;background:#102a3cf2;color:white;'+
+   'font:700 12px/21px sans-serif;box-shadow:0 1px 4px #10231cbb;'+
    'transform:translate(-50%,-100%);white-space:nowrap;';
   leaderLabelLayer.append(node);return [h.no,node];
  }));
@@ -460,25 +467,29 @@ import {jockeyCap} from './core/jockey-caps.js?v=cap-v1';
   const farthestHorse=Math.max(...models.map(m=>m.root.position.clone().sub(camera.position).dot(sight)));
   const leaderVisual=models[order[0].no-1].root.localToWorld(new THREE.Vector3(0,1.85,0)).project(camera);
    const leaderNose=models[order[0].no-1].root.localToWorld(new THREE.Vector3(0,2.05,1.75)).project(camera);
-   // Mark the foremost 3-5 runners so their saddlecloth numbers remain
+   // Mark the foremost three runners so their number and full name remain
    // legible at the smaller iPhone display size. Never cover the picture at the gate.
    const broadcastSubjects=new Set(window.RACE_CINEMATIC_DEBUG?.pose?.subjects||[]);
-    // The wide 4C shot includes 12-15 horses, but number chips belong only
-    // to the first five runners; otherwise the mobile picture is obscured.
-    const pictured=new Set(order.filter(o=>broadcastSubjects.has(o.no)).slice(0,5).map(o=>o.no));
+    // Three full-name labels keep the mobile picture clear of a wall of text.
+    const pictured=new Set(order.filter(o=>broadcastSubjects.has(o.no)).slice(0,3).map(o=>o.no));
    const placed=[];
    for(const [no,node] of leaderLabels){
+    const line=leaderLines.get(no);line.style.display='none';
     if(clock<2||!pictured.has(no)){node.style.display='none';continue}
     const m=models[no-1],pt=m.root.localToWorld(new THREE.Vector3(0,3.20,0)).project(camera);
     if(pt.z< -1||pt.z>1||Math.abs(pt.x)>1.15||Math.abs(pt.y)>1.25){node.style.display='none';continue}
     // At the finish the jockey's head can reach the top of the perspective
     // frame even while the horse is visible. Keep the label legible by
     // pinning it just inside the broadcast-safe image area.
-    const x=Math.max(16,Math.min(cw-16,(pt.x+1)*cw/2));
-    const y=Math.max(81,Math.min(ch-110,(1-pt.y)*ch/2));
-    const overlap=placed.filter(q=>Math.abs(q.x-x)<27&&Math.abs(q.y-y)<26).length;
-    node.style.left=x.toFixed(1)+'px';node.style.top=(y-overlap*19).toFixed(1)+'px';
-    node.style.display='grid';placed.push({x,y:y-overlap*19});
+    node.style.display='flex';const width=node.offsetWidth;
+    const x=Math.max(width/2+4,Math.min(cw-width/2-4,(pt.x+1)*cw/2));
+    let y=Math.max(160,Math.min(ch-110,(1-pt.y)*ch/2));
+    // Actual name-label rectangles, not the old 19px number-only collision box.
+    for(let attempt=0;attempt<3&&placed.some(q=>Math.abs(q.x-x)<(q.width+width)/2+4&&Math.abs(q.y-y)<26);attempt++)y-=26;
+    node.style.left=x.toFixed(1)+'px';node.style.top=y.toFixed(1)+'px';
+    placed.push({x,y,width});
+    const anchor=m.root.localToWorld(new THREE.Vector3(0,2.15,0)).project(camera);
+    line.setAttribute('x1',x);line.setAttribute('y1',y);line.setAttribute('x2',(anchor.x+1)*cw/2);line.setAttribute('y2',(1-anchor.y)*ch/2);line.style.display='';
    }
    const gateCenter=gateRoot.position.clone().add(new THREE.Vector3(0,2.15,0)).project(camera);
    const gateEdges=[];
