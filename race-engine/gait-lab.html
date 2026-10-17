@@ -60,7 +60,8 @@ try{
   version:'v15',
   seek(phase){
    playing=false;$('play').textContent='▶ 再生';
-   if(model.gaitState)model.gaitState.phase=((phase%1)+1)%1;
+   if(!model.gaitState)model.gaitState={phase:0,lead:1,time:elapsed};
+   model.gaitState.phase=((phase%1)+1)%1;
   },
   snapshot(){
    return {phase:model.gallopAudit?.phase,lead:model.gallopAudit?.lead,
