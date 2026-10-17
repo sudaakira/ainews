@@ -26,9 +26,25 @@ export function raceCameraPose({shot,progress,order,path,aspect=1}){
  const cx=(heading.dz*side+heading.dx*ahead)/norm,cz=(-heading.dx*side+heading.dz*ahead)/norm;
  const tan=Math.tan(shot.fov*Math.PI/360)*Math.max(.42,aspect);
  const fit=Math.max(...field.map((q,i)=>(Math.abs(horizontal[i])+1.9)/tan+(q.x-focus.x)*cx+(q.z-focus.z)*cz));
- const scale=Math.max(1,fit/norm);
+ let scale=Math.max(1,fit/norm);
+ // Lead horse at ~20% from the LEFT edge: the left 20% stays clear.
+ // Retain the start's all-horse gate framing; apply this to tracking shots.
+ const leadViewportX=.20;
+ if(!full){
+  const leaderHorizontal=horizontal[0];
+  const behindSpan=Math.max(0,...horizontal.map(x=>leaderHorizontal-x));
+  // Ensure that the remaining 75-80% fits the chasing horses on phones.
+  const minimumHalfWidth=(behindSpan+3.8)/1.48;
+  scale=Math.max(scale,minimumHalfWidth/(norm*tan));
+  const halfWidth=norm*scale*tan;
+  const wantedLeadHorizontal=(1-2*leadViewportX)*halfWidth;
+  const shift=leaderHorizontal-wantedLeadHorizontal;
+  focus.x+=rx*shift;
+  focus.z+=rz*shift;
+ }
  side*=scale;ahead*=scale;
- // Deliberately retain low elevation even when width requires more distance.
+ // Pan/dolly keep the same rail-side and low broadcast elevation.
  const point=(lateral,forward,y)=>({x:focus.x+heading.dz*lateral+heading.dx*forward,y:focus.y+y,z:focus.z-heading.dx*lateral+heading.dz*forward});
- return {position:point(side,ahead,height),look:point(0,0,1.35),fov:shot.fov,forward:{x:heading.dx,z:heading.dz},side,subjects:group.map(o=>o.no)};
+ return {position:point(side,ahead,height),look:point(0,0,1.35),fov:shot.fov,forward:{x:heading.dx,z:heading.dz},side,subjects:group.map(o=>o.no),
+  targetLeadViewportX:full?null:leadViewportX};
 }
