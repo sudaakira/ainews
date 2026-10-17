@@ -409,7 +409,10 @@ import {jockeyCap} from './core/jockey-caps.js?v=cap-v1';
   // Seeking/paused states render their requested position exactly; live
   // footage moves with frame-rate-independent filters for no micro-jitters.
   const snap=first||shotDirection?.cut||clockJump||!LIVE.playing;
-  const trackAlpha=1-Math.exp(-frameDt*(10+Math.min(16,rate)*.65));
+  // Following at 8x requires a near-real-time dolly. The old 15.2/s
+  // filter lagged ~8m and pushed the winner OFF the left edge on iPhone.
+  // The new course-relative pose is smooth, so it can be followed closely.
+  const trackAlpha=1-Math.exp(-frameDt*(48+Math.min(16,rate)*2.5));
   const lensAlpha=1-Math.exp(-frameDt*(8+Math.min(16,rate)*.50));
   if(snap){
    camera.position.copy(desired);smoothLook.copy(look);
