@@ -134,10 +134,8 @@ export function createRaceCinematics({THREE,scene,stage,models,config,capFor,pat
   const pose=raceCameraPose({shot,progress:p,order,path,aspect:camera.aspect,clock,direction:config.direction,distance:config.distance,venue:config.venue});
   if(pose.mode!==lastMode){cut=true;lastMode=pose.mode;}
    desired.set(pose.position.x,pose.position.y,pose.position.z);look.set(pose.look.x,pose.look.y,pose.look.z);
-  camera.fov=pose.fov;camera.updateProjectionMatrix();
-   // Shift the optical axis rather than extending the field-wide shot.
-   camera.projectionMatrix.elements[8]=pose.lensShiftX||0;
-   camera.projectionMatrixInverse.copy(camera.projectionMatrix).invert();
+  // Camera zoom and shift get the same framerate-independent damping as
+  // position/look in renderer.js. No instantaneous optical jumps at 8x.
   let j=0;
   for(let i=0;i<models.length;i++)for(let k=0;k<perHorse;k++,j++){
    const root=models[i].root,t=(clock*.16+i*.37+k/perHorse)%1;
@@ -153,7 +151,7 @@ export function createRaceCinematics({THREE,scene,stage,models,config,capFor,pat
   window.RACE_CINEMATIC_DEBUG={shot:shot.id,progress:p,rate,cut,scriptedCuts:5,
    mode:'kyoto-five-cut-broadcast',cuts,position:shot.label,runOut:runningOut,crossed:crossed.length,
    sideOn:shot.ahead===0,pose};
-  return {cut,shot:shot.id};
+  return {cut,shot:shot.id,fov:pose.fov,lensShiftX:pose.lensShiftX||0};
  }
  return {update};
 }
