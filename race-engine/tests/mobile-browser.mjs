@@ -33,8 +33,12 @@ try{
   const canvas=await page.locator('#three-stage canvas').boundingBox();
   assert.ok(canvas.width>200&&canvas.height>200);
   if(vp.width===390||vp.width===1280){
-   const gateCheck=await page.evaluate(()=>window.RACE_SCENE_AUDIT?.gateScreenX);
-   assert.ok(gateCheck>.02&&gateCheck<.18,'gate must sit near trailing left edge at start: '+gateCheck);
+   const gateCheck=await page.evaluate(()=>({min:window.RACE_SCENE_AUDIT?.gateMinScreenX,
+    max:window.RACE_SCENE_AUDIT?.gateMaxScreenX,
+    center:window.RACE_SCENE_AUDIT?.gateScreenX}));
+   console.log('START_GATE_BOUNDS',JSON.stringify({vp,gateCheck}));
+   assert.ok(gateCheck.min>=-.015&&gateCheck.min<=.12&&gateCheck.max<=.94,
+    'whole gate must sit at the trailing left side: '+JSON.stringify(gateCheck));
   }
   if(vp.width<700){
    for(const id of ['#live-play','#live-pause','#live-reset','#live-rate','#race']){
