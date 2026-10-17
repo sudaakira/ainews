@@ -227,7 +227,7 @@ export function raceCameraPose({shot,progress,order,path,aspect=1,clock=Infinity
   : (venue==='京都'&&distance===2000?kyotoOuterCourseOffset(pCenter+(isGate?0:inFront/distance)):0)+half;
  const outsideDist=rightCircuit?railLane-cameraLane:cameraLane-railLane;
  if(outsideDist<8)throw new Error('Outside-rail camera is INSIDE track: '+outsideDist.toFixed(2)+'m');
- return {...pose,fov,side:side*scale,subjects:group.map(o=>o.no),
+ const result={...pose,fov,side:side*scale,subjects:group.map(o=>o.no),
   lensShiftX,outerRailSign:outsideSign,tracked:group.length,
   mode:isGate?'gate-front-broadcast':'rail-broadcast-'+shot.id,
   outerRailClearance:outsideDist,cameraLane,railLane,railOutsideVerified:true,outerCourseBulge:groupBulge,
@@ -238,6 +238,33 @@ export function raceCameraPose({shot,progress,order,path,aspect=1,clock=Infinity
   projectedWidth,dollyScale:scale,
   shotPerspective:isGate?'front-gate':shot.id==='backstretch'?'outside-side-field':
    shot.id==='fourth-turn'?'outside-front-oblique':'outside-side'};
+ // Precompose the complete 4C tracking arc on the first frame. The camera
+ // follows the curved rail with a LOCKED lens, so centering only the first
+ // frame can push the leader off the iPhone edge halfway through the turn.
+ // Simulate the actual rail dolly and reserve lead room across the full cut.
+ if(shot.id==='fourth-turn'){
+  const sampleProgress=[.675,.70,.73,.75,.78,.81,.835];
+  const screens=[];
+  for(const p of sampleProgress){
+   const candidate=followLockedCameraPose({pose:{...result,shotId:shot.id},startLeaderProgress:lead.p},
+    [{no:lead.no,p:lead.p+(p-progress)}],path,{distance,venue,direction});
+   const q=path(lead.p+(p-progress));
+   const lane=runnerLane(lead.no,order.length,p);
+   const nose={x:q.x-q.dz*lane+q.dx*2.7,y:q.y+2,z:q.z+q.dx*lane+q.dz*2.7};
+   const projected=projectPoint(nose,candidate.position,candidate.look,fov,a);
+   if(projected.visible) screens.push(.5+.5*(projected.x-result.lensShiftX));
+  }
+  if(screens.length){
+   const low=Math.min(...screens),high=Math.max(...screens);
+   // Center the extreme projected positions in the usable portrait frame.
+   // A constant shift preserves the no-zoom/no-jitter broadcast requirement.
+   const shift=(low+high)/2-.46;
+   result.lensShiftX+=2*shift;
+   result.leadNoseViewportTarget-=shift;
+   result.forwardGap=Math.min(result.leadNoseViewportTarget,1-result.leadNoseViewportTarget);
+  }
+ }
+ return result;
 }
 
 /**
