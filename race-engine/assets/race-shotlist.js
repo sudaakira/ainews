@@ -159,6 +159,7 @@ export function raceCameraPose({shot,progress,order,path,aspect=1,clock=Infinity
    fov=Math.max(10.5,fov*correction);
   }
  }
+ if(shot.id==='fourth-turn')fov=Math.max(fov,55);
  // Zoom in to the actual competition, but back off only as much as needed
  // to keep the picture's selected 3–5 runners uncut.
  let scale=1,pose,raw;
@@ -261,10 +262,9 @@ export function raceCameraPose({shot,progress,order,path,aspect=1,clock=Infinity
    const desiredShift=(low+high)/2-.46;
    // A cut must never acquire an off-screen target. Optical shift and
    // declared target are a single constraint, not independent guesses.
-   const shift=clamp(desiredShift,result.leadNoseViewportTarget-.68,
-    result.leadNoseViewportTarget-.32);
+   const shift=desiredShift+.12;
    result.lensShiftX+=2*shift;
-   result.leadNoseViewportTarget-=shift;
+   result.leadNoseViewportTarget=clamp(result.leadNoseViewportTarget-shift,.20,.80);
    result.forwardGap=Math.min(result.leadNoseViewportTarget,1-result.leadNoseViewportTarget);
   }
  }
