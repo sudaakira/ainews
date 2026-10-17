@@ -227,7 +227,48 @@ export function raceCameraPose({shot,progress,order,path,aspect=1,clock=Infinity
   aheadScreenSide,gateScreenX:isGate?.5:null,
   leadNoseViewportTarget,leadNumber:lead.no,
   forwardGap:leadNoseViewportTarget===null?null:Math.min(leadNoseViewportTarget,1-leadNoseViewportTarget),
+  referenceProgress:pCenter,stationAheadMeters:inFront,lockedCameraRequested:true,
   projectedWidth,dollyScale:scale,
   shotPerspective:isGate?'front-gate':shot.id==='third-entry'?'outside-headon':
    shot.id==='fourth-turn'?'outside-oblique':'outside-side'};
+}
+
+/**
+ * Film-style TRACKING DOLLY: within each cut, freeze the lens and viewing
+ * orientation, moving position and look target by the SAME world-space delta.
+ * No recalculated focal lengths, lens shifts, pack-centre yaw or per-frame
+ * shot fit (those were the source of visible shaking on iPhone).
+ *
+ * This is a pure function: a cut change/seek creates a new rig once,
+ * ordinary playback follows the leading horse's distance on the course.
+ */
+export function followLockedCameraPose(rig,order,path,{distance=2000,venue='京都',direction='右'}={}){
+ const leader=order?.[0];
+ if(!leader)return rig.pose;
+ const track=path(leader.p),start=path(rig.startLeaderProgress);
+ const dx=track.x-start.x,dy=track.y-start.y,dz=track.z-start.z;
+ const position={x:rig.pose.position.x+dx,y:rig.pose.position.y+dy,z:rig.pose.position.z+dz};
+ const look={x:rig.pose.look.x+dx,y:rig.pose.look.y+dy,z:rig.pose.look.z+dz};
+ // Rail-safe outside dolly. If Kyoto's track curls beneath the camera,
+ // translate BOTH camera and aim sideways — never pan/rotate the camera.
+ const right=direction!=='左',t=leader.p+(rig.pose.stationAheadMeters||0)/distance;
+ const station=path(t),half=venue==='京都'&&distance===2000?KYOTO_INNER.width/2:13.5;
+ const railLane=(venue==='京都'&&distance===2000?kyotoOuterCourseOffset(t):0)+(right?-half:half);
+ let lane=-(position.x-station.x)*station.dz+(position.z-station.z)*station.dx;
+ const target=railLane+(right?-15:15);
+ let moved=0;
+ if(right&&lane>target)moved=target-lane;
+ if(!right&&lane<target)moved=target-lane;
+ if(moved){
+  const ddx=-station.dz*moved,ddz=station.dx*moved;
+  position.x+=ddx;position.z+=ddz;look.x+=ddx;look.z+=ddz;
+  lane+=moved;
+ }
+ const clearance=right?railLane-lane:lane-railLane;
+ if(clearance<11.9)throw new Error('Locked dolly crossed the outside rail');
+ return {...rig.pose,position,look,outerRailClearance:clearance,
+  cameraLane:lane,railLane,railOutsideVerified:true,leadNumber:leader.no,
+  lockedCamera:true,baseShotId:rig.pose.shotId||null,
+  // The lens, aim direction and shot scale stay fixed within the cut.
+  lensShiftX:rig.pose.lensShiftX,fov:rig.pose.fov};
 }
