@@ -170,8 +170,11 @@ el('simulate').onclick=run;el('csv').onclick=()=>{
  a.download=config.id+'_condition_loop.csv';a.click();URL.revokeObjectURL(a.href);
 };el('pace').oninput=()=>el('pacelabel').textContent=['超スロー','スロー','ややスロー','中立','ややハイ','ハイ','超ハイ'][+el('pace').value+3];el('speed').oninput=()=>el('speedlabel').textContent=['通常','やや高速','高速','レコード級'][+el('speed').value];el('vol').oninput=()=>el('vollabel').textContent=el('vol').value;
 if(Number.isInteger(config.defaultPace))el('pace').value=String(Math.max(-3,Math.min(3,config.defaultPace)));
+ if(Number.isFinite(config.defaultVol))el('vol').value=String(Math.max(1,Math.min(16,config.defaultVol)));
+ if(Number.isFinite(config.defaultPlaybackRate)&&[1,2,4,8,16].includes(config.defaultPlaybackRate))el('live-rate').value=String(config.defaultPlaybackRate);
+ if(config.defaultBias&&Array.from(el('bias-mode').options).some(option=>option.value===config.defaultBias))el('bias-mode').value=config.defaultBias;
 if(Number.isInteger(config.defaultSimulations))el('n').value=String(config.defaultSimulations);
-el('pace').oninput();el('speed').oninput();
+el('pace').oninput();el('speed').oninput();el('vol').oninput();
 initWeightControls();run();
 
 
@@ -279,7 +282,7 @@ function liveFrame(t){
   if(LIVE.last){
    const dt=Math.min(.12,Math.max(0,(t-LIVE.last)/1000));
    const rate=playbackRate(+el('live-rate').value,LIVE.clock,LIVE.duration);
-   // Race time accelerates up to 16x, but gallop phase advances smoothly in screen time.
+   // Playback defaults to 8x (adjustable up to 16x); gallop motion remains smooth.
    // This avoids stroboscopic frozen/jerky legs at high playback speeds.
    LIVE.clock=Math.min(playbackEnd(LIVE.duration,FIELD),LIVE.clock+dt*rate);
    LIVE.visualTime+=dt*(1+.13*Math.log2(rate));
