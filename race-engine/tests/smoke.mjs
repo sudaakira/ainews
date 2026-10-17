@@ -311,102 +311,87 @@ assert.doesNotMatch(cinemaJS,/toReversed/,'leader is on left');
 console.log('Kyoto metric route, goal offset, 3C elevation, left-leading order and data-driven commentary ✓');
 
 
-// Actual transverse four-beat gait: non-leading hind -> leading hind ->
-// non-leading fore -> leading fore -> ONE suspension. Both leads must mirror.
-const {GALLOP_BEATS,hoofTrajectory,sampleGallop,solveLegIK,updateGallop}=await load('assets/chibi-gallop.js');
-assert.deepEqual(GALLOP_BEATS.map(x=>[x.limb,x.lead]),[
- ['hind',false],['hind',true],['front',false],['front',true]
-]);
-assert.deepEqual(GALLOP_BEATS.map(x=>x.start),[0,.15,.31,.47]);
+// Measured photographic gallop is now the authoritative visual regression.
+// Source: https://www.hemispheregames.com/eddybox_cs_ubc/projects/533B/angles.txt
+const {EQUINE_FRAMES,EQUINE_BONE_LENGTHS,sampleEquineFrame,hoofEndpoint}=await load('assets/equine-motion-frames.js');
+const {GALLOP_BEATS,sampleGallop,updateGallop}=await load('assets/chibi-gallop.js');
+assert.equal(EQUINE_FRAMES.length,12,'all twelve photographic key poses are present');
+assert.ok(EQUINE_FRAMES.every(f=>f.length===18&&f.every(Number.isFinite)));
+assert.deepEqual(GALLOP_BEATS.map(x=>x.limb),['hind','hind','front','front']);
+assert.deepEqual(GALLOP_BEATS.map(x=>x.lead),[false,true,false,true]);
+assert.equal(EQUINE_BONE_LENGTHS.front.length,4);
+assert.equal(EQUINE_BONE_LENGTHS.hind.length,4);
+assert.match(anime,/leg\.joints|joints=\[pivot\]/);
+assert.match(anime,/segmentLengths/);
+assert.match(anime,/side===-1\?legShade:coat/);
+assert.match(read('assets/chibi-gallop.js'),/sampleEquineFrame/);
+assert.doesNotMatch(read('assets/chibi-gallop.js'),/solveLegIK/,'the old two-bone crab-motion solver must be gone');
+for(const lead of ['right','left']){
+ for(let i=0;i<=1200;i++){
+  const pose=sampleEquineFrame(i/1200,lead);
+  assert.equal(pose.length,18);
+  assert.ok(pose.every(Number.isFinite),'pose interpolation never creates non-finite values');
+ }
+ const first=sampleEquineFrame(0,lead),last=sampleEquineFrame(1-1e-7,lead);
+ assert.ok(Math.max(...first.map((v,i)=>Math.abs(v-last[i])))<.0002,'cyclic seam has continuous joints');
+ const f=sampleEquineFrame(.273,lead),other=sampleEquineFrame(.273,lead==='right'?'left':'right');
+ for(let j=0;j<4;j++){
+  assert.ok(Math.abs(f[2+j]-other[6+j])<1e-8);
+  assert.ok(Math.abs(f[10+j]-other[14+j])<1e-8);
+ }
+}
+for(const [phase,limb] of [[0,2],[2/12,3],[4/12,0],[7/12,1]]){
+ const feet=sampleGallop(phase,1);
+ assert.ok(feet[limb].hoofY<.070,'recorded transverse footfall should approach turf');
+}
 for(const lead of [-1,1]){
- const first=sampleGallop(.04,lead).filter(l=>l.contact);
- assert.deepEqual(first.map(l=>[l.front,l.side]),[[false,-lead]]);
- const second=sampleGallop(.20,lead).filter(l=>l.contact&&l.beatIndex===1);
- assert.deepEqual(second.map(l=>[l.front,l.side]),[[false,lead]]);
- const third=sampleGallop(.39,lead).filter(l=>l.contact&&l.beatIndex===2);
- assert.deepEqual(third.map(l=>[l.front,l.side]),[[true,-lead]]);
- const fourth=sampleGallop(.57,lead).filter(l=>l.contact&&l.beatIndex===3);
- assert.deepEqual(fourth.map(l=>[l.front,l.side]),[[true,lead]]);
- for(const p of [.72,.78,.84,.90])assert.ok(sampleGallop(p,lead).every(l=>!l.contact),'flight must have zero planted hooves');
- for(let beat=0;beat<4;beat++){
-  const landing=hoofTrajectory(GALLOP_BEATS[beat].start+.02,beat);
-  assert.equal(landing.height,.052,'contact stays at turf');
+ let front=0,hind=0,maxFore=0,maxHind=0;
+ for(let i=0;i<120;i++){
+  const legs=sampleGallop(i/120,lead);
+  front+=Math.abs(legs[0].angles[0]-legs[1].angles[0])/120;
+  hind+=Math.abs(legs[2].angles[0]-legs[3].angles[0])/120;
+  maxFore=Math.max(maxFore,Math.abs(legs[0].angles[0]-legs[1].angles[0]));
+  maxHind=Math.max(maxHind,Math.abs(legs[2].angles[0]-legs[3].angles[0]));
  }
+ assert.ok(front>.1&&maxFore>.3,'individual fore shoulders must move on different phases');
+ assert.ok(hind>.12&&maxHind>.3,'individual hind hips must move on different phases');
 }
-for(const front of [true,false]){
- const upper=front?.61:.68,lower=front?.735:.755;
- for(let z=-.28;z<=.28;z+=.04)for(let down=1.08;down<1.32;down+=.04){
-  const {hip,knee}=solveLegIK(upper,lower,z,down,front);
-  const y=upper*Math.cos(hip)+lower*Math.cos(hip+knee);
-  const forward=-upper*Math.sin(hip)-lower*Math.sin(hip+knee);
-  assert.ok(Math.hypot(y-down,forward-z)<1e-8,'IK must reach the planted foot without floating');
- }
-}
-// UI controls must only affect the rendered skeleton; race results remain untouched.
-assert.match(render,/speedMps,lead/);
-assert.match(render,/gallopAudit/);
-assert.match(anime,/hoofRig/);
-assert.match(anime,/gallopRig:'four-beat-ik-v1'/);
-assert.match(html,/renderer\.js\?v=distinct-v13/);
-assert.match(html,/4拍子 v13/);
-assert.match(render,/playing:LIVE.playing/);
-const makeRotation=()=>({x:0,y:0,z:0,set(x,y,z){this.x=x;this.y=y;this.z=z;}});
+const rot=()=>({x:0,y:0,z:0,set(x,y,z){this.x=x;this.y=y;this.z=z;}});
 const rig={
- legs:[true,false].flatMap(front=>[-1,1].map(side=>({
-  front,side,upper:front?.74:.80,lower:front?.90:.92,
-  pivot:{position:{y:front?1.17:1.24,z:front?.40:-.63},rotation:makeRotation()},
-  knee:{rotation:makeRotation()},hoofRig:{rotation:makeRotation()}
- }))),
- anim:{position:{y:0},rotation:makeRotation()},
- headRig:{position:{y:2.03},rotation:makeRotation()},
- tailRig:{rotation:makeRotation()},ears:[],maneStrands:[],tailStrands:[],
- rider:{position:{y:0},rotation:makeRotation()},
+ legs:[true,false].flatMap(front=>[-1,1].map(side=>{
+  const lengths=front?EQUINE_BONE_LENGTHS.front:EQUINE_BONE_LENGTHS.hind;
+  const joints=Array.from({length:4},()=>({rotation:rot()}));
+  return {front,side,segmentLengths:lengths,pivot:{position:{y:front?1.24:1.27,z:front?.38:-.66}},
+    joints};
+ })),
+ anim:{position:{y:0},rotation:rot()},
+ headRig:{position:{y:2.03},rotation:rot()},
+ tailRig:{rotation:rot()},ears:[],maneStrands:[],tailStrands:[],
+ rider:{position:{y:0},rotation:rot()},
  shadow:{material:{opacity:.22},scale:{x:.46}}
 };
-rig.gaitState={phase:.49,time:1,lead:1};
-updateGallop(rig,3,1,1,.25,{speedMps:16,lead:'right'});
-for(let i=0;i<rig.legs.length;i++){
- const leg=rig.legs[i],hip=leg.pivot.rotation.x,knee=leg.knee.rotation.x,pitch=rig.anim.rotation.x;
- const y=.12+rig.anim.position.y+
-  (leg.pivot.position.y-leg.upper*Math.cos(hip)-(leg.lower-.025)*Math.cos(hip+knee))*Math.cos(pitch)-
-  (leg.pivot.position.z-leg.upper*Math.sin(hip)-(leg.lower-.025)*Math.sin(hip+knee))*Math.sin(pitch);
- if(sampleGallop(.49,1)[i].contact)
-  assert.ok(Math.abs(y-.052)<1e-8,'planted hoof must touch ground at exact stance height');
-}
-assert.ok(rig.gallopAudit.cadence>=1.85&&rig.gallopAudit.cadence<=3.0);
-console.log('Four-beat footfalls, left/right lead, IK planted hooves, single suspension and speed-linked cadence ✓');
-
-
-// Prevent the actual user-observed regression: both forelegs/hindlegs
-// appear to be synchronized. Test sampled IK poses, not only beat labels.
-const legAngles=(phase,lead)=>sampleGallop(phase,lead).map((foot,i)=>{
- const front=i<2,upper=front?.74:.80,lower=(front?.90:.92)-.025;
- const pivotY=front?1.17:1.24,down=pivotY-foot.height+.12;
- return solveLegIK(upper,lower,foot.z,down,front).hip;
-});
-for(const lead of [-1,1]){
- let frontSum=0,hindSum=0,frontClear=0,hindClear=0,bothClear=0;
- for(let n=0;n<100;n++){
-  const angles=legAngles(n/100,lead);
-  const f=Math.abs(angles[0]-angles[1]),h=Math.abs(angles[2]-angles[3]);
-  frontSum+=f;hindSum+=h;
-  if(f>.25)frontClear++;
-  if(h>.25)hindClear++;
-  if(f>.25||h>.25)bothClear++;
+rig.gaitState={phase:.51,time:1,lead:1};
+updateGallop(rig,5,1,1,.5,{lead:'right',speedMps:14,frameDt:1/60,playing:false});
+const angles=sampleEquineFrame(.51,'right');
+for(let i=0;i<4;i++){
+ const start=[2,6,10,14][i];
+ for(let j=0;j<4;j++){
+  assert.ok(Math.abs(rig.legs[i].joints[j].rotation.x+angles[start+j])<1e-10,'measured relative joint angle');
+  assert.equal(rig.legs[i].joints[j].rotation.z,0,'no crab-like side splaying');
  }
- assert.ok(frontSum/100>.30&&frontClear>=55,'forelegs must alternate visibly');
- assert.ok(hindSum/100>.30&&hindClear>=55,'hindlegs must alternate visibly');
- assert.ok(bothClear>=85,'at most 15% of frames may show BOTH pairs nearly aligned');
 }
-// 16x playback must NOT multiply the animation stride cadence.
-let saved=rig.gaitState;
-rig.gaitState={phase:.10,time:9,lead:1};
-updateGallop(rig,30,12,1,.30,{speedMps:17,lead:'right',frameDt:1/30,playing:true});
-const x=rig.gallopAudit.phase;
-rig.gaitState={phase:.10,time:9,lead:1};
-updateGallop(rig,30,120,1,.30,{speedMps:17,lead:'right',frameDt:1/30,playing:true});
-assert.ok(Math.abs(rig.gallopAudit.phase-x)<1e-9,'fast-forward animation stays wall-clock paced');
-const beforePause=rig.gallopAudit.phase;
-updateGallop(rig,30,121,1,.30,{speedMps:17,lead:'right',frameDt:1/30,playing:false});
-assert.equal(rig.gallopAudit.phase,beforePause,'pause freezes leg rotation');
-console.log('Visually distinct left/right limb angles, 16x aliasing and pause regressions ✓');
+const savedPhase=rig.gallopAudit.phase;
+updateGallop(rig,5,30,1,.5,{lead:'right',speedMps:14,frameDt:1/60,playing:false});
+assert.equal(rig.gallopAudit.phase,savedPhase,'pause freezes limb pose');
+rig.gaitState={phase:.33,time:1,lead:1};
+updateGallop(rig,5,2,1,.5,{lead:'right',speedMps:14,frameDt:1/30,playing:true});
+const baseRate=rig.gallopAudit.phase;
+rig.gaitState={phase:.33,time:1,lead:1};
+updateGallop(rig,5,30,1,.5,{lead:'right',speedMps:14,frameDt:1/30,playing:true});
+assert.ok(Math.abs(rig.gallopAudit.phase-baseRate)<1e-10,'16x playback does not strobe the gallop');
+assert.match(render,/playing:LIVE.playing/);
+assert.match(render,/gallopHoofs/);
+assert.match(html,/renderer\.js\?v=equine-v14/);
+assert.match(html,/実測12姿勢 v14/);
+assert.match(read('gait-lab.html'),/動作検証 v14/);
+console.log('Muybridge 12 measured poses, 4 anatomical joints, correct mirrored leads, contact order, pause and continuous 16x playback ✓');
