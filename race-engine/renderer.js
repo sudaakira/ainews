@@ -305,7 +305,7 @@ import {jockeyCap} from './core/jockey-caps.js?v=cap-v1';
  document.getElementById('horse-model-version').textContent='EQUINE v16 · SKELETAL GALLOP';
  const liveTitle=document.querySelector('.live-head strong');if(liveTitle)liveTitle.textContent+=' · v16';
  window.KYOTO_RENDER_STATUS={ready:true,model:'skinned-thoroughbred-v16',gait:'authored-skeletal-v16',venue:venueReady?'full':'fallback',
-  horses:models.length,camera:'outer-rail-front-five-broadcast',courseView:config.courseView,
+  horses:models.length,camera:'outer-rail-front-3to5-ids',courseView:config.courseView,
   cinematic:true,saddleclothNames:true,goalBoard:!!goalBoard,gateDisappears:true,
   continuousRunOut:true,goalBoardSide:'far',furlongDigits:furlongPosts.map(x=>x.digit)};
  let cw=0,ch=0;
@@ -313,6 +313,25 @@ import {jockeyCap} from './core/jockey-caps.js?v=cap-v1';
  const tmp=new THREE.Vector3(),look=new THREE.Vector3(),desired=new THREE.Vector3();
  let first=true,lastFrame=0,frame=0,lastHud=0;
  const smoothLook=new THREE.Vector3();
+ // TV-style lightweight horse-number chips above the leading runners.
+ // Camera perspective determines their locations; this does not change rankings.
+ const leaderLabelLayer=document.createElement('div');
+ leaderLabelLayer.id='race-front-labels';
+ leaderLabelLayer.style.cssText='position:absolute;inset:0;z-index:13;pointer-events:none;overflow:hidden;';
+ stage.append(leaderLabelLayer);
+ const leaderLabels=new Map(HS.map(h=>{
+  const cap=capFor(h),node=document.createElement('b');
+  node.dataset.no=String(h.no);
+  node.setAttribute('aria-label',h.no+'番 '+h.name);
+  node.title=h.name;
+  node.textContent=String(h.no);
+  node.style.cssText='position:absolute;display:none;place-items:center;min-width:19px;height:19px;'+
+   'padding:0 3px;box-sizing:border-box;border:1px solid '+cap.outline+';'+
+   'border-radius:5px;background:'+cap.hex+';color:'+cap.text+';'+
+   'font:900 12px/1 sans-serif;box-shadow:0 1px 4px #10231cbb;'+
+   'transform:translate(-50%,-100%);white-space:nowrap;';
+  leaderLabelLayer.append(node);return [h.no,node];
+ }));
  function animate(now){
   requestAnimationFrame(animate);
   if(document.hidden)return;
@@ -414,6 +433,19 @@ import {jockeyCap} from './core/jockey-caps.js?v=cap-v1';
   const farthestHorse=Math.max(...models.map(m=>m.root.position.clone().sub(camera.position).dot(sight)));
   const leaderVisual=models[order[0].no-1].root.localToWorld(new THREE.Vector3(0,1.85,0)).project(camera);
    const leaderNose=models[order[0].no-1].root.localToWorld(new THREE.Vector3(0,2.05,1.75)).project(camera);
+   // Mark the foremost 3-5 runners so their saddlecloth numbers remain
+   // legible at the smaller iPhone display size. Never cover the picture at the gate.
+   const pictured=new Set(window.RACE_CINEMATIC_DEBUG?.pose?.subjects||[]);
+   const placed=[];
+   for(const [no,node] of leaderLabels){
+    if(clock<2||!pictured.has(no)){node.style.display='none';continue}
+    const m=models[no-1],pt=m.root.localToWorld(new THREE.Vector3(0,3.20,0)).project(camera);
+    if(pt.z< -1||pt.z>1||Math.abs(pt.x)>.9||Math.abs(pt.y)>.75){node.style.display='none';continue}
+    const x=(pt.x+1)*cw/2,y=(1-pt.y)*ch/2;
+    const overlap=placed.filter(q=>Math.abs(q.x-x)<27&&Math.abs(q.y-y)<26).length;
+    node.style.left=x.toFixed(1)+'px';node.style.top=(y-overlap*19).toFixed(1)+'px';
+    node.style.display='grid';placed.push({x,y:y-overlap*19});
+   }
    const gateCenter=gateRoot.position.clone().add(new THREE.Vector3(0,2.15,0)).project(camera);
    const gateEdges=[];
    if(gateRoot.visible){
