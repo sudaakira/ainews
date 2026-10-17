@@ -12,7 +12,13 @@ async function serveLocal(page){
  });
 }
 const {chromium}=await import(process.env.PLAYWRIGHT_ENTRY||'/tmp/race-playwright/node_modules/playwright/index.mjs');
-const url=process.env.RACE_URL||'http://127.0.0.1:8765/race-engine/?race=shuka-2026';
+// All published screenshots use the SAME fixed race, unlike earlier
+// time-seeded screenshots that could not match any freshly opened replay.
+const baseUrl=new URL(process.env.RACE_URL||'http://127.0.0.1:8765/race-engine/?race=shuka-2026');
+baseUrl.searchParams.set('replay','20261017');
+baseUrl.searchParams.delete('at');
+const url=baseUrl.toString();
+let baselineRank=null;
 const browser=await chromium.launch({headless:true,args:['--use-gl=angle','--use-angle=swiftshader','--enable-webgl','--enable-unsafe-swiftshader','--disable-dev-shm-usage']});
 mkdirSync('/tmp/race-mobile-shots',{recursive:true});
 try{
@@ -24,6 +30,13 @@ try{
   await page.waitForFunction(()=>window.KYOTO_RENDER_STATUS?.ready===true,null,{timeout:45000}).catch(async e=>{
    console.error('WEBGL BOOT',await page.evaluate(()=>({renderer:window.KYOTO_RENDER_STATUS,error:document.getElementById('bootstrap-error')?.textContent})),errors);throw e;
   });
+  const original=await page.evaluate(()=>({seed:window.KYOTO_RACE.LIVE.replaySeed,
+   rank:window.KYOTO_RACE.LIVE.rank.slice(),url:location.href}));
+  assert.equal(original.seed,20261017,'all screenshots must share the same seeded race');
+  assert.equal(new URL(original.url).searchParams.get('replay'),'20261017');
+  assert.ok((await page.locator('#race-replay-id').textContent()).includes('20261017'));
+  if(baselineRank===null)baselineRank=original.rank;
+  else assert.deepEqual(original.rank,baselineRank,'all viewport screenshots use the exact same race');
   const model=await page.evaluate(()=>window.KYOTO_RENDER_STATUS);
   assert.equal(model.model,'skinned-thoroughbred-v16');assert.equal(model.horses,17);
   assert.equal(model.continuousRunOut,true);assert.equal(model.goalBoardSide,'far');
@@ -63,6 +76,8 @@ try{
    const checks=[[.04,'start'],[.18,'first-corner'],[.56,'third-entry'],[.77,'fourth-turn'],[.999,'finish']];
    for(const [p,id] of checks){
     await seek(Math.round(p*1000));
+    assert.equal(new URL(page.url()).searchParams.get('at'),
+      String(Math.round(p*1000)),'frame deep link must match captured still');
     await page.waitForFunction(shot=>window.RACE_SCENE_AUDIT?.shot===shot,id,{timeout:10000});
     await page.waitForFunction(()=>window.RACE_SCENE_AUDIT?.cameraTrackingError<.2,null,{timeout:10000});
     const state=await page.evaluate(()=>({director:window.RACE_CINEMATIC_DEBUG,scene:window.RACE_SCENE_AUDIT}));
