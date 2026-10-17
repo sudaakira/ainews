@@ -230,7 +230,7 @@ assert.match(premiumCSS,/--ui-gold/);
 const cinemaJS=read('assets/race-cinematics.js'),cinemaCSS=read('assets/race-cinematics.css');
 const {RACE_SHOT_LIST,chooseRaceShot,raceCameraPose,followLockedCameraPose,courseShotCuts}=await load('assets/race-shotlist.js');
 const {FINISH_GAP,runOutProgress,playbackEnd,playbackRate,finishCrossings}=await load('assets/race-playback.js');
-assert.deepEqual(RACE_SHOT_LIST.map(s=>s.id),['start','first-corner','third-entry','fourth-turn','finish']);
+assert.deepEqual(RACE_SHOT_LIST.map(s=>s.id),['start','first-corner','backstretch','fourth-turn','finish']);
 const visited=[];
 for(let p=0;p<1.25;p+=.001){const id=chooseRaceShot(p).id;if(visited.at(-1)!==id)visited.push(id);}
 assert.deepEqual(visited,RACE_SHOT_LIST.map(s=>s.id),'exactly five compositions including the entire run-out');
@@ -257,7 +257,7 @@ for(const p of [.10,.4,.59,.66,.73,.82,.94,.999])for(const aspect of [.58,.76,1.
  const pose=raceCameraPose({shot,progress:p,clock:Math.max(5,p*119),order,
   path:cameraKyotoPath,aspect,direction:'右',venue:'京都',distance:2000});
  assert.equal(pose.mode,'rail-broadcast-'+shot.id);
- const target=aspect<.85?(shot.id==='first-corner'?[6,7]:[3,3]):shot.id==='first-corner'?[6,7]:shot.id==='third-entry'?[5,6]:shot.id==='fourth-turn'?[4,5]:[3,4];
+ const target=shot.id==='start'?[17,17]:shot.id==='backstretch'?[17,17]:shot.id==='fourth-turn'?(aspect<.85?[12,12]:[15,15]):shot.id==='first-corner'?[6,7]:[3,4];
  assert.ok(pose.subjects.length>=target[0]&&pose.subjects.length<=target[1],
   shot.id+' needs '+target+' front runners, got '+pose.subjects.length);
  assert.equal(pose.outerRailSign,1,'Kyoto right-handed outer side must be negative track lane');
