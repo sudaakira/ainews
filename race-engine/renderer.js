@@ -198,8 +198,8 @@ import {jockeyCap} from './core/jockey-caps.js?v=cap-v1';
  const gateRoot=new THREE.Group();gateRoot.position.copy(start);
  const startDir=path(0);
  // Keep the physical variable-stall gate behind the start line so the horses leave it in view.
- gateRoot.position.x-=startDir.dx*1.6;
- gateRoot.position.z-=startDir.dz*1.6;
+ gateRoot.position.x-=startDir.dx*3.7;
+ gateRoot.position.z-=startDir.dz*3.7;
  gateRoot.rotation.y=Math.atan2(startDir.dx,startDir.dz);scene.add(gateRoot);
  const gateSteel=mat(0x347f79),gateWhite=mat(0xf4f6ee),gateDark=mat(0x1c514e),gateYellow=mat(0xf8d54f),gateNumberMat=mat(0x253b45);
  const stallWidth=1.20,stallDepth=3.2,stallCount=HS.length,gateDoors=[];
@@ -294,7 +294,7 @@ import {jockeyCap} from './core/jockey-caps.js?v=cap-v1';
  const {createJRAFurlongPosts}=await import("./assets/jra-furlong-posts.js?v=geo-v6");
  const furlongPosts=createJRAFurlongPosts({THREE,scene,offsetPoint,distance,half});
  // Cinematic director replaces manual angle selection for every race.
- const {createRaceCinematics}=await import("./assets/race-cinematics.js?v=outer-rail-v3");
+ const {createRaceCinematics}=await import("./assets/race-cinematics.js?v=outer-rail-v4");
  const cinematics=createRaceCinematics({THREE,scene,stage,models,config,capFor,path,route,routeLength});
  const cameraBlockers=[];scene.traverse(o=>{if(o.isMesh&&o.userData.cameraOccluder)cameraBlockers.push(o)});
  const visibilityRay=new THREE.Raycaster();
@@ -414,7 +414,9 @@ import {jockeyCap} from './core/jockey-caps.js?v=cap-v1';
   const farthestHorse=Math.max(...models.map(m=>m.root.position.clone().sub(camera.position).dot(sight)));
   const leaderVisual=models[order[0].no-1].root.localToWorld(new THREE.Vector3(0,1.85,0)).project(camera);
    const leaderNose=models[order[0].no-1].root.localToWorld(new THREE.Vector3(0,2.05,1.75)).project(camera);
-   window.RACE_SCENE_AUDIT={leadScreenX:(leaderVisual.x+1)/2,leadScreenY:(1-leaderVisual.y)/2,
+   const gateCenter=gateRoot.position.clone().add(new THREE.Vector3(0,2.15,0)).project(camera);
+   window.RACE_SCENE_AUDIT={gateScreenX:(gateCenter.x+1)/2,
+    leadScreenX:(leaderVisual.x+1)/2,leadScreenY:(1-leaderVisual.y)/2,
     leadNoseScreenX:(leaderNose.x+1)/2,leadNoseScreenY:(1-leaderNose.y)/2,
     leadVisible:leaderVisual.z>-1&&leaderVisual.z<1&&Math.abs(leaderVisual.x)<1&&Math.abs(leaderVisual.y)<1,
     gateVisible:gateRoot.visible,
