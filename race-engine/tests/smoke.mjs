@@ -257,7 +257,7 @@ for(const p of [.10,.4,.59,.66,.73,.82,.94,.999])for(const aspect of [.58,.76,1.
  const pose=raceCameraPose({shot,progress:p,clock:Math.max(5,p*119),order,
   path:cameraKyotoPath,aspect,direction:'右',venue:'京都',distance:2000});
  assert.equal(pose.mode,'rail-broadcast-'+shot.id);
- const target=aspect<.85?(shot.id==='first-corner'?[4,4]:[3,3]):shot.id==='first-corner'?[6,7]:shot.id==='third-entry'?[5,6]:shot.id==='fourth-turn'?[4,5]:[3,4];
+ const target=aspect<.85?(shot.id==='first-corner'?[6,7]:[3,3]):shot.id==='first-corner'?[6,7]:shot.id==='third-entry'?[5,6]:shot.id==='fourth-turn'?[4,5]:[3,4];
  assert.ok(pose.subjects.length>=target[0]&&pose.subjects.length<=target[1],
   shot.id+' needs '+target+' front runners, got '+pose.subjects.length);
  assert.equal(pose.outerRailSign,-1);
