@@ -61,7 +61,7 @@ export function raceCameraPose({shot,progress,order,path,aspect=1,clock=Infinity
  const requiredOutside=modeledOuter+courseHalfWidth+12;
  const baselineSide=shot.id==='third-turn'?50:shot.id==='straight'?39:shot.id==='second-turn'?35:39;
  const side=isGate?49:Math.max(baselineSide,requiredOutside);
- const ahead=isGate?9:shot.id==='third-turn'?4:shot.id==='second-turn'?2:0;
+ const ahead=isGate?32:shot.id==='third-turn'?4:shot.id==='second-turn'?2:0;
  const height=isGate?8.5:shot.id==='third-turn'?9.1:7.2;
  const a=Math.max(.48,Number(aspect)||1);
  const fov=isGate?43:a>1.45?20:a<.85?34:29;
@@ -103,7 +103,7 @@ export function raceCameraPose({shot,progress,order,path,aspect=1,clock=Infinity
  if(isGate){
   // Static gate establishing composition: at t=0 the start stalls are
   // near the extreme REAR edge, with empty racing space ahead.
-  const origin=path(0),behind=4.5;
+  const origin=path(0),behind=3.7;
   const g={x:origin.x-origin.dx*behind,y:origin.y+2.2,z:origin.z-origin.dz*behind};
   const next={x:origin.x+origin.dx*11,y:origin.y+2.2,z:origin.z+origin.dz*11};
   const gp=projectPoint(g,pose.position,pose.look,fov,a);
