@@ -25,7 +25,7 @@ export function createRegression(config,F){
  const INPUTS=config.inputs||{};
  const SPEED=config.speedAdapt||{};
  const DEFAULTS=Object.fromEntries(FEATURES.map(f=>[f.id,1]));
- const BIASES={neutral:'当日情報なし・中立',inside:'内・先行優勢',outside:'外・差し優勢'};
+ const BIASES={neutral:'当日情報なし・中立',front:'前〜好位有利（内外中立）',inside:'内・先行優勢',outside:'外・差し優勢'};
  const GROUNDS={good:'良（高速想定）',yielding:'稍重',soft:'重',heavy:'不良'};
  const SKILLS={};
  function weights(options={}){
@@ -70,8 +70,11 @@ export function createRegression(config,F){
   let biasScore=50;
   // Registration-order pseudo numbers must never affect lane bias.
   const verifiedDraw=!config.provisionalDraw;
-  if(bias==='inside'){
-   const front=style==='逃げ'?1:style==='好位'?.6:style==='中団'?.05:-.65;
+  if(bias==='front'){
+    // Fast turf front-runner prior, no assumed inside/outside track-lane advantage.
+    biasScore=clamp(50+(style==='逃げ'?11:style==='好位'?13:style==='差し'?-7:-3),38,65);
+   }else if(bias==='inside'){
+    const front=style==='逃げ'?1:style==='好位'?.6:style==='中団'?.05:-.65;
    biasScore=clamp(50+23*front+(verifiedDraw?(f.drawNumber<=3?8:f.drawNumber>=7?-8:0):0),25,82);
   }else if(bias==='outside'){
    const late=style==='差し'?1:style==='中団'?.6:style==='好位'?-.20:-.65;
