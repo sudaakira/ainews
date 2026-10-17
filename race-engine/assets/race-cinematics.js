@@ -1,6 +1,6 @@
 import {raceCommentary,ANNOUNCER_SVG} from './race-commentary.js?v=kyoto-v11-1';
 /** Clean cel-racing broadcast. All positions and results are read from the shared engine. */
-import {chooseRaceShot,courseShotCuts,raceCameraPose} from './race-shotlist.js?v=outer-rail-v3';
+import {chooseRaceShot,courseShotCuts,raceCameraPose} from './race-shotlist.js?v=outer-rail-v4';
 import {finishCrossings,playbackRate} from './race-playback.js?v=kyoto-v11-1';
 
 export function createRaceCinematics({THREE,scene,stage,models,config,capFor,path,route,routeLength}){
@@ -127,7 +127,7 @@ export function createRaceCinematics({THREE,scene,stage,models,config,capFor,pat
   const at=route.getPointAtLength(d);
   routeDot.setAttribute('cx',String(at.x.toFixed(1)));routeDot.setAttribute('cy',String(at.y.toFixed(1)));
   locText.textContent=runningOut?'ゴール':shot.label;
-  const pose=raceCameraPose({shot,progress:p,order,path,aspect:camera.aspect,clock,direction:config.direction,distance:config.distance});
+  const pose=raceCameraPose({shot,progress:p,order,path,aspect:camera.aspect,clock,direction:config.direction,distance:config.distance,venue:config.venue});
   if(pose.mode!==lastMode){cut=true;lastMode=pose.mode;}
    desired.set(pose.position.x,pose.position.y,pose.position.z);look.set(pose.look.x,pose.look.y,pose.look.z);
   camera.fov=pose.fov;camera.updateProjectionMatrix();
