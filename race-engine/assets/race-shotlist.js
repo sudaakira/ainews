@@ -9,7 +9,7 @@ export const RACE_SHOT_LIST=Object.freeze([
  Object.freeze({id:'start',until:.12,kicker:'01 / START',label:'スタート',subjects:'all',side:29,ahead:32,height:8,fov:22}),
  Object.freeze({id:'first-corner',until:.32,kicker:'02 / POSITION',label:'1コーナー 位置どり',subjects:'pack',side:31,ahead:12,height:6.4,fov:26}),
  Object.freeze({id:'backstretch',until:.67,kicker:'03 / BACKSTRETCH',label:'向こう正面 隊列',subjects:'backstretch-pack',side:31,ahead:0,height:6.4,fov:26}),
- Object.freeze({id:'fourth-turn',until:.84,kicker:'04 / THE MOVE',label:'4コーナー 仕掛け',subjects:'moves',side:38,ahead:115,height:6.5,fov:29}),
+ Object.freeze({id:'fourth-turn',until:.84,kicker:'04 / THE MOVE',label:'4コーナー 仕掛け',subjects:'moves',side:38,ahead:60,height:6.5,fov:29}),
  Object.freeze({id:'finish',until:Infinity,kicker:'05 / FINISH',label:'ゴール前',subjects:'finish',side:31,ahead:0,height:6.8,fov:21})
 ]);
 export function chooseRaceShot(progress,cuts=RACE_SHOT_LIST.map(s=>s.until)){
@@ -159,7 +159,7 @@ export function raceCameraPose({shot,progress,order,path,aspect=1,clock=Infinity
    fov=Math.max(10.5,fov*correction);
   }
  }
- if(shot.id==='fourth-turn')fov=Math.max(fov,55);
+ if(shot.id==='fourth-turn')fov=Math.min(34,fov);
  // Zoom in to the actual competition, but back off only as much as needed
  // to keep the picture's selected 3–5 runners uncut.
  let scale=1,pose,raw;
