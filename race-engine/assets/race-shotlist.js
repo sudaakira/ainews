@@ -82,7 +82,7 @@ export function raceCameraPose({shot,progress,order,path,aspect=1,clock=Infinity
  // Unlike a game chase-camera, a real 3C outside camera waits ahead of
  // approaching horses, producing the foreshortened head-on TV perspective.
  // Track-local outside normal comes from the CAMERA station, not the pack.
- const inFront=shot.ahead||0;
+ const inFront=shot.id==='third-entry'?20+clamp((progress-.29)/(.67-.29),0,1)*40:(shot.ahead||0);
  const cameraStation=path(pCenter+(isGate?0:inFront/distance));
  const groupBulge=venue==='京都'&&distance===2000?
   Math.max(0,...group.map(o=>-kyotoOuterCourseOffset(o.p))):0;
@@ -93,7 +93,7 @@ export function raceCameraPose({shot,progress,order,path,aspect=1,clock=Infinity
  const side=isGate?Math.max(shot.side,half+12):Math.max(shot.side||31,outsideNeeded);
  const a=Math.max(.48,Number(aspect)||1);
  const baseFov=shot.fov||28;
- const fov=isGate?(a>1.45?24:a<.85?51:38):
+ const fov=isGate?(a>1.45?18:a<.85?51:38):
   a>1.45?Math.max(16,baseFov-5):a<.85?Math.min(38,baseFov+6):baseFov;
  const height=shot.height||8;
  const setPose=scale=>{
