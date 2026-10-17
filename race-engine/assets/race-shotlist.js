@@ -1,4 +1,4 @@
-import {KYOTO_CUTS,runnerLane} from './kyoto-course.js?v=kyoto-v11-1';
+import {KYOTO_CUTS,runnerLane,kyotoOuterCourseOffset,KYOTO_INNER} from './kyoto-course.js?v=kyoto-v12';
 /**
  * Racing broadcast grammar — not a horse portrait camera.
  * Main race: operator on the OUTER rail, first five runners and adjacent outside
@@ -32,92 +32,98 @@ function projectPoint(q,pos,look,fov,aspect){
  return {x:(dx*rightX+dz*rightZ)/(depth*tan*aspect),
   y:(dx*upX+dy*upY+dz*upZ)/(depth*tan),visible:true};
 }
-export function raceCameraPose({shot,progress,order,path,aspect=1,clock=Infinity,direction='右',distance=2000}){
- const leader=order?.[0];
- if(!leader)return {position:{x:0,y:9,z:35},look:{x:0,y:2,z:0},fov:41,side:35,subjects:[],mode:'empty',lensShiftX:0};
+export function raceCameraPose({shot,progress,order,path,aspect=1,clock=Infinity,direction='右',distance=2000,venue='京都'}){
+ const lead=order?.[0];
+ if(!lead)return {position:{x:0,y:9,z:40},look:{x:0,y:2,z:0},fov:39,side:40,subjects:[],lensShiftX:0,mode:'empty'};
+ const isGate=shot.id==='start'&&clock<=1.8;
  const outerSign=direction==='左'?1:-1;
- const isGate=shot.id==='start'&&clock<=3.8;
- // Only the opening gate uses all runners. From the first few seconds onwards
- // any sudden fall-away in the pack is excluded from the live race shot.
- const maxLeadGap=clamp(distance*.016,22,34);
- let group=order.slice(0,isGate?order.length:5);
- if(!isGate)group=group.filter((h,i)=>i<3||(leader.p-h.p)*distance<=maxLeadGap);
- if(!isGate&&order.length>5){
-  const fifth=group.at(-1);
-  // If a sixth horse is genuinely attached to the leading five, include it
-  // rather than chopping off an outside challenger at the screen boundary.
-  const adjacent=order.slice(5,7).filter(h=>(fifth.p-h.p)*distance<3.0&&(leader.p-h.p)*distance<maxLeadGap);
-  group=group.concat(adjacent);
- }
- const pCenter=group.reduce((sum,h,i)=>sum+h.p*(i===0?2:1),0)/(group.length+1);
- const track=path(pCenter),head=path(leader.p);
- const field=group.map(o=>{
+ const maxGap=Math.min(19,distance*.0095);
+ let group=isGate?order.slice():order.slice(0,5).filter((o,i)=>i<3||(lead.p-o.p)*distance<=maxGap);
+ // Positions in this simulator have no measured lateral running telemetry.
+ // We do not pretend sixth place is running wide, but reveal it immediately
+ // after it joins the first five. Five is the maximum size of the live closeup.
+ const pCenter=isGate?0:group.reduce((sum,o,i)=>sum+o.p*(i===0?1.7:1),0)/(group.length+.7);
+ const track=path(pCenter),field=group.map(o=>{
   const q=path(o.p),lane=runnerLane(o.no,order.length,progress);
-  return {x:q.x-q.dz*lane,y:q.y,z:q.z+q.dx*lane,no:o.no,p:o.p,
-   dx:q.dx,dz:q.dz};
+  return {x:q.x-q.dz*lane,y:q.y,z:q.z+q.dx*lane,dx:q.dx,dz:q.dz,no:o.no,p:o.p};
  });
- const focus={x:field.reduce((s,q)=>s+q.x,0)/field.length,
-  y:field.reduce((s,q)=>s+q.y,0)/field.length,z:field.reduce((s,q)=>s+q.z,0)/field.length};
- let side=isGate?48:shot.side,ahead=isGate?0:shot.ahead;
- const aspectRatio=Math.max(.45,Number(aspect)||1);
- // Desktop ultrawide broadcasts use a narrower telephoto lens, while
- // portrait phones prioritize keeping five horses and outside moves in view.
- const broadcastLens=aspectRatio>1.45?Math.max(.72,1.45/aspectRatio):1;
- const height=shot.height,fov=isGate?42:shot.fov*broadcastLens;
- const poseAt=scale=>{
+ const focus=isGate?{x:track.x,y:track.y,z:track.z}:{
+  x:field.reduce((a,q)=>a+q.x,0)/field.length,
+  y:field.reduce((a,q)=>a+q.y,0)/field.length,
+  z:field.reduce((a,q)=>a+q.z,0)/field.length
+ };
+ // Keep the camera outside the OUTERMOST rail. Kyoto's 3C-4C outer
+ // course extends up to 38m beyond the inner A-course: the former 43m
+ // camera position was INSIDE this outside loop.
+ const modeledOuter=venue==='京都'&&distance===2000?
+  Math.max(0,...group.map(o=>-kyotoOuterCourseOffset(o.p))):0;
+ const courseHalfWidth=venue==='京都'&&distance===2000?KYOTO_INNER.width/2:13.5;
+ const requiredOutside=modeledOuter+courseHalfWidth+12;
+ const baselineSide=shot.id==='third-turn'?50:shot.id==='straight'?39:shot.id==='second-turn'?35:39;
+ const side=isGate?49:Math.max(baselineSide,requiredOutside);
+ const ahead=isGate?9:shot.id==='third-turn'?4:shot.id==='second-turn'?2:0;
+ const height=isGate?8.5:shot.id==='third-turn'?9.1:7.2;
+ const a=Math.max(.48,Number(aspect)||1);
+ const fov=isGate?43:a>1.45?20:a<.85?34:29;
+ const poseAt=(scale)=>{
   const lateral=outerSign*side*scale,forward=ahead*scale;
   return {position:{x:focus.x+track.dz*lateral+track.dx*forward,
-   y:focus.y+height+Math.log2(scale)*.8,
+   y:focus.y+height+Math.log2(scale)*.45,
    z:focus.z-track.dx*lateral+track.dz*forward},
-   look:{x:focus.x,y:focus.y+2.0,z:focus.z}};
+   look:{x:focus.x,y:focus.y+1.8,z:focus.z}};
  };
  const imagePoints=(pos,look)=>{
   const data=[];
-  for(const q of field){
-   // Hoof/shoulder/head margins and lateral horses are model geometry
-   // envelopes; not simply projected saddlecloth centers.
-   for(const longitudinal of [-2.35,0,2.7])
-    for(const transverse of [-.65,.65])
-     for(const h of [.15,1.6,3.0]){
-      const point={x:q.x+q.dx*longitudinal-q.dz*transverse,
-       y:q.y+h,z:q.z+q.dz*longitudinal+q.dx*transverse};
-      data.push(projectPoint(point,pos,look,fov,aspectRatio));
-     }
-  }
+  for(const q of field)
+   for(const longitudinal of [-2.35,2.7])
+    for(const transverse of [-.85,.85])
+     for(const y of [.15,3.0])
+      data.push(projectPoint({x:q.x+q.dx*longitudinal-q.dz*transverse,
+       y:q.y+y,z:q.z+q.dz*longitudinal+q.dx*transverse},pos,look,fov,a));
   return data;
  };
- let scale=1,projected,pose,ext;
- const boundary=isGate?{left:.055,right:.945,lower:.08,upper:.93}:
-  {left:.075,right:.805,lower:.16,upper:.82};
- for(let iteration=0;iteration<28;iteration++){
-  pose=poseAt(scale);projected=imagePoints(pose.position,pose.look);
-  const valid=projected.filter(q=>q.visible);
-  if(valid.length!==projected.length){scale*=1.22;continue}
-  const xs=valid.map(q=>q.x),ys=valid.map(q=>q.y);
+ const boundary=isGate?{left:.055,right:.94,lower:.07,upper:.94}:
+  {left:.07,right:.81,lower:.10,upper:.88};
+ let scale=1,pose,ext=null;
+ for(let i=0;i<32;i++){
+  pose=poseAt(scale);
+  const pp=imagePoints(pose.position,pose.look).filter(q=>q.visible);
+  if(pp.length!==field.length*8){scale*=1.15;continue}
+  const xs=pp.map(x=>x.x),ys=pp.map(x=>x.y);
   ext={minX:Math.min(...xs),maxX:Math.max(...xs),minY:Math.min(...ys),maxY:Math.max(...ys)};
-  // Off-axis optical framing shifts the LEFT edge of the group into frame.
-  // Right-facing outer-rail coverage reserves ~20% on the leader's AHEAD side.
-  const allowedWidth=(boundary.right-boundary.left)*2;
-  const allowedHeight=(boundary.upper-boundary.lower)*2;
-  if(ext.maxX-ext.minX<=allowedWidth&&ext.maxY-ext.minY<=allowedHeight)break;
-  scale*=1.12;
+  if(ext.maxX-ext.minX<=2*(boundary.right-boundary.left)&&
+   ext.maxY-ext.minY<=2*(boundary.upper-boundary.lower))break;
+  scale*=1.105;
  }
- const lensShiftX=ext?ext.maxX-2*(boundary.right-.5):0;
- // Vertical tilt centers jockeys while keeping hooves (not empty sky).
- // Existing camera controls use the actual perspective projection.
- const frameY=ext?(ext.minY+ext.maxY)/2:0;
- pose.look.y+=frameY*.42;
- // A live side-rail broadcast shows the running surface, not 40% empty sky.
- // Tilt down modestly so the leading horses sit around the middle of the frame.
- if(!isGate)pose.look.y-=Math.min(4.2,height*.52);
- // Re-evaluate horizontal shift after adjusting camera look direction.
- const refined=imagePoints(pose.position,pose.look).filter(q=>q.visible);
- const xmax=refined.length?Math.max(...refined.map(q=>q.x)):0;
- const shift=xmax-2*(boundary.right-.5);
- return {...pose,fov,side:side*scale,subjects:group.map(h=>h.no),
-  mode:isGate?'establishing-gate':'outer-rail-group',
+ if(!ext)throw new Error('Camera cannot fit leading horses');
+ const frameY=(ext.minY+ext.maxY)/2;
+ pose.look.y+=frameY*.55;
+ if(!isGate)pose.look.y-=Math.min(3.4,height*.43);
+ let shift=0,gateScreenX=null,aheadScreenSide='right';
+ if(isGate){
+  // Static gate establishing composition: at t=0 the start stalls are
+  // near the extreme REAR edge, with empty racing space ahead.
+  const origin=path(0),behind=4.5;
+  const g={x:origin.x-origin.dx*behind,y:origin.y+2.2,z:origin.z-origin.dz*behind};
+  const next={x:origin.x+origin.dx*11,y:origin.y+2.2,z:origin.z+origin.dz*11};
+  const gp=projectPoint(g,pose.position,pose.look,fov,a);
+  const nextP=projectPoint(next,pose.position,pose.look,fov,a);
+  const advancesRight=nextP.x>gp.x;
+  const target=advancesRight?.10:.90;
+  shift=gp.x-2*(target-.5);
+  gateScreenX=target;
+  aheadScreenSide=advancesRight?'right':'left';
+ }else{
+  const refined=imagePoints(pose.position,pose.look).filter(q=>q.visible);
+  const edge=outerSign===-1?Math.max(...refined.map(q=>q.x)):Math.min(...refined.map(q=>q.x));
+  const target=outerSign===-1?boundary.right:boundary.left;
+  shift=edge-2*(target-.5);
+  aheadScreenSide=outerSign===-1?'right':'left';
+ }
+ return {...pose,fov,side:side*scale,subjects:group.map(o=>o.no),
   lensShiftX:shift,outerRailSign:outerSign,tracked:group.length,
-  lookDirection:'racing-broadcast',aheadScreenSide:'right',aheadSpace:1-boundary.right,
-  projectedWidth:ext?ext.maxX-ext.minX:null,dollyScale:scale,
-  railCourseHeading:{x:head.dx,z:head.dz}};
+  mode:isGate?'establishing-gate':'outer-rail-3to5',
+  outerRailClearance:side*scale-(modeledOuter+courseHalfWidth),
+  outerCourseBulge:modeledOuter,aheadScreenSide,gateScreenX,forwardGap:1-boundary.right,
+  projectedWidth:ext.maxX-ext.minX,dollyScale:scale};
 }
