@@ -7,7 +7,7 @@ export function createRaceHorse(T,scene,h,silkHex,frameCapHex='#89929b',frameCap
  const base=colors[(h.no-1)%colors.length],shades=[100,168,225,255];
  const gradient=new T.DataTexture(new Uint8Array(shades.flatMap(v=>[v,v,v,255])),4,1,T.RGBAFormat);gradient.needsUpdate=true;gradient.minFilter=gradient.magFilter=T.NearestFilter;
  const toon=c=>new T.MeshToonMaterial({color:c,gradientMap:gradient});
- const coat=toon(base),dark=toon(new T.Color(base).multiplyScalar(.63)),mane=toon(0x211c1b),hoof=toon(0x282626),white=toon(0xf0eee3),leather=toon(0x262126),skin=toon(0xe0b591),silk=toon(silkHex),cap=toon(frameCapHex),black=toon(0x17212a);
+ const coat=toon(base),legShade=toon(new T.Color(base).multiplyScalar(.78)),dark=toon(new T.Color(base).multiplyScalar(.63)),mane=toon(0x211c1b),hoof=toon(0x282626),white=toon(0xf0eee3),leather=toon(0x262126),skin=toon(0xe0b591),silk=toon(silkHex),cap=toon(frameCapHex),black=toon(0x17212a);
  const sphere=new T.SphereGeometry(1,14,10);
  const ell=(parent,m,x,y,z,a,b,c)=>{const o=new T.Mesh(sphere,m);o.position.set(x,y,z);o.scale.set(a,b,c);parent.add(o);return o};
  const bone=(parent,m,a,b,r1,r2)=>{const p=new T.Vector3(...a),q=new T.Vector3(...b),v=q.clone().sub(p),o=new T.Mesh(new T.CylinderGeometry(r2,r1,v.length(),8),m);o.position.copy(p.add(q).multiplyScalar(.5));o.quaternion.setFromUnitVectors(new T.Vector3(0,1,0),v.normalize());parent.add(o);return o};
@@ -61,12 +61,13 @@ export function createRaceHorse(T,scene,h,silkHex,frameCapHex='#89929b',frameCap
  const legs=[];
  for(const front of [true,false])for(const side of [-1,1]){
   const pivot=new T.Group();pivot.position.set(side*.22,front?1.17:1.24,front?.40:-.63);anim.add(pivot);
+  const legCoat=side===-1?legShade:coat; // distinguish far/near silhouettes in side views
   const upper=front?.74:.80,lower=front?.90:.92;
-  bone(pivot,coat,[0,0,0],[0,-upper,0],front?.095:.13,.045);
-  const muscle=ell(pivot,coat,0,-.16,front?0:.035,front?.085:.12,.24,.105);muscle.rotation.x=front?0:-.2;
+  bone(pivot,legCoat,[0,0,0],[0,-upper,0],front?.095:.13,.045);
+  const muscle=ell(pivot,legCoat,0,-.16,front?0:.035,front?.085:.12,.24,.105);muscle.rotation.x=front?0:-.2;
   const knee=new T.Group();knee.position.set(0,-upper,0);pivot.add(knee);
   ell(knee,dark,0,0,0,.050,.055,.055);
-  bone(knee,coat,[0,0,0],[0,-lower+.09,.01],.035,.027);
+  bone(knee,legCoat,[0,0,0],[0,-lower+.09,.01],.035,.027);
   if(h.no%3!==0)bone(knee,white,[0,-lower+.20,.01],[0,-lower+.045,.02],.031,.035);
   // Counter-rotating distal hoof: the sole stays level while planted.
   const hoofRig=new T.Group();hoofRig.position.set(0,-lower+.025,0);knee.add(hoofRig);
