@@ -6,11 +6,11 @@ import {KYOTO_CUTS,runnerLane,kyotoOuterCourseOffset,KYOTO_INNER} from './kyoto-
  * Track-side positions are outside the outermost turf rail at all cuts.
  */
 export const RACE_SHOT_LIST=Object.freeze([
- Object.freeze({id:'start',until:.075,kicker:'01 / START',label:'スタート',subjects:'all',side:49,height:8.5,ahead:32,fov:43}),
- Object.freeze({id:'first-corner',until:.29,kicker:'02 / POSITION',label:'1コーナー 位置どり',subjects:'pack',side:46,height:9,ahead:7,fov:31}),
- Object.freeze({id:'third-entry',until:.67,kicker:'03 / ATTACK ZONE',label:'3コーナー進入',subjects:'frontpack',side:54,height:10.2,ahead:10,fov:25}),
- Object.freeze({id:'fourth-turn',until:.84,kicker:'04 / THE MOVE',label:'4コーナー 仕掛け',subjects:'leaders',side:49,height:8.7,ahead:5,fov:22}),
- Object.freeze({id:'finish',until:Infinity,kicker:'05 / FINISH',label:'ゴール前',subjects:'finish',side:43,height:7.4,ahead:0,fov:20})
+ Object.freeze({id:'start',until:.075,kicker:'01 / START',label:'スタート',subjects:'all',side:28,ahead:35,height:8,fov:31}),
+ Object.freeze({id:'first-corner',until:.29,kicker:'02 / POSITION',label:'1コーナー 位置どり',subjects:'pack',side:31,ahead:12,height:9,fov:28}),
+ Object.freeze({id:'third-entry',until:.67,kicker:'03 / ATTACK ZONE',label:'3コーナー進入',subjects:'frontpack',side:34,ahead:58,height:9.5,fov:26}),
+ Object.freeze({id:'fourth-turn',until:.84,kicker:'04 / THE MOVE',label:'4コーナー 仕掛け',subjects:'leaders',side:34,ahead:28,height:8,fov:26}),
+ Object.freeze({id:'finish',until:Infinity,kicker:'05 / FINISH',label:'ゴール前',subjects:'finish',side:31,ahead:0,height:6.8,fov:21})
 ]);
 export function chooseRaceShot(progress,cuts=RACE_SHOT_LIST.map(s=>s.until)){
  const p=Number.isFinite(progress)?Math.max(0,progress):0;
@@ -40,8 +40,10 @@ function pickSubjects(shot,order,distance){
  const lead=order[0],gap=o=>(lead.p-o.p)*distance;
  if(shot.subjects==='pack')return order.filter((o,i)=>i<10||gap(o)<=17).slice(0,12);
  if(shot.subjects==='frontpack'){
-  const pack=order.slice(0,8).filter((o,i)=>i<6||gap(o)<=22);
-  return pack.length>=6?pack:order.slice(0,6);
+  // Three-quarter entry from the outer rail: five foreground competitors.
+  // The remaining pack is visible in depth behind, not framing the lens.
+  const pack=order.slice(0,6).filter((o,i)=>i<5||gap(o)<=8);
+  return pack.length>=5?pack:order.slice(0,5);
  }
  if(shot.subjects==='leaders'){
   const firstFive=order.slice(0,5);
@@ -65,105 +67,120 @@ export function raceCameraPose({shot,progress,order,path,aspect=1,clock=Infinity
  const lead=order?.[0];
  if(!lead)return {position:{x:0,y:9,z:40},look:{x:0,y:2,z:0},fov:39,side:40,subjects:[],lensShiftX:0,mode:'empty'};
  const isGate=shot.id==='start'&&clock<=1.8;
- const outerSign=direction==='左'?1:-1;
- 
+ const rightCircuit=direction!=='左',outsideSign=rightCircuit?-1:1;
  const group=isGate?order.slice():pickSubjects(shot,order,distance);
- // Positions in this simulator have no measured lateral running telemetry.
- // We do not pretend sixth place is running wide, but reveal it immediately
- // after it joins the first five. Five is the maximum size of the live closeup.
- const pCenter=isGate?0:group.reduce((sum,o,i)=>sum+o.p*(i===0?1.55:1),0)/(group.length+.55);
- const track=path(pCenter),field=group.map(o=>{
+ const pCenter=isGate?0:group.reduce((sum,o,i)=>sum+o.p*(i===0?1.6:1),0)/(group.length+.6);
+ const center=path(pCenter),field=group.map(o=>{
   const q=path(o.p),lane=runnerLane(o.no,order.length,progress);
   return {x:q.x-q.dz*lane,y:q.y,z:q.z+q.dx*lane,dx:q.dx,dz:q.dz,no:o.no,p:o.p};
  });
- const focus=isGate?{x:track.x,y:track.y,z:track.z}:{
+ const focus=isGate?{x:center.x,y:center.y,z:center.z}:{
   x:field.reduce((a,q)=>a+q.x,0)/field.length,
   y:field.reduce((a,q)=>a+q.y,0)/field.length,
   z:field.reduce((a,q)=>a+q.z,0)/field.length
  };
- // Keep the camera outside the OUTERMOST rail. Kyoto's 3C-4C outer
- // course extends up to 38m beyond the inner A-course: the former 43m
- // camera position was INSIDE this outside loop.
- const modeledOuter=venue==='京都'&&distance===2000?
+ // Unlike a game chase-camera, a real 3C outside camera waits ahead of
+ // approaching horses, producing the foreshortened head-on TV perspective.
+ // Track-local outside normal comes from the CAMERA station, not the pack.
+ const inFront=shot.ahead||0;
+ const cameraStation=path(pCenter+(isGate?0:inFront/distance));
+ const groupBulge=venue==='京都'&&distance===2000?
   Math.max(0,...group.map(o=>-kyotoOuterCourseOffset(o.p))):0;
- const courseHalfWidth=venue==='京都'&&distance===2000?KYOTO_INNER.width/2:13.5;
- const requiredOutside=modeledOuter+courseHalfWidth+12;
- const baselineSide=shot.side||43;
- const side=isGate?49:Math.max(baselineSide,requiredOutside);
- const ahead=isGate?32:(shot.ahead??0);
- const height=isGate?8.5:(shot.height??7.4);
+ const stationBulge=venue==='京都'&&distance===2000?
+  Math.max(0,-kyotoOuterCourseOffset(pCenter+inFront/distance)):0;
+ const half=venue==='京都'&&distance===2000?KYOTO_INNER.width/2:13.5;
+ const outsideNeeded=Math.max(groupBulge,stationBulge)+half+11;
+ const side=isGate?Math.max(shot.side,half+12):Math.max(shot.side||31,outsideNeeded);
  const a=Math.max(.48,Number(aspect)||1);
- const baseFov=isGate?43:(shot.fov??24);
- const fov=isGate?43:a>1.45?Math.max(15,baseFov-5):a<.85?Math.min(34,baseFov+4):Math.max(18,baseFov-1.5);
- const poseAt=(scale)=>{
-  const lateral=outerSign*side*scale,forward=ahead*scale;
-  return {position:{x:focus.x+track.dz*lateral+track.dx*forward,
-   y:focus.y+height+Math.log2(scale)*.45,
-   z:focus.z-track.dx*lateral+track.dz*forward},
-   look:{x:focus.x,y:focus.y+1.8,z:focus.z}};
- };
- const imagePoints=(pos,look)=>{
-  const data=[];
-  for(const q of field)
-   for(const longitudinal of [-2.35,2.7])
-    for(const transverse of [-.85,.85])
-     for(const y of [.15,3.0])
-      data.push(projectPoint({x:q.x+q.dx*longitudinal-q.dz*transverse,
-       y:q.y+y,z:q.z+q.dz*longitudinal+q.dx*transverse},pos,look,fov,a));
-  return data;
- };
- const boundary=frameBoundary(isGate,shot.id);
- let scale=1,pose,ext=null;
- for(let i=0;i<32;i++){
-  pose=poseAt(scale);
-  const pp=imagePoints(pose.position,pose.look).filter(q=>q.visible);
-  if(pp.length!==field.length*8){scale*=1.15;continue}
-  const xs=pp.map(x=>x.x),ys=pp.map(x=>x.y);
-  ext={minX:Math.min(...xs),maxX:Math.max(...xs),minY:Math.min(...ys),maxY:Math.max(...ys)};
-  if(ext.maxX-ext.minX<=2*(boundary.right-boundary.left)&&
-   ext.maxY-ext.minY<=2*(boundary.upper-boundary.lower))break;
-  scale*=1.105;
- }
- if(!ext)throw new Error('Camera cannot fit leading horses');
- const frameY=(ext.minY+ext.maxY)/2;
- pose.look.y+=frameY*.55;
- if(!isGate)pose.look.y-=Math.min(3.4,height*.43);
- let shift=0,gateScreenX=null,aheadScreenSide='right';
- if(isGate){
-  // Place the ENTIRE 17-stall starting gate at the trailing edge, not
-  // its CENTER at the edge (which cropped half of the stalls).
-  // Physical gate root is 3.7m behind the start line and ±10.2m broad.
-  pose.look.y-=3.0;
-  const origin=path(0),behind=3.7,halfStalls=order.length*.6+1.15;
-  const leftRight=[];
-  for(const lateral of [-halfStalls,halfStalls]){
-   for(const heightAt of [.1,4.2]){
-    const point={x:origin.x-origin.dx*behind+origin.dz*lateral,
-     y:origin.y+heightAt,z:origin.z-origin.dz*behind-origin.dx*lateral};
-    leftRight.push(projectPoint(point,pose.position,pose.look,fov,a));
-   }
+ const baseFov=shot.fov||28;
+ const fov=isGate?(a>1.45?32:a<.85?51:39):
+  a>1.45?Math.max(16,baseFov-5):a<.85?Math.min(38,baseFov+6):baseFov;
+ const height=shot.height||8;
+ const setPose=scale=>{
+  let x,z;
+  if(isGate){
+   // Look almost straight back into the gates from the OUTSIDE: unlike the
+   // old distant side-angle this shows the entire stall row across the image.
+   x=focus.x+center.dx*inFront*scale+center.dz*outsideSign*side*scale;
+   z=focus.z+center.dz*inFront*scale-center.dx*outsideSign*side*scale;
+  }else{
+   // Stationary trackside crane / telephoto on the outside rail.
+   x=cameraStation.x+cameraStation.dz*outsideSign*side*scale;
+   z=cameraStation.z-cameraStation.dx*outsideSign*side*scale;
   }
-  const next={x:origin.x+origin.dx*11,y:origin.y+2.2,z:origin.z+origin.dz*11};
-  const atGate={x:origin.x-origin.dx*behind,y:origin.y+2.2,z:origin.z-origin.dz*behind};
-  const advancesRight=projectPoint(next,pose.position,pose.look,fov,a).x>
-   projectPoint(atGate,pose.position,pose.look,fov,a).x;
-  const ndcEdge=advancesRight?Math.min(...leftRight.map(q=>q.x)):Math.max(...leftRight.map(q=>q.x));
-  const trailingScreenEdge=advancesRight?.055:.945;
-  shift=ndcEdge-2*(trailingScreenEdge-.5);
-  gateScreenX=trailingScreenEdge;
-  aheadScreenSide=advancesRight?'right':'left';
-
- }else{
-  const refined=imagePoints(pose.position,pose.look).filter(q=>q.visible);
-  const edge=outerSign===-1?Math.max(...refined.map(q=>q.x)):Math.min(...refined.map(q=>q.x));
-  const target=outerSign===-1?boundary.right:boundary.left;
-  shift=edge-2*(target-.5);
-  aheadScreenSide=outerSign===-1?'right':'left';
+  return {position:{x,y:focus.y+height+Math.log2(scale)*.38,z},
+   look:{x:focus.x,y:focus.y+(isGate?1.7:1.8),z:focus.z}};
+ };
+ const bounds=isGate?{left:.06,right:.95,lower:.14,upper:.90}:
+  shot.id==='first-corner'?{left:.07,right:.86,lower:.11,upper:.90}:
+  shot.id==='third-entry'?{left:.13,right:.80,lower:.11,upper:.88}:
+  shot.id==='fourth-turn'?{left:.12,right:.79,lower:.11,upper:.88}:
+  {left:.14,right:.80,lower:.13,upper:.88};
+ const imagePoints=(pose)=>{
+  const pixels=[];
+  if(isGate){
+   // Actual 17-wide stall row, including top beam, instead of the horse
+   // silhouettes which compress the gate into a tiny dot.
+   const origin=path(0),behind=3.7,span=order.length*.6+1.15;
+   for(const lateral of [-span,span])for(const y of [.08,4.2])
+    for(const forward of [-2.1,2.1])
+     pixels.push(projectPoint({x:origin.x-origin.dx*behind+origin.dz*lateral+origin.dx*forward,
+      y:origin.y+y,z:origin.z-origin.dz*behind-origin.dx*lateral+origin.dz*forward},
+      pose.position,pose.look,fov,a));
+  }else{
+   for(const q of field)for(const front of [-2.35,2.7])
+    for(const lateral of [-.82,.82])for(const y of [.14,3.0])
+     pixels.push(projectPoint({x:q.x+q.dx*front-q.dz*lateral,
+      y:q.y+y,z:q.z+q.dz*front+q.dx*lateral},
+      pose.position,pose.look,fov,a));
+  }
+  return pixels;
+ };
+ // Zoom in to the actual competition, but back off only as much as needed
+ // to keep the picture's selected 3–5 runners uncut.
+ let scale=isGate?.75:1,pose,raw;
+ for(let i=0;i<35;i++){
+  pose=setPose(scale);
+  raw=imagePoints(pose).filter(p=>p.visible);
+  if(raw.length!== (isGate?8:field.length*8)){scale*=1.13;continue}
+  const xs=raw.map(p=>p.x),ys=raw.map(p=>p.y);
+  const width=Math.max(...xs)-Math.min(...xs);
+  const heightNdc=Math.max(...ys)-Math.min(...ys);
+  if(width<=2*(bounds.right-bounds.left)&&heightNdc<=2*(bounds.upper-bounds.lower))break;
+  scale*=1.08;
  }
+ if(!raw?.length)throw new Error('No horse group visible to broadcast lens');
+ const yCenter=(Math.max(...raw.map(p=>p.y))+Math.min(...raw.map(p=>p.y)))/2;
+ // Keep horse bodies in the middle third rather than wasting 50% on sky.
+ pose.look.y+=yCenter*.43-(isGate?.5:2.25);
+ raw=imagePoints(pose).filter(p=>p.visible);
+ let lensShiftX=0;
+ if(isGate){
+  // The user's reference shows the whole gate filling the width, not a
+  // minuscule gate at x=5% with a field of empty turf to the right.
+  const mid=(Math.max(...raw.map(p=>p.x))+Math.min(...raw.map(p=>p.x)))/2;
+  lensShiftX=mid; // optical center x=.50
+ }else{
+  // Track direction determines where the 20% forward breathing space sits.
+  // Direction is derived from the real camera projection, not guessed from
+  // track handedness or the sign of its outside normal.
+  const l=path(lead.p),lane=runnerLane(lead.no,order.length,progress);
+  const p0={x:l.x-l.dz*lane,y:l.y+1.9,z:l.z+l.dx*lane};
+  const ahead={x:p0.x+l.dx*8,y:p0.y,z:p0.z+l.dz*8};
+  const advancingRight=projectPoint(ahead,pose.position,pose.look,fov,a).x>
+   projectPoint(p0,pose.position,pose.look,fov,a).x;
+  const edge=advancingRight?Math.max(...raw.map(p=>p.x)):Math.min(...raw.map(p=>p.x));
+  const target=advancingRight?bounds.right:bounds.left;
+  lensShiftX=edge-2*(target-.5);
+ }
+ const projectedWidth=Math.max(...raw.map(p=>p.x))-Math.min(...raw.map(p=>p.x));
+ const outsideDist=side*scale-(Math.max(groupBulge,stationBulge)+half);
  return {...pose,fov,side:side*scale,subjects:group.map(o=>o.no),
-  lensShiftX:shift,outerRailSign:outerSign,tracked:group.length,
-  mode:isGate?'establishing-gate':'outer-rail-'+shot.id,
-  outerRailClearance:side*scale-(modeledOuter+courseHalfWidth),
-  outerCourseBulge:modeledOuter,aheadScreenSide,gateScreenX,forwardGap:1-boundary.right,
-  projectedWidth:ext.maxX-ext.minX,dollyScale:scale};
+  lensShiftX,outerRailSign:outsideSign,tracked:group.length,
+  mode:isGate?'gate-front-broadcast':'rail-broadcast-'+shot.id,
+  outerRailClearance:outsideDist,outerCourseBulge:groupBulge,
+  aheadScreenSide:'dynamic',gateScreenX:isGate?.5:null,
+  forwardGap:.2,projectedWidth,dollyScale:scale,
+  shotPerspective:isGate?'front-gate':shot.id==='third-entry'?'outside-headon':
+   shot.id==='fourth-turn'?'outside-oblique':'outside-side'};
 }
