@@ -242,53 +242,40 @@ for(let i=0;i<3;i++){
 assert.equal(chooseRaceShot(NaN).id,'start');
 assert.equal(chooseRaceShot(-1).id,'start');
 assert.deepEqual(courseShotCuts(null,0,{venue:'東京'}),[.18,.52,.80,Infinity]);
-for(const angle of [0,Math.PI/2,Math.PI,Math.PI*1.5]){
- const dx=Math.sin(angle),dz=Math.cos(angle),path=p=>({x:p*500*dx,y:0,z:p*500*dz,dx,dz});
- for(const aspect of [.5,.75,1,1.78,2.4]){
-  for(const id of ['start','straight']){
-   const shot=RACE_SHOT_LIST.find(s=>s.id===id),progress=id==='start'?0:.99;
-   const order=Array.from({length:17},(_,i)=>({no:i+1,p:progress-i*.0038}));
-   const pose=raceCameraPose({shot,progress,order,path,aspect});
-   const forwardDot=(pose.position.x-pose.look.x)*dx+(pose.position.z-pose.look.z)*dz;
-   assert.ok(Math.abs(forwardDot)<1e-8,'start and straight must look exactly across the running direction');
-   assert.ok(pose.side>0,'camera remains on the same rail side');
-
-  }
- }
-}
-assert.ok(RACE_SHOT_LIST[2].height<RACE_SHOT_LIST[2].side&&RACE_SHOT_LIST[2].ahead>0,'3C is an elevated forward close-up');
-assert.ok(RACE_SHOT_LIST[1].side<RACE_SHOT_LIST[0].side,'2C is closer than start');
-// Tight broadcast camera keeps 22% of the screen open to LEFT of leader.
-const {runnerLane}=await load('assets/kyoto-course.js');
-const screenX=(point,pose,aspect)=>{
- const camera=pose.position,target=pose.look;
- const fx=target.x-camera.x,fy=target.y-camera.y,fz=target.z-camera.z;
- const fn=Math.hypot(fx,fy,fz),vx=point.x-camera.x,vy=point.y-camera.y,vz=point.z-camera.z;
- const depth=(vx*fx+vy*fy+vz*fz)/fn;
- return .5+.5*(((-fz*vx+fx*vz)/fn)/(depth*Math.tan(pose.fov*Math.PI/360)*aspect)-(pose.lensShiftX||0));
+// Real broadcast camera: OUTER rail (Kyoto right handed), foremost
+// five horses + any adjacent challenger. Test real curved Kyoto geometry.
+const {kyotoPath,runnerLane}=await load('assets/kyoto-course.js');
+const projections=(o,pose,aspect)=>{
+ const {position:c,look:l,fov}=pose,fx=l.x-c.x,fy=l.y-c.y,fz=l.z-c.z;
+ const fn=Math.hypot(fx,fy,fz),vx=o.x-c.x,vy=o.y-c.y,vz=o.z-c.z;
+ const forward={x:fx/fn,y:fy/fn,z:fz/fn},right={x:-fz/Math.hypot(fx,fz),z:fx/Math.hypot(fx,fz)};
+ const d=vx*forward.x+vy*forward.y+vz*forward.z;
+ const tan=Math.tan(fov*Math.PI/360);
+ return {x:.5+.5*((vx*right.x+vz*right.z)/(d*tan*aspect)-(pose.lensShiftX||0)),depth:d};
 };
-for(const shot of RACE_SHOT_LIST){
- for(const aspect of [.52,.8,1.77]){
-  const progress=.7,order=[.70,.687,.672,.663,.650].map((p,i)=>({no:i+1,p}));
-  const path=p=>({x:p*2000,y:0,z:0,dx:1,dz:0});
-  const pose=raceCameraPose({shot,progress,clock:42,order,path,aspect});
-  assert.ok(pose.subjects.length<=3,'tracking camera must not frame all horses');
-  assert.equal(pose.mode,'tight-nose-leader');
-  const fronts=order.slice(0,3).map(o=>{
-   const q=path(o.p),lane=runnerLane(o.no,order.length,progress);
-   return screenX({x:q.x-q.dz*lane+3.0,y:q.y+2.05,z:q.z+q.dx*lane},pose,aspect);
-  });
-  assert.ok(Math.abs(Math.min(...fronts)-.20)<.015,
-   'leftmost muzzle leaves 20 percent foreground air in '+shot.id+'/'+aspect+': '+fronts);
-  assert.ok(fronts.every(x=>x>=.19),'near-leader muzzles must not clip on left');
-  const distance=Math.hypot(pose.position.x-pose.look.x,pose.position.z-pose.look.z);
-  assert.ok(distance<19,'closeup within 19m: '+shot.id+' '+distance);
- }
+const cameraViews=[.10,.42,.68,.81,.94,.999];
+for(const progress of cameraViews)for(const aspect of [.58,.98,1.78,2.1]){
+ const shot=chooseRaceShot(progress,courseShotCuts(null,0,{venue:'京都',distance:2000,surface:'芝'}));
+ const order=Array.from({length:17},(_,i)=>({no:i+1,p:progress-i*.0017}));
+ const pose=raceCameraPose({shot,progress,clock:progress*119,
+  order,path:kyotoPath,aspect,direction:'右',distance:2000});
+ assert.equal(pose.mode,'outer-rail-group');
+ assert.ok(pose.subjects.length>=5&&pose.subjects.length<=7,'broadcast follows leading five and adjacent challengers');
+ const p=kyotoPath(progress),rightDistance=(pose.position.x-p.x)*p.dz-(pose.position.z-p.z)*p.dx;
+ assert.ok(rightDistance< -18,'camera must stay OUTSIDE for a right-handed Kyoto race');
+ assert.equal(pose.outerRailSign,-1);
+ assert.ok(pose.aheadSpace>=.18&&pose.aheadSpace<=.25,'allow ~20% breathing room in travel direction');
+ assert.ok(pose.side>20,'not a horse portrait camera');
+ assert.ok(pose.projectedWidth<=1.51,'do not clip the front group horizontally');
+ const first=order[0],q=kyotoPath(first.p),lane=runnerLane(first.no,order.length,progress);
+ const view=projections({x:q.x-q.dz*lane+q.dx*2.2,y:q.y+2,z:q.z+q.dx*lane+q.dz*2.2},pose,aspect);
+ assert.ok(view.depth>0&&view.x>.1&&view.x<.93,'leader must stay visible');
 }
 const opening=raceCameraPose({shot:RACE_SHOT_LIST[0],progress:0,clock:0,
- order:Array.from({length:17},(_,i)=>({no:i+1,p:0})),path:p=>({x:p*500,y:0,z:0,dx:1,dz:0}),aspect:1});
-assert.equal(opening.subjects.length,17,'all runners visible only in establishing gate shot');
-console.log('Off-axis lens: leader x≈22%, closeup <27m, establishing gate remains wide ✓');
+ order:Array.from({length:17},(_,i)=>({no:i+1,p:0})),path:kyotoPath,aspect:1,direction:'右',distance:2000});
+assert.equal(opening.subjects.length,17);
+assert.equal(opening.mode,'establishing-gate');
+console.log('JRA-inspired outside-rail broadcast: leading five, attack lanes, forward space, gate and four cuts ✓');
 for(const field of [3,6,17,18])for(const duration of [68,120,180]){
  const rank=Array.from({length:field},(_,i)=>field-i);
  assert.deepEqual(finishCrossings(rank,duration-1e-5,duration),[]);
