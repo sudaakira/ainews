@@ -262,7 +262,10 @@ export function followLockedCameraPose(rig,order,path,{distance=2000,venue='京�
  // Raw piecewise course tangents have a 29-degree seam around p=.344.
  // Derive a CONTINUOUS track bearing from nearby path positions instead.
  const tangent=t=>{
-  const a=path(Math.max(0,t-.015)),b=path(Math.min(1,t+.015));
+  // Run-out continues beyond p=1. Clamping only the forward sample would
+  // reverse the tangent after the finish and spin the replay camera 180°.
+  const sample=Math.max(0,Math.min(1,t));
+  const a=path(Math.max(0,sample-.015)),b=path(Math.min(1,sample+.015));
   const len=Math.hypot(b.x-a.x,b.z-a.z);
   if(len<.001){const q=path(t);return {dx:q.dx,dz:q.dz}}
   return {dx:(b.x-a.x)/len,dz:(b.z-a.z)/len};
