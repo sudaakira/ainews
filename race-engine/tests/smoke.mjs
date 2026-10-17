@@ -273,12 +273,12 @@ for(const shot of RACE_SHOT_LIST){
   const path=p=>({x:p*2000,y:0,z:0,dx:1,dz:0});
   const pose=raceCameraPose({shot,progress,clock:42,order,path,aspect});
   assert.ok(pose.subjects.length<=3,'tracking camera must not frame all horses');
-  assert.equal(pose.mode,'tight-leader-follow');
+  assert.equal(pose.mode,'tight-nose-leader');
   const o=order[0],q=path(o.p),lane=runnerLane(o.no,order.length,progress);
-  const x=screenX({x:q.x-q.dz*lane,y:1.85,z:q.z+q.dx*lane},pose,aspect);
-  assert.ok(Math.abs(x-.225)<.01,'leader x≈22.5% in '+shot.id+'/'+aspect+': '+x);
+  const x=screenX({x:q.x-q.dz*lane+1.75,y:2.05,z:q.z+q.dx*lane},pose,aspect);
+  assert.ok(Math.abs(x-.20)<.01,'leader nose x≈20% in '+shot.id+'/'+aspect+': '+x);
   const distance=Math.hypot(pose.position.x-pose.look.x,pose.position.z-pose.look.z);
-  assert.ok(distance<27,'broadcast camera must stay within 27m: '+shot.id+' '+distance);
+  assert.ok(distance<19,'closeup within 19m: '+shot.id+' '+distance);
  }
 }
 const opening=raceCameraPose({shot:RACE_SHOT_LIST[0],progress:0,clock:0,
