@@ -264,6 +264,10 @@ for(const p of [.10,.4,.59,.66,.73,.82,.94,.999])for(const aspect of [.58,.76,1.
  assert.ok(pose.cameraLane<pose.railLane-11.9,
   'actual camera lane '+pose.cameraLane+' must be OUTSIDE negative-lane rail '+pose.railLane);
  assert.equal(pose.railOutsideVerified,true);
+ assert.equal(pose.leadNumber,order[0].no,'leader, never pack midpoint, owns picture');
+ assert.ok(pose.leadNoseViewportTarget>=.19&&pose.leadNoseViewportTarget<=.81,
+  'leader nose must leave substantial forward space: '+pose.leadNoseViewportTarget);
+ assert.ok(pose.forwardGap>=.19&&pose.forwardGap<=.5,'>=19% uncluttered space ahead');
  assert.ok(pose.outerRailClearance>=11.9,'camera OUTSIDE the actual outer-course rail');
  assert.ok(pose.shotPerspective.startsWith('outside-'),'camera is always outside');
  const maxGroupWidth=shot.id==='first-corner'?1.63:1.51;
@@ -291,6 +295,14 @@ assert.match(kyotoRender,/offsetPoint\(t,outer\(t\)-14,\.9\)/);
 assert.match(kyotoRender,/camera\.projectionMatrix\.elements\[8\]=smoothLensShift/);
 assert.match(kyotoRender,/smoothFov\+=\(shotDirection\.fov-smoothFov\)\*lensAlpha/);
 assert.match(kyotoRender,/Math\.exp\(-frameDt\*\(10\+Math\.min\(16,rate\)\*\.65\)\)/);
+// Dedicated infield scene source: no image downloads and physical 64m display.
+const kyotoLandmarksJS=read('assets/kyoto-landmarks.js');
+assert.match(kyotoLandmarksJS,/w=64,h=10\.8/);
+assert.match(kyotoLandmarksJS,/landmarks\.pond\.userData\.kyotoLandmark='pond'/);
+assert.match(kyotoLandmarksJS,/frameGroup\.userData\.kyotoLandmark='turf-vision'/);
+assert.match(kyotoLandmarksJS,/tex\.needsUpdate=true/);
+assert.doesNotThrow(()=>new Function(kyotoLandmarksJS.replace(/export (function|const)/g,'$1')));
+console.log('Official size 64m Turf Vision, pond shore geometry, live screen texture ✓');
 console.log('Kyoto camera actual outer lane and frame-independent pan/zoom damping ✓');
 
 console.log('Five cameras: outer rail, first corner pack, third/fourth entry, final battle ✓');
