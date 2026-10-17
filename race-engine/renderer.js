@@ -440,8 +440,12 @@ import {jockeyCap} from './core/jockey-caps.js?v=cap-v1';
    for(const [no,node] of leaderLabels){
     if(clock<2||!pictured.has(no)){node.style.display='none';continue}
     const m=models[no-1],pt=m.root.localToWorld(new THREE.Vector3(0,3.20,0)).project(camera);
-    if(pt.z< -1||pt.z>1||Math.abs(pt.x)>.9||Math.abs(pt.y)>.75){node.style.display='none';continue}
-    const x=(pt.x+1)*cw/2,y=(1-pt.y)*ch/2;
+    if(pt.z< -1||pt.z>1||Math.abs(pt.x)>1.15||Math.abs(pt.y)>1.25){node.style.display='none';continue}
+    // At the finish the jockey's head can reach the top of the perspective
+    // frame even while the horse is visible. Keep the label legible by
+    // pinning it just inside the broadcast-safe image area.
+    const x=Math.max(16,Math.min(cw-16,(pt.x+1)*cw/2));
+    const y=Math.max(81,Math.min(ch-110,(1-pt.y)*ch/2));
     const overlap=placed.filter(q=>Math.abs(q.x-x)<27&&Math.abs(q.y-y)<26).length;
     node.style.left=x.toFixed(1)+'px';node.style.top=(y-overlap*19).toFixed(1)+'px';
     node.style.display='grid';placed.push({x,y:y-overlap*19});
