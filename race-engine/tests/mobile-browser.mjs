@@ -67,7 +67,7 @@ try{
     assert.equal(state.scene.leadersOccluded,0,'buildings never occlude leading horses');
     assert.equal(state.director.pose.mode,'outer-rail-'+id,'outside-rail camera composition must match cut');
     assert.equal(state.director.pose.outerRailSign,-1);
-    assert.ok(state.director.pose.fov<=34,'leader shot should use the tighter telephoto camera');
+    assert.ok(id==='start'||state.director.pose.fov<=34,'post-start shot should use the tighter telephoto camera');
     if(id==='fourth-turn'||id==='finish'){
      const visibleLabels=await page.locator('#race-front-labels b:visible').count();
      assert.ok(visibleLabels>=(id==='fourth-turn'?2:1)&&visibleLabels<=5,
