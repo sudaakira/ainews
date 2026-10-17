@@ -1,23 +1,25 @@
 import {KYOTO_CUTS,runnerLane,kyotoOuterCourseOffset,KYOTO_INNER} from './kyoto-course.js?v=kyoto-v12';
 /**
- * Racing broadcast grammar — not a horse portrait camera.
- * Main race: operator on the OUTER rail, first five runners and adjacent outside
- * challengers visible together. Space is left AHEAD of the field in SCREEN
- * coordinates (right in a natural outer-rail/right-handed Kyoto shot).
- * Source: PR Center official JRA 2018 camera breakdown.
+ * JRA-style, five-camera Kyoto broadcast, reconstructed from supplied JRA reference frames:
+ * 01 Start gate, 02 first corner positioning, 03 third corner entry,
+ * 04 fourth corner moves, 05 homestretch finish.
+ * Track-side positions are outside the outermost turf rail at all cuts.
  */
 export const RACE_SHOT_LIST=Object.freeze([
- Object.freeze({id:'start',until:.28,kicker:'01 / START',label:'スタート・第1角',side:35,height:9,ahead:0,fov:41}),
- Object.freeze({id:'second-turn',until:.60,kicker:'02 / THE FIELD',label:'2コーナー・向正面',side:38,height:7.8,ahead:2,fov:40}),
- Object.freeze({id:'third-turn',until:.836,kicker:'03 / THE MOVE',label:'3・4コーナー 勝負所',side:43,height:9.4,ahead:6,fov:40}),
- Object.freeze({id:'straight',until:Infinity,kicker:'04 / THE FINISH',label:'最後の直線・先頭争い',side:43,height:7.5,ahead:0,fov:38})
+ Object.freeze({id:'start',until:.075,kicker:'01 / START',label:'スタート',subjects:'all',side:49,height:8.5,ahead:32,fov:43}),
+ Object.freeze({id:'first-corner',until:.29,kicker:'02 / POSITION',label:'1コーナー 位置どり',subjects:'pack',side:46,height:9,ahead:7,fov:31}),
+ Object.freeze({id:'third-entry',until:.67,kicker:'03 / ATTACK ZONE',label:'3コーナー進入',subjects:'frontpack',side:54,height:10.2,ahead:10,fov:25}),
+ Object.freeze({id:'fourth-turn',until:.84,kicker:'04 / THE MOVE',label:'4コーナー 仕掛け',subjects:'leaders',side:49,height:8.7,ahead:5,fov:22}),
+ Object.freeze({id:'finish',until:Infinity,kicker:'05 / FINISH',label:'ゴール前',subjects:'finish',side:43,height:7.4,ahead:0,fov:20})
 ]);
 export function chooseRaceShot(progress,cuts=RACE_SHOT_LIST.map(s=>s.until)){
  const p=Number.isFinite(progress)?Math.max(0,progress):0;
- return RACE_SHOT_LIST[cuts.findIndex(x=>p<x)]||RACE_SHOT_LIST[3];
+ return RACE_SHOT_LIST[cuts.findIndex(x=>p<x)]||RACE_SHOT_LIST[4];
 }
 export function courseShotCuts(route,routeLength,config){
- return config.venue==='京都'&&config.distance===2000&&config.surface==='芝'?[...KYOTO_CUTS]:[.18,.52,.80,Infinity];
+ return config.venue==='京都'&&config.distance===2000&&config.surface==='芝'
+   ? [...RACE_SHOT_LIST.map(s=>s.until)]
+   : [.08,.30,.62,.84,Infinity];
 }
 const clamp=(x,a,b)=>Math.min(b,Math.max(a,x));
 function projectPoint(q,pos,look,fov,aspect){
@@ -32,24 +34,44 @@ function projectPoint(q,pos,look,fov,aspect){
  return {x:(dx*rightX+dz*rightZ)/(depth*tan*aspect),
   y:(dx*upX+dy*upY+dz*upZ)/(depth*tan),visible:true};
 }
+/** Shot-specific cast: all 17 at gate, front pack at corners, leaders at finish. */
+function pickSubjects(shot,order,distance){
+ if(shot.subjects==='all')return order.slice();
+ const lead=order[0],gap=o=>(lead.p-o.p)*distance;
+ if(shot.subjects==='pack')return order.filter((o,i)=>i<10||gap(o)<=17).slice(0,12);
+ if(shot.subjects==='frontpack'){
+  const pack=order.slice(0,8).filter((o,i)=>i<6||gap(o)<=22);
+  return pack.length>=6?pack:order.slice(0,6);
+ }
+ if(shot.subjects==='leaders'){
+  const firstFive=order.slice(0,5);
+  const pack=firstFive.filter((o,i)=>i<3||(i===3?gap(o)<=16:gap(o)<=10&&(firstFive[3].p-o.p)*distance<=2.6));
+  return pack.length>=4?pack:firstFive.slice(0,4);
+ }
+ if(shot.subjects==='finish'){
+  const threeOrFour=order.slice(0,4).filter((o,i)=>i<3||gap(o)<=6.5);
+  return threeOrFour.length>=3?threeOrFour:order.slice(0,3);
+ }
+ return order.slice(0,5);
+}
+function frameBoundary(isGate,id){
+ if(isGate)return {left:.055,right:.94,lower:.07,upper:.94};
+ if(id==='first-corner')return {left:.06,right:.86,lower:.09,upper:.90};
+ if(id==='third-entry')return {left:.08,right:.82,lower:.10,upper:.88};
+ if(id==='fourth-turn')return {left:.08,right:.80,lower:.10,upper:.88};
+ return {left:.10,right:.82,lower:.12,upper:.88};
+}
 export function raceCameraPose({shot,progress,order,path,aspect=1,clock=Infinity,direction='右',distance=2000,venue='京都'}){
  const lead=order?.[0];
  if(!lead)return {position:{x:0,y:9,z:40},look:{x:0,y:2,z:0},fov:39,side:40,subjects:[],lensShiftX:0,mode:'empty'};
  const isGate=shot.id==='start'&&clock<=1.8;
  const outerSign=direction==='左'?1:-1;
- const maxGap=Math.min(16,distance*.008);
- const firstFive=order.slice(0,5);
- let group=isGate?order.slice():firstFive.filter((o,i)=>{
-  const gap=(lead.p-o.p)*distance;
-  if(i<3)return true;
-  if(i===3)return gap<=maxGap;
-  // Show fifth place only while it is genuinely disputing the first four.
-  return gap<=11&&(firstFive[3].p-o.p)*distance<=2.6;
- });
+ 
+ const group=isGate?order.slice():pickSubjects(shot,order,distance);
  // Positions in this simulator have no measured lateral running telemetry.
  // We do not pretend sixth place is running wide, but reveal it immediately
  // after it joins the first five. Five is the maximum size of the live closeup.
- const pCenter=isGate?0:group.reduce((sum,o,i)=>sum+o.p*(i===0?1.7:1),0)/(group.length+.7);
+ const pCenter=isGate?0:group.reduce((sum,o,i)=>sum+o.p*(i===0?1.55:1),0)/(group.length+.55);
  const track=path(pCenter),field=group.map(o=>{
   const q=path(o.p),lane=runnerLane(o.no,order.length,progress);
   return {x:q.x-q.dz*lane,y:q.y,z:q.z+q.dx*lane,dx:q.dx,dz:q.dz,no:o.no,p:o.p};
@@ -66,12 +88,13 @@ export function raceCameraPose({shot,progress,order,path,aspect=1,clock=Infinity
   Math.max(0,...group.map(o=>-kyotoOuterCourseOffset(o.p))):0;
  const courseHalfWidth=venue==='京都'&&distance===2000?KYOTO_INNER.width/2:13.5;
  const requiredOutside=modeledOuter+courseHalfWidth+12;
- const baselineSide=shot.id==='third-turn'?50:shot.id==='straight'?39:shot.id==='second-turn'?35:39;
+ const baselineSide=shot.side||43;
  const side=isGate?49:Math.max(baselineSide,requiredOutside);
- const ahead=isGate?32:shot.id==='third-turn'?4:shot.id==='second-turn'?2:0;
- const height=isGate?8.5:shot.id==='third-turn'?9.1:7.2;
+ const ahead=isGate?32:(shot.ahead??0);
+ const height=isGate?8.5:(shot.height??7.4);
  const a=Math.max(.48,Number(aspect)||1);
- const fov=isGate?43:a>1.45?16.5:a<.85?27:23;
+ const baseFov=isGate?43:(shot.fov??24);
+ const fov=isGate?43:a>1.45?Math.max(15,baseFov-5):a<.85?Math.min(34,baseFov+4):Math.max(18,baseFov-1.5);
  const poseAt=(scale)=>{
   const lateral=outerSign*side*scale,forward=ahead*scale;
   return {position:{x:focus.x+track.dz*lateral+track.dx*forward,
@@ -89,8 +112,7 @@ export function raceCameraPose({shot,progress,order,path,aspect=1,clock=Infinity
        y:q.y+y,z:q.z+q.dz*longitudinal+q.dx*transverse},pos,look,fov,a));
   return data;
  };
- const boundary=isGate?{left:.055,right:.94,lower:.07,upper:.94}:
-  {left:.07,right:.81,lower:.10,upper:.88};
+ const boundary=frameBoundary(isGate,shot.id);
  let scale=1,pose,ext=null;
  for(let i=0;i<32;i++){
   pose=poseAt(scale);
@@ -140,7 +162,7 @@ export function raceCameraPose({shot,progress,order,path,aspect=1,clock=Infinity
  }
  return {...pose,fov,side:side*scale,subjects:group.map(o=>o.no),
   lensShiftX:shift,outerRailSign:outerSign,tracked:group.length,
-  mode:isGate?'establishing-gate':'outer-rail-3to5',
+  mode:isGate?'establishing-gate':'outer-rail-'+shot.id,
   outerRailClearance:side*scale-(modeledOuter+courseHalfWidth),
   outerCourseBulge:modeledOuter,aheadScreenSide,gateScreenX,forwardGap:1-boundary.right,
   projectedWidth:ext.maxX-ext.minX,dollyScale:scale};
