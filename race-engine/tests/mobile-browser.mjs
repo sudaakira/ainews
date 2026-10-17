@@ -104,7 +104,8 @@ try{
      assert.ok(Number.isFinite(actual)&&Math.abs(actual-target)<.18,
       'actual 3D lead horse nose must follow front-space target: '+actual+' vs '+target);
     }
-    assert.ok(id==='start'||state.director.pose.fov<=34,'post-start shot should use the tighter telephoto camera');
+    assert.ok(id==='start'||state.director.pose.fov<=(id==='backstretch'?38:34),
+      'corner/finish shots use telephoto; backstretch uses a wider lateral field lens: '+id+' '+state.director.pose.fov);
     if(id==='fourth-turn'||id==='finish'){
      const visibleLabels=await page.locator('#race-front-labels b:visible').count();
      assert.ok(visibleLabels>=(id==='fourth-turn'?2:1)&&visibleLabels<=5,
@@ -165,7 +166,7 @@ try{
    await page.locator('#live-pause').click();
    assert.ok(trackingFrames.length>=20,'record live camera frames');
    const moving=trackingFrames.filter(x=>x.shot==='backstretch');
-   assert.ok(moving.length>=16,'must remain within 3C for the tracking sample');
+   assert.ok(moving.length>=16,'must remain within the backstretch shot for the tracking sample');
    const initial=moving[0],final=moving.at(-1);
    const span=Math.hypot(final.pos.x-initial.pos.x,final.pos.z-initial.pos.z);
    assert.ok(span>.25,'camera dolly must travel with the racing leaders: '+span);
