@@ -74,7 +74,7 @@ export function updateGallop(model,raceTime,visualTime,number,raceProgress=0,opt
  const speed=Number.isFinite(options.speedMps)?options.speedMps:15;
  const cadence=clamp(speed/7.4,1.70,2.45)*(1+.04*sprint);
  if(!model.gaitState||visualTime<model.gaitState.time-.001||raceTime<=0){
-  model.gaitState={phase:((number*0.037)%1+1)%1,time:visualTime,lead:requestedLead};
+  model.gaitState={phase:((number*0.61803398875)%1+1)%1,time:visualTime,lead:requestedLead};
  }
  const state=model.gaitState;
  // The broadcast may run at 16x, but the horse should still visibly gallop
