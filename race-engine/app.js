@@ -179,7 +179,31 @@ initWeightControls();run();
 
 
 /* Interactive 18-horse race playback: a sampled hypothetical finish, not live race telemetry */
-const LIVE = {playing:false,clock:0,visualTime:0,last:0,rank:[],seed:0,duration,raf:0,ready:false,playbackAtFinish:false};
+// A reproducible race must use a real random-number seed, not a cache token.
+// Same replay ID + same race settings -> same rankings and camera follow.
+const replayQuery=new URLSearchParams(location.search);
+const rawReplaySeed=replayQuery.get('replay');
+const fixedSeed=rawReplaySeed!==null&&/^\\d{1,10}$/.test(rawReplaySeed)&&
+ Number(rawReplaySeed)<=4294967295?Number(rawReplaySeed)>>>0:null;
+const rawReplayAt=replayQuery.get('at');
+const initialPosition=rawReplayAt!==null&&/^\\d{1,4}$/.test(rawReplayAt)&&
+ +rawReplayAt<=1000?+rawReplayAt:null;
+let firstRace=true;
+const LIVE = {playing:false,clock:0,visualTime:0,last:0,rank:[],seed:0,
+ replaySeed:null,duration,raf:0,ready:false,playbackAtFinish:false};
+function shareRaceFrame(at){
+ const u=new URL(location.href);
+ u.searchParams.set('replay',String(LIVE.replaySeed));
+ if(at===null)u.searchParams.delete('at');
+ else u.searchParams.set('at',String(Math.max(0,Math.min(1000,Math.round(at)))));
+ history.replaceState(null,'',u.pathname+u.search+u.hash);
+}
+const replayIndicator=document.createElement('small');
+replayIndicator.id='race-replay-id';
+replayIndicator.style.cssText='display:block;color:#e4eddd;font:600 11px/1.5 sans-serif;margin:4px 0 7px;';
+replayIndicator.title='この再現番号を含むURLなら、同じ展開と先頭馬を再生できます';
+(document.querySelector('.live-buttons')||el('live-status').parentElement)
+ .insertAdjacentElement('afterend',replayIndicator);
 const NS='http://www.w3.org/2000/svg';
 const route=el('kyoto-route'), group=el('kyoto-horses');
 // True topology (schematic metrics): Kyoto turf 2000m (inner A) starts on
@@ -234,7 +258,16 @@ if(liveScreen){
  liveScreen.parentNode.insertBefore(legend,liveScreen);
 }
 function sampleLiveRace(){
- let s=opts(),r=random((Date.now()%4294967295)>>>0);LIVE.rank=runRace(r,s);LIVE.seed=r()*1000;LIVE.clock=0;LIVE.visualTime=0;LIVE.ready=true;LIVE.playing=false;LIVE.last=0;LIVE.playbackAtFinish=false;
+ const seed=(firstRace&&fixedSeed!==null)?fixedSeed:
+  ((Date.now() ^ Math.floor(Math.random()*4294967296))>>>0);
+ const useStartFrame=firstRace&&initialPosition!==null;
+ firstRace=false;
+ const s=opts(),r=random(seed);
+ LIVE.rank=runRace(r,s);LIVE.seed=r()*1000;LIVE.replaySeed=seed;
+ LIVE.clock=useStartFrame?LIVE.duration*initialPosition/1000:0;
+ LIVE.visualTime=0;LIVE.ready=true;LIVE.playing=false;LIVE.last=0;LIVE.playbackAtFinish=false;
+ shareRaceFrame(useStartFrame?initialPosition:null);
+ replayIndicator.textContent='🎥 再現ID '+seed+' ｜ URLで同じ展開を再現（設定変更・新しいレースは別展開）';
  el('live-status').textContent='スタート待機';raceview.lastKey='';el('result-state').textContent='スタート待機';el('race').classList.remove('finished');el('race').innerHTML=['🥇','🥈','🥉'].map((medal,i)=>'<div class="place-card place-'+(i+1)+'"><div class="place-rank">'+medal+' '+(i+1)+'着</div><div class="place-number">—</div><div class="place-name">レース待機中</div></div>').join('');drawLive();
 }
 function ease(t){return t*t*(3-2*t)}
@@ -295,7 +328,7 @@ function liveFrame(t){
 el('live-play').onclick=()=>{if(!LIVE.ready||LIVE.clock>=playbackEnd(LIVE.duration,FIELD))sampleLiveRace();LIVE.playing=true;LIVE.last=0;el('live-status').textContent='● シミュレーション再生中';};
 el('live-pause').onclick=()=>{LIVE.playing=false;LIVE.last=0;el('live-status').textContent='一時停止';};
 el('live-reset').onclick=()=>sampleLiveRace();
-el('live-scrub').oninput=v=>{LIVE.clock=LIVE.duration*(+v.target.value)/1000;LIVE.playing=false;LIVE.last=0;LIVE.playbackAtFinish=false;el('live-status').textContent=LIVE.clock>0?'一時停止':'スタート待機';drawLive();};
+el('live-scrub').oninput=v=>{LIVE.clock=LIVE.duration*(+v.target.value)/1000;LIVE.playing=false;LIVE.last=0;LIVE.playbackAtFinish=false;el('live-status').textContent=LIVE.clock>0?'一時停止':'スタート待機';shareRaceFrame(v.target.value);drawLive();};
 const oldSim=el('simulate').onclick;el('simulate').onclick=()=>{oldSim();sampleLiveRace();};
 sampleLiveRace();LIVE.raf=requestAnimationFrame(liveFrame);
 window.KYOTO_RACE={HS,LIVE,route,routeLength,horseProgress,config};
