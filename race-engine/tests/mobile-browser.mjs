@@ -269,7 +269,7 @@ try{
  await lab.waitForFunction(()=>window.EQUINE_GAIT_LAB?.snapshot().rig==='racing-sprint-v19',
    null,{timeout:30000});
  const baseline=[];
- for(const lead of ['left','right'])for(const view of ['side','three','front'])for(const phase of [0,.2,.42,.6,.78,.9]){
+ for(const lead of ['left','right'])for(const view of ['side','other','three','front'])for(const phase of [0,.2,.42,.6,.78,.9]){
   await lab.evaluate(l=>window.EQUINE_GAIT_LAB.setLead(l),lead);
   await lab.locator('#camera').selectOption(view);
   await lab.evaluate(p=>window.EQUINE_GAIT_LAB.seek(p),phase);
@@ -277,6 +277,10 @@ try{
   const snap=await lab.evaluate(()=>window.EQUINE_GAIT_LAB.snapshot());
   assert.ok(Math.abs(snap.phase-phase)<1e-6,'manual gallop pose is reproducible');
   assert.equal(snap.hoofs.length,4);
+  assert.equal(snap.tack.revision,'fitted-racing-tack-v20');assert.equal(snap.tack.saddle,true);
+  assert.ok(snap.tack.minSurfaceGap>.005&&snap.tack.maxSurfaceGap<.025,'cloth follows the actual skinned barrel');
+  assert.ok(snap.tack.seatAnchorGap<.00001,'rider frame uses the rendered saddle seat');
+  assert.ok(snap.tack.strapAnchorGap<.00001,'stirrup leathers start at the actual saddle flap');
   assert.ok(snap.hoofs.every(h=>h.y>-.003),'actual deformed hoof vertices stay above turf');
   if(phase===.9)assert.ok(snap.hoofs.every(h=>h.y>.035),'gathered suspension is airborne');
   // FrontUpperLeg is the translating elbow attachment (scapular slide), not

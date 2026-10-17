@@ -2,6 +2,7 @@
  * Metres, forward +Z. Rendering only; no prediction/RNG/race-position imports.
  * Asset provenance and conversion are in docs/gallop-v16.md and tools/.
  */
+import {prepareRacingTack,createRacingTack} from './racing-tack.js?v=fitted-tack-v20';
 let source,helpers,loading;
 const SCALE=.46;
 export async function preloadRaceHorse(T){
@@ -47,7 +48,8 @@ export async function preloadRaceHorse(T){
    m.name=name;m.position.copy(first.position);m.quaternion.copy(first.quaternion);m.scale.copy(first.scale);m.bind(first.skeleton,first.bindMatrix);m.frustumCulled=false;first.parent.add(m);
   }
   meshes.forEach(m=>m.removeFromParent());
-  source={gltf,motion,feet,mouth};return source;
+  const tack=prepareRacingTack(T,gltf.scene.getObjectByName('RaceHorseCoat'),SCALE);
+  source={gltf,motion,feet,mouth,tack};return source;
  })();return loading;
 }
 function interpolateFeet(phase){
@@ -86,16 +88,8 @@ export function createRaceHorse(T,scene,h,silkHex,frameCapHex='#89929b',frameCap
   const geos=[];for(const m of [...parent.children]){if(!m.isMesh)continue;m.updateMatrix();const g=m.geometry.clone().applyMatrix4(m.matrix),rgb=new Float32Array(g.attributes.position.count*3),c=m.material.color;for(let i=0;i<rgb.length;i+=3)rgb.set([c.r,c.g,c.b],i);g.setAttribute('color',new T.BufferAttribute(rgb,3));geos.push(g);parent.remove(m)}
   if(geos.length)parent.add(new T.Mesh(helpers.merge(geos,false),new T.MeshStandardMaterial({vertexColors:true,roughness:.8})));
  }
- // Saddle, number and name remain explicit attachments, not part of horse skin.
- const saddle=new T.Group();root.add(saddle);ell(saddle,leather,0,0,0,.28,.055,.32);
- const cv=document.createElement('canvas');cv.width=1024;cv.height=640;const ctx=cv.getContext('2d');
- ctx.fillStyle='#102a3c';ctx.fillRect(0,0,1024,640);ctx.strokeStyle='#fff';ctx.lineWidth=14;ctx.strokeRect(14,14,996,612);
- ctx.fillStyle='#fff';ctx.textAlign='center';ctx.font='900 405px sans-serif';ctx.fillText(String(h.no),570,430);
- ctx.font='900 88px sans-serif';ctx.fillText(h.name,512,571,960);
- const texture=new T.CanvasTexture(cv);texture.colorSpace=T.SRGBColorSpace;texture.anisotropy=8;
- // The name occupies its own full-width strip below the boot, rather than
- // being squeezed into a 20px texture caption. Both sides read left-to-right.
- for(const side of [-1,1]){const c=new T.Mesh(new T.PlaneGeometry(.88,.55),new T.MeshBasicMaterial({map:texture,side:T.FrontSide}));c.position.set(side*.39,-.27,-.10);c.rotation.y=side*Math.PI/2;saddle.add(c)}
+ const tack=createRacingTack(T,coat,source.tack,h);
+ const saddle=new T.Group();saddle.name='RacingSeatFrame';root.add(saddle);
  const rider=new T.Group();root.add(rider);
  const neck=segment(rider,skin,.045,.04);
  const torso=ell(rider,silk,0,0,0,.145,.24,.115),pelvis=ell(rider,white,0,0,0,.15,.08,.14);
@@ -122,8 +116,8 @@ export function createRaceHorse(T,scene,h,silkHex,frameCapHex='#89929b',frameCap
   actions.left.setEffectiveWeight(active*(1-rightWeight));actions.right.setEffectiveWeight(active*rightWeight);actions.idle.setEffectiveWeight(1-active);
   actions.left.time=actions.right.time=phase*source.motion.duration;actions.idle.time=0;mixer.update(0);
   asset.position.y=floorOffset(phase)*active;root.updateMatrixWorld(true);inverse.copy(root.matrixWorld).invert();
-  const aft=localPoint(bones.Torso),fore=localPoint(bones.Torso3),center=localPoint(bones.Torso2);
-  const pitch=-Math.atan2(fore.y-aft.y,fore.z-aft.z);saddle.position.copy(center).add(new T.Vector3(0,.215,-.08));saddle.rotation.x=pitch;
+  const aft=localPoint(bones.Torso),fore=localPoint(bones.Torso3);
+  const pitch=-Math.atan2(fore.y-aft.y,fore.z-aft.z);saddle.position.copy(tack.seatPoint().applyMatrix4(inverse));saddle.rotation.x=pitch;
   const sy=saddle.position.y,sz=saddle.position.z;
   // Racing seat absorbs the back's movement; boots follow the stirrups while
   // knees/elbows articulate. The rider is not a rigid bobbing statuette.
@@ -138,7 +132,7 @@ export function createRaceHorse(T,scene,h,silkHex,frameCapHex='#89929b',frameCap
    const knee=joint(hipSide,ankle,.35,.35,new T.Vector3(x*.65,0,1));
    connect(l.thigh,hipSide,knee);connect(l.shin,knee,ankle);l.boot.position.copy(ankle).add(new T.Vector3(0,-.015,.04));l.boot.rotation.x=.13;
    l.stirrup.position.copy(ankle).add(new T.Vector3(0,-.027,.025));l.stirrup.rotation.y=Math.PI/2;
-   connect(l.strap,new T.Vector3(x*.26,sy,sz-.08),l.stirrup.position);
+   connect(l.strap,tack.stirrupPoint(x).applyMatrix4(inverse),l.stirrup.position);
    const hand=new T.Vector3(x*.14,sy+.12+(mouth.y-1.5)*.18,sz+.62+(mouth.z-1.4)*.10);
    const shoulderSide=shoulder.clone().add(new T.Vector3(x*.11,0,0));const elbow=joint(shoulderSide,hand,.245,.245,new T.Vector3(0,-1,-.45));
    connect(l.upper,shoulderSide,elbow);connect(l.fore,elbow,hand);l.hand.position.copy(hand);
@@ -158,5 +152,6 @@ export function createRaceHorse(T,scene,h,silkHex,frameCapHex='#89929b',frameCap
   return Object.entries(source.feet).map(([name,indices])=>{const pts=indices.map(i=>details.getVertexPosition(i,new T.Vector3()).applyMatrix4(details.matrixWorld).applyMatrix4(inv));return {name,y:Math.min(...pts.map(v=>v.y)),x:pts.reduce((n,v)=>n+v.x,0)/pts.length,z:pts.reduce((n,v)=>n+v.z,0)/pts.length}});
  };
  model.boneLengths=()=>{root.updateMatrixWorld(true);const lengths=Object.values(bones).filter(b=>b.parent.isBone).map(b=>({name:b.name,length:b.getWorldPosition(new T.Vector3()).distanceTo(b.parent.getWorldPosition(new T.Vector3()))}));for(const side of ['L','R'])for(const end of ['Front','Back'])lengths.push({name:'HoofLink'+end+side,length:bones[end+'LowerLeg'+side].getWorldPosition(new T.Vector3()).distanceTo(bones['IK'+end+'Leg'+side].getWorldPosition(new T.Vector3()))});return lengths};
+ model.tackAudit=()=>({...tack.audit(),seatAnchorGap:saddle.getWorldPosition(new T.Vector3()).distanceTo(tack.seatPoint()),strapAnchorGap:Math.max(...limbs.map(l=>l.strap.localToWorld(new T.Vector3(0,-.5,0)).distanceTo(tack.stirrupPoint(l.side))))});
  model.pose(0,0,0);scene.add(root);return model;
 }
