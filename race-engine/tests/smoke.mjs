@@ -244,7 +244,7 @@ assert.equal(chooseRaceShot(-1).id,'start');
 assert.deepEqual(courseShotCuts(null,0,{venue:'東京'}),[.18,.52,.80,Infinity]);
 // Real broadcast camera: OUTER rail (Kyoto right handed), foremost
 // five horses + any adjacent challenger. Test real curved Kyoto geometry.
-const {kyotoPath,runnerLane}=await load('assets/kyoto-course.js');
+const {kyotoPath:cameraKyotoPath,runnerLane:cameraRunnerLane}=await load('assets/kyoto-course.js');
 const projections=(o,pose,aspect)=>{
  const {position:c,look:l,fov}=pose,fx=l.x-c.x,fy=l.y-c.y,fz=l.z-c.z;
  const fn=Math.hypot(fx,fy,fz),vx=o.x-c.x,vy=o.y-c.y,vz=o.z-c.z;
@@ -258,21 +258,21 @@ for(const progress of cameraViews)for(const aspect of [.58,.98,1.78,2.1]){
  const shot=chooseRaceShot(progress,courseShotCuts(null,0,{venue:'京都',distance:2000,surface:'芝'}));
  const order=Array.from({length:17},(_,i)=>({no:i+1,p:progress-i*.0017}));
  const pose=raceCameraPose({shot,progress,clock:progress*119,
-  order,path:kyotoPath,aspect,direction:'右',distance:2000});
+  order,path:cameraKyotoPath,aspect,direction:'右',distance:2000});
  assert.equal(pose.mode,'outer-rail-group');
  assert.ok(pose.subjects.length>=5&&pose.subjects.length<=7,'broadcast follows leading five and adjacent challengers');
- const p=kyotoPath(progress),rightDistance=(pose.position.x-p.x)*p.dz-(pose.position.z-p.z)*p.dx;
+ const p=cameraKyotoPath(progress),rightDistance=(pose.position.x-p.x)*p.dz-(pose.position.z-p.z)*p.dx;
  assert.ok(rightDistance< -18,'camera must stay OUTSIDE for a right-handed Kyoto race');
  assert.equal(pose.outerRailSign,-1);
  assert.ok(pose.aheadSpace>=.18&&pose.aheadSpace<=.25,'allow ~20% breathing room in travel direction');
  assert.ok(pose.side>20,'not a horse portrait camera');
  assert.ok(pose.projectedWidth<=1.51,'do not clip the front group horizontally');
- const first=order[0],q=kyotoPath(first.p),lane=runnerLane(first.no,order.length,progress);
+ const first=order[0],q=cameraKyotoPath(first.p),lane=cameraRunnerLane(first.no,order.length,progress);
  const view=projections({x:q.x-q.dz*lane+q.dx*2.2,y:q.y+2,z:q.z+q.dx*lane+q.dz*2.2},pose,aspect);
  assert.ok(view.depth>0&&view.x>.1&&view.x<.93,'leader must stay visible');
 }
 const opening=raceCameraPose({shot:RACE_SHOT_LIST[0],progress:0,clock:0,
- order:Array.from({length:17},(_,i)=>({no:i+1,p:0})),path:kyotoPath,aspect:1,direction:'右',distance:2000});
+ order:Array.from({length:17},(_,i)=>({no:i+1,p:0})),path:cameraKyotoPath,aspect:1,direction:'右',distance:2000});
 assert.equal(opening.subjects.length,17);
 assert.equal(opening.mode,'establishing-gate');
 console.log('JRA-inspired outside-rail broadcast: leading five, attack lanes, forward space, gate and four cuts ✓');
