@@ -329,36 +329,21 @@ export function followLockedCameraPose(rig,order,path,{distance=2000,venue='äº¬é
   z:station.z+(q.x-startStation.x)*sin+(q.z-startStation.z)*cos
  });
  const position=rotate(rig.pose.position),look=rotate(rig.pose.look);
- // On the fourth turn, the 115m-ahead rail station sweeps a much wider
- // arc than the runners. Keep the TV crane moving with the pack by
- // correcting the station's cross-track displacement, while translating
- // position AND look together so the lens/bearing remain completely locked.
+ // Fourth turn: follow the lead horse with ONE deterministic, continuous
+ // translation. The old two sequential corrections fought each other,
+ // especially where the outside rail curves away from the pack.
  if(rig.pose.shotId==='fourth-turn'){
   const q=path(leader.p),lane=runnerLane(leader.no,order.length,leader.p);
-  const horse={x:q.x-q.dz*lane+q.dx*2.7,y:q.y+2,z:q.z+q.dx*lane+q.dz*2.7};
-  const dx=look.x-position.x,dz=look.z-position.z;
-  const length=Math.hypot(dx,dz);
-  const rightX=-dz/length,rightZ=dx/length;
-  const current=(horse.x-position.x)*rightX+(horse.z-position.z)*rightZ;
-  const intended=(rig.pose.look.x-rig.pose.position.x)*rightX+
-   (rig.pose.look.z-rig.pose.position.z)*rightZ;
-  // Correct only the excess drift; keep the stable rail-relative shot.
-  const correction=clamp(current-intended,-24,24);
-  position.x+=rightX*correction;position.z+=rightZ*correction;
-  look.x+=rightX*correction;look.z+=rightZ*correction;
- }
- // A forward-oblique fourth-turn camera must remain attached to the leader,
- // not merely to the rail station. Translate the complete locked camera rig
- // towards the moving lead horse without changing its focal length or pitch.
- if(rig.pose.shotId==='fourth-turn'){
-  const q=path(leader.p),lane=runnerLane(leader.no,order.length,leader.p);
-  const nose={x:q.x-q.dz*lane+q.dx*2.7,z:q.z+q.dx*lane+q.dz*2.7};
-  const original=path(rig.startLeaderProgress),originalLane=runnerLane(leader.no,order.length,rig.startLeaderProgress);
-  const originalNose={x:original.x-original.dz*originalLane+original.dx*2.7,z:original.z+original.dx*originalLane+original.dz*2.7};
-  const expected=rotate({...originalNose,y:original.y+2});
-  const followX=clamp(nose.x-expected.x,-18,18),followZ=clamp(nose.z-expected.z,-18,18);
-  position.x+=followX;look.x+=followX;
-  position.z+=followZ;look.z+=followZ;
+  const nose={x:q.x-q.dz*lane+q.dx*2.7,y:q.y+2,z:q.z+q.dx*lane+q.dz*2.7};
+  const first=path(rig.startLeaderProgress);
+  const firstLane=runnerLane(leader.no,order.length,rig.startLeaderProgress);
+  const initial={x:first.x-first.dz*firstLane+first.dx*2.7,y:first.y+2,z:first.z+first.dx*firstLane+first.dz*2.7};
+  const expected=rotate(initial);
+  // Correct the camera's full translation rather than steering its aim.
+  // The lead horse remains stationary relative to the optical axis.
+  const dx=nose.x-expected.x,dz=nose.z-expected.z;
+  position.x+=dx;look.x+=dx;
+  position.z+=dz;look.z+=dz;
  }
  // Keep the finishing straight level: no elevation bob or pitch variation.
  if(rig.pose.shotId==='finish'){
