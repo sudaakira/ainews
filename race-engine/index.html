@@ -195,7 +195,7 @@ header p:last-child{font-size:12px;opacity:.8}
 <div id="bootstrap-error" hidden style="margin:16px;padding:16px;border:2px solid #bd3441;border-radius:12px;color:#822;background:#fff2f2"></div>
 <script type="module">
 try {
- const raceId=new URLSearchParams(location.search).get('race')||'swan-2026';
+ const raceId=new URLSearchParams(location.search).get('race')||'shuka-2026';
  if(!/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(raceId)||raceId.length>60)throw Error('不正なレースID');
  const {default:config}=await import('./races/'+raceId+'.js?v=20261017track');
  if(config.schemaVersion!==1||config.id!==raceId)throw Error('レース設定の形式が不正です');
