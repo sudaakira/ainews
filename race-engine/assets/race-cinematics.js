@@ -1,6 +1,6 @@
 import {raceCommentary,ANNOUNCER_SVG} from './race-commentary.js?v=kyoto-v11-1';
 /** Clean cel-racing broadcast. All positions and results are read from the shared engine. */
-import {chooseRaceShot,courseShotCuts,raceCameraPose,followLockedCameraPose} from './race-shotlist.js?v=mobile-camera-v24';
+import {chooseRaceShot,courseShotCuts,raceCameraPose,followLockedCameraPose} from './race-shotlist.js?v=mobile-camera-v26';
 import {finishCrossings,playbackRate} from './race-playback.js?v=kyoto-v11-1';
 
 export function createRaceCinematics({THREE,scene,stage,models,config,capFor,path,route,routeLength}){
@@ -133,7 +133,7 @@ export function createRaceCinematics({THREE,scene,stage,models,config,capFor,pat
   routeDot.setAttribute('cx',String(at.x.toFixed(1)));routeDot.setAttribute('cy',String(at.y.toFixed(1)));
   locText.textContent=runningOut?'ゴール':shot.label;
   const buildTag=document.getElementById('race-engine-build');
-  if(buildTag)buildTag.textContent='3D中継 v25｜現在のカット：'+shot.label+'｜'+(shot.id==='backstretch'?'真横・全頭追走':shot.id==='fourth-turn'?'前方斜め・捲り確認':'固定角度追走');
+  if(buildTag)buildTag.textContent='3D中継 v26｜現在のカット：'+shot.label+'｜'+(shot.id==='backstretch'?'真横・全頭追走':shot.id==='fourth-turn'?'前方斜め・捲り確認':'固定角度追走');
   // iPhone-first TV dolly: fixed-angle and fixed lens within each shot.
   // Only cut transitions, seek/replay, and aspect changes reset the rig.
   const gateMode=shot.id==='start'&&clock<=1.8?'gate':'running';
