@@ -298,30 +298,31 @@ export function followLockedCameraPose(rig,order,path,{distance=2000,venue='京�
  const leader=order?.[0];
  if(!leader)return rig.pose;
  if(rig.pose.shotId==='fourth-turn'){
-  // Front-facing lead-horse tracking shot: camera exactly 10 metres ahead
-  // of the leader's NOSE, moving backwards at the horse's speed.
-  // The lens remains fixed; no pan, zoom, or auto-fit adjustments.
-  const q=path(leader.p),lane=runnerLane(leader.no,order.length,leader.p);
+  // Low outside-rail camera dolly follows the leader with a gentle pullback.
+  // The lens points at the leader; no independent whip-pan or lateral jitter.
+  const progress=Math.max(0,Math.min(1,(leader.p-.68)/.15));
+  const ease=progress*progress*(3-2*progress);
+  const forward=28+22*ease;
+  const q=path(leader.p),station=path(leader.p+forward/distance);
+  const lane=runnerLane(leader.no,order.length,leader.p);
   const nose={x:q.x-q.dz*lane+q.dx*2.7,y:q.y+2,
    z:q.z+q.dx*lane+q.dz*2.7};
-  const initial=path(rig.startLeaderProgress);
-  const firstLane=runnerLane(rig.pose.leadNumber||leader.no,order.length,rig.startLeaderProgress);
-  const firstNose={x:initial.x-initial.dz*firstLane+initial.dx*2.7,
-   y:initial.y+2,z:initial.z+initial.dx*firstLane+initial.dz*2.7};
-  // Freeze camera heading on cut entry and translate the entire rig by
-  // the leader's displacement. Exactly 10m front clearance at entry.
-  const initialPosition={x:firstNose.x+initial.dx*10,y:firstNose.y+1.8,
-   z:firstNose.z+initial.dz*10};
-  const delta={x:nose.x-firstNose.x,y:nose.y-firstNose.y,z:nose.z-firstNose.z};
-  const position={x:initialPosition.x+delta.x,y:initialPosition.y+delta.y,
-   z:initialPosition.z+delta.z};
-  const look={x:nose.x,y:nose.y+.2,z:nose.z};
-  return {...rig.pose,position,look,fov:36,lensShiftX:0,
-   outerRailClearance:null,cameraLane:null,railLane:null,
-   railOutsideVerified:false,leadNumber:leader.no,lockedCamera:true,
+  const right=direction!=='左',sign=right?1:-1;
+  const half=venue==='京都'&&distance===2000?KYOTO_INNER.width/2:13.5;
+  const rail=(venue==='京都'&&distance===2000?kyotoOuterCourseOffset(leader.p+forward/distance):0)+(right?-half:half);
+  const outside=rail-sign*(25+12*ease);
+  const position={x:station.x-station.dz*outside,y:station.y+5.2,
+   z:station.z+station.dx*outside};
+  const look={x:nose.x,y:nose.y+.6,z:nose.z};
+  const laneAtStation=-(position.x-station.x)*station.dz+(position.z-station.z)*station.dx;
+  const clearance=right?rail-laneAtStation:laneAtStation-rail;
+  if(clearance<14.9)throw new Error('4C outside-rail tracking camera crossed rail');
+  return {...rig.pose,position,look,fov:22+10*ease,lensShiftX:0,
+   outerRailClearance:clearance,cameraLane:laneAtStation,railLane:rail,
+   railOutsideVerified:true,leadNumber:leader.no,lockedCamera:true,
    cameraTrackYaw:0,baseShotId:'fourth-turn',
    leadNoseViewportTarget:.5,forwardGap:.5,
-   cameraLeadDistanceMeters:10,trackingMode:'leader-front-10m-no-pan'};
+   trackingMode:'outside-rail-smooth-pullback',pullbackProgress:ease};
  }
  const advance=rig.pose.stationAheadMeters||0;
  const startStation=path(rig.pose.referenceProgress+advance/distance);
