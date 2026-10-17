@@ -9,7 +9,7 @@ export const RACE_SHOT_LIST=Object.freeze([
  Object.freeze({id:'start',until:.12,kicker:'01 / START',label:'スタート',subjects:'all',side:29,ahead:32,height:8,fov:22}),
  Object.freeze({id:'first-corner',until:.32,kicker:'02 / POSITION',label:'1コーナー 位置どり',subjects:'pack',side:31,ahead:12,height:6.4,fov:26}),
  Object.freeze({id:'backstretch',until:.67,kicker:'03 / BACKSTRETCH',label:'向こう正面 隊列',subjects:'backstretch-pack',side:31,ahead:0,height:6.4,fov:23}),
- Object.freeze({id:'fourth-turn',until:.84,kicker:'04 / THE MOVE',label:'4コーナー 仕掛け',subjects:'moves',side:38,ahead:130,height:6.5,fov:26}),
+ Object.freeze({id:'fourth-turn',until:.84,kicker:'04 / THE MOVE',label:'4コーナー 仕掛け',subjects:'moves',side:28,ahead:35,height:5.2,fov:24}),
  Object.freeze({id:'finish',until:Infinity,kicker:'05 / FINISH',label:'ゴール前',subjects:'finish',side:31,ahead:0,height:6.8,fov:21})
 ]);
 export function chooseRaceShot(progress,cuts=RACE_SHOT_LIST.map(s=>s.until)){
@@ -38,7 +38,7 @@ function projectPoint(q,pos,look,fov,aspect){
 function pickSubjects(shot,order,distance,aspect){
  if(shot.subjects==='all'||shot.subjects==='field')return order.slice();
  if(shot.subjects==='backstretch-pack')return order.slice(0,Math.min(order.length,aspect<.85?7:7));
- if(shot.subjects==='moves')return order.slice(0,Math.min(order.length,aspect<.85?12:15));
+ if(shot.subjects==='moves')return order.slice(0,Math.min(order.length,5));
  const lead=order[0],gap=o=>(lead.p-o.p)*distance;
  if(shot.subjects==='pack')return order.slice(0,7).filter((o,i)=>i<6||gap(o)<=12);
  if(shot.subjects==='frontpack'){
@@ -298,31 +298,34 @@ export function followLockedCameraPose(rig,order,path,{distance=2000,venue='京�
  const leader=order?.[0];
  if(!leader)return rig.pose;
  if(rig.pose.shotId==='fourth-turn'){
-  // Low outside-rail camera dolly follows the leader with a gentle pullback.
-  // The lens points at the leader; no independent whip-pan or lateral jitter.
-  const progress=Math.max(0,Math.min(1,(leader.p-.68)/.15));
-  const ease=progress*progress*(3-2*progress);
-  const forward=28+22*ease;
-  const q=path(leader.p),station=path(leader.p+forward/distance);
-  const lane=runnerLane(leader.no,order.length,leader.p);
-  const nose={x:q.x-q.dz*lane+q.dx*2.7,y:q.y+2,
-   z:q.z+q.dx*lane+q.dz*2.7};
+  // One stationary low camera at the 4C EXIT, outside the physical rail.
+  // Follow the leading five by smoothly aiming at their lead horse and
+  // using a tight telephoto lens. Camera position never follows the pack.
+  const exitProgress=.835;
+  const station=path(exitProgress);
   const right=direction!=='左',sign=right?1:-1;
   const half=venue==='京都'&&distance===2000?KYOTO_INNER.width/2:13.5;
-  const rail=(venue==='京都'&&distance===2000?kyotoOuterCourseOffset(leader.p+forward/distance):0)+(right?-half:half);
-  const outside=rail-sign*(25+12*ease);
+  const rail=(venue==='京都'&&distance===2000?kyotoOuterCourseOffset(exitProgress):0)+(right?-half:half);
+  const outside=rail-sign*18;
   const position={x:station.x-station.dz*outside,y:station.y+5.2,
    z:station.z+station.dx*outside};
-  const look={x:nose.x,y:nose.y+.6,z:nose.z};
+  const q=path(leader.p),lane=runnerLane(leader.no,order.length,leader.p);
+  const nose={x:q.x-q.dz*lane+q.dx*2.7,y:q.y+2,
+   z:q.z+q.dx*lane+q.dz*2.7};
+  const look={x:nose.x,y:nose.y+.5,z:nose.z};
+  const progress=Math.max(0,Math.min(1,(leader.p-.68)/.15));
+  const ease=progress*progress*(3-2*progress);
+  // Tight shot of ~5 leaders, modest easing as they reach the exit.
+  const fov=18+5*ease;
   const laneAtStation=-(position.x-station.x)*station.dz+(position.z-station.z)*station.dx;
   const clearance=right?rail-laneAtStation:laneAtStation-rail;
-  if(clearance<14.9)throw new Error('4C outside-rail tracking camera crossed rail');
-  return {...rig.pose,position,look,fov:22+10*ease,lensShiftX:0,
+  if(clearance<14.9)throw new Error('4C fixed exit camera crossed outer rail');
+  return {...rig.pose,position,look,fov,lensShiftX:0,
    outerRailClearance:clearance,cameraLane:laneAtStation,railLane:rail,
    railOutsideVerified:true,leadNumber:leader.no,lockedCamera:true,
    cameraTrackYaw:0,baseShotId:'fourth-turn',
    leadNoseViewportTarget:.5,forwardGap:.5,
-   trackingMode:'outside-rail-smooth-pullback',pullbackProgress:ease};
+   trackingMode:'fixed-exit-camera-leader-pan',pullbackProgress:ease};
  }
  const advance=rig.pose.stationAheadMeters||0;
  const startStation=path(rig.pose.referenceProgress+advance/distance);
