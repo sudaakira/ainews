@@ -32,4 +32,12 @@ export function kyotoHeight(t){
 export function kyotoPath(t){return {...loop(start+t*2000),y:kyotoHeight(t)}}
 export const KYOTO_CUTS=Object.freeze([.29,.51,(1782.8-start)/2000,Infinity]);
 export function kyotoMapPath(){return Array.from({length:601},(_,i)=>{const p=kyotoPath(i/600);return (i?'L':'M')+(430+p.x*1.1).toFixed(2)+' '+(277+p.z*1.1).toFixed(2)}).join(' ')}
+/** Shift of Kyoto outer turf course relative to inner A-course.
+ * 3C/4C extra loop in renderer is ~38m toward the outside of the right-hand
+ * circuit; this is also required when deciding where the broadcast crane may sit.
+ */
+export function kyotoOuterCourseOffset(t){
+ const u=(t-.51)/(.836-.51);
+ return u>0&&u<1?-38*Math.sin(Math.PI*u):0;
+}
 export function runnerLane(no,count,progress){const r=Math.min(1,Math.max(0,progress/.027));return ((count+1)/2-no)*(1.20*(1-r)+.80*r)}
