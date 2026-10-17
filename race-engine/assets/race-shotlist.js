@@ -67,7 +67,11 @@ export function raceCameraPose({shot,progress,order,path,aspect=1,clock=Infinity
  const lead=order?.[0];
  if(!lead)return {position:{x:0,y:9,z:40},look:{x:0,y:2,z:0},fov:39,side:40,subjects:[],lensShiftX:0,mode:'empty'};
  const isGate=shot.id==='start'&&clock<=1.8;
- const rightCircuit=direction!=='左',outsideSign=rightCircuit?-1:1;
+ // Renderer geometry uses offsetPoint(t,lane) = {x-dz*lane,z+dx*lane}.
+ // Kyoto's OUTERMOST rail is lane = kyotoOuterCourseOffset(t)-half < 0.
+ // Previous outsideSign=-1 placed the camera at POSITIVE lane (infield).
+ // Right-handed Kyoto therefore uses outsideSign=+1 in setPose below.
+ const rightCircuit=direction!=='左',outsideSign=rightCircuit?1:-1;
  const group=isGate?order.slice():pickSubjects(shot,order,distance,aspect);
  const pCenter=isGate?0:group.reduce((sum,o,i)=>sum+o.p*(i===0?1.6:1),0)/(group.length+.6);
  const center=path(pCenter),field=group.map(o=>{
@@ -196,11 +200,20 @@ export function raceCameraPose({shot,progress,order,path,aspect=1,clock=Infinity
   lensShiftX=edge-2*(target-.5);
  }
  const projectedWidth=Math.max(...raw.map(p=>p.x))-Math.min(...raw.map(p=>p.x));
- const outsideDist=side*scale-(Math.max(groupBulge,stationBulge)+half);
+ // Independently audit the camera against the rail as it is actually drawn
+ // in renderer.js (negative lane on the Kyoto outer course), not a label.
+ const station=path(pCenter+(isGate?0:inFront/distance));
+ const cameraLane=-(pose.position.x-station.x)*station.dz+
+  (pose.position.z-station.z)*station.dx;
+ const railLane=rightCircuit
+  ? (venue==='京都'&&distance===2000?kyotoOuterCourseOffset(pCenter+(isGate?0:inFront/distance)):0)-half
+  : (venue==='京都'&&distance===2000?kyotoOuterCourseOffset(pCenter+(isGate?0:inFront/distance)):0)+half;
+ const outsideDist=rightCircuit?railLane-cameraLane:cameraLane-railLane;
+ if(outsideDist<8)throw new Error('Outside-rail camera is INSIDE track: '+outsideDist.toFixed(2)+'m');
  return {...pose,fov,side:side*scale,subjects:group.map(o=>o.no),
   lensShiftX,outerRailSign:outsideSign,tracked:group.length,
   mode:isGate?'gate-front-broadcast':'rail-broadcast-'+shot.id,
-  outerRailClearance:outsideDist,outerCourseBulge:groupBulge,
+  outerRailClearance:outsideDist,cameraLane,railLane,railOutsideVerified:true,outerCourseBulge:groupBulge,
   aheadScreenSide:'dynamic',gateScreenX:isGate?.5:null,
   forwardGap:.2,projectedWidth,dollyScale:scale,
   shotPerspective:isGate?'front-gate':shot.id==='third-entry'?'outside-headon':
