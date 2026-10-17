@@ -281,8 +281,10 @@ try{
   if(phase===.9)assert.ok(snap.hoofs.every(h=>h.y>.035),'gathered suspension is airborne');
   // FrontUpperLeg is the translating elbow attachment (scapular slide), not
   // the length of the radius. Its child FrontLowerLeg measures that rigid bone.
-  const limbs=snap.bones.filter(b=>/^(FrontLowerLeg|BackLeg|BackUpperLeg|BackLowerLeg)/.test(b.name));
-  if(baseline.length)limbs.forEach((b,i)=>assert.ok(Math.abs(b.length-baseline[0][i].length)<.0001,'limb bones do not stretch'));
+  const limbs=snap.bones.filter(b=>/^(FrontLowerLeg|BackLeg|BackUpperLeg|BackLowerLeg|HoofLink)/.test(b.name));
+  // Parented bones are rigid. Independent IK endpoints interpolate linearly
+  // between baked samples while joints slerp, so allow at most 2mm there.
+  if(baseline.length)limbs.forEach((b,i)=>assert.ok(Math.abs(b.length-baseline[0][i].length)<(b.name.startsWith('HoofLink')?.002:.0001),'limb bones do not stretch '+JSON.stringify({lead,phase,b,baseline:baseline[0][i]})));
   baseline.push(limbs);
   await lab.screenshot({path:'/tmp/race-mobile-shots/sprint-v19-'+lead+'-'+view+'-'+phase+'.png'});
  }

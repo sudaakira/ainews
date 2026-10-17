@@ -26,7 +26,7 @@ const smooth=t=>t*t*(3-2*t),lerp=(a,b,t)=>a+(b-a)*t;
 function curve(t,keys){let i=0;while(i<keys.length-2&&t>keys[i+1][0])i++;const a=keys[i],b=keys[i+1],u=smooth((t-a[0])/(b[0]-a[0]));return [lerp(a[1],b[1],u),lerp(a[2],b[2],u)]}
 function joint(a,b,l1,l2,bend){
  const d=b.clone().sub(a),distance=d.length(),n=d.clone().normalize();
- const len=Math.min(distance,l1+l2-.0005),along=(l1*l1-l2*l2+len*len)/(2*len);
+ const len=Math.max(Math.abs(l1-l2)+.002,Math.min(distance,l1+l2-.0005)),along=(l1*l1-l2*l2+len*len)/(2*len);
  const pole=new T.Vector3(0,0,bend).addScaledVector(n,-bend*n.z).normalize();
  return {k:a.clone().addScaledVector(n,along).addScaledVector(pole,Math.sqrt(Math.max(0,l1*l1-along*along))),end:a.clone().addScaledVector(n,len)};
 }
@@ -53,7 +53,7 @@ function pose(p,lead){
   if(q<=stance){z=lerp(front?1.26:.18,front?-.05:-1.40,q/stance);y=.16;}
   else{
    const u=(q-stance)/(1-stance);
-   [z,y]=front?curve(u,[[0,-.05,.16],[.13,.08,.65],[.32,.62,.92],[.55,1.15,.78],[.80,1.48,.36],[1,1.26,.16]]):curve(u,[[0,-1.40,.16],[.16,-1.65,.48],[.38,-.80,.85],[.63,.33,.55],[.85,.42,.23],[1,.18,.16]]);
+   [z,y]=front?curve(u,[[0,-.05,.16],[.13,.30,.65],[.32,.95,.84],[.55,1.30,.74],[.80,1.48,.36],[1,1.26,.16]]):curve(u,[[0,-1.40,.16],[.16,-1.65,.48],[.38,-.80,.85],[.63,.33,.55],[.85,.42,.23],[1,.18,.16]]);
   }
   const x=side==='L'?.192:-.192;
   if(front){
@@ -66,6 +66,7 @@ function pose(p,lead){
   }
   const a=pos(r.upper),target=new T.Vector3(x,y,z),j=joint(a,target,r.l1,r.l2,front?1:-1);
   aim(r.upper,j.k.clone().sub(a));aim(r.lower,j.end.clone().sub(j.k));worldPos(r.foot,j.end);
+  if(Math.abs(pos(r.lower).distanceTo(pos(r.foot))-r.l2)>.00001)throw Error('Distal limb disconnected: '+name+' phase '+p);
   const pitch=q<=stance?lerp(-.12,.22,q/stance):front?-.45*Math.sin(Math.PI*(q-stance)/(1-stance)):.15;
   const fq=r.footQ.clone().premultiply(new T.Quaternion().setFromAxisAngle(new T.Vector3(1,0,0),pitch));
   if(q>stance){const u=(q-stance)/(1-stance),fold=Math.sin(Math.PI*u)**.7;fq.slerp(r.lower.getWorldQuaternion(new T.Quaternion()).multiply(r.lowerToFoot),fold);}

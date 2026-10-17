@@ -18,7 +18,7 @@ jobs:
           /tmp/race-playwright/node_modules/.bin/playwright install --with-deps chromium
       - name: Verify actual public Pages URL
         env:
-          RACE_URL: https://sudaakira.github.io/ainews/race-engine/?race=shuka-2026&motion=v19.1
+          RACE_URL: https://sudaakira.github.io/ainews/race-engine/?race=shuka-2026&motion=v19.2
           PLAYWRIGHT_ENTRY: /tmp/race-playwright/node_modules/playwright/index.mjs
         run: node race-engine/tests/mobile-browser.mjs
       - name: Save public-page WebGL screenshots

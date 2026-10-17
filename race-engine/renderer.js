@@ -182,7 +182,7 @@ import {jockeyCap} from './core/jockey-caps.js?v=cap-v1';
  const models=[];
  let horseV3Ready=false,modelError='';
  try{
-  const horseV3=await import("./assets/horse-anime.js?v=sprint-v19");
+  const horseV3=await import("./assets/horse-anime.js?v=sprint-v19.2");
   await horseV3.preloadRaceHorse(THREE);
   for(const h of HS){
    const frameCap=capFor(h);

@@ -10,8 +10,8 @@ export async function preloadRaceHorse(T){
   const [{GLTFLoader},skeleton,geometry]=await Promise.all([
    import('../vendor/GLTFLoader.js'),import('../vendor/SkeletonUtils.js'),import('../vendor/BufferGeometryUtils.js')]);
   const [gltf,motion]=await Promise.all([
-   new GLTFLoader().loadAsync(new URL('./models/horse-sprint-v19.glb',import.meta.url).href),
-   fetch(new URL('./models/sprint-motion-v19.json',import.meta.url)).then(r=>{if(!r.ok)throw Error('Horse motion '+r.status);return r.json()})]);
+   new GLTFLoader().loadAsync(new URL('./models/horse-sprint-v19.glb?v=19.2',import.meta.url).href),
+   fetch(new URL('./models/sprint-motion-v19.json?v=19.2',import.meta.url)).then(r=>{if(!r.ok)throw Error('Horse motion '+r.status);return r.json()})]);
   helpers={clone:skeleton.clone,merge:geometry.mergeGeometries};
   gltf.scene.updateMatrixWorld(true);gltf.scene.traverse(m=>{if(m.isSkinnedMesh)m.skeleton.update()});
   const meshes=[];gltf.scene.traverse(o=>{if(o.isSkinnedMesh)meshes.push(o)});
@@ -157,6 +157,6 @@ export function createRaceHorse(T,scene,h,silkHex,frameCapHex='#89929b',frameCap
   root.updateMatrixWorld(true);details.skeleton.update();const inv=root.matrixWorld.clone().invert();
   return Object.entries(source.feet).map(([name,indices])=>{const pts=indices.map(i=>details.getVertexPosition(i,new T.Vector3()).applyMatrix4(details.matrixWorld).applyMatrix4(inv));return {name,y:Math.min(...pts.map(v=>v.y)),x:pts.reduce((n,v)=>n+v.x,0)/pts.length,z:pts.reduce((n,v)=>n+v.z,0)/pts.length}});
  };
- model.boneLengths=()=>{root.updateMatrixWorld(true);return Object.values(bones).filter(b=>b.parent.isBone).map(b=>({name:b.name,length:b.getWorldPosition(new T.Vector3()).distanceTo(b.parent.getWorldPosition(new T.Vector3()))}))};
+ model.boneLengths=()=>{root.updateMatrixWorld(true);const lengths=Object.values(bones).filter(b=>b.parent.isBone).map(b=>({name:b.name,length:b.getWorldPosition(new T.Vector3()).distanceTo(b.parent.getWorldPosition(new T.Vector3()))}));for(const side of ['L','R'])for(const end of ['Front','Back'])lengths.push({name:'HoofLink'+end+side,length:bones[end+'LowerLeg'+side].getWorldPosition(new T.Vector3()).distanceTo(bones['IK'+end+'Leg'+side].getWorldPosition(new T.Vector3()))});return lengths};
  model.pose(0,0,0);scene.add(root);return model;
 }
