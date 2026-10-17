@@ -97,7 +97,8 @@ export function raceCameraPose({shot,progress,order,path,aspect=1,clock=Infinity
  // including the full 38m outside flare of Kyoto's 3C/4C.
  const reserveBulge=(venue==='京都'&&distance===2000&&
   (shot.id==='third-entry'||shot.id==='fourth-turn'))?38:0;
- const outsideNeeded=Math.max(groupBulge,stationBulge,reserveBulge)+half+17;
+ const outsideNeeded=Math.max(groupBulge,stationBulge,reserveBulge)+half+
+  (shot.id==='third-entry'?35:17);
  const side=isGate?Math.max(shot.side,half+12):Math.max(shot.side||31,outsideNeeded);
  const a=Math.max(.48,Number(aspect)||1);
  const baseFov=shot.fov||28;
@@ -258,8 +259,18 @@ export function followLockedCameraPose(rig,order,path,{distance=2000,venue='京�
  const startDifference=rig.pose.referenceProgress-rig.startLeaderProgress;
  const currentProgress=leader.p+startDifference+advance/distance;
  const station=path(currentProgress);
- const dot=startStation.dx*station.dx+startStation.dz*station.dz;
- const cross=startStation.dx*station.dz-startStation.dz*station.dx;
+ // Raw piecewise course tangents have a 29-degree seam around p=.344.
+ // Derive a CONTINUOUS track bearing from nearby path positions instead.
+ const tangent=t=>{
+  const a=path(Math.max(0,t-.015)),b=path(Math.min(1,t+.015));
+  const len=Math.hypot(b.x-a.x,b.z-a.z);
+  if(len<.001){const q=path(t);return {dx:q.dx,dz:q.dz}}
+  return {dx:(b.x-a.x)/len,dz:(b.z-a.z)/len};
+ };
+ const initialHeading=tangent(rig.pose.referenceProgress+advance/distance);
+ const currentHeading=tangent(currentProgress);
+ const dot=initialHeading.dx*currentHeading.dx+initialHeading.dz*currentHeading.dz;
+ const cross=initialHeading.dx*currentHeading.dz-initialHeading.dz*currentHeading.dx;
  const angle=Math.atan2(cross,dot);
  const cos=Math.cos(angle),sin=Math.sin(angle);
  const rotate=(q)=>({
