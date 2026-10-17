@@ -258,30 +258,33 @@ for(const angle of [0,Math.PI/2,Math.PI,Math.PI*1.5]){
 }
 assert.ok(RACE_SHOT_LIST[2].height<RACE_SHOT_LIST[2].side&&RACE_SHOT_LIST[2].ahead>0,'3C is an elevated forward close-up');
 assert.ok(RACE_SHOT_LIST[1].side<RACE_SHOT_LIST[0].side,'2C is closer than start');
-// Exact perspective test: reserve 20% on the LEFT of the leading horse.
+// Tight broadcast camera keeps 22% of the screen open to LEFT of leader.
 const {runnerLane}=await load('assets/kyoto-course.js');
 const screenX=(point,pose,aspect)=>{
  const camera=pose.position,target=pose.look;
  const fx=target.x-camera.x,fy=target.y-camera.y,fz=target.z-camera.z;
  const fn=Math.hypot(fx,fy,fz),vx=point.x-camera.x,vy=point.y-camera.y,vz=point.z-camera.z;
  const depth=(vx*fx+vy*fy+vz*fz)/fn;
- return .5+.5*((-fz*vx+fx*vz)/fn)/(depth*Math.tan(pose.fov*Math.PI/360)*aspect);
+ return .5+.5*(((-fz*vx+fx*vz)/fn)/(depth*Math.tan(pose.fov*Math.PI/360)*aspect)-(pose.lensShiftX||0));
 };
-for(const shot of RACE_SHOT_LIST.filter(x=>x.id!=='start')){
+for(const shot of RACE_SHOT_LIST){
  for(const aspect of [.52,.8,1.77]){
   const progress=.7,order=[.70,.687,.672,.663,.650].map((p,i)=>({no:i+1,p}));
   const path=p=>({x:p*2000,y:0,z:0,dx:1,dz:0});
-  const pose=raceCameraPose({shot,progress,order,path,aspect});
-  assert.equal(pose.targetLeadViewportX,.2);
-  const visible=order.filter(o=>pose.subjects.includes(o.no)).map(o=>{
-   const q=path(o.p),lane=runnerLane(o.no,order.length,progress);
-   return screenX({x:q.x-q.dz*lane,y:1.5,z:q.z+q.dx*lane},pose,aspect);
-  });
-  assert.ok(Math.abs(visible[0]-.2)<.04,'leader should occupy x≈20%: '+shot.id+' '+aspect+' '+visible[0]);
-  assert.ok(visible.every(x=>x>=-.02&&x<=1.02),'tracked group out of frame: '+shot.id+' '+aspect+' '+visible);
+  const pose=raceCameraPose({shot,progress,clock:42,order,path,aspect});
+  assert.ok(pose.subjects.length<=3,'tracking camera must not frame all horses');
+  assert.equal(pose.mode,'tight-leader-follow');
+  const o=order[0],q=path(o.p),lane=runnerLane(o.no,order.length,progress);
+  const x=screenX({x:q.x-q.dz*lane,y:1.85,z:q.z+q.dx*lane},pose,aspect);
+  assert.ok(Math.abs(x-.225)<.01,'leader x≈22.5% in '+shot.id+'/'+aspect+': '+x);
+  const distance=Math.hypot(pose.position.x-pose.look.x,pose.position.z-pose.look.z);
+  assert.ok(distance<27,'broadcast camera must stay within 27m: '+shot.id+' '+distance);
  }
 }
-console.log('Perspective leader at x=20% across 2C/3C/straight and phone/desktop ✓');
+const opening=raceCameraPose({shot:RACE_SHOT_LIST[0],progress:0,clock:0,
+ order:Array.from({length:17},(_,i)=>({no:i+1,p:0})),path:p=>({x:p*500,y:0,z:0,dx:1,dz:0}),aspect:1});
+assert.equal(opening.subjects.length,17,'all runners visible only in establishing gate shot');
+console.log('Off-axis lens: leader x≈22%, closeup <27m, establishing gate remains wide ✓');
 for(const field of [3,6,17,18])for(const duration of [68,120,180]){
  const rank=Array.from({length:field},(_,i)=>field-i);
  assert.deepEqual(finishCrossings(rank,duration-1e-5,duration),[]);
