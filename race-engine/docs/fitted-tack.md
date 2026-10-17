@@ -8,6 +8,8 @@ A vertex-shader contact pass keeps the cloth outside moving upper-thigh capsules
 
 The compact black racing saddle has a 0.48 m seat from z=0 to +0.48 m, raised pommel/cantle, short flaps, piping, girth and stirrup leathers. Its seat and bars are 0.18 m farther forward than the previous fit; the cloth moves forward 0.09 m to remain centered on the barrel. The stirrup bars lie at z=+0.36 m near the withers. Feet use the actual deformed forward bar position, rather than a rearward offset from the saddle center. This places the feet about 0.37 m ahead of the old position, folds the knees forward, and brings the jockey over the neck base. Rider and leather anchors use the actual deformed seat/flap vertices. The cloth is burgundy with white text, like the photograph. Both sides read normally, with the number and name behind the boot/girth. The floating horse-name cards and their connector arrows are removed from the renderer; the bottom running-order strip and commentary remain.
 
+The number is centered above the name on the exposed side panel, with the forward saddle/boot area excluded from that print panel. The font increases from 280 px to 400 px (about 1.43×). Two-digit numbers have a 640 px width allowance instead of the previous 380 px squeeze. Both atlas halves use the same physical placement and ordinary reading direction.
+
 Primary references examined:
 
 - User-supplied side photograph of number 7, モンローウォーク: cloth/saddle/boot placement, proportions and lettering.

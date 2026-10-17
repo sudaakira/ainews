@@ -2,7 +2,7 @@
  * Metres, forward +Z. Rendering only; no prediction/RNG/race-position imports.
  * Asset provenance and conversion are in docs/gallop-v16.md and tools/.
  */
-import {prepareRacingTack,createRacingTack} from './racing-tack.js?v=forward-seat-v22';
+import {prepareRacingTack,createRacingTack} from './racing-tack.js?v=centered-numbers-v23';
 let source,helpers,loading;
 const SCALE=.46;
 export async function preloadRaceHorse(T){

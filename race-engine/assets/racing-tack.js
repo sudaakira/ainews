@@ -63,15 +63,17 @@ export function prepareRacingTack(T,coat,scale){
  const edge=[];for(let i=0;i<=24;i++)edge.push(seatPoint(0,i/24));for(let i=1;i<=32;i++)edge.push(seatPoint(i/32,1));for(let i=23;i>=0;i--)edge.push(seatPoint(1,i/24));for(let i=31;i>=0;i--)edge.push(seatPoint(i/32,0));
  trim.strip(edge.length-1,6,(r,u)=>{const i=Math.round(r*(edge.length-1)),at=edge[i],t=edge[(i+1)%edge.length].point.clone().sub(edge[(i+edge.length-1)%edge.length].point).normalize(),n=new T.Vector3(0,1,0).addScaledVector(t,-t.y).normalize(),b=t.clone().cross(n),a=u*Math.PI*2;trim.vertex(at.point.clone().addScaledVector(n,Math.cos(a)*.004).addScaledVector(b,Math.sin(a)*.004),at.hit,0x554437)});
  body.material.dispose();surface.dispose();
- return {cloth:cloth.geometry(),leather:leather.geometry().geo,trim:trim.geometry().geo,stirrupVertices,seatVertex:upper+Math.floor(seatRows/2)*(seatCols+1)+seatCols/2,revision:'forward-racing-seat-v22'};
+ return {cloth:cloth.geometry(),leather:leather.geometry().geo,trim:trim.geometry().geo,stirrupVertices,seatVertex:upper+Math.floor(seatRows/2)*(seatCols+1)+seatCols/2,revision:'centered-racing-numbers-v23'};
 }
 
 export function createRacingTack(T,coat,prepared,horse){
  const cv=document.createElement('canvas');cv.width=cv.height=1024;const c=cv.getContext('2d');
- for(const [row,numberX] of [[0,819],[512,205]]){
+ // Center the large number above the name on the exposed side panel. The
+ // forward portion under the saddle/boot is not part of the printed panel.
+ for(const [row,numberX] of [[0,660],[512,364]]){
   c.fillStyle='#8d292d';c.fillRect(0,row,1024,512);
-  c.fillStyle='#fff';c.textAlign='center';c.font='900 280px sans-serif';c.fillText(String(horse.no),numberX,row+396,380);
-  c.font='900 95px sans-serif';c.fillText(horse.name,row===0?660:364,row+492,690);
+  c.fillStyle='#fff';c.textAlign='center';c.font='900 400px sans-serif';c.fillText(String(horse.no),numberX,row+408,640);
+  c.font='900 95px sans-serif';c.fillText(horse.name,numberX,row+492,690);
  }
  const texture=new T.CanvasTexture(cv);texture.colorSpace=T.SRGBColorSpace;texture.anisotropy=8;
  const make=(geometry,material,name)=>{const m=new T.SkinnedMesh(geometry,material);m.name=name;m.position.copy(coat.position);m.quaternion.copy(coat.quaternion);m.scale.copy(coat.scale);m.bind(coat.skeleton,coat.bindMatrix);m.frustumCulled=false;coat.parent.add(m);return m};
