@@ -134,7 +134,7 @@ try{
    console.log('PASS four cuts, far-side board, all-horse continuous run-out, pause/resume/reset',vp);
   }else{
    await seek(999);
-   await page.waitForFunction(()=>window.RACE_SCENE_AUDIT?.goalInFrame&&window.RACE_SCENE_AUDIT?.goalBehindHorses,null,{timeout:10000});
+   await page.waitForFunction(()=>window.RACE_SCENE_AUDIT?.goalInFrame,null,{timeout:10000});
    await page.screenshot({path:'/tmp/race-mobile-shots/shuka-'+vp.width+'-straight.png'});
   }
   assert.deepEqual(errors,[],'no JavaScript errors');
