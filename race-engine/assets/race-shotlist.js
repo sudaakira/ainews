@@ -315,6 +315,24 @@ export function followLockedCameraPose(rig,order,path,{distance=2000,venue='äº¬é
   z:station.z+(q.x-startStation.x)*sin+(q.z-startStation.z)*cos
  });
  const position=rotate(rig.pose.position),look=rotate(rig.pose.look);
+ // On the fourth turn, the 115m-ahead rail station sweeps a much wider
+ // arc than the runners. Keep the TV crane moving with the pack by
+ // correcting the station's cross-track displacement, while translating
+ // position AND look together so the lens/bearing remain completely locked.
+ if(rig.pose.shotId==='fourth-turn'){
+  const q=path(leader.p),lane=runnerLane(leader.no,order.length,leader.p);
+  const horse={x:q.x-q.dz*lane+q.dx*2.7,y:q.y+2,z:q.z+q.dx*lane+q.dz*2.7};
+  const dx=look.x-position.x,dz=look.z-position.z;
+  const length=Math.hypot(dx,dz);
+  const rightX=-dz/length,rightZ=dx/length;
+  const current=(horse.x-position.x)*rightX+(horse.z-position.z)*rightZ;
+  const intended=(rig.pose.look.x-rig.pose.position.x)*rightX+
+   (rig.pose.look.z-rig.pose.position.z)*rightZ;
+  // Correct only the excess drift; keep the stable rail-relative shot.
+  const correction=clamp(current-intended,-24,24);
+  position.x+=rightX*correction;position.z+=rightZ*correction;
+  look.x+=rightX*correction;look.z+=rightZ*correction;
+ }
  // Keep the finishing straight level: no elevation bob or pitch variation.
  if(rig.pose.shotId==='finish'){
   position.y=rig.pose.position.y;
