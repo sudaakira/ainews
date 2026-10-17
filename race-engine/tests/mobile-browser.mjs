@@ -147,6 +147,40 @@ try{
     assert.equal(Number(visibleOrder[0]),state.director.pose.subjects[0]);
     await page.screenshot({path:'/tmp/race-mobile-shots/shuka-'+vp.width+'-'+id+'.png'});
    }
+   // Verify MOVING 8x video, not just five static stills. On iPhone the
+   // broadcast camera should move with the pack without turning or zooming.
+   await seek(350);
+   await page.locator('#live-play').click();
+   const trackingFrames=await page.evaluate(async()=>{
+    const result=[];
+    for(let i=0;i<28;i++){
+     await new Promise(requestAnimationFrame);
+     const a=window.RACE_SCENE_AUDIT;
+     if(a?.cameraRenderedBearing)result.push({
+      bearing:a.cameraRenderedBearing,pos:a.cameraRenderedPosition,
+      fov:a.cameraRenderedFov,lens:a.cameraRenderedLensShift,
+      rebases:a.cameraRebases,shot:a.shot,clock:a.clock});
+    }
+    return result;
+   });
+   await page.locator('#live-pause').click();
+   assert.ok(trackingFrames.length>=20,'record live camera frames');
+   const moving=trackingFrames.filter(x=>x.shot==='third-entry');
+   assert.ok(moving.length>=16,'must remain within 3C for the tracking sample');
+   const initial=moving[0],final=moving.at(-1);
+   const span=Math.hypot(final.pos.x-initial.pos.x,final.pos.z-initial.pos.z);
+   assert.ok(span>.25,'camera dolly must travel with the racing leaders: '+span);
+   for(const f of moving){
+    const turn=Math.hypot(f.bearing.x-initial.bearing.x,
+     f.bearing.y-initial.bearing.y,f.bearing.z-initial.bearing.z);
+    assert.ok(turn<.0004,'unstable view bearing in same TV cut: '+turn);
+    assert.ok(Math.abs(f.fov-initial.fov)<.005,'fixed zoom within shot');
+    assert.ok(Math.abs(f.lens-initial.lens)<.005,'no per-frame optical shift');
+    assert.equal(f.rebases,initial.rebases,'never recompose every frame');
+   }
+   console.log('MOBILE_DOLLY_STABILITY',JSON.stringify({
+    viewport:vp.width,frames:moving.length,movedMeters:span,
+    rebase:initial.rebases,stableBearing:true}));
    // 3D WebGL release gate: verify actual rendered limbs alternate, not just
    // theoretical beat ordering. Exercise this at the default 16x on mobile.
    await seek(380);
