@@ -294,7 +294,7 @@ import {jockeyCap} from './core/jockey-caps.js?v=cap-v1';
  const {createJRAFurlongPosts}=await import("./assets/jra-furlong-posts.js?v=geo-v6");
  const furlongPosts=createJRAFurlongPosts({THREE,scene,offsetPoint,distance,half});
  // Cinematic director replaces manual angle selection for every race.
- const {createRaceCinematics}=await import("./assets/race-cinematics.js?v=leader-broadcast-v3");
+ const {createRaceCinematics}=await import("./assets/race-cinematics.js?v=outer-rail-v1");
  const cinematics=createRaceCinematics({THREE,scene,stage,models,config,capFor,path,route,routeLength});
  const cameraBlockers=[];scene.traverse(o=>{if(o.isMesh&&o.userData.cameraOccluder)cameraBlockers.push(o)});
  const visibilityRay=new THREE.Raycaster();
@@ -305,7 +305,7 @@ import {jockeyCap} from './core/jockey-caps.js?v=cap-v1';
  document.getElementById('horse-model-version').textContent='EQUINE v16 · SKELETAL GALLOP';
  const liveTitle=document.querySelector('.live-head strong');if(liveTitle)liveTitle.textContent+=' · v16';
  window.KYOTO_RENDER_STATUS={ready:true,model:'skinned-thoroughbred-v16',gait:'authored-skeletal-v16',venue:venueReady?'full':'fallback',
-  horses:models.length,camera:'side-start-2c-close-3c-forward-side-leaders',courseView:config.courseView,
+  horses:models.length,camera:'outer-rail-front-five-broadcast',courseView:config.courseView,
   cinematic:true,saddleclothNames:true,goalBoard:!!goalBoard,gateDisappears:true,
   continuousRunOut:true,goalBoardSide:'far',furlongDigits:furlongPosts.map(x=>x.digit)};
  let cw=0,ch=0;
