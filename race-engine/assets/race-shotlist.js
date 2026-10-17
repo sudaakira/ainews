@@ -89,7 +89,7 @@ export function raceCameraPose({shot,progress,order,path,aspect=1,clock=Infinity
  const stationBulge=venue==='京都'&&distance===2000?
   Math.max(0,-kyotoOuterCourseOffset(pCenter+inFront/distance)):0;
  const half=venue==='京都'&&distance===2000?KYOTO_INNER.width/2:13.5;
- const outsideNeeded=Math.max(groupBulge,stationBulge)+half+11;
+ const outsideNeeded=Math.max(groupBulge,stationBulge)+half+15;
  const side=isGate?Math.max(shot.side,half+12):Math.max(shot.side||31,outsideNeeded);
  const a=Math.max(.48,Number(aspect)||1);
  const baseFov=shot.fov||28;
