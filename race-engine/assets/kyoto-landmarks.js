@@ -46,21 +46,28 @@ export function buildKyotoLandmarks(THREE,scene,{raceName='秋華賞'}={}){
  line(shoreOutline,0xc5d9bc,.25);
  // Shallow light stripes hint at sun glitter; geometry stays static at 8x.
  const shimmerMat=new THREE.MeshBasicMaterial({color:0xe6f8ee,transparent:true,opacity:.22,depthWrite:false,side:THREE.DoubleSide});
+ const shimmer=new THREE.InstancedMesh(new THREE.PlaneGeometry(1,.28),shimmerMat,22);
+ const shimmerObj=new THREE.Object3D();
  for(let i=0;i<22;i++){
   const xx=pondX-69+(i*17)%143,zz=pondZ-24+(i*13)%55;
-  const v=new THREE.Mesh(new THREE.PlaneGeometry(3+(i%4)*1.8,.28),shimmerMat);
-  v.rotation.x=-Math.PI/2;v.rotation.z=(i%3-1)*.06;
-  v.position.set(xx,-.071,zz);
-  scene.add(v);
+  shimmerObj.position.set(xx,-.071,zz);
+  shimmerObj.rotation.set(-Math.PI/2,0,(i%3-1)*.06);
+  shimmerObj.scale.set(3+(i%4)*1.8,1,1);
+  shimmerObj.updateMatrix();shimmer.setMatrixAt(i,shimmerObj.matrix);
  }
- // Water-edge vegetation; far fewer instances than grass to keep mobile FPS.
- const reed=new THREE.MeshStandardMaterial({color:0x557743,roughness:1,side:THREE.DoubleSide});
+ shimmer.instanceMatrix.needsUpdate=true;scene.add(shimmer);
+ // One draw call for all 84 shoreline reeds: do not hurt mobile 8x playback.
+ const reedMat=new THREE.MeshStandardMaterial({color:0x557743,roughness:1,side:THREE.DoubleSide});
+ const reeds=new THREE.InstancedMesh(new THREE.ConeGeometry(.13,1.6,3),reedMat,84);
+ const reedObj=new THREE.Object3D(),shoreReeds=ring(102,52);
  for(let i=0;i<84;i++){
-  const a=2*Math.PI*i/84,r=ring(102,52)[i%n],
-   blade=new THREE.Mesh(new THREE.ConeGeometry(.13,1.6+(i%5)*.18,3),reed);
-  blade.position.set(r[0],.4,r[1]);blade.rotation.z=.1*Math.sin(i*1.83);
-  scene.add(blade);
+  const r=shoreReeds[i%n];
+  reedObj.position.set(r[0],.4,r[1]);
+  reedObj.rotation.set(0,0,.1*Math.sin(i*1.83));
+  reedObj.scale.set(1,1+(i%5)*.1125,1);
+  reedObj.updateMatrix();reeds.setMatrixAt(i,reedObj.matrix);
  }
+ reeds.instanceMatrix.needsUpdate=true;scene.add(reeds);
  // Large infield 'Multi-screen Turf Vision' 64m × 10.8m (official JRA).
  // Near the home stretch: face points toward the spectator/outside-rail
  // cameras (+z). The position is a schematic visual placement.
