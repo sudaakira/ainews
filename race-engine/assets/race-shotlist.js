@@ -1,15 +1,15 @@
 import {KYOTO_CUTS,runnerLane,kyotoOuterCourseOffset,KYOTO_INNER} from './kyoto-course.js?v=kyoto-v12';
 /**
  * JRA-style, five-camera Kyoto broadcast, reconstructed from supplied JRA reference frames:
- * 01 Start gate, 02 first corner positioning, 03 third corner entry,
+ * 01 Start gate, 02 first corner positioning, 03 backstretch lateral field view,
  * 04 fourth corner moves, 05 homestretch finish.
  * Track-side positions are outside the outermost turf rail at all cuts.
  */
 export const RACE_SHOT_LIST=Object.freeze([
  Object.freeze({id:'start',until:.12,kicker:'01 / START',label:'スタート',subjects:'all',side:29,ahead:32,height:8,fov:22}),
  Object.freeze({id:'first-corner',until:.32,kicker:'02 / POSITION',label:'1コーナー 位置どり',subjects:'pack',side:31,ahead:12,height:6.4,fov:26}),
- Object.freeze({id:'third-entry',until:.67,kicker:'03 / ATTACK ZONE',label:'3コーナー進入',subjects:'frontpack',side:34,ahead:58,height:6.8,fov:26}),
- Object.freeze({id:'fourth-turn',until:.84,kicker:'04 / THE MOVE',label:'4コーナー 仕掛け',subjects:'leaders',side:34,ahead:64,height:6.2,fov:24}),
+ Object.freeze({id:'backstretch',until:.67,kicker:'03 / BACKSTRETCH',label:'向こう正面 隊列',subjects:'field',side:40,ahead:0,height:6.3,fov:30}),
+ Object.freeze({id:'fourth-turn',until:.84,kicker:'04 / THE MOVE',label:'4コーナー 仕掛け',subjects:'moves',side:38,ahead:46,height:6.5,fov:29}),
  Object.freeze({id:'finish',until:Infinity,kicker:'05 / FINISH',label:'ゴール前',subjects:'finish',side:31,ahead:0,height:6.8,fov:21})
 ]);
 export function chooseRaceShot(progress,cuts=RACE_SHOT_LIST.map(s=>s.until)){
@@ -36,7 +36,8 @@ function projectPoint(q,pos,look,fov,aspect){
 }
 /** Shot-specific cast: all 17 at gate, front pack at corners, leaders at finish. */
 function pickSubjects(shot,order,distance,aspect){
- if(shot.subjects==='all')return order.slice();
+ if(shot.subjects==='all'||shot.subjects==='field')return order.slice();
+ if(shot.subjects==='moves')return order.slice(0,Math.min(order.length,aspect<.85?12:15));
  const lead=order[0],gap=o=>(lead.p-o.p)*distance;
  if(shot.subjects==='pack')return order.slice(0,7).filter((o,i)=>i<6||gap(o)<=12);
  if(shot.subjects==='frontpack'){
@@ -86,7 +87,7 @@ export function raceCameraPose({shot,progress,order,path,aspect=1,clock=Infinity
  // Unlike a game chase-camera, a real 3C outside camera waits ahead of
  // approaching horses, producing the foreshortened head-on TV perspective.
  // Track-local outside normal comes from the CAMERA station, not the pack.
- const inFront=shot.id==='third-entry'?20+clamp((progress-.29)/(.67-.29),0,1)*40:(shot.ahead||0);
+ const inFront=shot.id==='backstretch'?0:(shot.ahead||0);
  const cameraStation=path(pCenter+(isGate?0:inFront/distance));
  const groupBulge=venue==='京都'&&distance===2000?
   Math.max(0,...group.map(o=>-kyotoOuterCourseOffset(o.p))):0;
@@ -96,9 +97,9 @@ export function raceCameraPose({shot,progress,order,path,aspect=1,clock=Infinity
  // A single continuous TV dolly needs rail clearance for the WHOLE cut,
  // including the full 38m outside flare of Kyoto's 3C/4C.
  const reserveBulge=(venue==='京都'&&distance===2000&&
-  (shot.id==='third-entry'||shot.id==='fourth-turn'))?38:0;
+  (shot.id==='backstretch'||shot.id==='fourth-turn'))?38:0;
  const outsideNeeded=Math.max(groupBulge,stationBulge,reserveBulge)+half+
-  (shot.id==='third-entry'?35:17);
+  (shot.id==='backstretch'?23:17);
  const side=isGate?Math.max(shot.side,half+12):Math.max(shot.side||31,outsideNeeded);
  const a=Math.max(.48,Number(aspect)||1);
  const baseFov=shot.fov||28;
@@ -122,7 +123,7 @@ export function raceCameraPose({shot,progress,order,path,aspect=1,clock=Infinity
  };
  const bounds=isGate?{left:.06,right:.95,lower:.14,upper:.90}:
   shot.id==='first-corner'?{left:.07,right:.86,lower:.11,upper:.90}:
-  shot.id==='third-entry'?{left:.13,right:.80,lower:.11,upper:.88}:
+  shot.id==='backstretch'?{left:.05,right:.95,lower:.11,upper:.88}:
   shot.id==='fourth-turn'?{left:.12,right:.79,lower:.11,upper:.88}:
   {left:.14,right:.80,lower:.13,upper:.88};
  const imagePoints=(pose)=>{
@@ -175,7 +176,7 @@ export function raceCameraPose({shot,progress,order,path,aspect=1,clock=Infinity
  // actual projected screen Y instead of guessing a pitch. This prevents the
  // tight corner cameras clipping jockeys off-screen or filming mostly sky.
  const targetNdcY=isGate?.12:shot.id==='first-corner'?.07:
-  shot.id==='third-entry'?.13:shot.id==='fourth-turn'?.10:.05;
+  shot.id==='backstretch'?.08:shot.id==='fourth-turn'?.10:.05;
  for(let step=0;step<6;step++){
   const projected=imagePoints(pose).filter(p=>p.visible);
   if(!projected.length)break;
@@ -234,7 +235,7 @@ export function raceCameraPose({shot,progress,order,path,aspect=1,clock=Infinity
   forwardGap:leadNoseViewportTarget===null?null:Math.min(leadNoseViewportTarget,1-leadNoseViewportTarget),
   referenceProgress:pCenter,stationAheadMeters:inFront,lockedCameraRequested:true,
   projectedWidth,dollyScale:scale,
-  shotPerspective:isGate?'front-gate':shot.id==='third-entry'?'outside-headon':
+  shotPerspective:isGate?'front-gate':shot.id==='backstretch'?'outside-side-field':
    shot.id==='fourth-turn'?'outside-oblique':'outside-side'};
 }
 
