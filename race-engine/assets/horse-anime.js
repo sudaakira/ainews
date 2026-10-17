@@ -44,22 +44,34 @@ export function createRaceHorse(T,scene,h,silkHex,frameCapHex='#89929b',frameCap
  }
  if(h.no%3!==0){const blaze=ell(headRig,white,0,-.19,.235,.025,.20,.012);blaze.rotation.x=-.65}
  bone(headRig,leather,[-.11,-.40,.43],[.11,-.40,.43],.012,.012);
- for(let i=0;i<8;i++)ell(anim,mane,0,1.68+i*.047,.38+i*.062,.045,.11,.10);
+ // Separate crest strands are hinged so their motion trails head and torso.
+ const maneStrands=[];
+ for(let i=0;i<8;i++){
+  const rig=new T.Group();rig.position.set(0,1.68+i*.047,.38+i*.062);anim.add(rig);
+  ell(rig,mane,0,.005,0,.045,.11,.10);
+  maneStrands.push({rig,phase:i*.24});
+ }
  ell(headRig,mane,0,.14,.065,.10,.08,.11);
- const maneStrands=[],tailStrands=[],tailRig=new T.Group();tailRig.position.set(0,1.54,-.83);anim.add(tailRig);
- for(let i=0;i<5;i++){const o=ell(tailRig,mane,(i-2)*.026,-.14,-.26-i*.035,.04,.09,.34);o.rotation.x=-.35}
+ const tailStrands=[],tailRig=new T.Group();tailRig.position.set(0,1.54,-.83);anim.add(tailRig);
+ for(let i=0;i<5;i++){
+  const rig=new T.Group();rig.position.set((i-2)*.026,-.03,-.10-i*.032);tailRig.add(rig);
+  const tuft=ell(rig,mane,0,-.11,-.16,.037,.09,.27);tuft.rotation.x=-.35;
+  tailStrands.push({rig,phase:i*.31});
+ }
  const legs=[];
  for(const front of [true,false])for(const side of [-1,1]){
   const pivot=new T.Group();pivot.position.set(side*.22,front?1.17:1.24,front?.40:-.63);anim.add(pivot);
-  const upper=front?.53:.59,lower=.59;
+  const upper=front?.61:.68,lower=front?.76:.78;
   bone(pivot,coat,[0,0,0],[0,-upper,front?.02:.10],front?.095:.13,.045);
   const muscle=ell(pivot,coat,0,-.16,front?0:.035,front?.085:.12,.24,.105);muscle.rotation.x=front?0:-.2;
   const knee=new T.Group();knee.position.set(0,-upper,front?.02:.10);pivot.add(knee);
   ell(knee,dark,0,0,0,.050,.055,.055);
   bone(knee,coat,[0,0,0],[0,-lower+.09,.01],.035,.027);
   if(h.no%3!==0)bone(knee,white,[0,-lower+.20,.01],[0,-lower+.045,.02],.031,.035);
-  ell(knee,hoof,0,-lower+.025,.045,.047,.045,.065);
-  legs.push({pivot,knee,upper,lower,front,side});
+  // Counter-rotating distal hoof: the sole stays level while planted.
+  const hoofRig=new T.Group();hoofRig.position.set(0,-lower+.025,0);knee.add(hoofRig);
+  ell(hoofRig,hoof,0,0,.045,.047,.045,.065);
+  legs.push({pivot,knee,hoofRig,upper,lower,front,side});
  }
  ell(anim,leather,0,1.64,-.10,.29,.055,.34);
  // Each flank has its own legible saddlecloth and reins, without floating labels.
@@ -89,5 +101,5 @@ export function createRaceHorse(T,scene,h,silkHex,frameCapHex='#89929b',frameCap
  }
  const shadow=new T.Mesh(new T.CircleGeometry(1,24),new T.MeshBasicMaterial({color:0x172c19,transparent:true,opacity:.22,depthWrite:false,side:T.DoubleSide}));shadow.rotation.x=-Math.PI/2;shadow.position.y=.015;shadow.scale.set(.46,1.23,1);root.add(shadow);
  scene.add(root);
- return {root,anim,rider,headRig,tailRig,legs,ears,maneStrands,tailStrands,flutter:null,sprite:null,shadow,artDirection:'thoroughbred-cel-v11'};
+ return {root,anim,rider,headRig,tailRig,legs,ears,maneStrands,tailStrands,flutter:null,sprite:null,shadow,artDirection:'thoroughbred-cel-v11',gallopRig:'four-beat-ik-v1'};
 }
