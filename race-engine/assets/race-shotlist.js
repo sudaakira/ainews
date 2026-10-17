@@ -38,16 +38,29 @@ export function raceCameraPose({shot,progress,order,path,aspect=1,clock=Infinity
    targetLeadViewportX:null,lensShiftX:0,mode:'establishing-gate'};
  }
  // Close-up distance is independent of fifth place and beyond.
- const shotCamera=shot.id==='third-turn'?{side:17.5,ahead:12,height:5.6,fov:36}:
-  shot.id==='straight'?{side:20.5,ahead:0,height:5.3,fov:37}:
-  shot.id==='second-turn'?{side:19.5,ahead:4,height:5.2,fov:37}:
-  {side:19,ahead:0,height:5.3,fov:39};
+ const shotCamera=shot.id==='third-turn'?{side:12,ahead:7,height:5.5,fov:33}:
+  shot.id==='straight'?{side:15,ahead:0,height:5.0,fov:34}:
+  shot.id==='second-turn'?{side:12.8,ahead:2.5,height:5.1,fov:34}:
+  {side:13,ahead:0,height:5.1,fov:35};
  const {side,ahead,height,fov}=shotCamera;
  const heading=path(leader.p),lane=runnerLane(leader.no,order.length,progress);
  const cx=heading.x-heading.dz*lane,cz=heading.z+heading.dx*lane;
  const position={x:cx+heading.dz*side+heading.dx*ahead,y:heading.y+height,z:cz-heading.dx*side+heading.dz*ahead};
  const look={x:cx,y:heading.y+1.85,z:cz};
- // Off-axis projection keeps the leader near x=22.5%, even on corners.
+ // Protect 20% of the screen IN FRONT OF THE NOSE, not the horse's torso.
+ // Anchor an anatomically approximated nose point 1.75m forward and 2.05m up.
+ // Perspective projection uses the actual viewport aspect, so this works on
+ // both iPhone portrait and desktop landscape without backing the lens away.
+ const nose={x:cx+heading.dx*1.75,y:heading.y+2.05,z:cz+heading.dz*1.75};
+ const fx=look.x-position.x,fy=look.y-position.y,fz=look.z-position.z;
+ const flen=Math.hypot(fx,fy,fz);
+ const vx=nose.x-position.x,vy=nose.y-position.y,vz=nose.z-position.z;
+ const depth=Math.max(1,(vx*fx+vy*fy+vz*fz)/flen);
+ const sideways=(-fz*vx+fx*vz)/flen;
+ const tan=Math.tan(fov*Math.PI/360)*Math.max(.42,aspect);
+ // Camera projection element[8] is subtracted from horizontal NDC.
+ const lensShiftX=sideways/(depth*tan)+.60;
  return {position,look,fov,side,subjects:leaders.map(o=>o.no),
-  lensShiftX:.55,targetLeadViewportX:.225,mode:'tight-leader-follow'};
+  lensShiftX,targetLeadViewportX:.20,mode:'tight-nose-leader',nose};
+
 }
