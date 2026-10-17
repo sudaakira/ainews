@@ -27,6 +27,9 @@ try{
   const model=await page.evaluate(()=>window.KYOTO_RENDER_STATUS);
   assert.equal(model.model,'skinned-thoroughbred-v16');assert.equal(model.horses,17);
   assert.equal(model.continuousRunOut,true);assert.equal(model.goalBoardSide,'far');
+  assert.equal(model.landmarks?.visionScreenWidth,64,'JRA Turf Vision width 64m');
+  assert.equal(model.landmarks?.visionScreenHeight,10.8,'JRA Turf Vision height 10.8m');
+  assert.ok(model.landmarks?.pondWidth>=200,'Kyoto pond must be large and shaped');
   assert.equal(await page.locator('#kyoto-map').isVisible(),false);
   assert.equal(await page.locator('#race-commentary-panel').isVisible(),true);
   assert.equal(await page.locator('.tracking-number').count(),17);
@@ -71,6 +74,15 @@ try{
       'actual camera must be outside physical rail: camera lane '+
        state.scene.cameraOutsideLane+' rail '+state.scene.cameraRailLane);
     assert.ok(state.scene.cameraOuterRailClearance>11,'outer-rail clearance from 3D geometry');
+    assert.equal(state.scene.landmarkPondVisible,true,'3D infield pond exists');
+    assert.equal(state.scene.landmarkTurfVisionVisible,true,'3D Turf Vision exists');
+    assert.equal(state.scene.landmarkScreenWidth,64,'physical 64m screen');
+    if(id!=='start'){
+     assert.equal(state.director.pose.leadNumber,state.director.pose.subjects[0],
+      'leading horse owns broadcast framing');
+     assert.ok(state.director.pose.forwardGap>=.19&&state.director.pose.forwardGap<=.5,
+      'at least 19% forward room around leading horse: '+state.director.pose.forwardGap);
+    }
     assert.ok(id==='start'||state.director.pose.fov<=34,'post-start shot should use the tighter telephoto camera');
     if(id==='fourth-turn'||id==='finish'){
      const visibleLabels=await page.locator('#race-front-labels b:visible').count();
