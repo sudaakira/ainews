@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>競走馬ギャロップ検証 | MOTION v13</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#edf4e9;color:#183b30;font:15px -apple-system,BlinkMacSystemFont,"Hiragino Kaku Gothic ProN",sans-serif}
+header,main{max-width:990px;margin:auto;padding:14px}header h1{margin:4px 0;font-size:clamp(21px,4vw,31px)}
+header p,.small{color:#4f7063;font-size:13px}a{color:#176a6c}
+.panel{background:#fff;border:1px solid #cdded2;border-radius:14px;padding:12px}
+#stage{width:100%;height:clamp(330px,60vw,610px);background:#c0dfee;border-radius:10px;overflow:hidden}
+#stage canvas{display:block;width:100%;height:100%}
+.controls{display:flex;flex-wrap:wrap;gap:9px;margin:12px 0}
+button,select{background:#20685d;color:white;border:0;border-radius:8px;padding:12px;font:inherit;font-weight:700;min-width:92px;cursor:pointer}
+select{background:#ecf4f3;color:#1c5049;border:1px solid #b5d2c9}
+.phase{position:relative;height:18px;border-radius:20px;background:#e6e4c8;overflow:hidden}
+#marker{position:absolute;top:0;bottom:0;width:5px;background:#dd5040;left:0}
+.legend{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;margin:11px 0}
+.foot{border:1px solid #dae5dc;border-radius:8px;padding:9px 4px;text-align:center;font-size:12px}
+.foot b{display:block;font-size:14px}.foot.down{background:#e8f2c9;border-color:#9bb56b}.foot.up{background:#f2f3f5}
+#phase-label{font-weight:800;margin:9px 0}
+@media(max-width:480px){.legend{gap:3px}.foot{font-size:11px}.controls{gap:5px}.controls button,.controls select{padding:10px 8px;min-width:0;flex:1;font-size:12px}}
+</style></head><body>
+<header><a href="./?race=shuka-2026&motion=v13">← レース本編へ</a><h1>🐎 ギャロップ4拍子・動作検証 v13</h1>
+<p>本編と同じ馬モデル・同じアニメーションモジュールを使用。左右の脚が同時に動いていないか、1コマずつ確認できます。</p></header>
+<main><div class="panel">
+<div id="stage"></div>
+<div class="controls">
+<button id="play">⏸ 停止</button><button id="step">1コマ進める</button>
+<select id="rate" aria-label="表示速度"><option value=".25">0.25倍</option><option value=".5" selected>0.5倍</option><option value="1">1倍</option></select>
+<select id="lead" aria-label="手前"><option value="right">右手前</option><option value="left">左手前</option></select>
+<select id="camera" aria-label="視点"><option value="side">真横</option><option value="three">斜め前</option><option value="front">真正面</option></select>
+</div>
+<div class="phase"><div id="marker"></div></div>
+<p id="phase-label">ロード中...</p><div class="legend" id="legend"></div>
+<p class="small">接地順：非先導後肢 → 先導後肢 → 非先導前肢 → 先導前肢 → 空中浮遊。演出用の手続き型動作です。</p>
+<div id="error" style="color:#b23637" role="alert"></div>
+</div></main>
+<script type="module">
+try{
+ const T=await import('./vendor/three.module.js');
+ const {createRaceHorse}=await import('./assets/horse-anime.js?v=distinct-v13');
+ const {updateGallop,sampleGallop}=await import('./assets/chibi-gallop.js?v=distinct-v13');
+ const stage=document.getElementById('stage');
+ const scene=new T.Scene();scene.background=new T.Color(0xc6e5f5);
+ const camera=new T.PerspectiveCamera(37,1,.1,100);
+ const renderer=new T.WebGLRenderer({antialias:true});
+ renderer.setPixelRatio(Math.min(window.devicePixelRatio||1,1.5));renderer.outputColorSpace=T.SRGBColorSpace;
+ stage.append(renderer.domElement);
+ scene.add(new T.HemisphereLight(0xffffff,0x688a78,2));
+ const sun=new T.DirectionalLight(0xfff9e7,2.5);sun.position.set(3,8,6);scene.add(sun);
+ const turf=new T.Mesh(new T.PlaneGeometry(40,40),new T.MeshStandardMaterial({color:0x6eaf66,roughness:1}));
+ turf.rotation.x=-Math.PI/2;turf.position.y=-.02;scene.add(turf);
+ const grid=new T.GridHelper(10,20,0xeef7d8,0x8dc07c);grid.position.y=.006;scene.add(grid);
+ const model=createRaceHorse(T,scene,{no:1,name:'ギャロップ動作検証'},'#3f80d4','#ffffff');
+ model.root.position.y=.12;
+ const $=id=>document.getElementById(id);
+ let playing=true,elapsed=0,last=0;
+ const footNames=['左前','右前','左後','右後'];
+ function setCamera(){
+  const c=$('camera').value;
+  camera.position.set(c==='side'?7:c==='front'?0:6,c==='front'?2.45:3.15,c==='side'?0:c==='front'?7:5.8);
+  camera.lookAt(0,1.12,0);
+ }
+ setCamera();$('camera').onchange=setCamera;
+ $('lead').onchange=()=>{if(model.gaitState)model.gaitState.lead=$('lead').value==='right'?1:-1};
+ $('play').onclick=()=>{playing=!playing;$('play').textContent=playing?'⏸ 停止':'▶ 再生'};
+ $('step').onclick=()=>{
+  playing=false;$('play').textContent='▶ 再生';
+  if(model.gaitState)model.gaitState.phase=(model.gaitState.phase+.04)%1;
+ };
+ function paint(now){
+  requestAnimationFrame(paint);
+  const dt=last?Math.min(.05,Math.max(0,(now-last)/1000)):1/60;last=now;
+  elapsed+=dt;
+  const lead=$('lead').value;
+  updateGallop(model,5,elapsed,1,.6,{
+   lead,speedMps:16,frameDt:dt*Number($('rate').value),playing
+  });
+  const audit=model.gallopAudit,feet=sampleGallop(audit.phase,lead==='right'?1:-1);
+  $('marker').style.left=(audit.phase*100).toFixed(1)+'%';
+  $('phase-label').textContent='1ストライド '+(audit.phase*100).toFixed(0)+'%｜'+
+   (feet.some(x=>x.contact)?'4肢が順に接地・蹴り出し中':'空中浮遊｜全蹄離地');
+  $('legend').innerHTML=feet.map((x,i)=>'<div class="foot '+(x.contact?'down':'up')+'"><b>'+footNames[i]+'</b>'+
+   (x.contact?'● 接地':'○ 浮遊')+'</div>').join('');
+  const w=stage.clientWidth,h=stage.clientHeight;
+  if(renderer.domElement.width!==Math.round(w*renderer.getPixelRatio())||
+     renderer.domElement.height!==Math.round(h*renderer.getPixelRatio())){
+   renderer.setSize(w,h,false);camera.aspect=w/h;camera.updateProjectionMatrix();
+  }
+  renderer.render(scene,camera);
+ }
+ requestAnimationFrame(paint);
+}catch(e){document.getElementById('error').textContent='WebGLの起動に失敗しました: '+String(e.message||e);console.error(e)}
+</script></body></html>
