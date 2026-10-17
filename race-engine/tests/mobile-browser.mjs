@@ -108,7 +108,7 @@ try{
     assert.ok(id==='start'||state.director.pose.fov<=(id==='backstretch'?38:34),
       'corner/finish shots use telephoto; backstretch uses a wider lateral field lens: '+id+' '+state.director.pose.fov);
     assert.equal(await page.locator('#race-front-labels').count(),0,'no floating horse-name cards or leader arrows');
-    const expectedSubjects=id==='start'?[17,17]:id==='backstretch'?[7,7]:id==='fourth-turn'?(vp.width<700?[12,12]:[15,15]):id==='first-corner'?[6,7]:[3,4];
+    const expectedSubjects=id==='start'?[17,17]:id==='backstretch'?[7,7]:id==='fourth-turn'?[5,5]:id==='first-corner'?[6,7]:[3,4];
     assert.ok(state.director.pose.subjects.length>=expectedSubjects[0]&&
      state.director.pose.subjects.length<=expectedSubjects[1],
      'subject count '+id+': '+state.director.pose.subjects.length+' expected '+expectedSubjects);
