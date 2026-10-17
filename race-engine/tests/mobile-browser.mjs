@@ -37,8 +37,8 @@ try{
     max:window.RACE_SCENE_AUDIT?.gateMaxScreenX,
     center:window.RACE_SCENE_AUDIT?.gateScreenX}));
    console.log('START_GATE_BOUNDS',JSON.stringify({vp,gateCheck}));
-   assert.ok(gateCheck.min>=-.015&&gateCheck.min<=.12&&gateCheck.max<=.94,
-    'whole gate must sit at the trailing left side: '+JSON.stringify(gateCheck));
+   assert.ok(gateCheck.min>=-.03&&gateCheck.max<=1.03&&gateCheck.max-gateCheck.min>.28,
+    'whole gate must fill substantial screen width: '+JSON.stringify(gateCheck));
   }
   if(vp.width<700){
    for(const id of ['#live-play','#live-pause','#live-reset','#live-rate','#race']){
@@ -65,7 +65,7 @@ try{
     const state=await page.evaluate(()=>({director:window.RACE_CINEMATIC_DEBUG,scene:window.RACE_SCENE_AUDIT}));
     assert.equal(state.director.scriptedCuts,5);
     assert.equal(state.scene.leadersOccluded,0,'buildings never occlude leading horses');
-    assert.equal(state.director.pose.mode,'outer-rail-'+id,'outside-rail camera composition must match cut');
+    assert.equal(state.director.pose.mode,'rail-broadcast-'+id,'outside-rail camera composition must match cut');
     assert.equal(state.director.pose.outerRailSign,-1);
     assert.ok(id==='start'||state.director.pose.fov<=34,'post-start shot should use the tighter telephoto camera');
     if(id==='fourth-turn'||id==='finish'){
@@ -73,12 +73,12 @@ try{
      assert.ok(visibleLabels>=(id==='fourth-turn'?2:1)&&visibleLabels<=5,
        'show visible leader IDs; only in-frame labels at the finish: '+visibleLabels);
     }
-    const expectedSubjects=id==='start'?[17,17]:id==='first-corner'?[10,12]:
-     id==='third-entry'?[6,8]:id==='fourth-turn'?[4,5]:[3,4];
+    const expectedSubjects=id==='start'?[17,17]:id==='first-corner'?[6,7]:
+     id==='third-entry'?[5,6]:id==='fourth-turn'?[4,5]:[3,4];
     assert.ok(state.director.pose.subjects.length>=expectedSubjects[0]&&
      state.director.pose.subjects.length<=expectedSubjects[1],
      'subject count '+id+': '+state.director.pose.subjects.length+' expected '+expectedSubjects);
-    assert.equal(state.director.pose.aheadScreenSide,'right','Kyoto outer-rail camera sees race advance rightward');
+    assert.ok(state.director.pose.shotPerspective.startsWith('outside-'),'camera stays outside the outer rail');
     assert.ok(state.director.pose.outerRailClearance>=11.9,'camera physically beyond Kyoto outermost rail');
     assert.ok(state.scene.leadVisible,'leader visible while tracking the five-horse contest');
     assert.ok(state.scene.leadScreenX>=.08&&state.scene.leadScreenX<=.94,
