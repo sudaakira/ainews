@@ -54,11 +54,11 @@ try{
     const state=await page.evaluate(()=>({director:window.RACE_CINEMATIC_DEBUG,scene:window.RACE_SCENE_AUDIT}));
     assert.equal(state.director.scriptedCuts,4);
     assert.equal(state.scene.leadersOccluded,0,'buildings never occlude leading horses');
-    assert.equal(state.director.pose.mode,'tight-leader-follow','must be a tight tracking shot');
+    assert.equal(state.director.pose.mode,'tight-nose-leader','must be a tight tracking shot');
     assert.ok(state.scene.leadVisible,'front horse must remain in frame');
-    assert.ok(state.scene.leadScreenX>=.16&&state.scene.leadScreenX<=.31,
-      'must reserve roughly 20% LEFT space: '+state.scene.leadScreenX);
-    assert.ok(state.director.pose.side<=21,'tracking shot must not zoom out for the pack');
+    assert.ok(state.scene.leadNoseScreenX>=.15&&state.scene.leadNoseScreenX<=.29,
+      'leader NOSE must leave ~20% foreground air: '+state.scene.leadNoseScreenX);
+    assert.ok(state.director.pose.side<=15,'tracking shot must not zoom out for the pack');
     if(id==='third-turn'){
      assert.ok(state.director.pose.position.y-state.director.pose.look.y<10);
      assert.ok(state.director.pose.subjects.length<=3);
