@@ -174,11 +174,11 @@ import {jockeyCap} from './core/jockey-caps.js?v=cap-v1';
  }
  function box(w,h,d,material,parent,x,y,z){let m=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),material);m.position.set(x,y,z);parent.add(m);return m}
  const silkColors=['#d63e3e','#e8e4df','#2670db','#edc33a','#dd63a5','#4ebbb0','#c7c7c7','#f2932f','#7144bd','#bda144','#db5e32','#62b55c','#e4edf4','#9c78d7','#5b9bd1','#c5a07c','#d6dc45','#cb5171'];
- const {updateGallop}=await import("./assets/chibi-gallop.js?v=equine-v14");
+ const {updateGallop}=await import("./assets/chibi-gallop.js?v=anatomy-v15");
  const models=[];
  let horseV3Ready=false,modelError='';
  try{
-  const horseV3=await import("./assets/horse-anime.js?v=equine-v14");
+  const horseV3=await import("./assets/horse-anime.js?v=anatomy-v15");
   for(const h of HS){
    const frameCap=capFor(h);
    models.push(horseV3.createRaceHorse(THREE,scene,h,silkColors[h.no-1],frameCap.hex,frameCap.outline,frameCap.pattern||null,frameCap.secondary||'#FFFFFF'));
@@ -301,8 +301,8 @@ import {jockeyCap} from './core/jockey-caps.js?v=cap-v1';
  document.querySelector('.camera-more')?.setAttribute('hidden','');
  stage.style.display='block';svg.classList.add('svg-hidden');
  status.textContent='3D RACE · '+models.length+'頭';
- document.getElementById('horse-model-version').textContent='EQUINE v14 · PHOTO POSES';
- window.KYOTO_RENDER_STATUS={ready:true,model:'thoroughbred-cel-v11',gait:'muybridge-four-segment-v14',venue:venueReady?'full':'fallback',
+ document.getElementById('horse-model-version').textContent='EQUINE v15 · NATURAL STRIDE';
+ window.KYOTO_RENDER_STATUS={ready:true,model:'thoroughbred-cel-v11',gait:'anatomical-footfall-v15',venue:venueReady?'full':'fallback',
   horses:models.length,camera:'side-start-2c-close-3c-forward-side-leaders',courseView:config.courseView,
   cinematic:true,saddleclothNames:true,goalBoard:!!goalBoard,gateDisappears:true,
   continuousRunOut:true,goalBoardSide:'far',furlongDigits:furlongPosts.map(x=>x.digit)};
