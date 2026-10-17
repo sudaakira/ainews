@@ -256,13 +256,13 @@ for(const p of [.10,.4,.59,.66,.73,.82,.94,.999])for(const aspect of [.58,.76,1.
  const order=Array.from({length:17},(_,i)=>({no:i+1,p:p-i*.0022}));
  const pose=raceCameraPose({shot,progress:p,clock:Math.max(5,p*119),order,
   path:cameraKyotoPath,aspect,direction:'右',venue:'京都',distance:2000});
- assert.equal(pose.mode,'outer-rail-'+shot.id);
- const target=shot.id==='first-corner'?[10,12]:shot.id==='third-entry'?[6,8]:shot.id==='fourth-turn'?[4,5]:[3,4];
+ assert.equal(pose.mode,'rail-broadcast-'+shot.id);
+ const target=shot.id==='first-corner'?[6,7]:shot.id==='third-entry'?[5,6]:shot.id==='fourth-turn'?[4,5]:[3,4];
  assert.ok(pose.subjects.length>=target[0]&&pose.subjects.length<=target[1],
   shot.id+' needs '+target+' front runners, got '+pose.subjects.length);
  assert.equal(pose.outerRailSign,-1);
  assert.ok(pose.outerRailClearance>=11.9,'camera OUTSIDE the actual outer-course rail');
- assert.ok(pose.aheadScreenSide==='right');
+ assert.ok(pose.shotPerspective.startsWith('outside-'),'camera is always outside');
  const maxGroupWidth=shot.id==='first-corner'?1.63:1.51;
  assert.ok(pose.projectedWidth<maxGroupWidth,
   'selected group must fit the shot-specific safe area: '+shot.id+' width '+pose.projectedWidth);
@@ -275,9 +275,9 @@ const startingOrder=Array.from({length:17},(_,i)=>({no:i+1,p:0}));
 for(const aspect of [.58,.76,1.8]){
  const pose=raceCameraPose({shot:RACE_SHOT_LIST[0],progress:0,clock:0,
   order:startingOrder,path:cameraKyotoPath,aspect,direction:'右',venue:'京都',distance:2000});
- assert.equal(pose.mode,'establishing-gate');
+ assert.equal(pose.mode,'gate-front-broadcast');
  assert.equal(pose.subjects.length,17);
- assert.ok(Math.abs(pose.gateScreenX-.055)<.01,'entire starting gate trailing edge at x≈5%');
+ assert.ok(Math.abs(pose.gateScreenX-.5)<.01,'gate spans most of the image, not a distant object');
  assert.ok(pose.position.y>pose.look.y,'camera elevated over outside rail');
 }
 console.log('Five cameras: outer rail, first corner pack, third/fourth entry, final battle ✓');
