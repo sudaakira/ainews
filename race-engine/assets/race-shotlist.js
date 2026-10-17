@@ -35,20 +35,20 @@ function projectPoint(q,pos,look,fov,aspect){
   y:(dx*upX+dy*upY+dz*upZ)/(depth*tan),visible:true};
 }
 /** Shot-specific cast: all 17 at gate, front pack at corners, leaders at finish. */
-function pickSubjects(shot,order,distance){
+function pickSubjects(shot,order,distance,aspect){
  if(shot.subjects==='all')return order.slice();
  const lead=order[0],gap=o=>(lead.p-o.p)*distance;
- if(shot.subjects==='pack')return order.slice(0,7).filter((o,i)=>i<6||gap(o)<=12);
+ if(shot.subjects==='pack')return order.slice(0,aspect<.85?4:7).filter((o,i)=>i<(aspect<.85?4:6)||gap(o)<=12);
  if(shot.subjects==='frontpack'){
   // Three-quarter entry from the outer rail: five foreground competitors.
   // The remaining pack is visible in depth behind, not framing the lens.
-  const pack=order.slice(0,6).filter((o,i)=>i<5||gap(o)<=8);
-  return pack.length>=5?pack:order.slice(0,5);
+  const pack=order.slice(0,aspect<.85?3:6).filter((o,i)=>i<(aspect<.85?3:5)||gap(o)<=8);
+  return pack.length>=(aspect<.85?3:5)?pack:order.slice(0,aspect<.85?3:5);
  }
  if(shot.subjects==='leaders'){
-  const firstFive=order.slice(0,5);
+  const firstFive=order.slice(0,aspect<.85?3:5);
   const pack=firstFive.filter((o,i)=>i<3||(i===3?gap(o)<=16:gap(o)<=10&&(firstFive[3].p-o.p)*distance<=2.6));
-  return pack.length>=4?pack:firstFive.slice(0,4);
+  return aspect<.85?order.slice(0,3):(pack.length>=4?pack:firstFive.slice(0,4));
  }
  if(shot.subjects==='finish'){
   const threeOrFour=order.slice(0,4).filter((o,i)=>i<3||gap(o)<=6.5);
@@ -68,7 +68,7 @@ export function raceCameraPose({shot,progress,order,path,aspect=1,clock=Infinity
  if(!lead)return {position:{x:0,y:9,z:40},look:{x:0,y:2,z:0},fov:39,side:40,subjects:[],lensShiftX:0,mode:'empty'};
  const isGate=shot.id==='start'&&clock<=1.8;
  const rightCircuit=direction!=='左',outsideSign=rightCircuit?-1:1;
- const group=isGate?order.slice():pickSubjects(shot,order,distance);
+ const group=isGate?order.slice():pickSubjects(shot,order,distance,aspect);
  const pCenter=isGate?0:group.reduce((sum,o,i)=>sum+o.p*(i===0?1.6:1),0)/(group.length+.6);
  const center=path(pCenter),field=group.map(o=>{
   const q=path(o.p),lane=runnerLane(o.no,order.length,progress);
@@ -93,7 +93,7 @@ export function raceCameraPose({shot,progress,order,path,aspect=1,clock=Infinity
  const side=isGate?Math.max(shot.side,half+12):Math.max(shot.side||31,outsideNeeded);
  const a=Math.max(.48,Number(aspect)||1);
  const baseFov=shot.fov||28;
- const fov=isGate?(a>1.45?18:a<.85?51:38):
+ let fov=isGate?(a>1.45?18:a<.85?51:38):
   a>1.45?Math.max(16,baseFov-5):a<.85?Math.min(38,baseFov+6):baseFov;
  const height=shot.height||8;
  const setPose=scale=>{
@@ -136,6 +136,18 @@ export function raceCameraPose({shot,progress,order,path,aspect=1,clock=Infinity
   }
   return pixels;
  };
+ // True broadcast zoom: use the field's geometry to choose a focal length.
+ // The old auto-fit always pulled back for the full pack and created a distant
+ // picture even at 3C/4C. At minimum rail clearance first, make the chosen
+ // 3-5 competitors use 60-72% of the width, then back off only for clipping.
+ if(!isGate){
+  const one=setPose(1),pre=imagePoints(one).filter(q=>q.visible);
+  if(pre.length){
+   const pw=Math.max(...pre.map(q=>q.x))-Math.min(...pre.map(q=>q.x));
+   const correction=clamp(pw/1.30,.35,1);
+   fov=Math.max(10.5,fov*correction);
+  }
+ }
  // Zoom in to the actual competition, but back off only as much as needed
  // to keep the picture's selected 3–5 runners uncut.
  let scale=1,pose,raw;
@@ -152,7 +164,7 @@ export function raceCameraPose({shot,progress,order,path,aspect=1,clock=Infinity
  if(!raw?.length)throw new Error('No horse group visible to broadcast lens');
  const yCenter=(Math.max(...raw.map(p=>p.y))+Math.min(...raw.map(p=>p.y)))/2;
  // Keep horse bodies in the middle third rather than wasting 50% on sky.
- pose.look.y+=yCenter*.43-(isGate?.5:2.25);
+ pose.look.y+=yCenter*.43-(isGate?6.0:Math.max(3.5,Math.min(9,side*.13)));
  raw=imagePoints(pose).filter(p=>p.visible);
  let lensShiftX=0;
  if(isGate){
