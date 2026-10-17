@@ -143,7 +143,7 @@ header p:last-child{font-size:12px;opacity:.8}
 </style><link rel="stylesheet" href="./assets/premium-mobile.css?v=ui-v1"><link rel="stylesheet" href="./assets/race-cinematics.css?v=kyoto-v11-1"></head><body>
 <header><p>レース設定を読み込み中</p><h1>🏇 共通レースシミュレーター</h1><p>14項目の条件回帰ループ予想</p></header><div class="wrap"><div class="hero-race"><section class="card"><h2>レースシミュレーション</h2>
 <div class="live-sim" id="live-sim">
- <div class="live-head"><strong>3D RACE BROADCAST</strong><span class="live-status" id="live-status">スタート待機</span></div>
+ <div class="live-head"><strong>3D RACE BROADCAST · 🐎 4拍子モーション v13</strong><span class="live-status" id="live-status">スタート待機</span></div>
  <div class="live-stats"><div class="live-stat"><span>レース経過（仮想）</span><b id="live-clock">00:00</b></div><div class="live-stat"><span>残り距離</span><b id="live-distance">1400m</b></div><div class="live-stat"><span>現在の区間</span><b id="live-section">発走前</b></div></div>
  <details class="camera-more"><summary>📷 カメラ視点を変更</summary><div class="camera-controls" id="camera-controls" style="display:none"><button data-camera="wide">🏟️ コース全景</button><button data-camera="gate">🚦 ゲートを見る</button><button data-camera="follow" class="cam-active">🎥 外ラチ側・追走</button><button data-camera="horse">🐴 アニメ馬アップ</button><button data-camera="finish">🏁 ゴール前</button><button data-camera="2d">2D模式図</button><span id="three-status">3Dモデル読み込み中…</span></div></details><div class="live-screen">
  <div id="three-stage" style="display:none"><div class="track-broadcast"><b>京都 11R</b><span>スワンステークス GII｜芝1400m（外）</span></div><div class="track-broadcast-bottom">🏇 RACE SIMULATOR <span id="horse-model-version">MODEL LOADING</span></div>
@@ -212,7 +212,7 @@ try {
  window.SWAN_LOOP=createRegression(config,window.SWAN_FACTORS);
  window.RACE_SIM=createSimulator(config,window.SWAN_LOOP);
  await import('./app.js?v=kyoto-v11-1');
- await import('./renderer.js?v=fourbeat-v12');
+ await import('./renderer.js?v=distinct-v13');
  await import('./assets/premium-mobile.js?v=cinema-v1');
 } catch(e){
  console.error('Race engine initialization failed',e);
