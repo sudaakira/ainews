@@ -1,6 +1,6 @@
 import {raceCommentary,ANNOUNCER_SVG} from './race-commentary.js?v=kyoto-v11-1';
 /** Clean cel-racing broadcast. All positions and results are read from the shared engine. */
-import {chooseRaceShot,courseShotCuts,raceCameraPose} from './race-shotlist.js?v=leader-air-v14';
+import {chooseRaceShot,courseShotCuts,raceCameraPose,followLockedCameraPose} from './race-shotlist.js?v=iphone-locked-dolly-v19';
 import {finishCrossings,playbackRate} from './race-playback.js?v=kyoto-v11-1';
 
 export function createRaceCinematics({THREE,scene,stage,models,config,capFor,path,route,routeLength}){
@@ -82,6 +82,7 @@ export function createRaceCinematics({THREE,scene,stage,models,config,capFor,pat
   new THREE.MeshBasicMaterial({color:0x93c15b,transparent:true,opacity:.7,side:THREE.DoubleSide,depthWrite:false}),models.length*perHorse);
  chips.frustumCulled=false;scene.add(chips);const dummy=new THREE.Object3D();
  let lastShot='',lastMode='',lastOrder='',lastResult='',lastCrossed=-1;
+ let lockedRig=null,cameraRebases=0;
  function update({clock,progress,order,finishOrder,frameDt,camera,desired,look,rate}){
   const p=Math.max(0,Math.min(1,progress)),shot=chooseRaceShot(p,cuts);let cut=shot.id!==lastShot;
   if(cut){ui.dataset.shot=shot.id;kicker.textContent=shot.kicker;phaseTitle.textContent=shot.label;lastShot=shot.id;}
@@ -131,9 +132,22 @@ export function createRaceCinematics({THREE,scene,stage,models,config,capFor,pat
   const at=route.getPointAtLength(d);
   routeDot.setAttribute('cx',String(at.x.toFixed(1)));routeDot.setAttribute('cy',String(at.y.toFixed(1)));
   locText.textContent=runningOut?'ゴール':shot.label;
-  const pose=raceCameraPose({shot,progress:p,order,path,aspect:camera.aspect,clock,direction:config.direction,distance:config.distance,venue:config.venue});
-  if(pose.mode!==lastMode){cut=true;lastMode=pose.mode;}
-   desired.set(pose.position.x,pose.position.y,pose.position.z);look.set(pose.look.x,pose.look.y,pose.look.z);
+  // iPhone-first TV dolly: fixed-angle and fixed lens within each shot.
+  // Only cut transitions, seek/replay, and aspect changes reset the rig.
+  const gateMode=shot.id==='start'&&clock<=1.8?'gate':'running';
+  const mustRebase=cut||seeked||!lockedRig||
+   lockedRig.mode!==gateMode||Math.abs(lockedRig.aspect-camera.aspect)>.015;
+  if(mustRebase){
+   const base=raceCameraPose({shot,progress:p,order,path,aspect:camera.aspect,
+    clock,direction:config.direction,distance:config.distance,venue:config.venue});
+   lockedRig={pose:{...base,shotId:shot.id},startLeaderProgress:order[0].p,
+    mode:gateMode,aspect:camera.aspect};
+   cameraRebases++;cut=true;lastMode=base.mode;
+  }
+  const pose=followLockedCameraPose(lockedRig,order,path,{
+   distance:config.distance,venue:config.venue,direction:config.direction});
+  desired.set(pose.position.x,pose.position.y,pose.position.z);
+  look.set(pose.look.x,pose.look.y,pose.look.z);
   // Camera zoom and shift get the same framerate-independent damping as
   // position/look in renderer.js. No instantaneous optical jumps at 8x.
   let j=0;
@@ -149,7 +163,8 @@ export function createRaceCinematics({THREE,scene,stage,models,config,capFor,pat
   }
   chips.instanceMatrix.needsUpdate=true;
   window.RACE_CINEMATIC_DEBUG={shot:shot.id,progress:p,rate,cut,scriptedCuts:5,
-   mode:'kyoto-five-cut-broadcast',cuts,position:shot.label,runOut:runningOut,crossed:crossed.length,
+   mode:'mobile-locked-rail-dolly-v19',cuts,position:shot.label,runOut:runningOut,crossed:crossed.length,
+   cameraRebases,lockedDirection:true,lockedLens:true,
    sideOn:shot.ahead===0,pose};
   return {cut,shot:shot.id,fov:pose.fov,lensShiftX:pose.lensShiftX||0};
  }
