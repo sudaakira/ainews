@@ -300,7 +300,8 @@ for(const [start,end] of [[.085,.28],[.30,.66],[.68,.83],[.84,.99]]){
   const diff=vector(camera).map((v,i)=>Math.abs(v-target[i]));
   assert.ok(Math.max(...diff)<1e-8,'camera must keep fixed bearing RELATIVE to curved rail: '+diff);
   if(j>0){
-   assert.ok(Math.abs(angle-prevAngle)<.2,'course dolly must rotate CONTINUOUSLY, not jump');
+   assert.ok(Math.abs(Math.atan2(Math.sin(angle-prevAngle),Math.cos(angle-prevAngle)))<.2,
+    'course dolly must rotate CONTINUOUSLY across ±π, not jump');
    assert.ok(Math.hypot(camera.position.x-previous.position.x,
     camera.position.z-previous.position.z)<80,'world-space dolly has no teleport');
   }
