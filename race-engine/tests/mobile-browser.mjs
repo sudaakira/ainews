@@ -61,6 +61,30 @@ try{
     assert.equal(Number(visibleOrder[0]),state.director.pose.subjects[0]);
     await page.screenshot({path:'/tmp/race-mobile-shots/shuka-'+vp.width+'-'+id+'.png'});
    }
+   // 3D WebGL release gate: verify actual rendered limbs alternate, not just
+   // theoretical beat ordering. Exercise this at the default 16x on mobile.
+   await seek(380);
+   await page.locator('#live-play').click();
+   const limbFrames=await page.evaluate(async()=>{
+    const samples=[];
+    for(let i=0;i<36;i++){
+     await new Promise(requestAnimationFrame);
+     const h=window.RACE_SCENE_AUDIT?.gallopHoofs;
+     if(h?.length===4)samples.push({
+      front:Math.abs(h[0].hip-h[1].hip),
+      hind:Math.abs(h[2].hip-h[3].hip)
+     });
+    }
+    return samples;
+   });
+   await page.locator('#live-pause').click();
+   assert.ok(limbFrames.length>=24,'3D renderer must animate the rig');
+   assert.ok(limbFrames.filter(x=>x.front>.25).length>=12,'3D front legs do not move together');
+   assert.ok(limbFrames.filter(x=>x.hind>.25).length>=12,'3D rear legs do not move together');
+   assert.ok(limbFrames.filter(x=>x.front>.25||x.hind>.25).length>=22,
+    '3D fore/hind pairs should not look synchronized');
+   assert.equal((await page.locator('.live-head').textContent()).includes('v13'),true);
+   await page.screenshot({path:'/tmp/race-mobile-shots/shuka-'+vp.width+'-gallop-v13.png'});
    // Observe real playback across the winner's line: translation AND gait continue.
    await seek(980);await page.locator('#live-play').click();
    await page.waitForFunction(()=>window.RACE_SCENE_AUDIT?.runOut===true,null,{timeout:15000});
