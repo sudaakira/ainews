@@ -297,6 +297,32 @@ export function raceCameraPose({shot,progress,order,path,aspect=1,clock=Infinity
 export function followLockedCameraPose(rig,order,path,{distance=2000,venue='京都',direction='右'}={}){
  const leader=order?.[0];
  if(!leader)return rig.pose;
+ if(rig.pose.shotId==='fourth-turn'){
+  // A single continuous broadcast crane follows the leading horse, not
+  // a rotating stored frame. Both optical target and camera station are
+  // recomputed from the SAME track progress, eliminating the 4C orbit.
+  const p=leader.p,front=105,station=path(p+front/distance),q=path(p);
+  const lane=runnerLane(leader.no,order.length,p);
+  const horse={x:q.x-q.dz*lane+q.dx*2.7,y:q.y+2,z:q.z+q.dx*lane+q.dz*2.7};
+  const right=direction!=='左',sign=right?1:-1;
+  const half=venue==='京都'&&distance===2000?KYOTO_INNER.width/2:13.5;
+  const rail=(venue==='京都'&&distance===2000?kyotoOuterCourseOffset(p+front/distance):0)+(right?-half:half);
+  // Keep the camera outside the 3C/4C flare, including the widest curve.
+  const outside=rail-sign*58;
+  const position={x:station.x-station.dz*outside,y:station.y+12,
+   z:station.z+station.dx*outside};
+  const look={x:horse.x,y:horse.y+1.0,z:horse.z};
+  const laneAtStation=-(position.x-station.x)*station.dz+(position.z-station.z)*station.dx;
+  const clearance=right?rail-laneAtStation:laneAtStation-rail;
+  if(clearance<11.9)throw new Error('Fourth-turn camera crossed outside rail');
+  // A fixed 20-degree lens: no per-frame zoom or side-to-side optical shift.
+  const fov=Math.min(20,rig.pose.fov);
+  return {...rig.pose,position,look,fov,lensShiftX:0,
+   outerRailClearance:clearance,cameraLane:laneAtStation,railLane:rail,
+   railOutsideVerified:true,leadNumber:leader.no,lockedCamera:true,
+   cameraTrackYaw:0,baseShotId:'fourth-turn',
+   leadNoseViewportTarget:.5,forwardGap:.5};
+ }
  const advance=rig.pose.stationAheadMeters||0;
  const startStation=path(rig.pose.referenceProgress+advance/distance);
  // The camera is bolted to an OUTSIDE-RAIL dolly. Its heading is fixed
