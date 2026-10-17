@@ -1,6 +1,5 @@
 /** v15 sagittal horse gallop, not rotating stick legs. Pure render. */
 import {sampleHorseGallop,STRIKES,HOOF_SOLE} from './equine-gallop-v15.js';
-export {STRIKES};
 const TAU=Math.PI*2;
 const clamp=(x,a,b)=>Math.max(a,Math.min(b,x));
 const mix=(a,b,t)=>a+(b-a)*t;
