@@ -260,7 +260,10 @@ for(const p of [.10,.4,.59,.66,.73,.82,.94,.999])for(const aspect of [.58,.76,1.
  const target=aspect<.85?(shot.id==='first-corner'?[6,7]:[3,3]):shot.id==='first-corner'?[6,7]:shot.id==='third-entry'?[5,6]:shot.id==='fourth-turn'?[4,5]:[3,4];
  assert.ok(pose.subjects.length>=target[0]&&pose.subjects.length<=target[1],
   shot.id+' needs '+target+' front runners, got '+pose.subjects.length);
- assert.equal(pose.outerRailSign,-1);
+ assert.equal(pose.outerRailSign,1,'Kyoto right-handed outer side must be negative track lane');
+ assert.ok(pose.cameraLane<pose.railLane-11.9,
+  'actual camera lane '+pose.cameraLane+' must be OUTSIDE negative-lane rail '+pose.railLane);
+ assert.equal(pose.railOutsideVerified,true);
  assert.ok(pose.outerRailClearance>=11.9,'camera OUTSIDE the actual outer-course rail');
  assert.ok(pose.shotPerspective.startsWith('outside-'),'camera is always outside');
  const maxGroupWidth=shot.id==='first-corner'?1.63:1.51;
@@ -280,6 +283,16 @@ for(const aspect of [.58,.76,1.8]){
  assert.ok(Math.abs(pose.gateScreenX-.5)<.01,'gate spans most of the image, not a distant object');
  assert.ok(pose.position.y>pose.look.y,'camera elevated over outside rail');
 }
+
+// Track geometry sign invariant: renderer physically draws outer rail at
+// offsetPoint(t,kyotoOuterCourseOffset(t)-14), never at +14.
+const kyotoRender=read('renderer.js');
+assert.match(kyotoRender,/offsetPoint\(t,outer\(t\)-14,\.9\)/);
+assert.match(kyotoRender,/camera\.projectionMatrix\.elements\[8\]=smoothLensShift/);
+assert.match(kyotoRender,/smoothFov\+=\(shotDirection\.fov-smoothFov\)\*lensAlpha/);
+assert.match(kyotoRender,/Math\.exp\(-frameDt\*\(10\+Math\.min\(16,rate\)\*\.65\)\)/);
+console.log('Kyoto camera actual outer lane and frame-independent pan/zoom damping ✓');
+
 console.log('Five cameras: outer rail, first corner pack, third/fourth entry, final battle ✓');
 for(const field of [3,6,17,18])for(const duration of [68,120,180]){
  const rank=Array.from({length:field},(_,i)=>field-i);
