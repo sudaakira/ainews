@@ -46,6 +46,7 @@ try{
   assert.equal(await page.locator('#kyoto-map').isVisible(),false);
   assert.equal(await page.locator('#race-commentary-panel').isVisible(),true);
   assert.equal(await page.locator('.tracking-number').count(),17);
+  assert.equal(await page.locator('#race-front-labels').count(),0,'no horse-name arrows on any viewport');
   const canvas=await page.locator('#three-stage canvas').boundingBox();
   assert.ok(canvas.width>200&&canvas.height>200);
   if(vp.width===390||vp.width===1280){
@@ -106,14 +107,7 @@ try{
     }
     assert.ok(id==='start'||state.director.pose.fov<=(id==='backstretch'?38:34),
       'corner/finish shots use telephoto; backstretch uses a wider lateral field lens: '+id+' '+state.director.pose.fov);
-    if(id==='fourth-turn'||id==='finish'){
-     const visibleLabels=await page.locator('#race-front-labels b:visible').count();
-     assert.ok(visibleLabels>=(id==='fourth-turn'?2:1)&&visibleLabels<=5,
-       'show visible leader IDs; only in-frame labels at the finish: '+visibleLabels);
-    }
-    const nameBoxes=await page.locator('#race-front-labels b:visible').evaluateAll(ns=>ns.map(n=>n.getBoundingClientRect().toJSON()));
-    for(const [i,a] of nameBoxes.entries())for(const b of nameBoxes.slice(i+1))
-     assert.ok(a.right<=b.left||b.right<=a.left||a.bottom<=b.top||b.bottom<=a.top,'full horse names must not overlap in '+id);
+    assert.equal(await page.locator('#race-front-labels').count(),0,'no floating horse-name cards or leader arrows');
     const expectedSubjects=id==='start'?[17,17]:id==='backstretch'?[7,7]:id==='fourth-turn'?(vp.width<700?[12,12]:[15,15]):id==='first-corner'?[6,7]:[3,4];
     assert.ok(state.director.pose.subjects.length>=expectedSubjects[0]&&
      state.director.pose.subjects.length<=expectedSubjects[1],
@@ -213,12 +207,7 @@ try{
    assert.ok(limbFrames.filter(x=>x.front>.12||x.hind>.12).length>=16,
     '3D fore/hind pairs should not look synchronized');
    assert.equal((await page.locator('.live-head').textContent()).includes('v19'),true);
-   const labels=await page.locator('#race-front-labels b:visible').evaluateAll(nodes=>nodes.map(n=>({no:n.dataset.no,name:n.querySelector('.runner-name')?.textContent,rect:n.getBoundingClientRect().toJSON()})));
-   assert.ok(labels.length>=3,'leading runners have number AND name labels');
-   for(const [i,label] of labels.entries()){
-    assert.ok(label.name?.length>1);assert.ok(label.rect.x>=-1&&label.rect.right<=vp.width+1);
-    for(const other of labels.slice(i+1))assert.ok(label.rect.right<=other.rect.left||other.rect.right<=label.rect.left||label.rect.bottom<=other.rect.top||other.rect.bottom<=label.rect.top,'runner names must not overlap');
-   }
+   assert.equal(await page.locator('#race-front-labels').count(),0,'moving race has no horse-name arrows');
    await page.screenshot({path:'/tmp/race-mobile-shots/shuka-'+vp.width+'-sprint-v19.png'});
    // Observe real playback across the winner's line: translation AND gait continue.
    await seek(980);await page.locator('#live-play').click();
@@ -277,8 +266,10 @@ try{
   const snap=await lab.evaluate(()=>window.EQUINE_GAIT_LAB.snapshot());
   assert.ok(Math.abs(snap.phase-phase)<1e-6,'manual gallop pose is reproducible');
   assert.equal(snap.hoofs.length,4);
-  assert.equal(snap.tack.revision,'fitted-racing-tack-v20');assert.equal(snap.tack.saddle,true);
-  assert.ok(snap.tack.minSurfaceGap>.005&&snap.tack.maxSurfaceGap<.025,'cloth follows the actual skinned barrel');
+  assert.equal(snap.tack.revision,'photo-racing-tack-v21');assert.equal(snap.tack.saddle,true);
+  assert.equal(snap.tack.limbInfluence,0,'cloth is carried by the torso, not stretched by a thigh');
+  assert.ok(snap.tack.thighPenetration<.00001,'moving thighs stay inside the cloth');
+  assert.ok(snap.tack.minSupportGap>.005&&snap.tack.maxSupportGap<.2,'hanging cloth stays near its torso support');
   assert.ok(snap.tack.seatAnchorGap<.00001,'rider frame uses the rendered saddle seat');
   assert.ok(snap.tack.strapAnchorGap<.00001,'stirrup leathers start at the actual saddle flap');
   assert.ok(snap.hoofs.every(h=>h.y>-.003),'actual deformed hoof vertices stay above turf');

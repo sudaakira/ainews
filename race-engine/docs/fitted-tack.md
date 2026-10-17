@@ -1,16 +1,19 @@
-# Fitted racing saddle and saddlecloth
+# Photo-guided racing saddle and saddlecloth
 
-The previous number cloth was a pair of flat planes at x=±0.39 m. It floated outside the narrower barrel. The saddle was a thin ellipsoid attached to a bone offset; measurements of the actual skinned back showed it was buried inside the horse. Increasing the texture resolution did not correct either placement.
+The saddlecloth is fitted to the barrel behind the shoulder, with its rear edge before the hip. The user's supplied side photograph is the placement reference: a small black racing saddle above the cloth, a large white number behind the boot, and the horse name along the lower rear part. The photograph is not redistributed.
 
-`assets/racing-tack.js` samples the actual weighted torso mesh once during preload. The continuous left/right saddlecloth follows its back and flanks; the seat, raised pommel/cantle, short racing flaps, piping and encircling girth are separate visible geometry. All inherit barycentrically interpolated skin weights from the supporting torso. The cloth has approximately 13 mm rendering clearance to avoid intersecting the coarse polygonal coat; it is a fitted surface approximation, not a cloth-physics simulation. The rider's local seat frame is taken from an actual deformed saddle vertex each pose, rather than a guessed offset above a torso bone.
+`assets/racing-tack.js` samples the CC0 horse surface in its reference pose. The cloth spans z=+0.43 to −0.42 m; its reference hem is level at y=1.16 m. Its weights use only torso/back bones. The source coat's lower flank contains substantial thigh weights; copying those into a cloth stretches and folds the number when the hind leg comes forward. A hanging saddlecloth must move independently of that thigh.
 
-The texture uses separate left/right atlas regions. Both read normally; numbers occupy the rear part of each side behind the jockey's boot. The spine fold has no artificial border. Main race trajectory, prediction, finish order, gait and broadcast camera logic are unchanged.
+A vertex-shader contact pass keeps the cloth outside moving upper-thigh capsules (0.19 m hip radius tapering to 0.155 m at the knee, plus 14 mm clearance). It runs on the GPU for every runner; the geometry remains shared. Inspection/raycast queries apply the same displacement. This is a lightweight contact approximation, not a fabric simulation. The lower hem has outward ease; it is not required to lie against every coat vertex.
+
+The compact black racing saddle has a 0.48 m seat, raised pommel/cantle, short flaps, piping, girth and stirrup leathers. Rider and leather anchors use the actual deformed seat/flap vertices. The cloth is burgundy with white text, like the photograph. Both sides read normally, with the number and name behind the boot/girth. The floating horse-name cards and their connector arrows are removed from the renderer; the bottom running-order strip and commentary remain.
 
 Primary references examined:
 
+- User-supplied side photograph of number 7, モンローウォーク: cloth/saddle/boot placement, proportions and lettering.
 - JRA saddlecloth definition: https://www.jra.go.jp/kouza/yougo/w575.html — cloth worn under the saddle, printed horse number and name.
 - JRA Facilities, racing saddlecloth production and finished examples: https://www.jra-f.co.jp/services/decken . Reference only; no photographs are redistributed.
 - JRA Ritto training-centre brochure: https://www.jra.go.jp/facilities/tc/rittou/intro/pdf/pamphlet.pdf?version=2025 — racing saddles are smaller and lighter than general riding saddles.
-- British Horse Society saddle fit: https://www.bhs.org.uk/horse-care-and-welfare/features/saddle-fit . Position relative to withers/shoulder and back, no visible panel gap.
+- British Horse Society saddle fit: https://www.bhs.org.uk/horse-care-and-welfare/features/saddle-fit . Position relative to withers/shoulder and back.
 
-Visual verification uses the same horse/tack module in `gait-lab.html`, including the opposite side, oblique/front views, both leads and moving poses. A two-digit number and long Japanese name are also rendered on both sides. Browser checks sample actual deformed cloth-to-body clearance and verify that the rider frame coincides with the rendered seat. These supplement visual inspection; numeric checks alone do not certify the appearance. The public-page workflow captures the actual deployed URL after Pages deployment.
+Verification renders both sides, oblique and front views, both leads and six moving poses in the shared `gait-lab.html` module. The supplied number/name and a two-digit number with a long Japanese name are inspected separately. The browser gate verifies all mobile/desktop viewports, no floating name/arrow layer, torso-only cloth weights and contact clearance, plus the existing gait, camera, finishing order and run-out checks. Numerical checks supplement visual inspection. The post-deploy workflow captures the actual public URL for visual review.

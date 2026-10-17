@@ -2,7 +2,7 @@
  * Metres, forward +Z. Rendering only; no prediction/RNG/race-position imports.
  * Asset provenance and conversion are in docs/gallop-v16.md and tools/.
  */
-import {prepareRacingTack,createRacingTack} from './racing-tack.js?v=fitted-tack-v20';
+import {prepareRacingTack,createRacingTack} from './racing-tack.js?v=photo-tack-v21';
 let source,helpers,loading;
 const SCALE=.46;
 export async function preloadRaceHorse(T){
@@ -145,6 +145,7 @@ export function createRaceHorse(T,scene,h,silkHex,frameCapHex='#89929b',frameCap
   shadow.material.opacity=flight?.64:.88;
   hoofs.forEach((f,i)=>{const m=footShadows[i];m.position.set(f.hoofX,.008,f.hoofZ);m.material.opacity=active*Math.max(0,.85-f.hoofY*3.5)});
   root.updateMatrixWorld(true);
+  tack.updateContact(root,bones);
   model.gallopAudit={phase,lead:rightWeight*2-1,flight,noHoofContact:flight,hoofs,sampledFrom:'constructed-racing-sprint-v19'};
  };
  model.renderedHoofs=()=>{
