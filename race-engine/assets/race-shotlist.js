@@ -8,8 +8,8 @@ import {KYOTO_CUTS,runnerLane,kyotoOuterCourseOffset,KYOTO_INNER} from './kyoto-
 export const RACE_SHOT_LIST=Object.freeze([
  Object.freeze({id:'start',until:.12,kicker:'01 / START',label:'スタート',subjects:'all',side:29,ahead:32,height:8,fov:22}),
  Object.freeze({id:'first-corner',until:.32,kicker:'02 / POSITION',label:'1コーナー 位置どり',subjects:'pack',side:31,ahead:12,height:6.4,fov:26}),
- Object.freeze({id:'backstretch',until:.67,kicker:'03 / BACKSTRETCH',label:'向こう正面 隊列',subjects:'backstretch-pack',side:31,ahead:0,height:6.4,fov:26}),
- Object.freeze({id:'fourth-turn',until:.84,kicker:'04 / THE MOVE',label:'4コーナー 仕掛け',subjects:'moves',side:38,ahead:78,height:6.5,fov:29}),
+ Object.freeze({id:'backstretch',until:.67,kicker:'03 / BACKSTRETCH',label:'向こう正面 隊列',subjects:'backstretch-pack',side:31,ahead:0,height:6.4,fov:23}),
+ Object.freeze({id:'fourth-turn',until:.84,kicker:'04 / THE MOVE',label:'4コーナー 仕掛け',subjects:'moves',side:38,ahead:130,height:6.5,fov:26}),
  Object.freeze({id:'finish',until:Infinity,kicker:'05 / FINISH',label:'ゴール前',subjects:'finish',side:31,ahead:0,height:6.8,fov:21})
 ]);
 export function chooseRaceShot(progress,cuts=RACE_SHOT_LIST.map(s=>s.until)){
@@ -75,7 +75,7 @@ export function raceCameraPose({shot,progress,order,path,aspect=1,clock=Infinity
  // Right-handed Kyoto therefore uses outsideSign=+1 in setPose below.
  const rightCircuit=direction!=='左',outsideSign=rightCircuit?1:-1;
  const group=isGate?order.slice():pickSubjects(shot,order,distance,aspect);
- const pCenter=isGate?0:group.reduce((sum,o,i)=>sum+o.p*(i===0?1.6:1),0)/(group.length+.6);
+ const pCenter=isGate?0:(shot.id==='backstretch'||shot.id==='fourth-turn'?lead.p:group.reduce((sum,o,i)=>sum+o.p*(i===0?1.6:1),0)/(group.length+.6));
  const center=path(pCenter),field=group.map(o=>{
   const q=path(o.p),lane=runnerLane(o.no,order.length,progress);
   return {x:q.x-q.dz*lane,y:q.y,z:q.z+q.dx*lane,dx:q.dx,dz:q.dz,no:o.no,p:o.p};
@@ -140,7 +140,7 @@ export function raceCameraPose({shot,progress,order,path,aspect=1,clock=Infinity
       y:origin.y+y,z:origin.z-origin.dz*behind-origin.dx*lateral+origin.dz*forward},
       pose.position,pose.look,fov,a));
   }else{
-   for(const q of field)for(const front of [-2.35,2.7])
+   for(const q of framingField)for(const front of [-2.35,2.7])
     for(const lateral of [-.82,.82])for(const y of [.14,3.0])
      pixels.push(projectPoint({x:q.x+q.dx*front-q.dz*lateral,
       y:q.y+y,z:q.z+q.dz*front+q.dx*lateral},
@@ -156,7 +156,7 @@ export function raceCameraPose({shot,progress,order,path,aspect=1,clock=Infinity
   const one=setPose(1),pre=imagePoints(one).filter(q=>q.visible);
   if(pre.length){
    const pw=Math.max(...pre.map(q=>q.x))-Math.min(...pre.map(q=>q.x));
-   const correction=clamp(pw/(shot.id==='backstretch'||shot.id==='fourth-turn'?1.52:1.40),.35,1);
+   const correction=clamp(pw/(shot.id==='backstretch'||shot.id==='fourth-turn'?1.60:1.40),.35,1);
    fov=Math.max(10.5,fov*correction);
   }
  }
@@ -167,7 +167,7 @@ export function raceCameraPose({shot,progress,order,path,aspect=1,clock=Infinity
  for(let i=0;i<35;i++){
   pose=setPose(scale);
   raw=imagePoints(pose).filter(p=>p.visible);
-  if(raw.length!== (isGate?8:field.length*8)){scale*=1.13;continue}
+  if(raw.length!== (isGate?8:framingField.length*8)){scale*=1.13;continue}
   const xs=raw.map(p=>p.x),ys=raw.map(p=>p.y);
   const width=Math.max(...xs)-Math.min(...xs);
   const heightNdc=Math.max(...ys)-Math.min(...ys);
@@ -332,7 +332,7 @@ export function followLockedCameraPose(rig,order,path,{distance=2000,venue='京�
  // Fourth turn: follow the lead horse with ONE deterministic, continuous
  // translation. The old two sequential corrections fought each other,
  // especially where the outside rail curves away from the pack.
- if(rig.pose.shotId==='fourth-turn'){
+ if(rig.pose.shotId==='fourth-turn'||rig.pose.shotId==='backstretch'){
   const q=path(leader.p),lane=runnerLane(leader.no,order.length,leader.p);
   const nose={x:q.x-q.dz*lane+q.dx*2.7,y:q.y+2,z:q.z+q.dx*lane+q.dz*2.7};
   const first=path(rig.startLeaderProgress);
