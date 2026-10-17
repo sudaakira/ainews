@@ -111,6 +111,9 @@ try{
      assert.ok(visibleLabels>=(id==='fourth-turn'?2:1)&&visibleLabels<=5,
        'show visible leader IDs; only in-frame labels at the finish: '+visibleLabels);
     }
+    const nameBoxes=await page.locator('#race-front-labels b:visible').evaluateAll(ns=>ns.map(n=>n.getBoundingClientRect().toJSON()));
+    for(const [i,a] of nameBoxes.entries())for(const b of nameBoxes.slice(i+1))
+     assert.ok(a.right<=b.left||b.right<=a.left||a.bottom<=b.top||b.bottom<=a.top,'full horse names must not overlap in '+id);
     const expectedSubjects=id==='start'?[17,17]:id==='backstretch'?[7,7]:id==='fourth-turn'?(vp.width<700?[12,12]:[15,15]):id==='first-corner'?[6,7]:[3,4];
     assert.ok(state.director.pose.subjects.length>=expectedSubjects[0]&&
      state.director.pose.subjects.length<=expectedSubjects[1],

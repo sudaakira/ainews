@@ -482,10 +482,14 @@ import {jockeyCap} from './core/jockey-caps.js?v=cap-v1';
     // frame even while the horse is visible. Keep the label legible by
     // pinning it just inside the broadcast-safe image area.
     node.style.display='flex';const width=node.offsetWidth;
-    const x=Math.max(width/2+4,Math.min(cw-width/2-4,(pt.x+1)*cw/2));
-    let y=Math.max(160,Math.min(ch-110,(1-pt.y)*ch/2));
-    // Actual name-label rectangles, not the old 19px number-only collision box.
-    for(let attempt=0;attempt<3&&placed.some(q=>Math.abs(q.x-x)<(q.width+width)/2+4&&Math.abs(q.y-y)<26);attempt++)y-=26;
+    const preferredX=Math.max(width/2+4,Math.min(cw-width/2-4,(pt.x+1)*cw/2));
+    const preferredY=Math.max(160,Math.min(ch-110,(1-pt.y)*ch/2));
+    // Search complete rectangles: three fixed nudges could still leave the
+    // third name touching a previous label in the tight finishing shot.
+    const slots=[];
+    for(const x of [preferredX,width/2+4,cw-width/2-4])
+     for(let y=preferredY;y>=106;y-=26)slots.push({x,y});
+    const {x,y}=slots.find(p=>!placed.some(q=>Math.abs(q.x-p.x)<(q.width+width)/2+5&&Math.abs(q.y-p.y)<27))||slots.at(-1);
     node.style.left=x.toFixed(1)+'px';node.style.top=y.toFixed(1)+'px';
     placed.push({x,y,width});
     const anchor=m.root.localToWorld(new THREE.Vector3(0,2.15,0)).project(camera);
