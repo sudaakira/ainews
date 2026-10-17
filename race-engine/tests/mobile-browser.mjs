@@ -73,7 +73,7 @@ try{
    console.log('OPENING_CAMERA_CHECK',JSON.stringify({vp,opening:openingAudit.audit,gate:openingAudit.gate,poseMode:openingAudit.pose?.mode}));
    assert.ok(openingAudit.audit?.opening>=openingAudit.audit?.total-2,
     'opening gate needs nearly all horses visible: '+JSON.stringify(openingAudit));
-   const checks=[[.04,'start'],[.18,'first-corner'],[.56,'third-entry'],[.77,'fourth-turn'],[.999,'finish']];
+   const checks=[[.04,'start'],[.18,'first-corner'],[.56,'backstretch'],[.77,'fourth-turn'],[.999,'finish']];
    for(const [p,id] of checks){
     await seek(Math.round(p*1000));
     assert.equal(new URL(page.url()).searchParams.get('at'),
@@ -110,8 +110,7 @@ try{
      assert.ok(visibleLabels>=(id==='fourth-turn'?2:1)&&visibleLabels<=5,
        'show visible leader IDs; only in-frame labels at the finish: '+visibleLabels);
     }
-    const expectedSubjects=id==='start'?[17,17]:vp.width<700?(id==='first-corner'?[6,7]:[3,3]):
-     id==='first-corner'?[6,7]:id==='third-entry'?[5,6]:id==='fourth-turn'?[4,5]:[3,4];
+    const expectedSubjects=id==='start'||id==='backstretch'?[17,17]:id==='fourth-turn'?(vp.width<700?[12,12]:[15,15]):id==='first-corner'?[6,7]:[3,4];
     assert.ok(state.director.pose.subjects.length>=expectedSubjects[0]&&
      state.director.pose.subjects.length<=expectedSubjects[1],
      'subject count '+id+': '+state.director.pose.subjects.length+' expected '+expectedSubjects);
@@ -125,7 +124,7 @@ try{
       'seeked cut must settle rendered lens exactly');
     assert.ok(Math.abs(state.scene.cameraRenderedLensShift-state.director.pose.lensShiftX)<.015,
       'seeked cut must settle rendered optical shift exactly');
-    if(id==='third-entry'){
+    if(id==='backstretch'){
      assert.ok(state.director.pose.position.y-state.director.pose.look.y>4&&state.director.pose.position.y-state.director.pose.look.y<32,
       'high outside camera looks DOWN at approaching horses, not at the horizon');
      assert.ok(state.scene.positions.some(q=>q.y>1),'horses climb Kyoto hill');
@@ -165,7 +164,7 @@ try{
    });
    await page.locator('#live-pause').click();
    assert.ok(trackingFrames.length>=20,'record live camera frames');
-   const moving=trackingFrames.filter(x=>x.shot==='third-entry');
+   const moving=trackingFrames.filter(x=>x.shot==='backstretch');
    assert.ok(moving.length>=16,'must remain within 3C for the tracking sample');
    const initial=moving[0],final=moving.at(-1);
    const span=Math.hypot(final.pos.x-initial.pos.x,final.pos.z-initial.pos.z);
