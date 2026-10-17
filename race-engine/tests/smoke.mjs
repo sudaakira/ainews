@@ -347,11 +347,13 @@ assert.match(render,/speedMps,lead/);
 assert.match(render,/gallopAudit/);
 assert.match(anime,/hoofRig/);
 assert.match(anime,/gallopRig:'four-beat-ik-v1'/);
-assert.match(html,/renderer\.js\?v=fourbeat-v12/);
+assert.match(html,/renderer\.js\?v=distinct-v13/);
+assert.match(html,/4拍子モーション v13/);
+assert.match(render,/playing:LIVE.playing/);
 const makeRotation=()=>({x:0,y:0,z:0,set(x,y,z){this.x=x;this.y=y;this.z=z;}});
 const rig={
  legs:[true,false].flatMap(front=>[-1,1].map(side=>({
-  front,side,upper:front?.61:.68,lower:front?.76:.78,
+  front,side,upper:front?.74:.80,lower:front?.90:.92,
   pivot:{position:{y:front?1.17:1.24,z:front?.40:-.63},rotation:makeRotation()},
   knee:{rotation:makeRotation()},hoofRig:{rotation:makeRotation()}
  }))),
@@ -373,3 +375,38 @@ for(let i=0;i<rig.legs.length;i++){
 }
 assert.ok(rig.gallopAudit.cadence>=1.85&&rig.gallopAudit.cadence<=3.0);
 console.log('Four-beat footfalls, left/right lead, IK planted hooves, single suspension and speed-linked cadence ✓');
+
+
+// Prevent the actual user-observed regression: both forelegs/hindlegs
+// appear to be synchronized. Test sampled IK poses, not only beat labels.
+const legAngles=(phase,lead)=>sampleGallop(phase,lead).map((foot,i)=>{
+ const front=i<2,upper=front?.74:.80,lower=(front?.90:.92)-.025;
+ const pivotY=front?1.17:1.24,down=pivotY-foot.height+.12;
+ return solveLegIK(upper,lower,foot.z,down,front).hip;
+});
+for(const lead of [-1,1]){
+ let frontSum=0,hindSum=0,frontClear=0,hindClear=0,bothClear=0;
+ for(let n=0;n<100;n++){
+  const angles=legAngles(n/100,lead);
+  const f=Math.abs(angles[0]-angles[1]),h=Math.abs(angles[2]-angles[3]);
+  frontSum+=f;hindSum+=h;
+  if(f>.25)frontClear++;
+  if(h>.25)hindClear++;
+  if(f>.25||h>.25)bothClear++;
+ }
+ assert.ok(frontSum/100>.30&&frontClear>=55,'forelegs must alternate visibly');
+ assert.ok(hindSum/100>.30&&hindClear>=55,'hindlegs must alternate visibly');
+ assert.ok(bothClear>=85,'at most 15% of frames may show BOTH pairs nearly aligned');
+}
+// 16x playback must NOT multiply the animation stride cadence.
+let saved=rig.gaitState;
+rig.gaitState={phase:.10,time:9,lead:1};
+updateGallop(rig,30,12,1,.30,{speedMps:17,lead:'right',frameDt:1/30,playing:true});
+const x=rig.gallopAudit.phase;
+rig.gaitState={phase:.10,time:9,lead:1};
+updateGallop(rig,30,120,1,.30,{speedMps:17,lead:'right',frameDt:1/30,playing:true});
+assert.ok(Math.abs(rig.gallopAudit.phase-x)<1e-9,'fast-forward animation stays wall-clock paced');
+const beforePause=rig.gallopAudit.phase;
+updateGallop(rig,30,121,1,.30,{speedMps:17,lead:'right',frameDt:1/30,playing:false});
+assert.equal(rig.gallopAudit.phase,beforePause,'pause freezes leg rotation');
+console.log('Visually distinct left/right limb angles, 16x aliasing and pause regressions ✓');
