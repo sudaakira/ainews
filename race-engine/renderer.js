@@ -294,7 +294,7 @@ import {jockeyCap} from './core/jockey-caps.js?v=cap-v1';
  const {createJRAFurlongPosts}=await import("./assets/jra-furlong-posts.js?v=geo-v6");
  const furlongPosts=createJRAFurlongPosts({THREE,scene,offsetPoint,distance,half});
  // Cinematic director replaces manual angle selection for every race.
- const {createRaceCinematics}=await import("./assets/race-cinematics.js?v=kyoto-v11-2");
+ const {createRaceCinematics}=await import("./assets/race-cinematics.js?v=leader-broadcast-v1");
  const cinematics=createRaceCinematics({THREE,scene,stage,models,config,capFor,path,route,routeLength});
  const cameraBlockers=[];scene.traverse(o=>{if(o.isMesh&&o.userData.cameraOccluder)cameraBlockers.push(o)});
  const visibilityRay=new THREE.Raycaster();
@@ -412,7 +412,10 @@ import {jockeyCap} from './core/jockey-caps.js?v=cap-v1';
   const sight=camera.getWorldDirection(new THREE.Vector3());
   const goalDepth=goalRig?goalRig.position.clone().sub(camera.position).dot(sight):null;
   const farthestHorse=Math.max(...models.map(m=>m.root.position.clone().sub(camera.position).dot(sight)));
-  window.RACE_SCENE_AUDIT={gateVisible:gateRoot.visible,
+  const leaderVisual=models[order[0].no-1].root.localToWorld(new THREE.Vector3(0,1.85,0)).project(camera);
+   window.RACE_SCENE_AUDIT={leadScreenX:(leaderVisual.x+1)/2,leadScreenY:(1-leaderVisual.y)/2,
+    leadVisible:leaderVisual.z>-1&&leaderVisual.z<1&&Math.abs(leaderVisual.x)<1&&Math.abs(leaderVisual.y)<1,
+    gateVisible:gateRoot.visible,
    goalBoardVisible:!!goalRig?.visible,goalInFrame,goalScreen,leadersOccluded,
    shot:shotDirection?.shot,goalSide:'far',
    runOut:clock>LIVE.duration,clock,visualTime:LIVE.visualTime,
