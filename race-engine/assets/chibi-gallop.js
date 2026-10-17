@@ -1,92 +1,145 @@
 /**
- * Anime gallop v4 kawaii — articulated four-leg silhouette with secondary motion.
- * Visual-only rig: reads visualTime and raceProgress, NEVER touches model speed,
- * race order, RNG, horseProgress, or prediction data.
+ * Racehorse transverse gallop: four-beat footfall followed by one suspension.
+ * Forward is +Z. Left/right is the horse's own side (-1/+1).
+ *
+ * Reference: https://motionzoo.net/horse-gallop-reference/
+ * Purely visual: never alters progress, race RNG, prediction or finish order.
  */
-export function updateGallop(model,raceTime,visualTime,number,raceProgress=0){
- const clamp=(x,a,b)=>Math.max(a,Math.min(b,x));
- const lerp=(a,b,t)=>a+(b-a)*t;
- const smooth=t=>t*t*(3-2*t);
- const active=smooth(clamp((raceTime-.08)/.85,0,1));
- const sprint=smooth(clamp((raceProgress-.75)/.20,0,1));
- const legs=model.legs;
- if(active===0){
-  model.anim.position.y=0;
-  model.anim.rotation.set(0,0,0);
-  model.headRig.rotation.set(0,0,0);
-  model.tailRig.rotation.set(0,0,0);
-  for(const leg of legs){leg.pivot.rotation.set(0,0,0);leg.knee.rotation.set(0,0,0);}
-  if(model.rider){model.rider.position.y=0;model.rider.rotation.set(0,0,0);}
-  model.ears?.forEach(e=>{e.rig.rotation.x=0;e.rig.rotation.z=-e.side*.16;});
-  model.maneStrands?.forEach(x=>x.rig.rotation.set(0,0,0));
-  model.tailStrands?.forEach(x=>x.rig.rotation.set(0,0,0));
-  if(model.flutter)model.flutter.rotation.set(0,0,0);
-  if(model.shadow)model.shadow.material.opacity=.20;
-  return;
+export const GALLOP_BEATS=Object.freeze([
+ {limb:'hind',lead:false,start:0.00,duration:.19},
+ {limb:'hind',lead:true, start:.15,duration:.19},
+ {limb:'front',lead:false,start:.31,duration:.19},
+ {limb:'front',lead:true, start:.47,duration:.19}
+]);
+const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+const mix=(a,b,t)=>a+(b-a)*t;
+const smooth=x=>{const t=clamp(x,0,1);return t*t*(3-2*t)};
+const TAU=2*Math.PI;
+
+/** Hoof-centre trajectory in metres relative to the anatomical joint.
+ * During stance the hoof stays at turf height while the body travels over it.
+ * During recovery it lifts/folds; NO cartoon extended-leg airborne pose.
+ */
+export function hoofTrajectory(phase,beatIndex){
+ const beat=GALLOP_BEATS[beatIndex];
+ const elapsed=((phase-beat.start)%1+1)%1;
+ if(elapsed<beat.duration){
+  const u=elapsed/beat.duration;
+  return {z:mix(.26,-.27,u),height:.052,contact:true,beatIndex};
  }
- const phase=((visualTime*1.90+number*.014)%1+1)%1;
- // Eight distinct poses keep impact, suspension, stretching and recovery
- // readable in frontal 3/4 closeups, unlike the former five chunky poses.
- // Order of legs: near front, far front, near hind, far hind.
- const poses=[
-  [0.000,[-.66,-.76,.60,.71],[.32,.42,-.80,-.93],.075,-.021,-.024],
-  [.125,[-1.00,-.89,.88,.79],[.22,.30,-.44,-.58],.125,.014,.010],
-  [.250,[-1.02,-.88,.55,.49],[.45,.57,-.64,-.72],.193,.058,.038],
-  [.375,[-.30,-.18,-.31,-.25],[1.13,1.02,-1.37,-1.26],.225,.047,.054],
-  [.500,[.42,.54,-.76,-.84],[.72,.63,-1.06,-.95],.143,-.012,-.022],
-  [.625,[.70,.84,-.54,-.62],[.38,.26,-.78,-.84],.067,-.045,-.055],
-  [.750,[.32,.24,.12,.02],[.85,.95,-1.06,-1.16],.037,-.039,-.043],
-  [.875,[-.19,-.34,.40,.53],[.67,.58,-.91,-1.02],.065,-.016,-.037],
-  [1.000,[-.66,-.76,.60,.71],[.32,.42,-.80,-.93],.075,-.021,-.024]
- ];
- let idx=0;
- while(idx<poses.length-2&&phase>=poses[idx+1][0])idx++;
- const a=poses[idx],b=poses[idx+1];
- const t=smooth(clamp((phase-a[0])/(b[0]-a[0]),0,1));
- const pi2=Math.PI*2;
- for(let i=0;i<legs.length;i++){
-  const step=lerp(a[1][i],b[1][i],t);
-  const bend=lerp(a[2][i],b[2][i],t);
-  legs[i].pivot.rotation.x=step*active*(1+.08*sprint);
-  legs[i].knee.rotation.x=bend*active*(1+.10*sprint);
-  // Tiny opposite-plane offsets give the front view true spatial depth.
-  legs[i].pivot.rotation.z=((i%2?-.055:.055)*Math.sin(phase*pi2+i*.26))*active;
- }
- const bounce=lerp(a[3],b[3],t);
- model.anim.position.y=bounce*.32*active*(1+.10*sprint);
- model.anim.rotation.x=lerp(a[4],b[4],t)*active;
- model.anim.rotation.z=(.013*Math.sin(pi2*phase+number*.38))*(1+.30*sprint)*active;
- const nod=lerp(a[5],b[5],t)*active;
- model.headRig.rotation.x=nod+.022*Math.sin(pi2*phase+.65)*active;
- model.headRig.rotation.z=.012*Math.sin(pi2*phase*.5+number)*active;
- // Slightly asymmetrical flops give each pony cute, alive-looking ears.
- // Phase follows screen time (not simulated 16x time), avoiding strobing.
- model.ears?.forEach((ear,i)=>{
-  ear.rig.rotation.z=(-ear.side*.16+ear.side*.10*Math.sin(pi2*phase+ear.side*.7))*active;
-  ear.rig.rotation.x=(.055+.065*sprint)*Math.sin(pi2*phase-1+i*.9)*active;
- });
- model.tailRig.rotation.x=(.12+.10*sprint)*Math.sin(pi2*phase-.6)*active;
- model.tailRig.rotation.z=(.105+.08*sprint)*Math.sin(pi2*phase*.75+number*.47)*active;
- // Hair and tail have slightly lagged secondary spring-like waves.
- model.maneStrands?.forEach(({rig,phase:offset},i)=>{
-  rig.rotation.x=(-.18-.20*sprint+.11*Math.sin(phase*pi2-1.1+offset))*active;
-  rig.rotation.z=.14*Math.sin(phase*pi2*.77+offset+i*.3)*active;
- });
- model.tailStrands?.forEach(({rig,phase:offset},i)=>{
-  rig.rotation.x=(.10+.26*sprint)*Math.sin(phase*pi2-.90+offset)*active;
-  rig.rotation.z=(.21+.1*sprint)*Math.sin(phase*pi2*.84+offset+i*.22)*active;
- });
- if(model.rider){
-  const landing=smooth(clamp((bounce-.07)/.14,0,1));
-  model.rider.position.y=(.018*Math.sin(pi2*phase*2+.3)+landing*.032)*active;
-  model.rider.rotation.x=(-.030-.063*sprint+.024*Math.sin(pi2*phase+.48))*active;
-  model.rider.rotation.z=.017*Math.sin(pi2*phase-.6)*active;
- }
- if(model.flutter){
-  model.flutter.rotation.x=(.10+.22*sprint+.08*Math.sin(pi2*phase-1.4))*active;
-  model.flutter.rotation.z=.08*Math.sin(pi2*phase*.7)*active;
- }
- if(model.shadow)
-  model.shadow.material.opacity=.23-.095*clamp(bounce/.22,0,1);
+ const u=(elapsed-beat.duration)/(1-beat.duration);
+ const recovery=smooth(u);
+ const height=.052+.37*Math.pow(Math.sin(Math.PI*u),1.25);
+ // A compact recovery arc brings the distal limbs under the body in flight.
+ return {z:mix(-.27,.26,recovery)-.045*Math.sin(Math.PI*u),height,contact:false,beatIndex};
 }
 
+/** Continuous planar two-bone IK. All angles are about local X.
+ * Returns physically reachable angles, not independently oscillating sticks.
+ * "down" is the positive vertical distance from joint to hoof centre.
+ */
+export function solveLegIK(upper,lower,forward,down,isFront){
+ const min=Math.abs(upper-lower)+.001,max=upper+lower-.001;
+ const dist=clamp(Math.hypot(forward,down),min,max);
+ const dir=Math.atan2(forward,down);
+ const alpha=Math.acos(clamp((upper*upper+dist*dist-lower*lower)/(2*upper*dist),-1,1));
+ const kneeDirection=isFront?1:-1; // carpus forward, hind hock backward
+ const thighAngle=dir+kneeDirection*alpha;
+ const jointZ=upper*Math.sin(thighAngle),jointDown=upper*Math.cos(thighAngle);
+ const shinAngle=Math.atan2(forward*dist/Math.max(.0001,Math.hypot(forward,down))-jointZ,
+                            down*dist/Math.max(.0001,Math.hypot(forward,down))-jointDown);
+ return {hip:-thighAngle,knee:thighAngle-shinAngle,reach:dist};
+}
+
+/** Testable strike geometry for either lead. right=+1, left=-1. */
+export function sampleGallop(phase,lead=1){
+ const result=[];
+ for(const front of [true,false])for(const side of [-1,1]){
+  const leading=side===lead;
+  const beatIndex=front?(leading?3:2):(leading?1:0);
+  result.push({...hoofTrajectory(phase,beatIndex),front,side,leading});
+ }
+ return result;
+}
+
+export function updateGallop(model,raceTime,visualTime,number,raceProgress=0,options={}){
+ const active=smooth((raceTime-.09)/.74);
+ const sprint=smooth((raceProgress-.77)/.18);
+ const requestedLead=options.lead==='left'?-1:1;
+ const speed=Number.isFinite(options.speedMps)?options.speedMps:15;
+ const cadence=clamp(speed/6.7,1.85,2.85)*(1+.04*sprint);
+ if(!model.gaitState||visualTime<model.gaitState.time-.001||raceTime<=0){
+  model.gaitState={phase:((number*0.037)%1+1)%1,time:visualTime,lead:requestedLead};
+ }
+ const state=model.gaitState;
+ const elapsed=clamp(visualTime-state.time,0,.16);
+ state.phase=(state.phase+elapsed*cadence)%1;
+ state.time=visualTime;
+ // Blend the limb timing across hand changes instead of popping on a new lead.
+ state.lead=mix(state.lead,requestedLead,clamp(elapsed*3.0,0,1));
+ const phase=state.phase;
+ const flight=smooth((phase-.67)/.08)*(1-smooth((phase-.94)/.06));
+ const bob=active*(.020*Math.cos(TAU*phase+.4)+.075*flight);
+ const pitch=active*(.033*Math.sin(TAU*phase-1.0)-.018*flight);
+ const roll=active*(.010*Math.sin(TAU*phase+.5)*state.lead);
+ model.anim.position.y=bob;
+ model.anim.rotation.set(pitch,0,roll);
+ const left=sampleGallop(phase,-1),right=sampleGallop(phase,1);
+ const rightWeight=(state.lead+1)/2;
+ const stanceHeight=.052;
+ for(let i=0;i<model.legs.length;i++){
+  const leg=model.legs[i],a=left[i],b=right[i];
+  const forward=mix(a.z,b.z,rightWeight);
+  const lift=mix(a.height,b.height,rightWeight);
+  const offset=leg.front?.075:-.065;
+  const footZ=mix(offset,forward,active);
+  const footY=mix(stanceHeight,lift,active);
+  // Compensate pitch at the torso, and solve against track-relative ground.
+  const localWorldY=footY-.12-bob;
+  const localWorldZ=leg.pivot.position.z+footZ;
+  const co=Math.cos(pitch),si=Math.sin(pitch);
+  const targetY=localWorldY*co+localWorldZ*si;
+  const targetZ=-localWorldY*si+localWorldZ*co;
+  const down=leg.pivot.position.y-targetY;
+  const dz=targetZ-leg.pivot.position.z;
+  const solution=solveLegIK(leg.upper,leg.lower-.025,dz,down,leg.front);
+  leg.pivot.rotation.set(solution.hip,0,0);
+  leg.knee.rotation.set(solution.knee,0,0);
+  // The foot follows the turf plane in stance rather than pitching with shin.
+  if(leg.hoofRig){
+   const stance=mix(a.contact?1:0,b.contact?1:0,rightWeight);
+   const toe=(1-stance)*(.12+.12*sprint);
+   leg.hoofRig.rotation.x=-solution.hip-solution.knee-pitch+toe;
+  }
+  // Narrow, anatomically plausible asymmetry in the frontal close-up.
+  leg.pivot.rotation.z=active*.012*leg.side*Math.sin(TAU*phase+i*.7);
+ }
+ model.headRig.rotation.x=active*(-.022*Math.sin(TAU*phase-.72)+.014*flight);
+ model.headRig.rotation.z=active*.007*Math.sin(TAU*phase+number*.14);
+ model.headRig.position.y=2.03+active*.018*Math.sin(TAU*phase-1.25);
+ model.tailRig.rotation.x=active*(.10*Math.sin(TAU*phase-1.0)-.08*sprint);
+ model.tailRig.rotation.z=active*.075*Math.sin(TAU*phase*.7+number*.31);
+ model.ears?.forEach((ear,i)=>{
+  ear.rig.rotation.x=active*.05*Math.sin(TAU*phase-1.8+i*.6);
+  ear.rig.rotation.z=-ear.side*.12+active*ear.side*.035*Math.sin(TAU*phase+.3);
+ });
+ model.maneStrands?.forEach(({rig,phase:lag},i)=>{
+  rig.rotation.x=active*(.12*Math.sin(TAU*phase-.9-lag)-.06*sprint);
+  rig.rotation.z=active*.05*Math.sin(TAU*phase-.6-lag+i*.2);
+ });
+ model.tailStrands?.forEach(({rig,phase:lag},i)=>{
+  rig.rotation.x=active*(.13*Math.sin(TAU*phase-1.15-lag)-.07*sprint);
+  rig.rotation.z=active*.13*Math.sin(TAU*phase*.8-lag+i*.3);
+ });
+ if(model.rider){
+  model.rider.position.y=-bob*.52+active*.016*Math.sin(TAU*phase-.45);
+  model.rider.rotation.x=active*(-.018-.035*sprint-.018*Math.sin(TAU*phase-1.1));
+  model.rider.rotation.z=active*.008*Math.sin(TAU*phase+.5);
+ }
+ if(model.flutter)model.flutter.rotation.x=active*(.12+.13*sprint+.07*Math.sin(TAU*phase-1.2));
+ if(model.shadow){
+  model.shadow.material.opacity=.22-.075*flight*active;
+  model.shadow.scale.x=.46-.045*flight*active;
+ }
+ model.gallopAudit={phase,lead:state.lead,flight,cadence,beatOrder:GALLOP_BEATS.map(b=>b.limb+(b.lead?'-lead':'-outside'))};
+}
