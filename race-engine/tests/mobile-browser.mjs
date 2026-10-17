@@ -120,6 +120,10 @@ try{
      assert.equal(end.gateVisible,false);
      assert.ok(Math.abs(end.cameraForwardDot)<8,'finish camera must remain a trackside lateral broadcast');
      assert.ok(end.goalBoardVisible,'finish board must remain a real 3D scene object');
+     const tv=end.landmarkScreenPosition;
+     console.log('KYOTO_TURF_VISION',JSON.stringify({vp:vp.width,screen:tv}));
+     assert.ok(tv&&tv.x>.02&&tv.x<.98&&tv.y>.02&&tv.y<.98&&tv.z>-1&&tv.z<1,
+      'visible finish-cut Turf Vision required: '+JSON.stringify(tv));
     }
     assert.ok((await page.locator('#race-commentary-text').textContent()).length>10);
     const visibleOrder=await page.locator('.tracking-number').allTextContents();
