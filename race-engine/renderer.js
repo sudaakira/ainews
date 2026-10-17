@@ -174,11 +174,11 @@ import {jockeyCap} from './core/jockey-caps.js?v=cap-v1';
  }
  function box(w,h,d,material,parent,x,y,z){let m=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),material);m.position.set(x,y,z);parent.add(m);return m}
  const silkColors=['#d63e3e','#e8e4df','#2670db','#edc33a','#dd63a5','#4ebbb0','#c7c7c7','#f2932f','#7144bd','#bda144','#db5e32','#62b55c','#e4edf4','#9c78d7','#5b9bd1','#c5a07c','#d6dc45','#cb5171'];
- const {updateGallop}=await import("./assets/chibi-gallop.js?v=fourbeat-v12");
+ const {updateGallop}=await import("./assets/chibi-gallop.js?v=distinct-v13");
  const models=[];
  let horseV3Ready=false,modelError='';
  try{
-  const horseV3=await import("./assets/horse-anime.js?v=fourbeat-v12");
+  const horseV3=await import("./assets/horse-anime.js?v=distinct-v13");
   for(const h of HS){
    const frameCap=capFor(h);
    models.push(horseV3.createRaceHorse(THREE,scene,h,silkColors[h.no-1],frameCap.hex,frameCap.outline,frameCap.pattern||null,frameCap.secondary||'#FFFFFF'));
@@ -301,8 +301,8 @@ import {jockeyCap} from './core/jockey-caps.js?v=cap-v1';
  document.querySelector('.camera-more')?.setAttribute('hidden','');
  stage.style.display='block';svg.classList.add('svg-hidden');
  status.textContent='3D RACE · '+models.length+'頭';
- document.getElementById('horse-model-version').textContent='CEL RACE · 4 CUTS';
- window.KYOTO_RENDER_STATUS={ready:true,model:'thoroughbred-cel-v11',gait:'four-beat-ik-v1',venue:venueReady?'full':'fallback',
+ document.getElementById('horse-model-version').textContent='MOTION v13 · FOUR BEATS';
+ window.KYOTO_RENDER_STATUS={ready:true,model:'thoroughbred-cel-v11',gait:'distinct-four-beat-ik-v13',venue:venueReady?'full':'fallback',
   horses:models.length,camera:'side-start-2c-close-3c-forward-side-leaders',courseView:config.courseView,
   cinematic:true,saddleclothNames:true,goalBoard:!!goalBoard,gateDisappears:true,
   continuousRunOut:true,goalBoardSide:'far',furlongDigits:furlongPosts.map(x=>x.digit)};
@@ -364,7 +364,7 @@ import {jockeyCap} from './core/jockey-caps.js?v=cap-v1';
    // Illustrative straight hand change, configurable by each horse.
    const changeAt=Number.isFinite(h.leadChangeAt)?h.leadChangeAt:.82;
    const lead=p>=changeAt?straightLead:cornerLead;
-   updateGallop(m,clock,visualTime,h.no,Math.min(1,clock/LIVE.duration),{speedMps,lead});
+   updateGallop(m,clock,visualTime,h.no,Math.min(1,clock/LIVE.duration),{speedMps,lead,frameDt,playing:LIVE.playing});
    // No floating head numbers: genuine saddlecloth number/name on the flanks.
   }
   updateGates(clock);
@@ -418,7 +418,7 @@ import {jockeyCap} from './core/jockey-caps.js?v=cap-v1';
    course:metricKyoto?KYOTO_INNER:null,
    cameraForwardDot:(camera.position.x-smoothLook.x)*path(1).dx+(camera.position.z-smoothLook.z)*path(1).dz,
    goalDepth,goalBehindHorses:goalDepth!==null&&goalDepth>farthestHorse,
-   gallopPhase:models[0].gallopAudit?.phase,gallopLead:models[0].gallopAudit?.lead,gallopFlight:models[0].gallopAudit?.flight,
+   gallopPhase:models[0].gallopAudit?.phase,gallopLead:models[0].gallopAudit?.lead,gallopFlight:models[0].gallopAudit?.flight,gallopHoofs:models[0].gallopAudit?.hoofs,
    cameraTrackingError:camera.position.distanceTo(desired)+smoothLook.distanceTo(look)};
   renderer.render(scene,camera);
  }
