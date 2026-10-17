@@ -142,8 +142,12 @@ import {jockeyCap} from './core/jockey-caps.js?v=cap-v1';
   const curve=new THREE.CatmullRomCurve3(outerPts),rail=new THREE.Mesh(new THREE.TubeGeometry(curve,1000,.08,5),white);scene.add(rail);
   const chute=path(.46),v=new THREE.Vector3(chute.dx,0,chute.dz),center=new THREE.Vector3(chute.x,chute.y,chute.z).addScaledVector(v,-220);
   const spur=new THREE.Mesh(new THREE.PlaneGeometry(27,440),turf);spur.rotation.set(-Math.PI/2,0,-Math.atan2(chute.dx,chute.dz));spur.position.copy(center);spur.position.y=-.06;scene.add(spur);
-  const lake=new THREE.Mesh(new THREE.CircleGeometry(1,60),new THREE.MeshStandardMaterial({color:0x638f9b,roughness:.26}));lake.rotation.x=-Math.PI/2;lake.position.set(-10,-.15,0);lake.scale.set(95,43,1);scene.add(lake);
+  // Previous featureless ellipse replaced by the detailed infield pond below.
  }
+ // 京都・馬場内のターフビジョン64mと池。コース形状や馬群の判定は変更しない。
+ const kyotoLandmarks=metricKyoto
+  ?(await import('./assets/kyoto-landmarks.js?v=kyoto-tv-pond-v1'))
+    .buildKyotoLandmarks(THREE,scene,{raceName:'秋華賞'}):null;
  // Sparse actual 3D grass tufts on the turf, instanced in one draw call for mobile performance.
  const bladeGeo=new THREE.BufferGeometry();
  bladeGeo.setAttribute('position',new THREE.Float32BufferAttribute([-.035,0,0,.035,0,0,0,.23,0],3));
@@ -307,7 +311,7 @@ import {jockeyCap} from './core/jockey-caps.js?v=cap-v1';
  window.KYOTO_RENDER_STATUS={ready:true,model:'skinned-thoroughbred-v16',gait:'authored-skeletal-v16',venue:venueReady?'full':'fallback',
   horses:models.length,camera:'outside-rail-corrected-smooth-live-five-cuts',courseView:config.courseView,
   cinematic:true,saddleclothNames:true,goalBoard:!!goalBoard,gateDisappears:true,
-  continuousRunOut:true,goalBoardSide:'far',furlongDigits:furlongPosts.map(x=>x.digit)};
+  continuousRunOut:true,goalBoardSide:'far',furlongDigits:furlongPosts.map(x=>x.digit),landmarks:kyotoLandmarks?.audit||null};
  let cw=0,ch=0;
  function resize(){let w=stage.clientWidth,h=stage.clientHeight;if(!w||!h)return;if(w!==cw||h!==ch){cw=w;ch=h;renderer.setSize(w,h,false);camera.aspect=w/h;camera.updateProjectionMatrix()}}
  const tmp=new THREE.Vector3(),look=new THREE.Vector3(),desired=new THREE.Vector3();
@@ -390,6 +394,7 @@ import {jockeyCap} from './core/jockey-caps.js?v=cap-v1';
    // No floating head numbers: genuine saddlecloth number/name on the flanks.
   }
   updateGates(clock);
+  if(kyotoLandmarks)kyotoLandmarks.update(clock,order);
   // Remove the start stalls after the first seconds; restore on replay.
   gateRoot.visible=clock<=Math.min(6,LIVE.duration*.055);
   const raceProgress=Math.min(1,Math.max(0,clock/LIVE.duration));
@@ -496,6 +501,9 @@ import {jockeyCap} from './core/jockey-caps.js?v=cap-v1';
    cameraForwardDot:(camera.position.x-smoothLook.x)*path(1).dx+(camera.position.z-smoothLook.z)*path(1).dz,
    goalDepth,goalBehindHorses:goalDepth!==null&&goalDepth>farthestHorse,
    gallopPhase:models[0].gallopAudit?.phase,gallopLead:models[0].gallopAudit?.lead,gallopFlight:models[0].gallopAudit?.flight,gallopHoofs:models[0].gallopAudit?.hoofs,
+   landmarkPondVisible:Boolean(kyotoLandmarks?.pond?.visible),
+   landmarkTurfVisionVisible:Boolean(kyotoLandmarks?.turfVision?.visible),
+   landmarkScreenWidth:kyotoLandmarks?.audit.visionScreenWidth||null,
    cameraTrackingError:camera.position.distanceTo(desired)+smoothLook.distanceTo(look),
    cameraRenderedFov:smoothFov,cameraRenderedLensShift:smoothLensShift,
    cameraOuterRailClearance:window.RACE_CINEMATIC_DEBUG?.pose?.outerRailClearance,
