@@ -25,13 +25,18 @@ export function hoofTrajectory(phase,beatIndex){
  const elapsed=((phase-beat.start)%1+1)%1;
  if(elapsed<beat.duration){
   const u=elapsed/beat.duration;
-  return {z:mix(.26,-.27,u),height:.052,contact:true,beatIndex};
+  return {z:mix(.62,-.62,u),height:.052,contact:true,beatIndex};
  }
  const u=(elapsed-beat.duration)/(1-beat.duration);
- const recovery=smooth(u);
- const height=.052+.37*Math.pow(Math.sin(Math.PI*u),1.25);
- // A compact recovery arc brings the distal limbs under the body in flight.
- return {z:mix(-.27,.26,recovery)-.045*Math.sin(Math.PI*u),height,contact:false,beatIndex};
+ // Toe-off -> fast folding -> active forward swing -> foreleg reach.
+ // Keyframed curve avoids the former long, near-synchronous sine-like recovery.
+ const keys=[
+  [0,-.62,.052],[.16,-.36,.42],[.39,.04,.72],
+  [.62,.36,.55],[.82,.62,.28],[1,.62,.052]
+ ];
+ let k=0;while(k<keys.length-2&&u>keys[k+1][0])k++;
+ const x=keys[k],y=keys[k+1],t=smooth((u-x[0])/(y[0]-x[0]));
+ return {z:mix(x[1],y[1],t),height:mix(x[2],y[2],t),contact:false,beatIndex};
 }
 
 /** Continuous planar two-bone IK. All angles are about local X.
@@ -67,20 +72,23 @@ export function updateGallop(model,raceTime,visualTime,number,raceProgress=0,opt
  const sprint=smooth((raceProgress-.77)/.18);
  const requestedLead=options.lead==='left'?-1:1;
  const speed=Number.isFinite(options.speedMps)?options.speedMps:15;
- const cadence=clamp(speed/6.7,1.85,2.85)*(1+.04*sprint);
+ const cadence=clamp(speed/7.4,1.70,2.45)*(1+.04*sprint);
  if(!model.gaitState||visualTime<model.gaitState.time-.001||raceTime<=0){
   model.gaitState={phase:((number*0.037)%1+1)%1,time:visualTime,lead:requestedLead};
  }
  const state=model.gaitState;
- const elapsed=clamp(visualTime-state.time,0,.16);
+ // The broadcast may run at 16x, but the horse should still visibly gallop
+ // about two strides per wall-clock second; never multiply by playback rate.
+ const elapsed=clamp(Number.isFinite(options.frameDt)
+  ?(options.playing?options.frameDt:0):visualTime-state.time,0,.05);
  state.phase=(state.phase+elapsed*cadence)%1;
  state.time=visualTime;
  // Blend the limb timing across hand changes instead of popping on a new lead.
  state.lead=mix(state.lead,requestedLead,clamp(elapsed*3.0,0,1));
  const phase=state.phase;
- const flight=smooth((phase-.67)/.08)*(1-smooth((phase-.94)/.06));
- const bob=active*(.020*Math.cos(TAU*phase+.4)+.075*flight);
- const pitch=active*(.033*Math.sin(TAU*phase-1.0)-.018*flight);
+ const flight=smooth((phase-.69)/.07)*(1-smooth((phase-.95)/.05));
+ const bob=active*(.028*Math.cos(TAU*phase+.4)+.095*flight);
+ const pitch=active*(.046*Math.sin(TAU*phase-1.0)-.023*flight);
  const roll=active*(.010*Math.sin(TAU*phase+.5)*state.lead);
  model.anim.position.y=bob;
  model.anim.rotation.set(pitch,0,roll);
@@ -91,7 +99,7 @@ export function updateGallop(model,raceTime,visualTime,number,raceProgress=0,opt
   const leg=model.legs[i],a=left[i],b=right[i];
   const forward=mix(a.z,b.z,rightWeight);
   const lift=mix(a.height,b.height,rightWeight);
-  const offset=leg.front?.075:-.065;
+  const offset=leg.front?.09:-.08;
   const footZ=mix(offset,forward,active);
   const footY=mix(stanceHeight,lift,active);
   // Compensate pitch at the torso, and solve against track-relative ground.
@@ -108,7 +116,7 @@ export function updateGallop(model,raceTime,visualTime,number,raceProgress=0,opt
   // The foot follows the turf plane in stance rather than pitching with shin.
   if(leg.hoofRig){
    const stance=mix(a.contact?1:0,b.contact?1:0,rightWeight);
-   const toe=(1-stance)*(.12+.12*sprint);
+   const toe=(1-stance)*(.14+.12*sprint);
    leg.hoofRig.rotation.x=-solution.hip-solution.knee-pitch+toe;
   }
   // Narrow, anatomically plausible asymmetry in the frontal close-up.
@@ -141,5 +149,7 @@ export function updateGallop(model,raceTime,visualTime,number,raceProgress=0,opt
   model.shadow.material.opacity=.22-.075*flight*active;
   model.shadow.scale.x=.46-.045*flight*active;
  }
- model.gallopAudit={phase,lead:state.lead,flight,cadence,beatOrder:GALLOP_BEATS.map(b=>b.limb+(b.lead?'-lead':'-outside'))};
+ model.gallopAudit={phase,lead:state.lead,flight,cadence,
+  hoofs:model.legs.map((l,i)=>({side:l.side,front:l.front,hip:l.pivot.rotation.x,knee:l.knee.rotation.x})),
+  beatOrder:GALLOP_BEATS.map(b=>b.limb+(b.lead?'-lead':'-outside'))};
 }
