@@ -104,6 +104,9 @@ export function raceCameraPose({shot,progress,order,path,aspect=1,clock=Infinity
  // Existing camera controls use the actual perspective projection.
  const frameY=ext?(ext.minY+ext.maxY)/2:0;
  pose.look.y+=frameY*.42;
+ // A live side-rail broadcast shows the running surface, not 40% empty sky.
+ // Tilt down modestly so the leading horses sit around the middle of the frame.
+ if(!isGate)pose.look.y-=Math.min(4.2,height*.52);
  // Re-evaluate horizontal shift after adjusting camera look direction.
  const refined=imagePoints(pose.position,pose.look).filter(q=>q.visible);
  const xmax=refined.length?Math.max(...refined.map(q=>q.x)):0;
