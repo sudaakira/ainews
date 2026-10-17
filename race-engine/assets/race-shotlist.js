@@ -93,7 +93,11 @@ export function raceCameraPose({shot,progress,order,path,aspect=1,clock=Infinity
  const stationBulge=venue==='京都'&&distance===2000?
   Math.max(0,-kyotoOuterCourseOffset(pCenter+inFront/distance)):0;
  const half=venue==='京都'&&distance===2000?KYOTO_INNER.width/2:13.5;
- const outsideNeeded=Math.max(groupBulge,stationBulge)+half+15;
+ // A single continuous TV dolly needs rail clearance for the WHOLE cut,
+ // including the full 38m outside flare of Kyoto's 3C/4C.
+ const reserveBulge=(venue==='京都'&&distance===2000&&
+  (shot.id==='third-entry'||shot.id==='fourth-turn'))?38:0;
+ const outsideNeeded=Math.max(groupBulge,stationBulge,reserveBulge)+half+17;
  const side=isGate?Math.max(shot.side,half+12):Math.max(shot.side||31,outsideNeeded);
  const a=Math.max(.48,Number(aspect)||1);
  const baseFov=shot.fov||28;
@@ -245,30 +249,45 @@ export function raceCameraPose({shot,progress,order,path,aspect=1,clock=Infinity
 export function followLockedCameraPose(rig,order,path,{distance=2000,venue='京都',direction='右'}={}){
  const leader=order?.[0];
  if(!leader)return rig.pose;
- const track=path(leader.p),start=path(rig.startLeaderProgress);
- const dx=track.x-start.x,dy=track.y-start.y,dz=track.z-start.z;
- const position={x:rig.pose.position.x+dx,y:rig.pose.position.y+dy,z:rig.pose.position.z+dz};
- const look={x:rig.pose.look.x+dx,y:rig.pose.look.y+dy,z:rig.pose.look.z+dz};
- // Rail-safe outside dolly. If Kyoto's track curls beneath the camera,
- // translate BOTH camera and aim sideways — never pan/rotate the camera.
- const right=direction!=='左',t=leader.p+(rig.pose.stationAheadMeters||0)/distance;
- const station=path(t),half=venue==='京都'&&distance===2000?KYOTO_INNER.width/2:13.5;
- const railLane=(venue==='京都'&&distance===2000?kyotoOuterCourseOffset(t):0)+(right?-half:half);
+ const advance=rig.pose.stationAheadMeters||0;
+ const startStation=path(rig.pose.referenceProgress+advance/distance);
+ // The camera is bolted to an OUTSIDE-RAIL dolly. Its heading is fixed
+ // RELATIVE TO THE TRACK, not to compass north. On Kyoto's curves the
+ // dolly itself rotates gradually with the continuously differentiable
+ // path, but no jittery pursuit of individual horses or lenses occurs.
+ const startDifference=rig.pose.referenceProgress-rig.startLeaderProgress;
+ const currentProgress=leader.p+startDifference+advance/distance;
+ const station=path(currentProgress);
+ const dot=startStation.dx*station.dx+startStation.dz*station.dz;
+ const cross=startStation.dx*station.dz-startStation.dz*station.dx;
+ const angle=Math.atan2(cross,dot);
+ const cos=Math.cos(angle),sin=Math.sin(angle);
+ const rotate=(q)=>({
+  x:station.x+(q.x-startStation.x)*cos-(q.z-startStation.z)*sin,
+  y:station.y+(q.y-startStation.y),
+  z:station.z+(q.x-startStation.x)*sin+(q.z-startStation.z)*cos
+ });
+ const position=rotate(rig.pose.position),look=rotate(rig.pose.look);
+ const right=direction!=='左';
+ const half=venue==='京都'&&distance===2000?KYOTO_INNER.width/2:13.5;
+ const railLane=(venue==='京都'&&distance===2000?kyotoOuterCourseOffset(currentProgress):0)+(right?-half:half);
  let lane=-(position.x-station.x)*station.dz+(position.z-station.z)*station.dx;
- const target=railLane+(right?-15:15);
- let moved=0;
- if(right&&lane>target)moved=target-lane;
- if(!right&&lane<target)moved=target-lane;
- if(moved){
-  const ddx=-station.dz*moved,ddz=station.dx*moved;
-  position.x+=ddx;position.z+=ddz;look.x+=ddx;look.z+=ddz;
-  lane+=moved;
+ // Numerical safety near sharp bends: move BOTH position/target laterally.
+ // The visual bearing stays a fixed angle relative to the course tangent.
+ const limit=railLane+(right?-15:15);
+ let offset=0;
+ if(right&&lane>limit)offset=limit-lane;
+ else if(!right&&lane<limit)offset=limit-lane;
+ if(offset!==0){
+  const dx=-station.dz*offset,dz=station.dx*offset;
+  position.x+=dx;look.x+=dx;position.z+=dz;look.z+=dz;
+  lane+=offset;
  }
  const clearance=right?railLane-lane:lane-railLane;
- if(clearance<11.9)throw new Error('Locked dolly crossed the outside rail');
+ if(clearance<11.9)throw new Error('Rail dolly crossed actual outer rail');
  return {...rig.pose,position,look,outerRailClearance:clearance,
-  cameraLane:lane,railLane,railOutsideVerified:true,leadNumber:leader.no,
-  lockedCamera:true,baseShotId:rig.pose.shotId||null,
-  // The lens, aim direction and shot scale stay fixed within the cut.
+  cameraLane:lane,railLane,railOutsideVerified:true,
+  leadNumber:leader.no,lockedCamera:true,cameraTrackYaw:angle,
+  baseShotId:rig.pose.shotId||null,
   lensShiftX:rig.pose.lensShiftX,fov:rig.pose.fov};
 }
