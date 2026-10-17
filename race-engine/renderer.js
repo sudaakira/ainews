@@ -146,7 +146,7 @@ import {jockeyCap} from './core/jockey-caps.js?v=cap-v1';
  }
  // 京都・馬場内のターフビジョン64mと池。コース形状や馬群の判定は変更しない。
  const kyotoLandmarks=metricKyoto
-  ?(await import('./assets/kyoto-landmarks.js?v=kyoto-tv-pond-v1'))
+  ?(await import('./assets/kyoto-landmarks.js?v=kyoto-tv-pond-v2'))
     .buildKyotoLandmarks(THREE,scene,{raceName:'秋華賞'}):null;
  // Sparse actual 3D grass tufts on the turf, instanced in one draw call for mobile performance.
  const bladeGeo=new THREE.BufferGeometry();
