@@ -1,0 +1,31 @@
+name: Verify published race WebGL
+on:
+  workflow_run:
+    workflows: ['Publish shared race simulators']
+    types: [completed]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  public-browser:
+    if: github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install browser
+        run: |
+          npm install --no-save --no-audit --no-fund --prefix /tmp/race-playwright playwright@1.56.1
+          /tmp/race-playwright/node_modules/.bin/playwright install --with-deps chromium
+      - name: Verify actual public Pages URL
+        env:
+          RACE_URL: https://sudaakira.github.io/ainews/race-engine/?race=shuka-2026&motion=v16
+          PLAYWRIGHT_ENTRY: /tmp/race-playwright/node_modules/playwright/index.mjs
+        run: node race-engine/tests/mobile-browser.mjs
+      - name: Save public-page WebGL screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: published-race-webgl
+          path: /tmp/race-mobile-shots/*.png
+          if-no-files-found: ignore
+          retention-days: 7
