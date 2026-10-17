@@ -132,6 +132,8 @@ export function createRaceCinematics({THREE,scene,stage,models,config,capFor,pat
   const at=route.getPointAtLength(d);
   routeDot.setAttribute('cx',String(at.x.toFixed(1)));routeDot.setAttribute('cy',String(at.y.toFixed(1)));
   locText.textContent=runningOut?'ゴール':shot.label;
+  const buildTag=document.getElementById('race-engine-build');
+  if(buildTag)buildTag.textContent='3D中継 v25｜現在のカット：'+shot.label+'｜'+(shot.id==='backstretch'?'真横・全頭追走':shot.id==='fourth-turn'?'前方斜め・捲り確認':'固定角度追走');
   // iPhone-first TV dolly: fixed-angle and fixed lens within each shot.
   // Only cut transitions, seek/replay, and aspect changes reset the rig.
   const gateMode=shot.id==='start'&&clock<=1.8?'gate':'running';
