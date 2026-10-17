@@ -92,13 +92,17 @@ for(const id of ['swan-2026','sample-demo','tokyo-20261012-11','tokyo-20261012-1
   assert.equal(config.drawConfirmed,true);
   assert.equal(config.provisionalDraw,false);
   assert.equal(config.seed,20261016);
-  assert.equal(config.asOf,'2026-10-16T19:08:00+09:00');
+  assert.equal(config.asOf,'2026-10-17T17:22:00+09:00');
   assert.equal(config.defaultPace,0);
    assert.equal(config.defaultBias,"front");
    assert.equal(config.defaultVol,5);
    assert.equal(config.defaultPlaybackRate,8);
    assert.equal(config.weather17.cushion,10.8);
    assert.equal(config.weather17.turfMoisture4CPct,7.7);
+   assert.equal(config.weather17.turfMoistureFinishPct,6.8);
+   assert.ok(config.weather17.observations.some(x=>x.includes('8R')));
+   assert.ok(regression.scores(config.horses[7],{...options,bias:'front'}).bias>50);
+   assert.equal(regression.scores(config.horses[7],{...options,bias:'front'}).draw,regression.scores(config.horses[7],options).draw);
   assert.equal(config.defaultSimulations,50000);
   assert.equal(config.horses.filter(h=>h.name==='スマートプリエール').length,0);
   assert.equal(config.withdrawn[0].name,'スマートプリエール');
@@ -254,6 +258,30 @@ for(const angle of [0,Math.PI/2,Math.PI,Math.PI*1.5]){
 }
 assert.ok(RACE_SHOT_LIST[2].height<RACE_SHOT_LIST[2].side&&RACE_SHOT_LIST[2].ahead>0,'3C is an elevated forward close-up');
 assert.ok(RACE_SHOT_LIST[1].side<RACE_SHOT_LIST[0].side,'2C is closer than start');
+// Exact perspective test: reserve 20% on the LEFT of the leading horse.
+const {runnerLane}=await load('assets/kyoto-course.js');
+const screenX=(point,pose,aspect)=>{
+ const camera=pose.position,target=pose.look;
+ const fx=target.x-camera.x,fy=target.y-camera.y,fz=target.z-camera.z;
+ const fn=Math.hypot(fx,fy,fz),vx=point.x-camera.x,vy=point.y-camera.y,vz=point.z-camera.z;
+ const depth=(vx*fx+vy*fy+vz*fz)/fn;
+ return .5+.5*((-fz*vx+fx*vz)/fn)/(depth*Math.tan(pose.fov*Math.PI/360)*aspect);
+};
+for(const shot of RACE_SHOT_LIST.filter(x=>x.id!=='start')){
+ for(const aspect of [.52,.8,1.77]){
+  const progress=.7,order=[.70,.687,.672,.663,.650].map((p,i)=>({no:i+1,p}));
+  const path=p=>({x:p*2000,y:0,z:0,dx:1,dz:0});
+  const pose=raceCameraPose({shot,progress,order,path,aspect});
+  assert.equal(pose.targetLeadViewportX,.2);
+  const visible=order.filter(o=>pose.subjects.includes(o.no)).map(o=>{
+   const q=path(o.p),lane=runnerLane(o.no,order.length,progress);
+   return screenX({x:q.x-q.dz*lane,y:1.5,z:q.z+q.dx*lane},pose,aspect);
+  });
+  assert.ok(Math.abs(visible[0]-.2)<.04,'leader should occupy x≈20%: '+shot.id+' '+aspect+' '+visible[0]);
+  assert.ok(visible.every(x=>x>=-.02&&x<=1.02),'tracked group out of frame: '+shot.id+' '+aspect+' '+visible);
+ }
+}
+console.log('Perspective leader at x=20% across 2C/3C/straight and phone/desktop ✓');
 for(const field of [3,6,17,18])for(const duration of [68,120,180]){
  const rank=Array.from({length:field},(_,i)=>field-i);
  assert.deepEqual(finishCrossings(rank,duration-1e-5,duration),[]);
