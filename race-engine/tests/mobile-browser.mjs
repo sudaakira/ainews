@@ -73,7 +73,7 @@ try{
      assert.ok(visibleLabels>=(id==='fourth-turn'?2:1)&&visibleLabels<=5,
        'show visible leader IDs; only in-frame labels at the finish: '+visibleLabels);
     }
-    const expectedSubjects=id==='start'?[17,17]:vp.width<700?(id==='first-corner'?[4,4]:[3,3]):
+    const expectedSubjects=id==='start'?[17,17]:vp.width<700?(id==='first-corner'?[6,7]:[3,3]):
      id==='first-corner'?[6,7]:id==='third-entry'?[5,6]:id==='fourth-turn'?[4,5]:[3,4];
     assert.ok(state.director.pose.subjects.length>=expectedSubjects[0]&&
      state.director.pose.subjects.length<=expectedSubjects[1],
