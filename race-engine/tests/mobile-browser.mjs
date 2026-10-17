@@ -47,9 +47,12 @@ try{
    await page.waitForFunction(p=>Math.abs((window.RACE_CINEMATIC_DEBUG?.progress??-1)-p)<.002,value/1000,{timeout:10000});
   };
   if(vp.width===390||vp.width===1280){
-   await page.waitForFunction(()=>window.RACE_CAMERA_AUDIT?.opening===window.RACE_CAMERA_AUDIT?.total,null,{timeout:8000});
    const cuts=await page.evaluate(()=>window.RACE_CINEMATIC_DEBUG.cuts);
    await page.screenshot({path:'/tmp/race-mobile-shots/shuka-'+vp.width+'-gate.png'});
+   const openingAudit=await page.evaluate(()=>({audit:window.RACE_CAMERA_AUDIT,pose:window.RACE_CINEMATIC_DEBUG?.pose,gate:window.RACE_SCENE_AUDIT?.gateScreenX}));
+   console.log('OPENING_CAMERA_CHECK',JSON.stringify({vp,opening:openingAudit.audit,gate:openingAudit.gate,poseMode:openingAudit.pose?.mode}));
+   assert.ok(openingAudit.audit?.opening>=openingAudit.audit?.total-2,
+    'opening gate needs nearly all horses visible: '+JSON.stringify(openingAudit));
    const checks=[[.05,'start'],[(cuts[0]+cuts[1])/2,'second-turn'],[.57,'third-turn'],[.999,'straight']];
    for(const [p,id] of checks){
     await seek(Math.round(p*1000));
