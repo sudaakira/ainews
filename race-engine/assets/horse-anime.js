@@ -62,9 +62,9 @@ export function createRaceHorse(T,scene,h,silkHex,frameCapHex='#89929b',frameCap
  for(const front of [true,false])for(const side of [-1,1]){
   const pivot=new T.Group();pivot.position.set(side*.22,front?1.17:1.24,front?.40:-.63);anim.add(pivot);
   const upper=front?.61:.68,lower=front?.76:.78;
-  bone(pivot,coat,[0,0,0],[0,-upper,front?.02:.10],front?.095:.13,.045);
+  bone(pivot,coat,[0,0,0],[0,-upper,0],front?.095:.13,.045);
   const muscle=ell(pivot,coat,0,-.16,front?0:.035,front?.085:.12,.24,.105);muscle.rotation.x=front?0:-.2;
-  const knee=new T.Group();knee.position.set(0,-upper,front?.02:.10);pivot.add(knee);
+  const knee=new T.Group();knee.position.set(0,-upper,0);pivot.add(knee);
   ell(knee,dark,0,0,0,.050,.055,.055);
   bone(knee,coat,[0,0,0],[0,-lower+.09,.01],.035,.027);
   if(h.no%3!==0)bone(knee,white,[0,-lower+.20,.01],[0,-lower+.045,.02],.031,.035);
