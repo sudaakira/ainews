@@ -415,7 +415,20 @@ import {jockeyCap} from './core/jockey-caps.js?v=cap-v1';
   const leaderVisual=models[order[0].no-1].root.localToWorld(new THREE.Vector3(0,1.85,0)).project(camera);
    const leaderNose=models[order[0].no-1].root.localToWorld(new THREE.Vector3(0,2.05,1.75)).project(camera);
    const gateCenter=gateRoot.position.clone().add(new THREE.Vector3(0,2.15,0)).project(camera);
-   window.RACE_SCENE_AUDIT={gateScreenX:(gateCenter.x+1)/2,
+   const gateEdges=[];
+   if(gateRoot.visible){
+    for(const lateral of [-stallCount*.6-1.15,stallCount*.6+1.15])
+     for(const heightAt of [.1,4.2])
+      for(const forward of [-2.1,2.1]){
+       const p=new THREE.Vector3(gateRoot.position.x+startDir.dz*lateral+startDir.dx*forward,
+        gateRoot.position.y+heightAt,
+        gateRoot.position.z-startDir.dx*lateral+startDir.dz*forward).project(camera);
+       gateEdges.push((p.x+1)/2);
+      }
+   }
+   window.RACE_SCENE_AUDIT={gateMinScreenX:gateEdges.length?Math.min(...gateEdges):null,
+    gateMaxScreenX:gateEdges.length?Math.max(...gateEdges):null,
+    gateScreenX:(gateCenter.x+1)/2,
     leadScreenX:(leaderVisual.x+1)/2,leadScreenY:(1-leaderVisual.y)/2,
     leadNoseScreenX:(leaderNose.x+1)/2,leadNoseScreenY:(1-leaderNose.y)/2,
     leadVisible:leaderVisual.z>-1&&leaderVisual.z<1&&Math.abs(leaderVisual.x)<1&&Math.abs(leaderVisual.y)<1,
