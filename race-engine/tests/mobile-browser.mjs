@@ -54,15 +54,20 @@ try{
     const state=await page.evaluate(()=>({director:window.RACE_CINEMATIC_DEBUG,scene:window.RACE_SCENE_AUDIT}));
     assert.equal(state.director.scriptedCuts,4);
     assert.equal(state.scene.leadersOccluded,0,'buildings never occlude leading horses');
+    assert.equal(state.director.pose.mode,'tight-leader-follow','must be a tight tracking shot');
+    assert.ok(state.scene.leadVisible,'front horse must remain in frame');
+    assert.ok(state.scene.leadScreenX>=.16&&state.scene.leadScreenX<=.31,
+      'must reserve roughly 20% LEFT space: '+state.scene.leadScreenX);
+    assert.ok(state.director.pose.side<=21,'tracking shot must not zoom out for the pack');
     if(id==='third-turn'){
      assert.ok(state.director.pose.position.y-state.director.pose.look.y<10);
-     assert.equal(state.director.pose.subjects.length,5);
+     assert.ok(state.director.pose.subjects.length<=3);
      assert.ok(state.scene.positions.some(q=>q.y>1),'horses climb Kyoto hill');
     }
     if(id==='straight'){
      await page.waitForFunction(()=>window.RACE_SCENE_AUDIT?.goalInFrame&&window.RACE_SCENE_AUDIT?.goalBehindHorses,null,{timeout:10000});
      const end=await page.evaluate(()=>window.RACE_SCENE_AUDIT);
-     assert.equal(state.director.pose.subjects.length,vp.width<700?3:5);
+     assert.ok(state.director.pose.subjects.length<=3);
      assert.equal(end.gateVisible,false);
      assert.ok(Math.abs(end.cameraForwardDot)<.001,'straight is perpendicular, not diagonal');
      assert.equal(end.goalBehindHorses,true,'finish monument is deeper than every running lane');
