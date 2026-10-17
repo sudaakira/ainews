@@ -1,6 +1,6 @@
 import {raceCommentary,ANNOUNCER_SVG} from './race-commentary.js?v=kyoto-v11-1';
 /** Clean cel-racing broadcast. All positions and results are read from the shared engine. */
-import {chooseRaceShot,courseShotCuts,raceCameraPose} from './race-shotlist.js?v=jra-reference-camera-v10';
+import {chooseRaceShot,courseShotCuts,raceCameraPose} from './race-shotlist.js?v=jra-reference-camera-v11';
 import {finishCrossings,playbackRate} from './race-playback.js?v=kyoto-v11-1';
 
 export function createRaceCinematics({THREE,scene,stage,models,config,capFor,path,route,routeLength}){
