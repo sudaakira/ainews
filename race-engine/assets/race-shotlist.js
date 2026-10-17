@@ -47,20 +47,23 @@ export function raceCameraPose({shot,progress,order,path,aspect=1,clock=Infinity
  const cx=heading.x-heading.dz*lane,cz=heading.z+heading.dx*lane;
  const position={x:cx+heading.dz*side+heading.dx*ahead,y:heading.y+height,z:cz-heading.dx*side+heading.dz*ahead};
  const look={x:cx,y:heading.y+1.85,z:cz};
- // Protect 20% of the screen IN FRONT OF THE NOSE, not the horse's torso.
- // Anchor an anatomically approximated nose point 1.75m forward and 2.05m up.
- // Perspective projection uses the actual viewport aspect, so this works on
- // both iPhone portrait and desktop landscape without backing the lens away.
- const nose={x:cx+heading.dx*1.75,y:heading.y+2.05,z:cz+heading.dz*1.75};
+ // Keep the entire nearest leader cluster out of the left-edge crop.
+ // 20% negative space is measured from the leftmost prospective muzzle of
+ // the first three horses, not from the root of only the current leader.
+ // A 3.0m forward envelope also covers head reach during gallop.
  const fx=look.x-position.x,fy=look.y-position.y,fz=look.z-position.z;
- const flen=Math.hypot(fx,fy,fz);
- const vx=nose.x-position.x,vy=nose.y-position.y,vz=nose.z-position.z;
- const depth=Math.max(1,(vx*fx+vy*fy+vz*fz)/flen);
- const sideways=(-fz*vx+fx*vz)/flen;
- const tan=Math.tan(fov*Math.PI/360)*Math.max(.42,aspect);
- // Camera projection element[8] is subtracted from horizontal NDC.
- const lensShiftX=sideways/(depth*tan)+.60;
+ const flen=Math.hypot(fx,fy,fz),tan=Math.tan(fov*Math.PI/360)*Math.max(.42,aspect);
+ const frontSamples=leaders.map(o=>{
+  const q=path(o.p),l=runnerLane(o.no,order.length,progress);
+  const nx=q.x-q.dz*l+q.dx*3.0,nz=q.z+q.dx*l+q.dz*3.0;
+  const vx=nx-position.x,vy=q.y+2.05-position.y,vz=nz-position.z;
+  const depth=Math.max(1,(vx*fx+vy*fy+vz*fz)/flen);
+  return {no:o.no,ndc:(-fz*vx+fx*vz)/(flen*depth*tan)};
+ });
+ const leftmost=Math.min(...frontSamples.map(x=>x.ndc));
+ // Projection matrix[8] is subtracted from NDC. +0.60 sets the leftmost
+ // projected muzzle at screen x=0.20, keeping race direction clear.
+ const lensShiftX=leftmost+.60;
  return {position,look,fov,side,subjects:leaders.map(o=>o.no),
-  lensShiftX,targetLeadViewportX:.20,mode:'tight-nose-leader',nose};
-
+  lensShiftX,targetLeadViewportX:.20,mode:'tight-nose-leader',frontSamples};
 }
