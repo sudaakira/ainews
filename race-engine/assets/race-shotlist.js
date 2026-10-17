@@ -101,18 +101,29 @@ export function raceCameraPose({shot,progress,order,path,aspect=1,clock=Infinity
  if(!isGate)pose.look.y-=Math.min(3.4,height*.43);
  let shift=0,gateScreenX=null,aheadScreenSide='right';
  if(isGate){
-  // Static gate establishing composition: at t=0 the start stalls are
-  // near the extreme REAR edge, with empty racing space ahead.
-  const origin=path(0),behind=3.7;
-  const g={x:origin.x-origin.dx*behind,y:origin.y+2.2,z:origin.z-origin.dz*behind};
+  // Place the ENTIRE 17-stall starting gate at the trailing edge, not
+  // its CENTER at the edge (which cropped half of the stalls).
+  // Physical gate root is 3.7m behind the start line and ±10.2m broad.
+  pose.look.y-=3.0;
+  const origin=path(0),behind=3.7,halfStalls=order.length*.6+1.15;
+  const leftRight=[];
+  for(const lateral of [-halfStalls,halfStalls]){
+   for(const heightAt of [.1,4.2]){
+    const point={x:origin.x-origin.dx*behind+origin.dz*lateral,
+     y:origin.y+heightAt,z:origin.z-origin.dz*behind-origin.dx*lateral};
+    leftRight.push(projectPoint(point,pose.position,pose.look,fov,a));
+   }
+  }
   const next={x:origin.x+origin.dx*11,y:origin.y+2.2,z:origin.z+origin.dz*11};
-  const gp=projectPoint(g,pose.position,pose.look,fov,a);
-  const nextP=projectPoint(next,pose.position,pose.look,fov,a);
-  const advancesRight=nextP.x>gp.x;
-  const target=advancesRight?.10:.90;
-  shift=gp.x-2*(target-.5);
-  gateScreenX=target;
+  const atGate={x:origin.x-origin.dx*behind,y:origin.y+2.2,z:origin.z-origin.dz*behind};
+  const advancesRight=projectPoint(next,pose.position,pose.look,fov,a).x>
+   projectPoint(atGate,pose.position,pose.look,fov,a).x;
+  const ndcEdge=advancesRight?Math.min(...leftRight.map(q=>q.x)):Math.max(...leftRight.map(q=>q.x));
+  const trailingScreenEdge=advancesRight?.055:.945;
+  shift=ndcEdge-2*(trailingScreenEdge-.5);
+  gateScreenX=trailingScreenEdge;
   aheadScreenSide=advancesRight?'right':'left';
+
  }else{
   const refined=imagePoints(pose.position,pose.look).filter(q=>q.visible);
   const edge=outerSign===-1?Math.max(...refined.map(q=>q.x)):Math.min(...refined.map(q=>q.x));
