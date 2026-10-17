@@ -348,7 +348,7 @@ assert.match(render,/gallopAudit/);
 assert.match(anime,/hoofRig/);
 assert.match(anime,/gallopRig:'four-beat-ik-v1'/);
 assert.match(html,/renderer\.js\?v=distinct-v13/);
-assert.match(html,/4拍子モーション v13/);
+assert.match(html,/4拍子 v13/);
 assert.match(render,/playing:LIVE.playing/);
 const makeRotation=()=>({x:0,y:0,z:0,set(x,y,z){this.x=x;this.y=y;this.z=z;}});
 const rig={
