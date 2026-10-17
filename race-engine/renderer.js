@@ -174,16 +174,17 @@ import {jockeyCap} from './core/jockey-caps.js?v=cap-v1';
  }
  function box(w,h,d,material,parent,x,y,z){let m=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),material);m.position.set(x,y,z);parent.add(m);return m}
  const silkColors=['#d63e3e','#e8e4df','#2670db','#edc33a','#dd63a5','#4ebbb0','#c7c7c7','#f2932f','#7144bd','#bda144','#db5e32','#62b55c','#e4edf4','#9c78d7','#5b9bd1','#c5a07c','#d6dc45','#cb5171'];
- const {updateGallop}=await import("./assets/chibi-gallop.js?v=anatomy-v15");
+ const {updateGallop}=await import("./assets/chibi-gallop.js?v=skin-v16");
  const models=[];
  let horseV3Ready=false,modelError='';
  try{
-  const horseV3=await import("./assets/horse-anime.js?v=anatomy-v15");
+  const horseV3=await import("./assets/horse-anime.js?v=skin-v16");
+  await horseV3.preloadRaceHorse(THREE);
   for(const h of HS){
    const frameCap=capFor(h);
    models.push(horseV3.createRaceHorse(THREE,scene,h,silkColors[h.no-1],frameCap.hex,frameCap.outline,frameCap.pattern||null,frameCap.secondary||'#FFFFFF'));
   }
-  horseV3Ready=models.length===HS.length&&models.every(m=>m.artDirection==='thoroughbred-cel-v11');
+  horseV3Ready=models.length===HS.length&&models.every(m=>m.artDirection==='skinned-thoroughbred-v16');
   if(!horseV3Ready)throw new Error('アニメ馬モデルと出走'+HS.length+'頭の整合性を確認できませんでした');
  }catch(e){
   modelError=String(e?.stack||e);
@@ -301,8 +302,9 @@ import {jockeyCap} from './core/jockey-caps.js?v=cap-v1';
  document.querySelector('.camera-more')?.setAttribute('hidden','');
  stage.style.display='block';svg.classList.add('svg-hidden');
  status.textContent='3D RACE · '+models.length+'頭';
- document.getElementById('horse-model-version').textContent='EQUINE v15 · NATURAL STRIDE';
- window.KYOTO_RENDER_STATUS={ready:true,model:'thoroughbred-cel-v11',gait:'anatomical-footfall-v15',venue:venueReady?'full':'fallback',
+ document.getElementById('horse-model-version').textContent='EQUINE v16 · SKELETAL GALLOP';
+ const liveTitle=document.querySelector('.live-head strong');if(liveTitle)liveTitle.textContent+=' · v16';
+ window.KYOTO_RENDER_STATUS={ready:true,model:'skinned-thoroughbred-v16',gait:'authored-skeletal-v16',venue:venueReady?'full':'fallback',
   horses:models.length,camera:'side-start-2c-close-3c-forward-side-leaders',courseView:config.courseView,
   cinematic:true,saddleclothNames:true,goalBoard:!!goalBoard,gateDisappears:true,
   continuousRunOut:true,goalBoardSide:'far',furlongDigits:furlongPosts.map(x=>x.digit)};
@@ -346,7 +348,7 @@ import {jockeyCap} from './core/jockey-caps.js?v=cap-v1';
    const staging=Math.max(0,1-Math.min(1,clock/.8));
    m.root.position.set(
     (d.x-d.dz*lane)*(1-staging)+gateX*staging,
-    d.y+.12,
+    d.y+.015,
     (d.z+d.dx*lane)*(1-staging)+gateZ*staging
    );
    m.root.scale.setScalar(1);

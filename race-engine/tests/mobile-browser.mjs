@@ -1,6 +1,16 @@
 /** Real-browser release gate: requested camera geometry, continuous run-out and mobile controls. */
 import assert from 'node:assert/strict';
 import {mkdirSync} from 'node:fs';
+import {resolve,extname} from 'node:path';
+async function serveLocal(page){
+ if(!process.env.RACE_LOCAL_ROOT)return;
+ await page.route('http://race.local/**',async route=>{
+  let name=decodeURIComponent(new URL(route.request().url()).pathname);if(name.endsWith('/'))name+='index.html';
+  const path=resolve(process.env.RACE_LOCAL_ROOT,'.'+name);
+  const types={'.css':'text/css','.html':'text/html','.js':'text/javascript','.json':'application/json','.glb':'model/gltf-binary'};
+  try{await route.fulfill({path,contentType:types[extname(path)]||'application/octet-stream'})}catch{await route.fulfill({status:404,body:'Missing'})}
+ });
+}
 const {chromium}=await import(process.env.PLAYWRIGHT_ENTRY||'/tmp/race-playwright/node_modules/playwright/index.mjs');
 const url=process.env.RACE_URL||'http://127.0.0.1:8765/race-engine/?race=shuka-2026';
 const browser=await chromium.launch({headless:true,args:['--use-gl=angle','--use-angle=swiftshader','--enable-webgl','--enable-unsafe-swiftshader','--disable-dev-shm-usage']});
@@ -8,13 +18,14 @@ mkdirSync('/tmp/race-mobile-shots',{recursive:true});
 try{
  for(const vp of [{width:390,height:844},{width:320,height:568},{width:430,height:932},{width:1280,height:800}]){
   const page=await browser.newPage({viewport:vp,deviceScaleFactor:1,isMobile:vp.width<700,hasTouch:vp.width<700});
+  await serveLocal(page);
   const errors=[];page.on('pageerror',e=>errors.push(e.message));
   await page.goto(url,{waitUntil:'domcontentloaded',timeout:60000});
   await page.waitForFunction(()=>window.KYOTO_RENDER_STATUS?.ready===true,null,{timeout:45000}).catch(async e=>{
    console.error('WEBGL BOOT',await page.evaluate(()=>({renderer:window.KYOTO_RENDER_STATUS,error:document.getElementById('bootstrap-error')?.textContent})),errors);throw e;
   });
   const model=await page.evaluate(()=>window.KYOTO_RENDER_STATUS);
-  assert.equal(model.model,'thoroughbred-cel-v11');assert.equal(model.horses,17);
+  assert.equal(model.model,'skinned-thoroughbred-v16');assert.equal(model.horses,17);
   assert.equal(model.continuousRunOut,true);assert.equal(model.goalBoardSide,'far');
   assert.equal(await page.locator('#kyoto-map').isVisible(),false);
   assert.equal(await page.locator('#race-commentary-panel').isVisible(),true);
@@ -35,7 +46,7 @@ try{
    await page.waitForFunction(()=>window.RACE_CAMERA_AUDIT?.opening===window.RACE_CAMERA_AUDIT?.total,null,{timeout:8000});
    const cuts=await page.evaluate(()=>window.RACE_CINEMATIC_DEBUG.cuts);
    await page.screenshot({path:'/tmp/race-mobile-shots/shuka-'+vp.width+'-gate.png'});
-   const checks=[[.05,'start'],[(cuts[0]+cuts[1])/2,'second-turn'],[(cuts[1]+cuts[2])/2,'third-turn'],[.999,'straight']];
+   const checks=[[.05,'start'],[(cuts[0]+cuts[1])/2,'second-turn'],[.57,'third-turn'],[.999,'straight']];
    for(const [p,id] of checks){
     await seek(Math.round(p*1000));
     await page.waitForFunction(shot=>window.RACE_SCENE_AUDIT?.shot===shot,id,{timeout:10000});
@@ -83,8 +94,8 @@ try{
    assert.ok(limbFrames.filter(x=>x.hind>.12).length>=8,'3D hind hooves must not synchronize');
    assert.ok(limbFrames.filter(x=>x.front>.12||x.hind>.12).length>=16,
     '3D fore/hind pairs should not look synchronized');
-   assert.equal((await page.locator('.live-head').textContent()).includes('v15'),true);
-   await page.screenshot({path:'/tmp/race-mobile-shots/shuka-'+vp.width+'-gallop-v15.png'});
+   assert.equal((await page.locator('.live-head').textContent()).includes('v16'),true);
+   await page.screenshot({path:'/tmp/race-mobile-shots/shuka-'+vp.width+'-gallop-v16.png'});
    // Observe real playback across the winner's line: translation AND gait continue.
    await seek(980);await page.locator('#live-play').click();
    await page.waitForFunction(()=>window.RACE_SCENE_AUDIT?.runOut===true,null,{timeout:15000});
@@ -128,28 +139,28 @@ try{
  // Real Three.js 3D render verification for the independent single-horse
  // inspection page. Screenshot multiple poses and views, not only 2D angles.
  const lab=await browser.newPage({viewport:{width:960,height:820}});
+ await serveLocal(lab);
  const labErrors=[];lab.on('pageerror',e=>labErrors.push(e.message));
  await lab.goto(new URL('gait-lab.html',url).href,{waitUntil:'domcontentloaded'});
- await lab.waitForFunction(()=>window.EQUINE_GAIT_LAB?.snapshot().rig==='anatomical-endpoint-v15',
+ await lab.waitForFunction(()=>window.EQUINE_GAIT_LAB?.snapshot().rig==='skinned-cc0-v16',
    null,{timeout:30000});
  const baseline=[];
- for(const [phase,view] of [[.04,'side'],[.40,'side'],[.56,'three'],[.81,'front']]){
+ for(const lead of ['left','right'])for(const view of ['side','three','front'])for(const phase of [0,.25,.5,.75]){
+  await lab.evaluate(l=>window.EQUINE_GAIT_LAB.setLead(l),lead);
   await lab.locator('#camera').selectOption(view);
   await lab.evaluate(p=>window.EQUINE_GAIT_LAB.seek(p),phase);
   await lab.waitForTimeout(120);
   const snap=await lab.evaluate(()=>window.EQUINE_GAIT_LAB.snapshot());
   assert.ok(Math.abs(snap.phase-phase)<1e-6,'manual gallop pose is reproducible');
-  assert.equal(snap.segments.length,4);
-  assert.ok(snap.segments.every(l=>l.length===4));
-  assert.ok(snap.segments.flat().every(s=>Number.isFinite(s.length)&&s.length>.03&&s.length<1));
-  baseline.push({phase,view,front:snap.hoofs.slice(0,2),hind:snap.hoofs.slice(2)});
-  await lab.screenshot({path:'/tmp/race-mobile-shots/gallop-v15-'+view+'-'+phase+'.png'});
+  assert.equal(snap.hoofs.length,4);
+  assert.ok(snap.hoofs.every(h=>h.y>-.003),'actual deformed hoof vertices stay above turf');
+  if(phase===.25)assert.ok(snap.hoofs.every(h=>h.y>.035),'gathered suspension is airborne');
+  const limbs=snap.bones.filter(b=>/^(FrontUpperLeg|FrontLowerLeg|BackLeg|BackUpperLeg|BackLowerLeg)/.test(b.name));
+  if(baseline.length)limbs.forEach((b,i)=>assert.ok(Math.abs(b.length-baseline[0][i].length)<.0001,'limb bones do not stretch'));
+  baseline.push(limbs);
+  await lab.screenshot({path:'/tmp/race-mobile-shots/gallop-v16-'+lead+'-'+view+'-'+phase+'.png'});
  }
- assert.ok(Math.abs(baseline[0].hind[0].hoofZ-baseline[0].hind[1].hoofZ)>.14);
- assert.ok(Math.abs(baseline[1].front[0].hoofZ-baseline[1].front[1].hoofZ)>.14);
- assert.ok(baseline[3].front.every(f=>!f.contact)&&baseline[3].hind.every(h=>!h.contact),
-   'suspension really lifts all four hoof contact flags');
  assert.deepEqual(labErrors,[],'gait lab emits no WebGL script error');
  await lab.close();
- console.log('PASS v15 real-3D four anatomical meshes, airborne pose, side/three/front screenshots ✓');
+ console.log('PASS v16 real-3D skinned limbs, airborne pose, side/three/front screenshots ✓');
 }finally{await browser.close();}

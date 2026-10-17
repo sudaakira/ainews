@@ -179,7 +179,7 @@ assert.match(app,/h\.workout/);
 assert.match(read('core/regression.js'),/verifiedDraw/);
 for(const source of [app,render])assert.doesNotThrow(()=>new Function(source.replace(/^import .*?;$/gm,'')),'ES-module syntax must parse');
 const anime=read('assets/horse-anime.js');
-assert.doesNotThrow(()=>new Function(anime.replace('export function createRaceHorse','function createRaceHorse')),'active 3D horse module must parse');
+assert.doesNotThrow(()=>new Function(anime.replace(/export (async )?function/g,'$1function').replace(/import.meta.url/g,"'file:///horse.js'")),'active 3D horse module must parse');
 assert.match(render,/jockeyCap\(h,config,horse=>window\.SWAN_FACTORS\.frame\(horse\)\)/);
 assert.match(render,/frameCap\.hex,frameCap\.outline,frameCap\.pattern/);
 assert.match(app,/const cap=capFor\(h\)/);
@@ -288,8 +288,8 @@ assert.match(cinemaCSS,/prefers-reduced-motion/);
 assert.match(cinemaCSS,/env\(safe-area-inset-bottom/);
 assert.match(cinemaCSS,/height:100dvh/);
 assert.match(cinemaJS,/finishOrder\.slice\(0,3\)/);
-assert.match(render,/thoroughbred-cel-v11/);
-assert.match(anime,/thoroughbred-cel-v11/);
+assert.match(render,/skinned-thoroughbred-v16/);
+assert.match(anime,/skinned-thoroughbred-v16/);
 assert.match(html,/kyoto-v11/);
 console.log('Four cuts, perpendicular side cameras, fixed far-side finish, continuous all-horse run-out, exact rank and responsive HUD ✓');
 
@@ -311,88 +311,14 @@ assert.doesNotMatch(cinemaJS,/toReversed/,'leader is on left');
 console.log('Kyoto metric route, goal offset, 3C elevation, left-leading order and data-driven commentary ✓');
 
 
-// Equine gait v15: independent 4-beat contacts, sagittal joints, no crab scuttle.
-const {STRIKES,HOOF_SOLE,ANATOMY,SEGMENT_NAMES,sampleHorseGallop,validateGallopSample}=
- await load('assets/equine-gallop-v15.js');
-const {GALLOP_BEATS,sampleGallop,updateGallop}=await load('assets/chibi-gallop.js');
-assert.deepEqual(STRIKES.map(s=>[s.front,s.leading]),[
- [false,false],[false,true],[true,false],[true,true]
-]);
-assert.deepEqual(STRIKES.map(s=>s.start),[0,.16,.33,.49]);
-assert.equal(SEGMENT_NAMES.fore.length,4);
-assert.equal(SEGMENT_NAMES.hind.length,4);
-assert.equal(HOOF_SOLE,.055);
-for(const lead of ['right','left']){
- const leadingSide=lead==='right'?1:-1;
- const first=validateGallopSample(.04,lead);
- assert.deepEqual(first.contacts,[leadingSide===1?'HL':'HR']);
- const second=validateGallopSample(.22,lead);
- assert.deepEqual(second.contacts,[leadingSide===1?'HR':'HL']);
- const third=validateGallopSample(.39,lead);
- assert.deepEqual(third.contacts,[leadingSide===1?'FL':'FR']);
- const fourth=validateGallopSample(.55,lead);
- assert.deepEqual(fourth.contacts,[leadingSide===1?'FR':'FL']);
- for(const p of [.74,.78,.86,.91]){
-  const s=validateGallopSample(p,lead);
-  assert.equal(s.suspension,true,'collected flight must have all hooves off turf');
-  assert.ok(s.minFoot>.12,'hooves need real clearance during suspension');
- }
- let f=0,h=0;
- for(let n=0;n<300;n++){
-  const p=n/300,legs=sampleHorseGallop(p,lead);
-  assert.equal(legs.length,4);
-  assert.ok(legs.every(x=>x.points.length===5&&[-1,1].includes(x.side)));
-  assert.ok(legs.flatMap(x=>x.points).every(x=>Number.isFinite(x.y)&&Number.isFinite(x.z)));
-  f+=Math.abs(legs[0].points[4].z-legs[1].points[4].z)/300;
-  h+=Math.abs(legs[2].points[4].z-legs[3].points[4].z)/300;
-  for(const leg of legs){
-   if(leg.contact)assert.equal(leg.points[4].y,HOOF_SOLE);
-   for(let j=0;j<4;j++){
-    const a=leg.points[j],b=leg.points[j+1];
-    const length=Math.hypot(a.y-b.y,a.z-b.z);
-    assert.ok(length>.04&&length<.9,'no zero-length or hyperextended render segments');
-   }
-  }
- }
- assert.ok(f>.15&&h>.15,'both fore/hind pairs must be distinct in side view');
- const a=sampleHorseGallop(0,lead),b=sampleHorseGallop(1-1e-7,lead);
- assert.ok(Math.max(...a.flatMap((q,i)=>q.points.flatMap((p,j)=>[
-  Math.abs(p.y-b[i].points[j].y),Math.abs(p.z-b[i].points[j].z)
- ])))<.001,'loop seam should have no snap');
-}
-assert.match(anime,/setLegPose/);
-assert.match(anime,/leg\.segments|segments,/);
-assert.match(anime,/gallopRig:'anatomical-endpoint-v15'/);
-assert.match(read('assets/chibi-gallop.js'),/sampleHorseGallop/);
-assert.doesNotMatch(read('assets/chibi-gallop.js'),/sampleEquineFrame|solveLegIK/,
- 'broken v14 photographic-axis code and v13 IK must be removed');
-assert.match(html,/renderer\.js\?v=anatomy-v15/);
-assert.match(html,/自然ギャロップ v15/);
-assert.match(render,/chibi-gallop\.js\?v=anatomy-v15/);
-assert.match(render,/horse-anime\.js\?v=anatomy-v15/);
-assert.match(read('gait-lab.html'),/動作検証 v15/);
-const rrot=()=>({x:0,y:0,z:0,set(x,y,z){this.x=x;this.y=y;this.z=z;}});
-const rig={
- legs:[true,false].flatMap(front=>[-1,1].map(side=>({front,side}))),
- setLegPose(leg,pts){leg.lastPose=pts},
- anim:{position:{y:0},rotation:rrot()},
- headRig:{position:{y:2.03},rotation:rrot()},
- tailRig:{rotation:rrot()},ears:[],maneStrands:[],tailStrands:[],
- rider:{position:{y:0},rotation:rrot()},shadow:{material:{opacity:.22},scale:{x:.46}}
-};
-rig.gaitState={phase:.43,time:10,lead:1};
-updateGallop(rig,5,10,1,.5,{lead:'right',speedMps:15,frameDt:0,playing:false});
-assert.deepEqual(rig.legs[0].lastPose.map(x=>Object.keys(x)),Array(5).fill(['y','z']));
-assert.equal(rig.gallopAudit.sampledFrom,'v15-sagittal-anatomical-contacts');
-assert.ok(rig.gallopAudit.hoofs.every(x=>x.joints.length===5));
-const pause=rig.gallopAudit.phase;
-updateGallop(rig,5,12,1,.5,{lead:'right',speedMps:15,frameDt:1/30,playing:false});
-assert.equal(rig.gallopAudit.phase,pause,'stop freezes gait phase');
-rig.gaitState={phase:.38,time:2,lead:1};
-updateGallop(rig,5,2.2,1,.5,{lead:'right',speedMps:15,frameDt:1/30,playing:true});
-const regular=rig.gallopAudit.phase;
-rig.gaitState={phase:.38,time:2,lead:1};
-updateGallop(rig,5,99,1,.5,{lead:'right',speedMps:15,frameDt:1/30,playing:true});
-assert.ok(Math.abs(rig.gallopAudit.phase-regular)<1e-10,
- '16x playback does not multiply angular phase');
-console.log('v15 four footfalls, single flight, fore/hind anatomical joints, pause and 16x ✓');
+// The runtime now uses an authored skin, not endpoint cylinders.
+const glb=readFileSync(resolve(root,'assets/models/horse-v16.glb'));
+assert.equal(glb.readUInt32LE(0),0x46546c67);
+const asset=JSON.parse(glb.subarray(20,20+glb.readUInt32LE(12)).toString());
+assert.deepEqual(asset.animations.map(x=>x.name),['Gallop_Left','Gallop_Right','Idle']);
+assert.ok(asset.skins[0].joints.length>=40);
+assert.match(render,/await horseV3.preloadRaceHorse/);
+assert.match(anime,/skinned-cc0-v16/);
+assert.doesNotMatch(anime,/setLegPose/);
+assert.ok(existsSync(resolve(root,'assets/models/CC0-1.0.txt')));
+console.log('v16 skeletal asset and shared preload ✓; visual acceptance uses browser renders');

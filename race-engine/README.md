@@ -2,6 +2,10 @@
 
 **同じ画面・馬モデル・走行アニメーション・採点・着順シミュレーションを、レース設定ファイルだけで流用するためのエンジンです。**
 
+## 走行モーション v16
+
+CC0の骨格付き馬モデルとギャロップ素材を使用。1頭の横・斜め前・正面検証は [gait-lab.html](gait-lab.html)、出典・ライセンス・再生成方法・検証方法は [docs/gallop-v16.md](docs/gallop-v16.md) を参照。
+
 ## 公開ページ
 
 - [2026 スワンステークス](https://sudaakira.github.io/ainews/race-engine/?race=swan-2026)

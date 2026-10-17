@@ -1,140 +1,156 @@
-/** Original anatomical cel thoroughbred. Metre scale, forward +Z.
- * Continuous torso/neck surfaces, articulated scapula/knee/hock, racing crouch.
- * No assets from the reference game are used. */
+/** V16: Quaternius CC0 skinned horse, authored skeletal gallop, articulated rider.
+ * Metres, forward +Z. Rendering only; no prediction/RNG/race-position imports.
+ * Asset provenance and conversion are in docs/gallop-v16.md and tools/.
+ */
+let source,helpers,loading;
+const SCALE=.46;
+export async function preloadRaceHorse(T){
+ if(loading)return loading;
+ loading=(async()=>{
+  const [{GLTFLoader},skeleton,geometry]=await Promise.all([
+   import('../vendor/GLTFLoader.js'),import('../vendor/SkeletonUtils.js'),import('../vendor/BufferGeometryUtils.js')]);
+  const [gltf,motion]=await Promise.all([
+   new GLTFLoader().loadAsync(new URL('./models/horse-v16.glb',import.meta.url).href),
+   fetch(new URL('./models/horse-motion.json',import.meta.url)).then(r=>{if(!r.ok)throw Error('Horse motion '+r.status);return r.json()})]);
+  helpers={clone:skeleton.clone,merge:geometry.mergeGeometries};
+  gltf.scene.updateMatrixWorld(true);gltf.scene.traverse(m=>{if(m.isSkinnedMesh)m.skeleton.update()});
+  const meshes=[];gltf.scene.traverse(o=>{if(o.isSkinnedMesh)meshes.push(o)});
+  const main=meshes.find(m=>m.material.name==='Main').material.color;
+  const coat=[],fixed=[],feet={FL:[],FR:[],HL:[],HR:[]};let fixedOffset=0;
+  let mouth=new T.Vector3(),mouthCount=0;
+  for(const mesh of meshes){
+   const g=mesh.geometry.clone(),c=mesh.material.color.clone(),isCoat=/^Main/.test(mesh.material.name);
+   if(isCoat)c.setRGB(c.r/main.r,c.g/main.g,c.b/main.b);
+   const rgb=new Float32Array(g.attributes.position.count*3);
+   for(let i=0;i<g.attributes.position.count;i++){
+    rgb.set([c.r,c.g,c.b],i*3);
+    if(mesh.material.name==='Hooves'){
+     const v=mesh.getVertexPosition(i,new T.Vector3()).applyMatrix4(mesh.matrixWorld);
+     feet[(v.z>0?'F':'H')+(v.x>0?'L':'R')].push(fixedOffset+i);
+    }
+    if(mesh.material.name==='Muzzle'){mouth.add(mesh.getVertexPosition(i,new T.Vector3()).applyMatrix4(mesh.matrixWorld));mouthCount++}
+   }
+   g.setAttribute('color',new T.BufferAttribute(rgb,3));(isCoat?coat:fixed).push(g);
+   if(!isCoat)fixedOffset+=g.attributes.position.count;
+  }
+  mouth.divideScalar(mouthCount);gltf.scene.getObjectByName('Head').worldToLocal(mouth);
+  const first=meshes[0];
+  for(const [name,parts] of [['RaceHorseCoat',coat],['RaceHorseDetails',fixed]]){
+   const geo=helpers.merge(parts,false);
+   // Weld normals across the source's duplicated flat-shaded vertices without
+   // changing positions, skin weights or topology. No cylindrical limb pieces.
+   const sum=new Map(),p=geo.attributes.position,n=geo.attributes.normal;
+   for(let i=0;i<p.count;i++){const key=[p.getX(i),p.getY(i),p.getZ(i)].map(x=>x.toFixed(5)).join(',');let v=sum.get(key);if(!v){v=new T.Vector3();sum.set(key,v)}v.add(new T.Vector3(n.getX(i),n.getY(i),n.getZ(i)))}
+   for(const v of sum.values())v.normalize();
+   for(let i=0;i<p.count;i++){const v=sum.get([p.getX(i),p.getY(i),p.getZ(i)].map(x=>x.toFixed(5)).join(','));n.setXYZ(i,v.x,v.y,v.z)}
+   const m=new T.SkinnedMesh(geo,new T.MeshStandardMaterial({color:0xffffff,vertexColors:true,roughness:.85,metalness:0}));
+   m.name=name;m.position.copy(first.position);m.quaternion.copy(first.quaternion);m.scale.copy(first.scale);m.bind(first.skeleton,first.bindMatrix);m.frustumCulled=false;first.parent.add(m);
+  }
+  meshes.forEach(m=>m.removeFromParent());
+  source={gltf,motion,feet,mouth};return source;
+ })();return loading;
+}
+function interpolateFeet(phase){
+ const samples=source.motion.samples,n=samples.length-1,x=((phase%1)+1)%1*n,a=Math.floor(x),f=x-a;
+ return samples[a].map((p,i)=>{const q=samples[(a+1)%n][i];return {name:p.name,x:p.x+(q.x-p.x)*f,y:p.y+(q.y-p.y)*f,z:p.z+(q.z-p.z)*f}});
+}
+function floorOffset(phase){
+ const p=((phase%1)+1)%1;
+ const at=t=>.004-Math.min(...interpolateFeet(t).map(f=>f.y*SCALE));
+ // Only the gathered-flight interval is unsupported. Preserve its authored
+ // vertical arc; do NOT pull the lowest airborne foot down onto the ground.
+ if(p>.185&&p<.365){const u=(p-.185)/.18;return at(.185)*(1-u)+at(.365)*u}
+ return at(p);
+}
 export function createRaceHorse(T,scene,h,silkHex,frameCapHex='#89929b',frameCapOutline='#28323a',frameCapPattern=null,frameCapSecondary='#ffffff'){
- const root=new T.Group(),anim=new T.Group();root.add(anim);
- const colors=[0x777d82,0x382722,0x703f28,0x914b2c,0xa96337,0x5c6063,0x452922,0x825232,0x2a2526,0x6b3722,0x47302a,0x9b7050,0x71422b,0x4f3027,0x6a4431,0x986644,0x352823,0x8b6b52];
- const base=colors[(h.no-1)%colors.length],shades=[100,168,225,255];
- const gradient=new T.DataTexture(new Uint8Array(shades.flatMap(v=>[v,v,v,255])),4,1,T.RGBAFormat);gradient.needsUpdate=true;gradient.minFilter=gradient.magFilter=T.NearestFilter;
- const toon=c=>new T.MeshToonMaterial({color:c,gradientMap:gradient});
- const coat=toon(base),legShade=toon(new T.Color(base).multiplyScalar(.78)),dark=toon(new T.Color(base).multiplyScalar(.63)),mane=toon(0x211c1b),hoof=toon(0x282626),white=toon(0xf0eee3),leather=toon(0x262126),skin=toon(0xe0b591),silk=toon(silkHex),cap=toon(frameCapHex),black=toon(0x17212a);
- const sphere=new T.SphereGeometry(1,14,10);
- const ell=(parent,m,x,y,z,a,b,c)=>{const o=new T.Mesh(sphere,m);o.position.set(x,y,z);o.scale.set(a,b,c);parent.add(o);return o};
- const bone=(parent,m,a,b,r1,r2)=>{const p=new T.Vector3(...a),q=new T.Vector3(...b),v=q.clone().sub(p),o=new T.Mesh(new T.CylinderGeometry(r2,r1,v.length(),8),m);o.position.copy(p.add(q).multiplyScalar(.5));o.quaternion.setFromUnitVectors(new T.Vector3(0,1,0),v.normalize());parent.add(o);return o};
- function loft(parent,m,rings){
-  const v=[],idx=[],n=20;
-  for(const [y,z,rx,ry] of rings)for(let k=0;k<=n;k++){const a=k*2*Math.PI/n;v.push(Math.cos(a)*rx,y+Math.sin(a)*ry,z)}
-  for(let i=0;i<rings.length-1;i++)for(let k=0;k<n;k++){const a=i*(n+1)+k,b=a+n+1;idx.push(a,a+1,b,a+1,b+1,b)}
-  const g=new T.BufferGeometry();g.setAttribute('position',new T.Float32BufferAttribute(v,3));g.setIndex(idx);g.computeVertexNormals();
-  const nm=g.getAttribute('normal');for(let i=0;i<rings.length;i++){const a=i*(n+1),b=a+n,p=new T.Vector3(nm.getX(a)+nm.getX(b),nm.getY(a)+nm.getY(b),nm.getZ(a)+nm.getZ(b)).normalize();nm.setXYZ(a,p.x,p.y,p.z);nm.setXYZ(b,p.x,p.y,p.z)}
-  const mesh=new T.Mesh(g,m);parent.add(mesh);return mesh;
+ if(!source)throw Error('preloadRaceHorse must finish before constructing runners');
+ const root=new T.Group(),anim=new T.Group();root.add(anim);root.rotation.order='YXZ';
+ const asset=helpers.clone(source.gltf.scene);asset.scale.setScalar(SCALE);anim.add(asset);
+ const colors=[0x7e8589,0x382722,0x703f28,0x914b2c,0xa96337,0x63666a,0x452922,0x825232,0x2a2526,0x6b3722,0x47302a,0x9b7050,0x71422b,0x4f3027,0x6a4431,0x986644,0x352823,0x8b6b52];
+ const coat=asset.getObjectByName('RaceHorseCoat');coat.material=coat.material.clone();coat.material.color.setHex(colors[(h.no-1)%colors.length]);
+ const details=asset.getObjectByName('RaceHorseDetails'),bones={};asset.traverse(o=>{if(o.isBone)bones[o.name]=o});
+ const mixer=new T.AnimationMixer(asset),actions={};
+ for(const [key,name] of [['left','Gallop_Left'],['right','Gallop_Right'],['idle','Idle']]){
+  const clip=T.AnimationClip.findByName(source.gltf.animations,name);if(!clip)throw Error('Missing '+name);
+  actions[key]=mixer.clipAction(clip).play();actions[key].paused=true;
  }
- loft(anim,coat,[[1.36,-.91,.03,.05],[1.34,-.80,.23,.30],[1.32,-.63,.32,.36],[1.27,-.39,.34,.33],[1.25,-.12,.31,.30],[1.30,.16,.32,.37],[1.35,.38,.30,.39],[1.40,.55,.23,.31],[1.43,.66,.05,.11]]);
- // Neck rises from the chest and tapers to the poll, with a clear throat latch.
- loft(anim,coat,[[1.41,.35,.24,.31],[1.54,.48,.23,.34],[1.71,.61,.20,.32],[1.86,.72,.16,.27],[1.98,.80,.125,.20],[2.04,.87,.08,.10]]);
+ const toon=c=>new T.MeshStandardMaterial({color:c,roughness:.82});
+ const leather=toon(0x231e1c),white=toon(0xf4f1e4),silk=toon(silkHex),skin=toon(0xdcb18c),cap=toon(frameCapHex),black=toon(0x17212a),metal=toon(0xc5c7bd);
+ const sphere=new T.SphereGeometry(1,12,8);
+ const ell=(parent,m,x,y,z,sx,sy,sz)=>{const o=new T.Mesh(sphere,m);o.position.set(x,y,z);o.scale.set(sx,sy,sz);parent.add(o);return o};
+ const segment=(parent,m,r1,r2)=>{const o=new T.Mesh(new T.CylinderGeometry(r1,r2,1,8),m);parent.add(o);return o};
+ const up=new T.Vector3(0,1,0),v=new T.Vector3(),inverse=new T.Matrix4();
+ const connect=(m,a,b)=>{v.copy(b).sub(a);const length=v.length();m.position.copy(a).add(b).multiplyScalar(.5);m.quaternion.setFromUnitVectors(up,v.multiplyScalar(1/Math.max(length,1e-8)));m.scale.y=length};
+ function combine(parent){
+  const geos=[];for(const m of [...parent.children]){if(!m.isMesh)continue;m.updateMatrix();const g=m.geometry.clone().applyMatrix4(m.matrix),rgb=new Float32Array(g.attributes.position.count*3),c=m.material.color;for(let i=0;i<rgb.length;i+=3)rgb.set([c.r,c.g,c.b],i);g.setAttribute('color',new T.BufferAttribute(rgb,3));geos.push(g);parent.remove(m)}
+  if(geos.length)parent.add(new T.Mesh(helpers.merge(geos,false),new T.MeshStandardMaterial({vertexColors:true,roughness:.8})));
+ }
+ // Saddle, number and name remain explicit attachments, not part of horse skin.
+ const saddle=new T.Group();root.add(saddle);ell(saddle,leather,0,0,0,.28,.055,.32);
+ const cv=document.createElement('canvas');cv.width=256;cv.height=192;const ctx=cv.getContext('2d');ctx.fillStyle='#172633';ctx.fillRect(0,0,256,192);ctx.fillStyle='#fff';ctx.textAlign='center';ctx.font='bold 126px sans-serif';ctx.fillText(String(h.no),128,132);ctx.font='bold 20px sans-serif';ctx.fillText(h.name,128,171,240);
+ const texture=new T.CanvasTexture(cv);texture.colorSpace=T.SRGBColorSpace;
+ for(const side of [-1,1]){const c=new T.Mesh(new T.PlaneGeometry(.62,.42),new T.MeshBasicMaterial({map:texture,side:T.DoubleSide}));c.position.set(side*.36,-.20,-.04);c.rotation.y=side*Math.PI/2;saddle.add(c)}
+ const rider=new T.Group();root.add(rider);
+ const neck=segment(rider,skin,.045,.04);
+ const torso=ell(rider,silk,0,0,0,.145,.24,.115),pelvis=ell(rider,white,0,0,0,.15,.08,.14);
+ const head=new T.Group();rider.add(head);
+ ell(head,skin,0,0,0,.093,.115,.09);ell(head,cap,0,.09,-.006,.116,.075,.111);ell(head,cap,0,.065,.092,.116,.012,.05);ell(head,black,0,.015,.078,.092,.026,.022);
+ if(frameCapPattern){const sections=frameCapPattern==='quartered'?4:8,secondary=toon(frameCapSecondary);for(let i=0;i<sections;i++){const m=new T.Mesh(new T.SphereGeometry(1,8,6,i*2*Math.PI/sections,2*Math.PI/sections,0,Math.PI/2),i%2?secondary:cap);m.position.set(0,.09,-.006);m.scale.set(.117,.076,.112);head.add(m)}}
+ combine(head);
+ const limbs=[];
  for(const side of [-1,1]){
-  const shoulder=ell(anim,coat,side*.20,1.29,.36,.15,.29,.25);shoulder.rotation.x=-.3;
-  ell(anim,coat,side*.20,1.32,-.65,.17,.28,.24);
+  const boot=ell(rider,black,0,0,0,.044,.045,.085),hand=ell(rider,skin,0,0,0,.034,.032,.037);
+  const stirrup=new T.Mesh(new T.TorusGeometry(.042,.008,5,12),metal);root.add(stirrup);
+  const reinGeo=new T.BufferGeometry().setFromPoints(Array.from({length:9},()=>new T.Vector3()));const rein=new T.Line(reinGeo,new T.LineBasicMaterial({color:0x261e19}));root.add(rein);rein.frustumCulled=false;
+  const strap=segment(root,leather,.008,.008);
+  limbs.push({side,thigh:segment(rider,white,.060,.047),shin:segment(rider,black,.046,.033),upper:segment(rider,silk,.045,.037),fore:segment(rider,silk,.036,.025),boot,hand,stirrup,rein,strap});
  }
- const headRig=new T.Group();headRig.position.set(0,2.03,.88);anim.add(headRig);
- const skull=ell(headRig,coat,0,-.06,.09,.14,.22,.18);skull.rotation.x=-.3;
- const face=ell(headRig,coat,0,-.25,.27,.107,.27,.125);face.rotation.x=-.65;
- ell(headRig,dark,0,-.435,.405,.12,.095,.105);
- ell(headRig,dark,0,-.48,.32,.09,.045,.15);
- const ears=[];
- for(const side of [-1,1]){
-  ell(headRig,black,side*.128,-.07,.19,.025,.018,.033);
-  ell(headRig,white,side*.145,-.066,.2,.004,.005,.009);
-  ell(headRig,black,side*.099,-.425,.475,.019,.022,.014);
-  const rig=new T.Group();rig.position.set(side*.09,.13,.015);headRig.add(rig);
-  const ear=ell(rig,coat,0,.105,0,.044,.14,.045);ear.rotation.x=.13;
-  ell(rig,dark,0,.12,.035,.021,.08,.012);ears.push({rig,side});
-  bone(headRig,leather,[side*.13,.06,.03],[side*.12,-.42,.38],.009,.009);
-  ell(headRig,white,side*.12,-.40,.38,.021,.021,.018);
- }
- if(h.no%3!==0){const blaze=ell(headRig,white,0,-.19,.235,.025,.20,.012);blaze.rotation.x=-.65}
- bone(headRig,leather,[-.11,-.40,.43],[.11,-.40,.43],.012,.012);
- // Separate crest strands are hinged so their motion trails head and torso.
- const maneStrands=[];
- for(let i=0;i<8;i++){
-  const rig=new T.Group();rig.position.set(0,1.68+i*.047,.38+i*.062);anim.add(rig);
-  ell(rig,mane,0,.005,0,.045,.11,.10);
-  maneStrands.push({rig,phase:i*.24});
- }
- ell(headRig,mane,0,.14,.065,.10,.08,.11);
- const tailStrands=[],tailRig=new T.Group();tailRig.position.set(0,1.54,-.83);anim.add(tailRig);
- for(let i=0;i<5;i++){
-  const rig=new T.Group();rig.position.set((i-2)*.026,-.03,-.10-i*.032);tailRig.add(rig);
-  const tuft=ell(rig,mane,0,-.11,-.16,.037,.09,.27);tuft.rotation.x=-.35;
-  tailStrands.push({rig,phase:i*.31});
- }
- const legs=[];
- // v15: the skeleton consists of continuous, non-overextended anatomical
- // joints. Segment endpoints move in the horse sagittal plane (Y,Z).
- // Never rotate four independent sticks around the hip; that was the crab bug.
- for(const front of [true,false])for(const side of [-1,1]){
-  const near=side===1,legCoat=near?coat:legShade;
-  const pivot=new T.Group();pivot.position.set(side*.23,front?1.34:1.37,front?.48:-.69);anim.add(pivot);
-  const radii=front?[[.115,.155],[.077,.095],[.040,.057],[.033,.046]]:
-     [[.145,.193],[.087,.137],[.044,.061],[.035,.052]];
-  const segments=[];
-  for(let i=0;i<4;i++){
-   const [top,bottom]=radii[i];
-   const material=i===3?dark:(i===2&&h.no%3!==0?white:legCoat);
-   const mesh=new T.Mesh(new T.CylinderGeometry(top,bottom,1,10,1),material);
-   anim.add(mesh);segments.push(mesh);
+ // Soft, ground-plane shadows stay beneath the real soles, never orbit a joint.
+ const sc=document.createElement('canvas');sc.width=sc.height=64;const sg=sc.getContext('2d'),grad=sg.createRadialGradient(32,32,1,32,32,31);grad.addColorStop(0,'rgba(20,34,17,.55)');grad.addColorStop(.5,'rgba(20,34,17,.25)');grad.addColorStop(1,'rgba(20,34,17,0)');sg.fillStyle=grad;sg.fillRect(0,0,64,64);const shadowTex=new T.CanvasTexture(sc);
+ const makeShadow=(x,z)=>{const m=new T.Mesh(new T.PlaneGeometry(1,1),new T.MeshBasicMaterial({map:shadowTex,transparent:true,depthWrite:false,opacity:1}));m.rotation.x=-Math.PI/2;m.position.y=.007;m.scale.set(x,z,1);root.add(m);return m};
+ const shadow=makeShadow(1.15,2.9),footShadows=Array.from({length:4},()=>makeShadow(.26,.30));
+ const localPoint=(bone,out=new T.Vector3())=>{bone.getWorldPosition(out);return out.applyMatrix4(inverse)};
+ const joint=(a,b,l1,l2,pole)=>{const d=b.clone().sub(a),len=Math.max(.0001,d.length());d.divideScalar(len);const along=Math.min(l1,(l1*l1-l2*l2+len*len)/(2*len));const normal=pole.clone().addScaledVector(d,-pole.dot(d)).normalize();return a.clone().addScaledVector(d,along).addScaledVector(normal,Math.sqrt(Math.max(0,l1*l1-along*along)))};
+ const model={root,anim,asset,rider,shadow,gallopRig:'skinned-cc0-v16',artDirection:'skinned-thoroughbred-v16',gaitState:null};
+ model.pose=(phase,active,rightWeight,sprint=0)=>{
+  actions.left.setEffectiveWeight(active*(1-rightWeight));actions.right.setEffectiveWeight(active*rightWeight);actions.idle.setEffectiveWeight(1-active);
+  actions.left.time=actions.right.time=phase*source.motion.duration;actions.idle.time=0;mixer.update(0);
+  asset.position.y=floorOffset(phase)*active;root.updateMatrixWorld(true);inverse.copy(root.matrixWorld).invert();
+  const aft=localPoint(bones.Torso),fore=localPoint(bones.Torso3),center=localPoint(bones.Torso2);
+  const pitch=-Math.atan2(fore.y-aft.y,fore.z-aft.z);saddle.position.copy(center).add(new T.Vector3(0,.215,-.08));saddle.rotation.x=pitch;
+  const sy=saddle.position.y,sz=saddle.position.z;
+  // Racing seat absorbs the back's movement; boots follow the stirrups while
+  // knees/elbows articulate. The rider is not a rigid bobbing statuette.
+  const hipY=sy+.22-(sy-1.49)*.56*active;
+  const hip=new T.Vector3(0,hipY,sz-.16);
+  const shoulder=new T.Vector3(0,hipY+.25+.08*(1-active),sz+.28+.035*sprint);
+  pelvis.position.copy(hip);connect(torso,hip,shoulder);torso.scale.y*=.55;
+  head.position.copy(shoulder).add(new T.Vector3(0,.145,.13));head.rotation.x=-pitch*.18;connect(neck,shoulder.clone().add(new T.Vector3(0,.01,.04)),head.position.clone().add(new T.Vector3(0,-.075,-.02)));
+  const mouth=bones.Head.localToWorld(source.mouth.clone()).applyMatrix4(inverse);
+  for(const l of limbs){
+   const x=l.side;const ankle=new T.Vector3(x*.38,sy-.27,sz-.065),hipSide=hip.clone().add(new T.Vector3(x*.12,0,0));
+   const knee=joint(hipSide,ankle,.35,.35,new T.Vector3(x*.65,0,1));
+   connect(l.thigh,hipSide,knee);connect(l.shin,knee,ankle);l.boot.position.copy(ankle).add(new T.Vector3(0,-.015,.04));l.boot.rotation.x=.13;
+   l.stirrup.position.copy(ankle).add(new T.Vector3(0,-.027,.025));l.stirrup.rotation.y=Math.PI/2;
+   connect(l.strap,new T.Vector3(x*.26,sy,sz-.08),l.stirrup.position);
+   const hand=new T.Vector3(x*.14,sy+.12+(mouth.y-1.5)*.18,sz+.62+(mouth.z-1.4)*.10);
+   const shoulderSide=shoulder.clone().add(new T.Vector3(x*.11,0,0));const elbow=joint(shoulderSide,hand,.245,.245,new T.Vector3(0,-1,-.45));
+   connect(l.upper,shoulderSide,elbow);connect(l.fore,elbow,hand);l.hand.position.copy(hand);
+   const bit=mouth.clone().add(new T.Vector3(x*.085,0,.015)),a=l.rein.geometry.attributes.position;
+   for(let i=0;i<9;i++){const t=i/8;v.copy(hand).lerp(bit,t);v.y-=.045*Math.sin(Math.PI*t);a.setXYZ(i,v.x,v.y,v.z)}a.needsUpdate=true;
   }
-  const knuckles=[];
-  for(let i=0;i<3;i++){
-   const p=ell(anim,near?coat:legShade,side*.23,.6,0,
-      (front?[.105,.068,.048]:[.15,.085,.050])[i],
-      (front?[.103,.069,.052]:[.143,.088,.054])[i],
-      (front?[.116,.072,.055]:[.150,.093,.060])[i]);
-   knuckles.push(p);
-  }
-  // The hooves are solid masses, not point-size beads at the end of a wire.
-  const hoofMesh=ell(anim,hoof,side*.23,.055,0,.077,.058,.117);
-  const fetlockTuft=ell(anim,dark,side*.23,.15,0,.054,.058,.056);
-  legs.push({pivot,front,side,segments,knuckles,hoofMesh,fetlockTuft,
-    x:side*.23,coat:legCoat});
- }
- const axialUp=new T.Vector3(0,1,0),aV=new T.Vector3(),bV=new T.Vector3(),deltaV=new T.Vector3();
- function setLegPose(leg,points){
-  // Translate and orient a *tapered volume* between actual anatomical
-  // vertices. The hoof does not inherit the shin orientation.
-  const x=leg.x;
-  for(let i=0;i<4;i++){
-   const p=points[i],q=points[i+1],mesh=leg.segments[i];
-   aV.set(x,p.y,p.z);bV.set(x,q.y,q.z);
-   deltaV.copy(bV).sub(aV);
-   const length=deltaV.length();
-   mesh.position.copy(aV).add(bV).multiplyScalar(.5);
-   mesh.quaternion.setFromUnitVectors(axialUp,deltaV.multiplyScalar(1/Math.max(length,1e-6)));
-   mesh.scale.set(1,length,1);
-  }
-  for(let i=0;i<3;i++)leg.knuckles[i].position.set(x,points[i+1].y,points[i+1].z);
-  const p=points[4],fetlock=points[3];
-  leg.hoofMesh.position.set(x,p.y+.027,p.z+.025);
-  leg.hoofMesh.rotation.x=0;
-  leg.fetlockTuft.position.set(x,fetlock.y,fetlock.z);
- }
- ell(anim,leather,0,1.64,-.10,.29,.055,.34);
- // Each flank has its own legible saddlecloth and reins, without floating labels.
- const cv=document.createElement('canvas');cv.width=256;cv.height=192;const g=cv.getContext('2d');g.fillStyle='#192632';g.fillRect(0,0,256,192);g.fillStyle='#ffffff';g.textAlign='center';g.font='bold 126px sans-serif';g.fillText(String(h.no),128,132);g.font='bold 20px sans-serif';g.fillText(h.name,128,171,240);
- const tex=new T.CanvasTexture(cv);tex.colorSpace=T.SRGBColorSpace;
- for(const side of [-1,1]){const cloth=new T.Mesh(new T.PlaneGeometry(.62,.44),new T.MeshBasicMaterial({map:tex,side:T.DoubleSide}));cloth.position.set(side*.325,1.41,-.12);cloth.rotation.y=side*Math.PI/2;anim.add(cloth)}
- const rider=new T.Group();anim.add(rider);
- // Folded racing seat: hip behind the shoulder, torso pitched towards the neck.
- const body=ell(rider,silk,0,1.99,.10,.16,.25,.13);body.rotation.x=.90;
- ell(rider,white,0,1.77,-.14,.19,.10,.20);
- ell(rider,skin,0,2.20,.34,.105,.13,.10);
- ell(rider,cap,0,2.30,.33,.125,.08,.12);
- ell(rider,cap,0,2.27,.44,.125,.014,.055);
- ell(rider,black,0,2.22,.427,.10,.032,.015);
- if(frameCapPattern){
-  const sections=frameCapPattern==='quartered'?4:8,secondary=toon(frameCapSecondary);
-  for(let i=0;i<sections;i++){const m=new T.Mesh(new T.SphereGeometry(1,8,8,i*2*Math.PI/sections,2*Math.PI/sections,0,Math.PI/2),i%2?secondary:cap);m.position.set(0,2.30,.33);m.scale.set(.126,.081,.121);rider.add(m)}
- }
- for(const side of [-1,1]){
-  bone(rider,silk,[side*.13,2.05,.15],[side*.16,1.91,.46],.055,.039);
-  ell(rider,skin,side*.16,1.89,.48,.043,.035,.035);
-  bone(rider,white,[side*.13,1.78,-.14],[side*.32,1.54,.12],.07,.047);
-  bone(rider,black,[side*.32,1.54,.12],[side*.34,1.24,-.05],.047,.033);
-  ell(rider,black,side*.34,1.23,.0,.045,.04,.08);
-  bone(rider,leather,[side*.16,1.89,.48],[side*.12,1.63,1.25],.006,.006);
-  bone(anim,white,[side*.30,1.54,-.11],[side*.31,1.02,-.09],.015,.015);
- }
- const shadow=new T.Mesh(new T.CircleGeometry(1,24),new T.MeshBasicMaterial({color:0x172c19,transparent:true,opacity:.22,depthWrite:false,side:T.DoubleSide}));shadow.rotation.x=-Math.PI/2;shadow.position.y=.015;shadow.scale.set(.46,1.23,1);root.add(shadow);
- scene.add(root);
- return {root,anim,rider,headRig,tailRig,legs,ears,maneStrands,tailStrands,setLegPose,flutter:null,sprite:null,shadow,artDirection:'thoroughbred-cel-v11',gallopRig:'anatomical-endpoint-v15'};
+  const sampled=interpolateFeet(phase),byName=Object.fromEntries(sampled.map(p=>[p.name,p]));
+  const hoofs=sampled.map((p,i)=>{const mirrored=byName[p.name[0]+(p.name[1]==='L'?'R':'L')];const mix=(a,b)=>a+(b-a)*rightWeight;return {name:p.name,front:p.name[0]==='F',side:p.name[1]==='L'?1:-1,hoofX:p.x*SCALE,hoofY:mix(p.y,mirrored.y)*SCALE+asset.position.y,hoofZ:mix(p.z,mirrored.z)*SCALE,contact:active>.95&&mix(p.y,mirrored.y)*SCALE+asset.position.y<.028}});
+  const flight=active>.95&&hoofs.every(p=>p.hoofY>.035);
+  shadow.material.opacity=flight?.64:.88;
+  hoofs.forEach((f,i)=>{const m=footShadows[i];m.position.set(f.hoofX,.008,f.hoofZ);m.material.opacity=active*Math.max(0,.85-f.hoofY*3.5)});
+  root.updateMatrixWorld(true);
+  model.gallopAudit={phase,lead:rightWeight*2-1,flight,noHoofContact:flight,hoofs,sampledFrom:'quaternius-authored-skeleton-v16'};
+ };
+ model.renderedHoofs=()=>{
+  root.updateMatrixWorld(true);details.skeleton.update();const inv=root.matrixWorld.clone().invert();
+  return Object.entries(source.feet).map(([name,indices])=>{const pts=indices.map(i=>details.getVertexPosition(i,new T.Vector3()).applyMatrix4(details.matrixWorld).applyMatrix4(inv));return {name,y:Math.min(...pts.map(v=>v.y)),x:pts.reduce((n,v)=>n+v.x,0)/pts.length,z:pts.reduce((n,v)=>n+v.z,0)/pts.length}});
+ };
+ model.boneLengths=()=>{root.updateMatrixWorld(true);return Object.values(bones).filter(b=>b.parent.isBone).map(b=>({name:b.name,length:b.getWorldPosition(new T.Vector3()).distanceTo(b.parent.getWorldPosition(new T.Vector3()))}))};
+ model.pose(0,0,0);scene.add(root);return model;
 }
