@@ -180,24 +180,34 @@ export function raceCameraPose({shot,progress,order,path,aspect=1,clock=Infinity
   pose.look.y+=change;
  }
  raw=imagePoints(pose).filter(p=>p.visible);
- let lensShiftX=0;
+ let lensShiftX=0,leadNoseViewportTarget=null,aheadScreenSide='center';
  if(isGate){
   // The user's reference shows the whole gate filling the width, not a
   // minuscule gate at x=5% with a field of empty turf to the right.
   const mid=(Math.max(...raw.map(p=>p.x))+Math.min(...raw.map(p=>p.x)))/2;
   lensShiftX=mid; // optical center x=.50
  }else{
-  // Track direction determines where the 20% forward breathing space sits.
-  // Direction is derived from the real camera projection, not guessed from
-  // track handedness or the sign of its outside normal.
-  const l=path(lead.p),lane=runnerLane(lead.no,order.length,progress);
-  const p0={x:l.x-l.dz*lane,y:l.y+1.9,z:l.z+l.dx*lane};
-  const ahead={x:p0.x+l.dx*8,y:p0.y,z:p0.z+l.dz*8};
-  const advancingRight=projectPoint(ahead,pose.position,pose.look,fov,a).x>
-   projectPoint(p0,pose.position,pose.look,fov,a).x;
-  const edge=advancingRight?Math.max(...raw.map(p=>p.x)):Math.min(...raw.map(p=>p.x));
-  const target=advancingRight?bounds.right:bounds.left;
-  lensShiftX=edge-2*(target-.5);
+  // Frame the RACE LEADER, not the midpoint or rearmost horse of the pack.
+  // Camera optics are shifted so there is always lead-room ahead of the
+  // leader's nose (22% on lateral TV shots). At an almost head-on angle
+  // the room transitions continuously to the center/forward depth; a sign
+  // flip at the corner must not teleport the camera to the opposite side.
+  const q=path(lead.p),lane=runnerLane(lead.no,order.length,progress);
+  const ahead=(meters)=>({
+   x:q.x-q.dz*lane+q.dx*meters,
+   y:q.y+2.02,
+   z:q.z+q.dx*lane+q.dz*meters
+  });
+  const noseNdc=projectPoint(ahead(2.7),pose.position,pose.look,fov,a).x;
+  const nextNdc=projectPoint(ahead(11),pose.position,pose.look,fov,a).x;
+  const travel=nextNdc-noseNdc;
+  const strength=clamp((Math.abs(travel)-.009)/.13,0,1);
+  const leadTarget=.5+Math.sign(travel)*.28*strength;
+  lensShiftX=noseNdc-2*(leadTarget-.5);
+  // This is a semantic commitment: the front horse sets the frame. Other
+  // horses behind may fall off screen instead of forcing a huge zoom-out.
+  leadNoseViewportTarget=leadTarget;
+  aheadScreenSide=strength<.08?'towards-camera':travel>0?'right':'left';
  }
  const projectedWidth=Math.max(...raw.map(p=>p.x))-Math.min(...raw.map(p=>p.x));
  // Independently audit the camera against the rail as it is actually drawn
@@ -214,8 +224,10 @@ export function raceCameraPose({shot,progress,order,path,aspect=1,clock=Infinity
   lensShiftX,outerRailSign:outsideSign,tracked:group.length,
   mode:isGate?'gate-front-broadcast':'rail-broadcast-'+shot.id,
   outerRailClearance:outsideDist,cameraLane,railLane,railOutsideVerified:true,outerCourseBulge:groupBulge,
-  aheadScreenSide:'dynamic',gateScreenX:isGate?.5:null,
-  forwardGap:.2,projectedWidth,dollyScale:scale,
+  aheadScreenSide,gateScreenX:isGate?.5:null,
+  leadNoseViewportTarget,leadNumber:lead.no,
+  forwardGap:leadNoseViewportTarget===null?null:Math.min(leadNoseViewportTarget,1-leadNoseViewportTarget),
+  projectedWidth,dollyScale:scale,
   shotPerspective:isGate?'front-gate':shot.id==='third-entry'?'outside-headon':
    shot.id==='fourth-turn'?'outside-oblique':'outside-side'};
 }
