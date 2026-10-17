@@ -177,19 +177,19 @@ header p:last-child{font-size:12px;opacity:.8}
   <g id="kyoto-horses"></g>
  </svg></div>
  <input type="range" min="0" max="1000" value="0" id="live-scrub" aria-label="レースの再生位置"/>
- <div class="live-buttons"><button id="live-play">▶ スタート</button><button id="live-pause" style="background:#4c646b">⏸ 一時停止</button><button id="live-reset" style="background:#4c646b">↺ 新しいレース</button><select id="live-rate" aria-label="再生速度"><option value="1">1倍速</option><option value="2">2倍速</option><option value="4">4倍速</option><option value="8">8倍速</option><option value="16" selected>16倍速</option></select></div>
+ <div class="live-buttons"><button id="live-play">▶ スタート</button><button id="live-pause" style="background:#4c646b">⏸ 一時停止</button><button id="live-reset" style="background:#4c646b">↺ 新しいレース</button><select id="live-rate" aria-label="再生速度"><option value="1">1倍速</option><option value="2">2倍速</option><option value="4">4倍速</option><option value="8" selected>8倍速</option><option value="16">16倍速</option></select></div>
  <div class="result-head"><strong>🏆 レース順位 TOP 3</strong><span id="result-state">スタート待機</span></div>
  <div id="race" class="top3-results" aria-live="off"></div>
  <div class="live-leaders" id="live-leaders" style="margin-top:10px"></div>
  <p class="live-note">※仮想レースです。着順・時計は実際の結果ではありません。</p>
 </div>
-</section></div><div class="grid"><aside><section class="card"><h2>⚙️ 予想設定</h2><label>展開 <span id="pacelabel">中立</span></label><input id="pace" type="range" min="-3" max="3" value="0"><p class="small">左：スロー前残り／右：ハイ差し</p><label>馬場の速さ <span id="speedlabel">高速</span></label><input id="speed" type="range" min="0" max="3" value="2"><details class="advanced-settings"><summary>詳細設定を開く（騎手・枠順など）</summary><label>ばらつき <span id="vollabel">標準</span></label><input id="vol" type="range" min="6" max="16" value="10"><div class="factor-settings">
+</section></div><div class="grid"><aside><section class="card"><h2>⚙️ 予想設定</h2><label>展開 <span id="pacelabel">中立</span></label><input id="pace" type="range" min="-3" max="3" value="0"><p class="small">左：スロー前残り／右：ハイ差し</p><label>馬場の速さ <span id="speedlabel">高速</span></label><input id="speed" type="range" min="0" max="3" value="2"><details class="advanced-settings"><summary>詳細設定を開く（騎手・枠順など）</summary><label>ばらつき <span id="vollabel">5</span></label><input id="vol" type="range" min="1" max="16" value="5"><div class="factor-settings">
  <h3>🏇 完全版・条件回帰ループ（14項目／100点）</h3>
  <p class="small">評価項目を0〜2倍に調整。0で除外し、有効配点は100点へ正規化します。</p>
  <div class="weight-controls" id="weight-controls"></div>
  <div class="weight-footer"><span id="weight-summary">初期配点100点</span><button id="weight-reset" type="button">↺ 配点を初期化</button></div>
  <label>馬場状態</label><select id="ground-mode"><option value="good" selected>良・高速</option><option value="yielding">稍重</option><option value="soft">重</option><option value="heavy">不良</option></select>
- <label>当日バイアス</label><select id="bias-mode"><option value="neutral" selected>中立（未確認）</option><option value="inside">内・先行有利</option><option value="outside">外・差し有利</option></select>
+ <label>当日バイアス</label><select id="bias-mode"><option value="neutral" selected>中立（未確認）</option><option value="front">前〜好位有利（内外中立）</option><option value="inside">内・先行有利</option><option value="outside">外・差し有利</option></select>
  <p class="small">※父・母父以外の5代血統、全レースの直接対戦・ラップ、当週・1週前調教の全時計は未検証。未校正の暫定評価です。</p>
 </div><label>試行回数</label><select id="n"><option value="5000">5,000回</option><option value="20000" selected>20,000回</option><option value="50000">50,000回</option></select><button id="csv" class="export-btn" style="background:#466b6e">CSV出力</button></details><button id="simulate">🔄 予想を再計算</button><p class="tiny-disclaimer">※表示の確率は未校正のシミュレーション値です。</p></section></aside><main><section class="card"><h2>出走馬の3着以内率｜<span id="count">—</span></h2><p class="small">横棒＝モデル内3着以内率、右側の小文字＝条件回帰100点評価</p><div id="bars"></div></section><details class="card breakdown"><summary>📊 14項目・全出走馬の採点表</summary><p class="small">100点評価を全出走馬で比較。各項目の素点・配点は「各馬の詳細」で確認できます。</p><div class="factors-overflow" id="factor-deltas"></div><p class="small">枠順・性別・騎手の補正は、選択したレースで確認できたデータのみ使用します。未取得の要素は中立です。</p></details></main></div><details class="card horse-list" id="horse-details"><summary>🐎 各馬の詳細を見る</summary><p class="small">詳細を開くと14項目採点と近走・血統の入力状況が確認できます。未確認情報は暫定・中立として扱います。</p><div class="horses" id="horses"></div></details><details class="card links"><summary>📚 出典・モデルの注意点</summary><p class="small">データを読み込み中です。未校正のモデル内出現率です。</p></details></div>
 <div id="bootstrap-error" hidden style="margin:16px;padding:16px;border:2px solid #bd3441;border-radius:12px;color:#822;background:#fff2f2"></div>
@@ -197,22 +197,22 @@ header p:last-child{font-size:12px;opacity:.8}
 try {
  const raceId=new URLSearchParams(location.search).get('race')||'swan-2026';
  if(!/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(raceId)||raceId.length>60)throw Error('不正なレースID');
- const {default:config}=await import('./races/'+raceId+'.js?v=20261016monroe');
+ const {default:config}=await import('./races/'+raceId+'.js?v=20261017track');
  if(config.schemaVersion!==1||config.id!==raceId)throw Error('レース設定の形式が不正です');
  if(!Array.isArray(config.horses)||config.horses.length<3||config.horses.length>18)throw Error('出走頭数は3〜18頭');
  if(config.horses.some((h,i)=>h.no!==i+1||!h.name))throw Error('馬番は1からの連番');
  if(!Number.isFinite(config.distance)||config.distance<800||config.distance>4000)throw Error('距離は800〜4000m');
  const [{createFactors},{createRegression},{createSimulator}]=await Promise.all([
   import('./core/factors.js?v=shared-v9'),
-  import('./core/regression.js?v=shared-v9'),
+  import('./core/regression.js?v=shared-v10'),
   import('./core/simulator.js?v=shared-v9')
  ]);
  window.RACE_CONFIG=config;
  window.SWAN_FACTORS=createFactors(config);
  window.SWAN_LOOP=createRegression(config,window.SWAN_FACTORS);
  window.RACE_SIM=createSimulator(config,window.SWAN_LOOP);
- await import('./app.js?v=kyoto-v11-1');
- await import('./renderer.js?v=skin-v16');
+ await import('./app.js?v=kyoto-v11-2');
+ await import('./renderer.js?v=skin-v16-framing');
  await import('./assets/premium-mobile.js?v=cinema-v1');
 } catch(e){
  console.error('Race engine initialization failed',e);
