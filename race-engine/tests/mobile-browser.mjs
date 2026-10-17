@@ -266,7 +266,8 @@ try{
   const snap=await lab.evaluate(()=>window.EQUINE_GAIT_LAB.snapshot());
   assert.ok(Math.abs(snap.phase-phase)<1e-6,'manual gallop pose is reproducible');
   assert.equal(snap.hoofs.length,4);
-  assert.equal(snap.tack.revision,'photo-racing-tack-v21');assert.equal(snap.tack.saddle,true);
+  assert.equal(snap.tack.revision,'forward-racing-seat-v22');assert.equal(snap.tack.saddle,true);
+  assert.ok(snap.tack.stirrupBehindWithers>-.12&&snap.tack.stirrupBehindWithers<.20,'racing stirrups stay by the withers, not halfway back along the barrel');
   assert.equal(snap.tack.limbInfluence,0,'cloth is carried by the torso, not stretched by a thigh');
   assert.ok(snap.tack.thighPenetration<.00001,'moving thighs stay inside the cloth');
   assert.ok(snap.tack.minSupportGap>.005&&snap.tack.maxSupportGap<.2,'hanging cloth stays near its torso support');

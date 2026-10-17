@@ -36,7 +36,7 @@ export function prepareRacingTack(T,coat,scale){
  }
  // The photo's cloth sits behind the shoulder and ends before the hip.
  // Its hanging hem is level; it must not wrap around the hindquarter.
- const cloth=builder(),leather=builder(),trim=builder(),stirrupVertices={},front=.43,rear=-.42,clothRows=32,clothCols=44;
+ const cloth=builder(),leather=builder(),trim=builder(),stirrupVertices={},front=.52,rear=-.33,clothRows=32,clothCols=44;
  for(const side of [1,-1]){
   const hemAngles=Array.from({length:clothCols+1},(_,i)=>{const u=i/clothCols,z=side>0?front+(rear-front)*u:rear+(front-rear)*u;let lo=1.4,hi=2.35;for(let j=0;j<12;j++){const mid=(lo+hi)/2;if(radial(side*mid,z).point.y>1.16)lo=mid;else hi=mid}return (lo+hi)/2});
   cloth.strip(clothRows,clothCols,(r,u)=>{const z=side>0?front+(rear-front)*u:rear+(front-rear)*u;
@@ -47,12 +47,12 @@ export function prepareRacingTack(T,coat,scale){
    cloth.vertex(point,hit,0xffffff,[u,(side>0?1:.5)-r*.5],clothWeights(hit));
   });
   // Short, forward-cut racing flaps, lying above the cloth under the knees.
-  const flap=leather.strip(12,16,(r,u)=>{const a=.32+r*.65,half=.025+.12*Math.pow(Math.sin(Math.PI*r),.3),z=.18+(u*2-1)*half,hit=radial(side*a,z);leather.vertex(hit.point.clone().addScaledVector(hit.face.normal,.032),hit,0x231e1c)});stirrupVertices[side]=flap+8;
+  const flap=leather.strip(12,16,(r,u)=>{const a=.32+r*.65,half=.025+.12*Math.pow(Math.sin(Math.PI*r),.3),z=.36+(u*2-1)*half,hit=radial(side*a,z);leather.vertex(hit.point.clone().addScaledVector(hit.face.normal,.032),hit,0x231e1c)});stirrupVertices[side]=flap+8;
  }
  // The girth follows the entire actual barrel, behind the forelegs.
- leather.strip(48,3,(r,u)=>{const hit=radial(r*Math.PI*2,.25+(u-.5)*.085);leather.vertex(hit.point.clone().addScaledVector(hit.face.normal,.024),hit,0x39291f)});
+ leather.strip(48,3,(r,u)=>{const hit=radial(r*Math.PI*2,.43+(u-.5)*.085);leather.vertex(hit.point.clone().addScaledVector(hit.face.normal,.024),hit,0x39291f)});
  const seatRows=16,seatCols=10,seatPoint=(r,u)=>{
-  const z=-.18+r*.48,x=(u*2-1)*(.15-.04*r),hit=top(x,z);
+  const z=r*.48,x=(u*2-1)*(.15-.04*r),hit=top(x,z);
   const y=hit.point.y+.035+.025*Math.pow(1-r,6)+.018*Math.pow(r,6);
   return {point:new T.Vector3(x,y,z),hit};
  };
@@ -63,7 +63,7 @@ export function prepareRacingTack(T,coat,scale){
  const edge=[];for(let i=0;i<=24;i++)edge.push(seatPoint(0,i/24));for(let i=1;i<=32;i++)edge.push(seatPoint(i/32,1));for(let i=23;i>=0;i--)edge.push(seatPoint(1,i/24));for(let i=31;i>=0;i--)edge.push(seatPoint(i/32,0));
  trim.strip(edge.length-1,6,(r,u)=>{const i=Math.round(r*(edge.length-1)),at=edge[i],t=edge[(i+1)%edge.length].point.clone().sub(edge[(i+edge.length-1)%edge.length].point).normalize(),n=new T.Vector3(0,1,0).addScaledVector(t,-t.y).normalize(),b=t.clone().cross(n),a=u*Math.PI*2;trim.vertex(at.point.clone().addScaledVector(n,Math.cos(a)*.004).addScaledVector(b,Math.sin(a)*.004),at.hit,0x554437)});
  body.material.dispose();surface.dispose();
- return {cloth:cloth.geometry(),leather:leather.geometry().geo,trim:trim.geometry().geo,stirrupVertices,seatVertex:upper+Math.floor(seatRows/2)*(seatCols+1)+seatCols/2,revision:'photo-racing-tack-v21'};
+ return {cloth:cloth.geometry(),leather:leather.geometry().geo,trim:trim.geometry().geo,stirrupVertices,seatVertex:upper+Math.floor(seatRows/2)*(seatCols+1)+seatCols/2,revision:'forward-racing-seat-v22'};
 }
 
 export function createRacingTack(T,coat,prepared,horse){

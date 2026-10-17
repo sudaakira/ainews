@@ -2,7 +2,7 @@
  * Metres, forward +Z. Rendering only; no prediction/RNG/race-position imports.
  * Asset provenance and conversion are in docs/gallop-v16.md and tools/.
  */
-import {prepareRacingTack,createRacingTack} from './racing-tack.js?v=photo-tack-v21';
+import {prepareRacingTack,createRacingTack} from './racing-tack.js?v=forward-seat-v22';
 let source,helpers,loading;
 const SCALE=.46;
 export async function preloadRaceHorse(T){
@@ -128,11 +128,14 @@ export function createRaceHorse(T,scene,h,silkHex,frameCapHex='#89929b',frameCap
   head.position.copy(shoulder).add(new T.Vector3(0,.11,.13));head.rotation.x=-pitch*.18;connect(neck,shoulder.clone().add(new T.Vector3(0,.01,.04)),head.position.clone().add(new T.Vector3(0,-.075,-.02)));
   const mouth=bones.Head.localToWorld(source.mouth.clone()).applyMatrix4(inverse);
   for(const l of limbs){
-   const x=l.side;const ankle=new T.Vector3(x*.38,sy-.27,sz-.065),hipSide=hip.clone().add(new T.Vector3(x*.12,0,0));
-   const knee=joint(hipSide,ankle,.35,.35,new T.Vector3(x*.65,0,1));
+   // Racing feet belong below the forward stirrup bars by the withers.
+   // A rearward offset from the seat center puts the entire jockey too far aft.
+   const x=l.side,bar=tack.stirrupPoint(x).applyMatrix4(inverse);
+   const ankle=new T.Vector3(x*.34,sy-.27,bar.z),hipSide=hip.clone().add(new T.Vector3(x*.12,0,0));
+   const knee=joint(hipSide,ankle,.35,.35,new T.Vector3(x*.45,0,1));
    connect(l.thigh,hipSide,knee);connect(l.shin,knee,ankle);l.boot.position.copy(ankle).add(new T.Vector3(0,-.015,.04));l.boot.rotation.x=.13;
    l.stirrup.position.copy(ankle).add(new T.Vector3(0,-.027,.025));l.stirrup.rotation.y=Math.PI/2;
-   connect(l.strap,tack.stirrupPoint(x).applyMatrix4(inverse),l.stirrup.position);
+   connect(l.strap,bar,l.stirrup.position);
    const hand=new T.Vector3(x*.14,sy+.12+(mouth.y-1.5)*.18,sz+.62+(mouth.z-1.4)*.10);
    const shoulderSide=shoulder.clone().add(new T.Vector3(x*.11,0,0));const elbow=joint(shoulderSide,hand,.245,.245,new T.Vector3(0,-1,-.45));
    connect(l.upper,shoulderSide,elbow);connect(l.fore,elbow,hand);l.hand.position.copy(hand);
@@ -153,6 +156,6 @@ export function createRaceHorse(T,scene,h,silkHex,frameCapHex='#89929b',frameCap
   return Object.entries(source.feet).map(([name,indices])=>{const pts=indices.map(i=>details.getVertexPosition(i,new T.Vector3()).applyMatrix4(details.matrixWorld).applyMatrix4(inv));return {name,y:Math.min(...pts.map(v=>v.y)),x:pts.reduce((n,v)=>n+v.x,0)/pts.length,z:pts.reduce((n,v)=>n+v.z,0)/pts.length}});
  };
  model.boneLengths=()=>{root.updateMatrixWorld(true);const lengths=Object.values(bones).filter(b=>b.parent.isBone).map(b=>({name:b.name,length:b.getWorldPosition(new T.Vector3()).distanceTo(b.parent.getWorldPosition(new T.Vector3()))}));for(const side of ['L','R'])for(const end of ['Front','Back'])lengths.push({name:'HoofLink'+end+side,length:bones[end+'LowerLeg'+side].getWorldPosition(new T.Vector3()).distanceTo(bones['IK'+end+'Leg'+side].getWorldPosition(new T.Vector3()))});return lengths};
- model.tackAudit=()=>({...tack.audit(),seatAnchorGap:saddle.getWorldPosition(new T.Vector3()).distanceTo(tack.seatPoint()),strapAnchorGap:Math.max(...limbs.map(l=>l.strap.localToWorld(new T.Vector3(0,-.5,0)).distanceTo(tack.stirrupPoint(l.side))))});
+ model.tackAudit=()=>{const inv=root.matrixWorld.clone().invert(),withers=bones.Torso3.getWorldPosition(new T.Vector3()).applyMatrix4(inv),feet=limbs.map(l=>l.stirrup.getWorldPosition(new T.Vector3()).applyMatrix4(inv));return {...tack.audit(),stirrupBehindWithers:withers.z-feet.reduce((sum,p)=>sum+p.z,0)/feet.length,seatAnchorGap:saddle.getWorldPosition(new T.Vector3()).distanceTo(tack.seatPoint()),strapAnchorGap:Math.max(...limbs.map(l=>l.strap.localToWorld(new T.Vector3(0,-.5,0)).distanceTo(tack.stirrupPoint(l.side))))}};
  model.pose(0,0,0);scene.add(root);return model;
 }
