@@ -60,7 +60,7 @@ function pickSubjects(shot,order,distance,aspect){
 function frameBoundary(isGate,id){
  if(isGate)return {left:.055,right:.94,lower:.07,upper:.94};
  if(id==='first-corner')return {left:.06,right:.86,lower:.09,upper:.90};
- if(id==='third-entry')return {left:.08,right:.82,lower:.10,upper:.88};
+ if(id==='backstretch')return {left:.04,right:.96,lower:.10,upper:.90};
  if(id==='fourth-turn')return {left:.08,right:.80,lower:.10,upper:.88};
  return {left:.10,right:.82,lower:.12,upper:.88};
 }
@@ -236,7 +236,7 @@ export function raceCameraPose({shot,progress,order,path,aspect=1,clock=Infinity
   referenceProgress:pCenter,stationAheadMeters:inFront,lockedCameraRequested:true,
   projectedWidth,dollyScale:scale,
   shotPerspective:isGate?'front-gate':shot.id==='backstretch'?'outside-side-field':
-   shot.id==='fourth-turn'?'outside-oblique':'outside-side'};
+   shot.id==='fourth-turn'?'outside-front-oblique':'outside-side'};
 }
 
 /**
