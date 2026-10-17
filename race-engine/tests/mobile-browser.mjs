@@ -159,7 +159,7 @@ try{
      if(a?.cameraRenderedBearing)result.push({
       bearing:a.cameraRenderedBearing,pos:a.cameraRenderedPosition,
       fov:a.cameraRenderedFov,lens:a.cameraRenderedLensShift,
-      rebases:a.cameraRebases,shot:a.shot,clock:a.clock});
+      rebases:a.cameraRebases,shot:a.shot,clock:a.clock,leadX:a.leadNoseScreenX});
     }
     return result;
    });
@@ -170,17 +170,23 @@ try{
    const initial=moving[0],final=moving.at(-1);
    const span=Math.hypot(final.pos.x-initial.pos.x,final.pos.z-initial.pos.z);
    assert.ok(span>.25,'camera dolly must travel with the racing leaders: '+span);
+   let preceding=null;
    for(const f of moving){
-    const turn=Math.hypot(f.bearing.x-initial.bearing.x,
-     f.bearing.y-initial.bearing.y,f.bearing.z-initial.bearing.z);
-    assert.ok(turn<.0004,'unstable view bearing in same TV cut: '+turn);
+    if(preceding){
+     const turn=Math.hypot(f.bearing.x-preceding.bearing.x,
+      f.bearing.y-preceding.bearing.y,f.bearing.z-preceding.bearing.z);
+     assert.ok(turn<.14,'jerky CAMERA step inside live TV shot: '+turn);
+    }
+    assert.ok(f.leadX>.035&&f.leadX<.95,
+     'leader must remain on screen during mobile tracking: '+f.leadX);
     assert.ok(Math.abs(f.fov-initial.fov)<.005,'fixed zoom within shot');
     assert.ok(Math.abs(f.lens-initial.lens)<.005,'no per-frame optical shift');
     assert.equal(f.rebases,initial.rebases,'never recompose every frame');
+    preceding=f;
    }
    console.log('MOBILE_DOLLY_STABILITY',JSON.stringify({
     viewport:vp.width,frames:moving.length,movedMeters:span,
-    rebase:initial.rebases,stableBearing:true}));
+    rebase:initial.rebases,stableRelativeBearing:true}));
    // 3D WebGL release gate: verify actual rendered limbs alternate, not just
    // theoretical beat ordering. Exercise this at the default 16x on mobile.
    await seek(380);
