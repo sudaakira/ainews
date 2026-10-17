@@ -55,7 +55,7 @@ export function updateGallop(model,raceTime,visualTime,number,raceProgress=0,opt
   // Angles in the measured dataset are relative to the previous segment,
   // positive toward +Y from the +Z horizontal.
   for(let j=0;j<4;j++){
-   leg.joints[j].rotation.x=-angles[j]*active;
+   leg.joints[j].rotation.x=-(j===0?lerp(-Math.PI/2,angles[j],active):angles[j]*active);
    leg.joints[j].rotation.y=0;
    leg.joints[j].rotation.z=0; // no lateral scuttling / crab-walk
   }
