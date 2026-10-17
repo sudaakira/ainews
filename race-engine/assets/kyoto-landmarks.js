@@ -71,7 +71,7 @@ export function buildKyotoLandmarks(THREE,scene,{raceName='秋華賞'}={}){
  // Large infield 'Multi-screen Turf Vision' 64m × 10.8m (official JRA).
  // Near the home stretch: face points toward the spectator/outside-rail
  // cameras (+z). The position is a schematic visual placement.
- const w=64,h=10.8,screenX=-52,screenZ=119,bottom=7.5;
+ const w=64,h=10.8,screenX=-123,screenZ=122,bottom=7.5;
  const frameGroup=new THREE.Group();
  frameGroup.position.set(screenX,0,screenZ);
  const steel=new THREE.MeshStandardMaterial({color:0x526570,metalness:.48,roughness:.58});
