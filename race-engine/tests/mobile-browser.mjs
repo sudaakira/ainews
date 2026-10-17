@@ -71,20 +71,20 @@ try{
      await new Promise(requestAnimationFrame);
      const h=window.RACE_SCENE_AUDIT?.gallopHoofs;
      if(h?.length===4)samples.push({
-      front:Math.abs(h[0].hip-h[1].hip),
-      hind:Math.abs(h[2].hip-h[3].hip)
+      front:Math.abs(h[0].hoofZ-h[1].hoofZ),
+      hind:Math.abs(h[2].hoofZ-h[3].hoofZ)
      });
     }
     return samples;
    });
    await page.locator('#live-pause').click();
    assert.ok(limbFrames.length>=24,'3D renderer must animate the rig');
-   assert.ok(limbFrames.filter(x=>x.front>.12).length>=8,'3D front shoulder poses must differ');
-   assert.ok(limbFrames.filter(x=>x.hind>.12).length>=8,'3D hind hip poses must differ');
+   assert.ok(limbFrames.filter(x=>x.front>.12).length>=8,'3D fore hooves must not synchronize');
+   assert.ok(limbFrames.filter(x=>x.hind>.12).length>=8,'3D hind hooves must not synchronize');
    assert.ok(limbFrames.filter(x=>x.front>.12||x.hind>.12).length>=16,
     '3D fore/hind pairs should not look synchronized');
-   assert.equal((await page.locator('.live-head').textContent()).includes('v14'),true);
-   await page.screenshot({path:'/tmp/race-mobile-shots/shuka-'+vp.width+'-gallop-v14.png'});
+   assert.equal((await page.locator('.live-head').textContent()).includes('v15'),true);
+   await page.screenshot({path:'/tmp/race-mobile-shots/shuka-'+vp.width+'-gallop-v15.png'});
    // Observe real playback across the winner's line: translation AND gait continue.
    await seek(980);await page.locator('#live-play').click();
    await page.waitForFunction(()=>window.RACE_SCENE_AUDIT?.runOut===true,null,{timeout:15000});
