@@ -298,29 +298,34 @@ export function followLockedCameraPose(rig,order,path,{distance=2000,venue='京�
  const leader=order?.[0];
  if(!leader)return rig.pose;
  if(rig.pose.shotId==='fourth-turn'){
-  // A single continuous broadcast crane follows the leading horse, not
-  // a rotating stored frame. Both optical target and camera station are
-  // recomputed from the SAME track progress, eliminating the 4C orbit.
-  const p=leader.p,front=105,station=path(p+front/distance),q=path(p);
-  const lane=runnerLane(leader.no,order.length,p);
-  const horse={x:q.x-q.dz*lane+q.dx*2.7,y:q.y+2,z:q.z+q.dx*lane+q.dz*2.7};
+  // Low front-facing tracking vehicle: NO PAN, NO ZOOM. The entire camera
+  // translates by the leader's world displacement, with its optical axis
+  // frozen at the first frame. This avoids steering/yaw oscillations on 4C.
+  const noseAt=(p,no)=>{
+   const q=path(p),lane=runnerLane(no,order.length,p);
+   return {x:q.x-q.dz*lane+q.dx*2.7,y:q.y+2,
+    z:q.z+q.dx*lane+q.dz*2.7};
+  };
+  const initial=noseAt(rig.startLeaderProgress,rig.pose.leadNumber||leader.no);
+  const current=noseAt(leader.p,leader.no);
+  const station=path(rig.startLeaderProgress+95/distance);
   const right=direction!=='左',sign=right?1:-1;
   const half=venue==='京都'&&distance===2000?KYOTO_INNER.width/2:13.5;
-  const rail=(venue==='京都'&&distance===2000?kyotoOuterCourseOffset(p+front/distance):0)+(right?-half:half);
-  // Keep the camera outside the 3C/4C flare, including the widest curve.
+  const rail=(venue==='京都'&&distance===2000?kyotoOuterCourseOffset(rig.startLeaderProgress+95/distance):0)+(right?-half:half);
   const outside=rail-sign*58;
-  const position={x:station.x-station.dz*outside,y:station.y+12,
-   z:station.z+station.dx*outside};
-  const look={x:horse.x,y:horse.y+1.0,z:horse.z};
-  const laneAtStation=-(position.x-station.x)*station.dz+(position.z-station.z)*station.dx;
-  const clearance=right?rail-laneAtStation:laneAtStation-rail;
-  if(clearance<11.9)throw new Error('Fourth-turn camera crossed outside rail');
-  // A fixed 20-degree lens: no per-frame zoom or side-to-side optical shift.
-  const fov=Math.min(20,rig.pose.fov);
-  return {...rig.pose,position,look,fov,lensShiftX:0,
-   outerRailClearance:clearance,cameraLane:laneAtStation,railLane:rail,
-   railOutsideVerified:true,leadNumber:leader.no,lockedCamera:true,
-   cameraTrackYaw:0,baseShotId:'fourth-turn',
+  const dx=current.x-initial.x,dz=current.z-initial.z;
+  const position={x:station.x-station.dz*outside+dx,
+   y:current.y+3.8,z:station.z+station.dx*outside+dz};
+  const look={x:current.x,y:current.y+0.7,z:current.z};
+  const stationNow=path(leader.p+95/distance);
+  const railNow=(venue==='京都'&&distance===2000?kyotoOuterCourseOffset(leader.p+95/distance):0)+(right?-half:half);
+  const laneNow=-(position.x-stationNow.x)*stationNow.dz+(position.z-stationNow.z)*stationNow.dx;
+  const clearance=right?railNow-laneNow:laneNow-railNow;
+  // Fixed lens and fixed bearing; no lateral correction that would pan.
+  return {...rig.pose,position,look,fov:20,lensShiftX:0,
+   outerRailClearance:clearance,cameraLane:laneNow,railLane:railNow,
+   railOutsideVerified:clearance>=11.9,leadNumber:leader.no,
+   lockedCamera:true,cameraTrackYaw:0,baseShotId:'fourth-turn',
    leadNoseViewportTarget:.5,forwardGap:.5};
  }
  const advance=rig.pose.stationAheadMeters||0;
