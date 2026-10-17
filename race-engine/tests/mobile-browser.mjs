@@ -54,23 +54,24 @@ try{
     const state=await page.evaluate(()=>({director:window.RACE_CINEMATIC_DEBUG,scene:window.RACE_SCENE_AUDIT}));
     assert.equal(state.director.scriptedCuts,4);
     assert.equal(state.scene.leadersOccluded,0,'buildings never occlude leading horses');
-    assert.equal(state.director.pose.mode,'tight-nose-leader','must be a tight tracking shot');
-    assert.ok(state.scene.leadVisible,'front horse must remain in frame');
-    assert.ok(state.scene.leadNoseScreenX>=.14&&state.scene.leadNoseScreenX<=.75,
-      'leader NOSE must leave ~20% foreground air: '+state.scene.leadNoseScreenX);
-    assert.ok(state.director.pose.side<=15,'tracking shot must not zoom out for the pack');
+    assert.equal(state.director.pose.mode,'outer-rail-group','race broadcast must follow group from outside rail');
+    assert.equal(state.director.pose.outerRailSign,-1);
+    assert.ok(state.director.pose.subjects.length>=5&&state.director.pose.subjects.length<=7,
+     'top 5 and close outside runners must remain the picture subject');
+    assert.ok(state.director.pose.aheadSpace>=.18,'camera reserves space in direction of travel');
+    assert.ok(state.scene.leadVisible,'leader visible while tracking the five-horse contest');
+    assert.ok(state.scene.leadScreenX>=.08&&state.scene.leadScreenX<=.94,
+     'leader should remain in the group frame: '+state.scene.leadScreenX);
+    assert.ok(state.director.pose.side>=25,'tracking shot must be outside track');
     if(id==='third-turn'){
-     assert.ok(state.director.pose.position.y-state.director.pose.look.y<10);
-     assert.ok(state.director.pose.subjects.length<=3);
+     assert.ok(state.director.pose.position.y-state.director.pose.look.y<13);
      assert.ok(state.scene.positions.some(q=>q.y>1),'horses climb Kyoto hill');
     }
     if(id==='straight'){
-     await page.waitForFunction(()=>window.RACE_SCENE_AUDIT?.goalInFrame&&window.RACE_SCENE_AUDIT?.goalBehindHorses,null,{timeout:10000});
      const end=await page.evaluate(()=>window.RACE_SCENE_AUDIT);
-     assert.ok(state.director.pose.subjects.length<=3);
      assert.equal(end.gateVisible,false);
-     assert.ok(Math.abs(end.cameraForwardDot)<.001,'straight is perpendicular, not diagonal');
-     assert.equal(end.goalBehindHorses,true,'finish monument is deeper than every running lane');
+     assert.ok(Math.abs(end.cameraForwardDot)<.05,'straight must be an outer-rail lateral broadcast');
+     assert.ok(end.goalBoardVisible,'finish board must remain a real 3D scene object');
     }
     assert.ok((await page.locator('#race-commentary-text').textContent()).length>10);
     const visibleOrder=await page.locator('.tracking-number').allTextContents();
