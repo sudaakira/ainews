@@ -226,22 +226,22 @@ assert.match(premiumCSS,/premium-focus/);
 assert.match(premiumCSS,/\.bar:first-child \.fill/);
 assert.match(premiumCSS,/--ui-gold/);
 
-// Meaningful playback contracts: four cuts, side geometry and continuous run-out.
+// Meaningful playback contracts: five JRA cuts, outside-rail positioning and continuous run-out.
 const cinemaJS=read('assets/race-cinematics.js'),cinemaCSS=read('assets/race-cinematics.css');
 const {RACE_SHOT_LIST,chooseRaceShot,raceCameraPose,courseShotCuts}=await load('assets/race-shotlist.js');
 const {FINISH_GAP,runOutProgress,playbackEnd,playbackRate,finishCrossings}=await load('assets/race-playback.js');
-assert.deepEqual(RACE_SHOT_LIST.map(s=>s.id),['start','second-turn','third-turn','straight']);
+assert.deepEqual(RACE_SHOT_LIST.map(s=>s.id),['start','first-corner','third-entry','fourth-turn','finish']);
 const visited=[];
 for(let p=0;p<1.25;p+=.001){const id=chooseRaceShot(p).id;if(visited.at(-1)!==id)visited.push(id);}
-assert.deepEqual(visited,RACE_SHOT_LIST.map(s=>s.id),'exactly four compositions including the entire run-out');
-for(let i=0;i<3;i++){
+assert.deepEqual(visited,RACE_SHOT_LIST.map(s=>s.id),'exactly five compositions including the entire run-out');
+for(let i=0;i<4;i++){
  const boundary=RACE_SHOT_LIST[i].until;
  assert.equal(chooseRaceShot(boundary-1e-8).id,RACE_SHOT_LIST[i].id);
  assert.equal(chooseRaceShot(boundary).id,RACE_SHOT_LIST[i+1].id);
 }
 assert.equal(chooseRaceShot(NaN).id,'start');
 assert.equal(chooseRaceShot(-1).id,'start');
-assert.deepEqual(courseShotCuts(null,0,{venue:'東京'}),[.18,.52,.80,Infinity]);
+assert.deepEqual(courseShotCuts(null,0,{venue:'東京'}),[.08,.30,.62,.84,Infinity]);
 // Verify camera against Kyoto OUTERMOST outer-course rail, not just the
 // inner A-course. The previous "outside" camera could sit inside the 3C bulge.
 const {kyotoPath:cameraKyotoPath,runnerLane:cameraRunnerLane,kyotoOuterCourseOffset:cameraBulge}=await load('assets/kyoto-course.js');
@@ -256,8 +256,10 @@ for(const p of [.10,.4,.59,.66,.73,.82,.94,.999])for(const aspect of [.58,.76,1.
  const order=Array.from({length:17},(_,i)=>({no:i+1,p:p-i*.0022}));
  const pose=raceCameraPose({shot,progress:p,clock:Math.max(5,p*119),order,
   path:cameraKyotoPath,aspect,direction:'右',venue:'京都',distance:2000});
- assert.equal(pose.mode,'outer-rail-3to5');
- assert.ok(pose.subjects.length>=3&&pose.subjects.length<=5,'track only the first 3-5 runners');
+ assert.equal(pose.mode,'outer-rail-'+shot.id);
+ const target=shot.id==='first-corner'?[10,12]:shot.id==='third-entry'?[6,8]:shot.id==='fourth-turn'?[4,5]:[3,4];
+ assert.ok(pose.subjects.length>=target[0]&&pose.subjects.length<=target[1],
+  shot.id+' needs '+target+' front runners, got '+pose.subjects.length);
  assert.equal(pose.outerRailSign,-1);
  assert.ok(pose.outerRailClearance>=11.9,'camera OUTSIDE the actual outer-course rail');
  assert.ok(pose.aheadScreenSide==='right');
@@ -276,7 +278,7 @@ for(const aspect of [.58,.76,1.8]){
  assert.ok(Math.abs(pose.gateScreenX-.055)<.01,'entire starting gate trailing edge at x≈5%');
  assert.ok(pose.position.y>pose.look.y,'camera elevated over outside rail');
 }
-console.log('OUTERMOST-rail clearance, racing leader 3-5, start gate left trailing 10 percent ✓');
+console.log('Five cameras: outer rail, first corner pack, third/fourth entry, final battle ✓');
 for(const field of [3,6,17,18])for(const duration of [68,120,180]){
  const rank=Array.from({length:field},(_,i)=>field-i);
  assert.deepEqual(finishCrossings(rank,duration-1e-5,duration),[]);
@@ -319,7 +321,7 @@ assert.match(cinemaJS,/finishOrder\.slice\(0,3\)/);
 assert.match(render,/skinned-thoroughbred-v16/);
 assert.match(anime,/skinned-thoroughbred-v16/);
 assert.match(html,/kyoto-v11/);
-console.log('Four cuts, perpendicular side cameras, fixed far-side finish, continuous all-horse run-out, exact rank and responsive HUD ✓');
+console.log('Five broadcast cuts, outside rail, fixed far-side finish, continuous run-out and exact rank ✓');
 
 const {kyotoPath,kyotoHeight,KYOTO_INNER,KYOTO_CUTS}=await load('assets/kyoto-course.js');
 let measured=0;
