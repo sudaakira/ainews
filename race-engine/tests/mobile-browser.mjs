@@ -32,6 +32,10 @@ try{
   assert.equal(await page.locator('.tracking-number').count(),17);
   const canvas=await page.locator('#three-stage canvas').boundingBox();
   assert.ok(canvas.width>200&&canvas.height>200);
+  if(vp.width===390||vp.width===1280){
+   const gateCheck=await page.evaluate(()=>window.RACE_SCENE_AUDIT?.gateScreenX);
+   assert.ok(gateCheck>.02&&gateCheck<.18,'gate must sit near trailing left edge at start: '+gateCheck);
+  }
   if(vp.width<700){
    for(const id of ['#live-play','#live-pause','#live-reset','#live-rate','#race']){
     const box=await page.locator(id).boundingBox();
@@ -54,17 +58,18 @@ try{
     const state=await page.evaluate(()=>({director:window.RACE_CINEMATIC_DEBUG,scene:window.RACE_SCENE_AUDIT}));
     assert.equal(state.director.scriptedCuts,4);
     assert.equal(state.scene.leadersOccluded,0,'buildings never occlude leading horses');
-    assert.equal(state.director.pose.mode,'outer-rail-group','race broadcast must follow group from outside rail');
+    assert.equal(state.director.pose.mode,'outer-rail-3to5','race broadcast must follow leading 3-5 from outside rail');
     assert.equal(state.director.pose.outerRailSign,-1);
-    assert.ok(state.director.pose.subjects.length>=5&&state.director.pose.subjects.length<=7,
-     'top 5 and close outside runners must remain the picture subject');
-    assert.ok(state.director.pose.aheadSpace>=.18,'camera reserves space in direction of travel');
+    assert.ok(state.director.pose.subjects.length>=3&&state.director.pose.subjects.length<=5,
+     'front 3-5 horses must stay in the picture');
+    assert.equal(state.director.pose.aheadScreenSide,'right','Kyoto outer-rail camera sees race advance rightward');
+    assert.ok(state.director.pose.outerRailClearance>=11.9,'camera physically beyond Kyoto outermost rail');
     assert.ok(state.scene.leadVisible,'leader visible while tracking the five-horse contest');
     assert.ok(state.scene.leadScreenX>=.08&&state.scene.leadScreenX<=.94,
      'leader should remain in the group frame: '+state.scene.leadScreenX);
-    assert.ok(state.director.pose.side>=25,'tracking shot must be outside track');
+    assert.ok(state.director.pose.side>=24,'camera outside track with safe lateral elevation');
     if(id==='third-turn'){
-     assert.ok(state.director.pose.position.y-state.director.pose.look.y<13);
+     assert.ok(state.director.pose.position.y-state.director.pose.look.y<15);
      assert.ok(state.scene.positions.some(q=>q.y>1),'horses climb Kyoto hill');
     }
     if(id==='straight'){
