@@ -85,7 +85,8 @@ try{
      'leader should remain in the group frame: '+state.scene.leadScreenX);
     assert.ok(state.director.pose.side>=24,'camera outside track with safe lateral elevation');
     if(id==='third-entry'){
-     assert.ok(state.director.pose.position.y-state.director.pose.look.y<15);
+     assert.ok(state.director.pose.position.y-state.director.pose.look.y>4&&state.director.pose.position.y-state.director.pose.look.y<32,
+      'high outside camera looks DOWN at approaching horses, not at the horizon');
      assert.ok(state.scene.positions.some(q=>q.y>1),'horses climb Kyoto hill');
     }
     if(id==='finish'){
