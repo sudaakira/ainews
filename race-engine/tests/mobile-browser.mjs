@@ -67,6 +67,11 @@ try{
     assert.equal(state.scene.leadersOccluded,0,'buildings never occlude leading horses');
     assert.equal(state.director.pose.mode,'outer-rail-3to5','race broadcast must follow leading 3-5 from outside rail');
     assert.equal(state.director.pose.outerRailSign,-1);
+    assert.ok(state.director.pose.fov<=34,'leader shot should use the tighter telephoto camera');
+    if(id==='third-turn'||id==='straight'){
+     const visibleLabels=await page.locator('#race-front-labels b:visible').count();
+     assert.ok(visibleLabels>=2&&visibleLabels<=5,'show 2-5 colored identifiers for the front runners: '+visibleLabels);
+    }
     assert.ok(state.director.pose.subjects.length>=3&&state.director.pose.subjects.length<=5,
      'front 3-5 horses must stay in the picture');
     assert.equal(state.director.pose.aheadScreenSide,'right','Kyoto outer-rail camera sees race advance rightward');
