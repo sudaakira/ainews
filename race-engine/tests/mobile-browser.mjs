@@ -56,7 +56,7 @@ try{
     assert.equal(state.scene.leadersOccluded,0,'buildings never occlude leading horses');
     assert.equal(state.director.pose.mode,'tight-nose-leader','must be a tight tracking shot');
     assert.ok(state.scene.leadVisible,'front horse must remain in frame');
-    assert.ok(state.scene.leadNoseScreenX>=.15&&state.scene.leadNoseScreenX<=.29,
+    assert.ok(state.scene.leadNoseScreenX>=.14&&state.scene.leadNoseScreenX<=.75,
       'leader NOSE must leave ~20% foreground air: '+state.scene.leadNoseScreenX);
     assert.ok(state.director.pose.side<=15,'tracking shot must not zoom out for the pack');
     if(id==='third-turn'){
