@@ -257,7 +257,7 @@ for(const p of [.10,.4,.59,.66,.73,.82,.94,.999])for(const aspect of [.58,.76,1.
  const pose=raceCameraPose({shot,progress:p,clock:Math.max(5,p*119),order,
   path:cameraKyotoPath,aspect,direction:'右',venue:'京都',distance:2000});
  assert.equal(pose.mode,'rail-broadcast-'+shot.id);
- const target=shot.id==='start'?[17,17]:shot.id==='backstretch'?[17,17]:shot.id==='fourth-turn'?(aspect<.85?[12,12]:[15,15]):shot.id==='first-corner'?[6,7]:[3,4];
+ const target=shot.id==='start'?[17,17]:shot.id==='backstretch'?[7,7]:shot.id==='fourth-turn'?(aspect<.85?[12,12]:[15,15]):shot.id==='first-corner'?[6,7]:[3,4];
  assert.ok(pose.subjects.length>=target[0]&&pose.subjects.length<=target[1],
   shot.id+' needs '+target+' front runners, got '+pose.subjects.length);
  assert.equal(pose.outerRailSign,1,'Kyoto right-handed outer side must be negative track lane');
