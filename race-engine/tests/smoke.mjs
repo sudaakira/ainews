@@ -228,7 +228,7 @@ assert.match(premiumCSS,/--ui-gold/);
 
 // Meaningful playback contracts: five JRA cuts, outside-rail positioning and continuous run-out.
 const cinemaJS=read('assets/race-cinematics.js'),cinemaCSS=read('assets/race-cinematics.css');
-const {RACE_SHOT_LIST,chooseRaceShot,raceCameraPose,courseShotCuts}=await load('assets/race-shotlist.js');
+const {RACE_SHOT_LIST,chooseRaceShot,raceCameraPose,followLockedCameraPose,courseShotCuts}=await load('assets/race-shotlist.js');
 const {FINISH_GAP,runOutProgress,playbackEnd,playbackRate,finishCrossings}=await load('assets/race-playback.js');
 assert.deepEqual(RACE_SHOT_LIST.map(s=>s.id),['start','first-corner','third-entry','fourth-turn','finish']);
 const visited=[];
@@ -278,6 +278,34 @@ for(const p of [.10,.4,.59,.66,.73,.82,.94,.999])for(const aspect of [.58,.76,1.
  const screen=projectTest(point,pose,Math.max(.48,aspect));
  assert.ok(screen.depth>0&&screen.x>.02&&screen.x<.91,'leader in shot');
 }
+// Broadcast stability at iPhone portrait aspect: the lens/bearing must never
+// change BETWEEN editorial cuts. Only translation tracks the lead horse.
+for(const [start,end] of [[.085,.28],[.30,.66],[.68,.83],[.84,.99]]){
+ const shot=chooseRaceShot(start),order=p=>Array.from({length:17},(_,i)=>({no:i+1,p:p-i*.0022}));
+ const base=raceCameraPose({shot,progress:start,clock:start*120,order:order(start),
+  path:cameraKyotoPath,aspect:.54,direction:'右',venue:'京都',distance:2000});
+ const rig={pose:base,startLeaderProgress:start};
+ const bearing=followLockedCameraPose(rig,order(start),cameraKyotoPath,{distance:2000,venue:'京都'});
+ const vector=p=>[p.look.x-p.position.x,p.look.y-p.position.y,p.look.z-p.position.z];
+ const expected=vector(bearing);let previous=bearing;
+ for(let j=0;j<=100;j++){
+  const p=start+(end-start)*j/100;
+  const camera=followLockedCameraPose(rig,order(p),cameraKyotoPath,{distance:2000,venue:'京都'});
+  assert.ok(camera.lockedCamera,'must use fixed TV dolly instead of frame-by-frame auto compose');
+  assert.ok(camera.outerRailClearance>=14.9,'dolly stays at least 15m beyond rail');
+  assert.equal(camera.fov,bearing.fov,'no jitter in zoom/FOV within cut');
+  assert.equal(camera.lensShiftX,bearing.lensShiftX,'no optical-axis jitter within cut');
+  const diff=vector(camera).map((v,i)=>Math.abs(v-expected[i]));
+  assert.ok(Math.max(...diff)<1e-8,'no yaw, tilt or roll changes within TV cut: '+diff);
+  if(j>0)assert.ok(Math.hypot(camera.position.x-previous.position.x,
+    camera.position.z-previous.position.z)<80,'world-space dolly has no teleport');
+  previous=camera;
+ }
+}
+assert.match(cinemaJS,/lockedRig/);
+assert.match(cinemaJS,/mustRebase/);
+console.log('iPhone-fixed five cut camera: angle, zoom and optical shift locked for 400+ frames ✓');
+
 const startingOrder=Array.from({length:17},(_,i)=>({no:i+1,p:0}));
 for(const aspect of [.58,.76,1.8]){
  const pose=raceCameraPose({shot:RACE_SHOT_LIST[0],progress:0,clock:0,
