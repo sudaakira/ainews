@@ -348,7 +348,7 @@ const kyotoRender=read('renderer.js');
 assert.match(kyotoRender,/offsetPoint\(t,outer\(t\)-14,\.9\)/);
 assert.match(kyotoRender,/camera\.projectionMatrix\.elements\[8\]=smoothLensShift/);
 assert.match(kyotoRender,/smoothFov\+=\(shotDirection\.fov-smoothFov\)\*lensAlpha/);
-assert.match(kyotoRender,/Math\.exp\(-frameDt\*\(10\+Math\.min\(16,rate\)\*\.65\)\)/);
+assert.match(kyotoRender,/Math\.exp\(-frameDt\*\(48\+Math\.min\(16,rate\)\*2\.5\)\)/);
 // Dedicated infield scene source: no image downloads and physical 64m display.
 const kyotoLandmarksJS=read('assets/kyoto-landmarks.js');
 assert.match(kyotoLandmarksJS,/w=64,h=10\.8/);
