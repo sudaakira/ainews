@@ -28,6 +28,8 @@ select{background:#ecf4f3;color:#1c5049;border:1px solid #b5d2c9}
 <select id="rate" aria-label="表示速度"><option value=".25">0.25倍</option><option value=".5" selected>0.5倍</option><option value="1">1倍</option></select>
 <select id="lead" aria-label="手前"><option value="right">右手前</option><option value="left">左手前</option></select>
 <select id="camera" aria-label="視点"><option value="side">真横</option><option value="other">反対側</option><option value="three">斜め前</option><option value="front">真正面</option></select>
+<select id="posture" aria-label="馬体確認"><option value="run">走行姿勢</option><option value="stand">立ち姿</option></select>
+<label><input id="anatomy" type="checkbox">馬体のみ</label>
 </div>
 <label class="small">歩幅内の位置 <input id="scrub" type="range" min="0" max="1000" value="0" style="width:100%"></label><div class="phase"><div id="marker"></div></div>
 <p id="phase-label">ロード中...</p><div class="legend" id="legend"></div>
@@ -37,7 +39,7 @@ select{background:#ecf4f3;color:#1c5049;border:1px solid #b5d2c9}
 <script type="module">
 try{
  const T=await import('./vendor/three.module.js');
- const {createRaceHorse,preloadRaceHorse}=await import('./assets/horse-anime.js?v=centered-numbers-v23');
+ const {createRaceHorse,preloadRaceHorse}=await import('./assets/horse-anime.js?v=photo-body-v24');
  const {updateGallop}=await import('./assets/chibi-gallop.js?v=sprint-v19');
  const stage=document.getElementById('stage'),$=id=>document.getElementById(id);
  const scene=new T.Scene();scene.background=new T.Color(0xdde8e9);
@@ -56,11 +58,13 @@ try{
   const grounded=feet.filter(f=>f.y<.028);$('phase-label').textContent='1ストライド '+(a.phase*100).toFixed(0)+'%｜'+(grounded.length?'接地・蹴り出し':'空中浮遊・四肢回収');
   $('legend').innerHTML=feet.map((f,i)=>'<div class="foot '+(f.y<.028?'down':'up')+'"><b>'+names[i]+'</b>'+(f.y<.028?'● 接地':'○ 回収')+' '+Math.max(0,f.y*100).toFixed(0)+' cm</div>').join('');renderer.render(scene,camera);
  }
- function seek(phase){playing=false;$('play').textContent='▶ 再生';model.gaitState.phase=((phase%1)+1)%1;model.gaitState.lead=$('lead').value==='right'?1:0;model.gaitState.change=null;updateGallop(model,5,elapsed,1,.6,{lead:$('lead').value,speedMps:16,frameDt:0,playing:false});draw()}
- window.EQUINE_GAIT_LAB={version:'v19',seek,snapshot:()=>({phase:model.gallopAudit.phase,lead:model.gallopAudit.lead,rig:model.gallopRig,hoofs:model.renderedHoofs(),bones:model.boneLengths(),tack:model.tackAudit(),drawCalls:renderer.info.render.calls}),setView:v=>{$('camera').value=v;setCamera();draw()},setLead:l=>{$('lead').value=l;seek(model.gaitState.phase)}};
+ function seek(phase){$('posture').value='run';playing=false;$('play').textContent='▶ 再生';model.gaitState.phase=((phase%1)+1)%1;model.gaitState.lead=$('lead').value==='right'?1:0;model.gaitState.change=null;updateGallop(model,5,elapsed,1,.6,{lead:$('lead').value,speedMps:16,frameDt:0,playing:false});draw()}
+ window.EQUINE_GAIT_LAB={version:'v19',seek,snapshot:()=>({phase:model.gallopAudit.phase,lead:model.gallopAudit.lead,rig:model.gallopRig,body:model.bodyAudit(),hoofs:model.renderedHoofs(),bones:model.boneLengths(),tack:model.tackAudit(),drawCalls:renderer.info.render.calls}),setView:v=>{$('camera').value=v;setCamera();draw()},setLead:l=>{$('lead').value=l;seek(model.gaitState.phase)},setStanding:()=>{$('posture').value='stand';playing=false;model.pose(0,0,0);draw()}};
+ $('posture').onchange=()=>{if($('posture').value==='stand')window.EQUINE_GAIT_LAB.setStanding();else seek(model.gaitState.phase)};
+ $('anatomy').onchange=()=>{model.showEquipment(!$('anatomy').checked);draw()};
  $('lead').onchange=()=>seek(model.gaitState.phase);$('scrub').oninput=()=>seek(Number($('scrub').value)/1000);
  $('play').onclick=()=>{playing=!playing;$('play').textContent=playing?'⏸ 停止':'▶ 再生'};$('step').onclick=()=>seek(model.gaitState.phase+1/24);
- function paint(now){requestAnimationFrame(paint);const dt=last?Math.min(.06,(now-last)/1000):0;last=now;elapsed+=dt;updateGallop(model,5,elapsed,1,.6,{lead:$('lead').value,speedMps:16,frameDt:dt*Number($('rate').value),playing});draw()}
+ function paint(now){requestAnimationFrame(paint);const dt=last?Math.min(.06,(now-last)/1000):0;last=now;elapsed+=dt;if($('posture').value==='stand')model.pose(0,0,0);else updateGallop(model,5,elapsed,1,.6,{lead:$('lead').value,speedMps:16,frameDt:dt*Number($('rate').value),playing});draw()}
  seek(0);requestAnimationFrame(paint);
 }catch(e){document.getElementById('error').textContent='WebGLの起動に失敗しました: '+String(e.message||e);console.error(e)}
 </script></body></html>

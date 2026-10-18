@@ -38,7 +38,7 @@ try{
   if(baselineRank===null)baselineRank=original.rank;
   else assert.deepEqual(original.rank,baselineRank,'all viewport screenshots use the exact same race');
   const model=await page.evaluate(()=>window.KYOTO_RENDER_STATUS);
-  assert.equal(model.model,'skinned-thoroughbred-v16');assert.equal(model.gait,'racing-sprint-v19');assert.equal(model.horses,17);
+  assert.equal(model.model,'photo-thoroughbred-v24');assert.equal(model.gait,'racing-sprint-v19');assert.equal(model.horses,17);
   assert.equal(model.continuousRunOut,true);assert.equal(model.goalBoardSide,'far');
   assert.equal(model.landmarks?.visionScreenWidth,64,'JRA Turf Vision width 64m');
   assert.equal(model.landmarks?.visionScreenHeight,10.8,'JRA Turf Vision height 10.8m');
@@ -266,7 +266,10 @@ try{
   const snap=await lab.evaluate(()=>window.EQUINE_GAIT_LAB.snapshot());
   assert.ok(Math.abs(snap.phase-phase)<1e-6,'manual gallop pose is reproducible');
   assert.equal(snap.hoofs.length,4);
-  assert.equal(snap.tack.revision,'centered-racing-numbers-v23');assert.equal(snap.tack.saddle,true);
+  assert.equal(snap.body.bodyRevision,'photo-thoroughbred-v24');
+  assert.equal(snap.body.triangles,snap.body.originalTriangles*16,'new continuous surface, not only smoothed normals');
+  assert.ok(snap.body.vertices>8000&&snap.body.triangles<30000,'shared detailed geometry stays within the mobile budget');
+  assert.equal(snap.tack.revision,'photo-blue-saddlecloth-v24');assert.equal(snap.tack.saddle,true);
   assert.ok(snap.tack.stirrupBehindWithers>-.12&&snap.tack.stirrupBehindWithers<.20,'racing stirrups stay by the withers, not halfway back along the barrel');
   assert.equal(snap.tack.limbInfluence,0,'cloth is carried by the torso, not stretched by a thigh');
   assert.ok(snap.tack.thighPenetration<.00001,'moving thighs stay inside the cloth');

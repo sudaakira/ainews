@@ -36,15 +36,17 @@ export function prepareRacingTack(T,coat,scale){
  }
  // The photo's cloth sits behind the shoulder and ends before the hip.
  // Its hanging hem is level; it must not wrap around the hindquarter.
- const cloth=builder(),leather=builder(),trim=builder(),stirrupVertices={},front=.52,rear=-.33,clothRows=32,clothCols=44;
+ const cloth=builder(),leather=builder(),trim=builder(),stirrupVertices={},front=.49,rear=-.28,clothRows=32,clothCols=44;
  for(const side of [1,-1]){
-  const hemAngles=Array.from({length:clothCols+1},(_,i)=>{const u=i/clothCols,z=side>0?front+(rear-front)*u:rear+(front-rear)*u;let lo=1.4,hi=2.35;for(let j=0;j<12;j++){const mid=(lo+hi)/2;if(radial(side*mid,z).point.y>1.16)lo=mid;else hi=mid}return (lo+hi)/2});
+  const hemAngles=Array.from({length:clothCols+1},(_,i)=>{const u=i/clothCols,z=side>0?front+(rear-front)*u:rear+(front-rear)*u;let lo=1.4,hi=2.35;for(let j=0;j<12;j++){const mid=(lo+hi)/2;if(radial(side*mid,z).point.y>1.20)lo=mid;else hi=mid}return (lo+hi)/2});
   cloth.strip(clothRows,clothCols,(r,u)=>{const z=side>0?front+(rear-front)*u:rear+(front-rear)*u;
    const hit=radial(side*r*hemAngles[Math.round(u*clothCols)],z),point=hit.point.clone().addScaledVector(hit.face.normal,.013);
    // A saddlecloth hangs past the barrel; its lower half is not glued to a
    // contracting thigh. Small outward ease keeps the hanging hem clear.
    point.x+=side*(.012*T.MathUtils.smoothstep(r,0,.3)+.025*Math.pow(r,3));
-   cloth.vertex(point,hit,0xffffff,[u,(side>0?1:.5)-r*.5],clothWeights(hit));
+   // Print in vertical metres, not angular arc length: a numeral must not
+   // elongate just because the cloth wraps over the horse's curved back.
+   cloth.vertex(point,hit,0xffffff,[u,(side>0?1:.5)-T.MathUtils.clamp((1.67-point.y)/.47,0,1)*.5],clothWeights(hit));
   });
   // Short, forward-cut racing flaps, lying above the cloth under the knees.
   const flap=leather.strip(12,16,(r,u)=>{const a=.32+r*.65,half=.025+.12*Math.pow(Math.sin(Math.PI*r),.3),z=.36+(u*2-1)*half,hit=radial(side*a,z);leather.vertex(hit.point.clone().addScaledVector(hit.face.normal,.032),hit,0x231e1c)});stirrupVertices[side]=flap+8;
@@ -63,7 +65,7 @@ export function prepareRacingTack(T,coat,scale){
  const edge=[];for(let i=0;i<=24;i++)edge.push(seatPoint(0,i/24));for(let i=1;i<=32;i++)edge.push(seatPoint(i/32,1));for(let i=23;i>=0;i--)edge.push(seatPoint(1,i/24));for(let i=31;i>=0;i--)edge.push(seatPoint(i/32,0));
  trim.strip(edge.length-1,6,(r,u)=>{const i=Math.round(r*(edge.length-1)),at=edge[i],t=edge[(i+1)%edge.length].point.clone().sub(edge[(i+edge.length-1)%edge.length].point).normalize(),n=new T.Vector3(0,1,0).addScaledVector(t,-t.y).normalize(),b=t.clone().cross(n),a=u*Math.PI*2;trim.vertex(at.point.clone().addScaledVector(n,Math.cos(a)*.004).addScaledVector(b,Math.sin(a)*.004),at.hit,0x554437)});
  body.material.dispose();surface.dispose();
- return {cloth:cloth.geometry(),leather:leather.geometry().geo,trim:trim.geometry().geo,stirrupVertices,seatVertex:upper+Math.floor(seatRows/2)*(seatCols+1)+seatCols/2,revision:'centered-racing-numbers-v23'};
+ return {cloth:cloth.geometry(),leather:leather.geometry().geo,trim:trim.geometry().geo,stirrupVertices,seatVertex:upper+Math.floor(seatRows/2)*(seatCols+1)+seatCols/2,revision:'photo-blue-saddlecloth-v24'};
 }
 
 export function createRacingTack(T,coat,prepared,horse){
@@ -71,9 +73,10 @@ export function createRacingTack(T,coat,prepared,horse){
  // Center the large number above the name on the exposed side panel. The
  // forward portion under the saddle/boot is not part of the printed panel.
  for(const [row,numberX] of [[0,660],[512,364]]){
-  c.fillStyle='#8d292d';c.fillRect(0,row,1024,512);
-  c.fillStyle='#fff';c.textAlign='center';c.font='900 400px sans-serif';c.fillText(String(horse.no),numberX,row+408,640);
-  c.font='900 95px sans-serif';c.fillText(horse.name,numberX,row+492,690);
+  c.fillStyle='#29209b';c.fillRect(0,row,1024,512);
+  c.fillStyle='#fff';c.textAlign='center';c.font='900 360px RaceCloth';
+  c.save();c.translate(numberX,row+375);c.scale(1.42,1);c.fillText(String(horse.no),0,0,545);c.restore();
+  c.font='900 105px RaceCloth, sans-serif';c.fillText(horse.name,numberX,row+488,600);
  }
  const texture=new T.CanvasTexture(cv);texture.colorSpace=T.SRGBColorSpace;texture.anisotropy=8;
  const make=(geometry,material,name)=>{const m=new T.SkinnedMesh(geometry,material);m.name=name;m.position.copy(coat.position);m.quaternion.copy(coat.quaternion);m.scale.copy(coat.scale);m.bind(coat.skeleton,coat.bindMatrix);m.frustumCulled=false;coat.parent.add(m);return m};

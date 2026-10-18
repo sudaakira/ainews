@@ -2,12 +2,15 @@
  * Metres, forward +Z. Rendering only; no prediction/RNG/race-position imports.
  * Asset provenance and conversion are in docs/gallop-v16.md and tools/.
  */
-import {prepareRacingTack,createRacingTack} from './racing-tack.js?v=centered-numbers-v23';
+import {prepareRacingTack,createRacingTack} from './racing-tack.js?v=photo-body-v24';
+import {rebuildThoroughbred,rebuildHorseHair,coatEnvironment} from './thoroughbred-body.js?v=24';
 let source,helpers,loading;
 const SCALE=.46;
 export async function preloadRaceHorse(T){
  if(loading)return loading;
  loading=(async()=>{
+  const clothFont=new FontFace('RaceCloth',`url(${new URL('./models/racing-cloth-bold.woff',import.meta.url).href})`,{weight:'900'});
+  document.fonts.add(await clothFont.load());
   const [{GLTFLoader},skeleton,geometry]=await Promise.all([
    import('../vendor/GLTFLoader.js'),import('../vendor/SkeletonUtils.js'),import('../vendor/BufferGeometryUtils.js')]);
   const [gltf,motion]=await Promise.all([
@@ -17,10 +20,13 @@ export async function preloadRaceHorse(T){
   gltf.scene.updateMatrixWorld(true);gltf.scene.traverse(m=>{if(m.isSkinnedMesh)m.skeleton.update()});
   const meshes=[];gltf.scene.traverse(o=>{if(o.isSkinnedMesh)meshes.push(o)});
   const main=meshes.find(m=>m.material.name==='Main').material.color;
+  const bodyGeometry=rebuildThoroughbred(T,helpers.merge(meshes.filter(m=>/^Main/.test(m.material.name)).map(m=>{const g=m.geometry.clone(),color=m.material.color,rgb=new Float32Array(g.attributes.position.count*3);for(let i=0;i<rgb.length;i+=3)rgb.set([color.r/main.r,color.g/main.g,color.b/main.b],i);g.setAttribute('color',new T.BufferAttribute(rgb,3));return g}),false),SCALE);
   const coat=[],fixed=[],feet={FL:[],FR:[],HL:[],HR:[]};let fixedOffset=0;
   let mouth=new T.Vector3(),mouthCount=0;
   for(const mesh of meshes){
-   const g=mesh.geometry.clone(),c=mesh.material.color.clone(),isCoat=/^Main/.test(mesh.material.name);
+   const g=mesh.material.name==='Hair'?rebuildHorseHair(T,mesh,bodyGeometry,SCALE):mesh.geometry.clone(),c=mesh.material.color.clone(),isCoat=/^Main/.test(mesh.material.name);
+   g.deleteAttribute('uv');
+   g.setAttribute('skinIndex',new T.Uint16BufferAttribute(g.attributes.skinIndex.array,4));
    if(isCoat)c.setRGB(c.r/main.r,c.g/main.g,c.b/main.b);
    const rgb=new Float32Array(g.attributes.position.count*3);
    for(let i=0;i<g.attributes.position.count;i++){
@@ -36,15 +42,16 @@ export async function preloadRaceHorse(T){
   }
   mouth.divideScalar(mouthCount);gltf.scene.getObjectByName('Head').worldToLocal(mouth);
   const first=meshes[0];
+  const environment=coatEnvironment(T);
   for(const [name,parts] of [['RaceHorseCoat',coat],['RaceHorseDetails',fixed]]){
-   const geo=helpers.merge(parts,false);
+   const geo=name==='RaceHorseCoat'?bodyGeometry:helpers.merge(parts,false);
    // Weld normals across the source's duplicated flat-shaded vertices without
    // changing positions, skin weights or topology. No cylindrical limb pieces.
    const sum=new Map(),p=geo.attributes.position,n=geo.attributes.normal;
    for(let i=0;i<p.count;i++){const key=[p.getX(i),p.getY(i),p.getZ(i)].map(x=>x.toFixed(5)).join(',');let v=sum.get(key);if(!v){v=new T.Vector3();sum.set(key,v)}v.add(new T.Vector3(n.getX(i),n.getY(i),n.getZ(i)))}
    for(const v of sum.values())v.normalize();
    for(let i=0;i<p.count;i++){const v=sum.get([p.getX(i),p.getY(i),p.getZ(i)].map(x=>x.toFixed(5)).join(','));n.setXYZ(i,v.x,v.y,v.z)}
-   const m=new T.SkinnedMesh(geo,new T.MeshStandardMaterial({color:0xffffff,vertexColors:true,roughness:.85,metalness:0}));
+   const m=new T.SkinnedMesh(geo,new T.MeshPhysicalMaterial({color:0xffffff,vertexColors:true,roughness:name==='RaceHorseCoat'?.39:.78,metalness:0,clearcoat:name==='RaceHorseCoat'?.32:0,clearcoatRoughness:.4,envMap:name==='RaceHorseCoat'?environment:null,envMapIntensity:.6}));
    m.name=name;m.position.copy(first.position);m.quaternion.copy(first.quaternion);m.scale.copy(first.scale);m.bind(first.skeleton,first.bindMatrix);m.frustumCulled=false;first.parent.add(m);
   }
   meshes.forEach(m=>m.removeFromParent());
@@ -69,7 +76,7 @@ export function createRaceHorse(T,scene,h,silkHex,frameCapHex='#89929b',frameCap
  if(!source)throw Error('preloadRaceHorse must finish before constructing runners');
  const root=new T.Group(),anim=new T.Group();root.add(anim);root.rotation.order='YXZ';
  const asset=helpers.clone(source.gltf.scene);asset.scale.setScalar(SCALE);anim.add(asset);
- const colors=[0x7e8589,0x382722,0x703f28,0x914b2c,0xa96337,0x63666a,0x452922,0x825232,0x2a2526,0x6b3722,0x47302a,0x9b7050,0x71422b,0x4f3027,0x6a4431,0x986644,0x352823,0x8b6b52];
+ const colors=[0x7e8589,0x30221e,0x51301f,0x683a24,0x30251f,0x63666a,0x35231f,0x63402a,0x252123,0x4b2d20,0x382720,0x715038,0x543320,0x39271f,0x4f3424,0x71452e,0x2d231e,0x654934];
  const coat=asset.getObjectByName('RaceHorseCoat');coat.material=coat.material.clone();coat.material.color.setHex(colors[(h.no-1)%colors.length]);
  const details=asset.getObjectByName('RaceHorseDetails'),bones={};asset.traverse(o=>{if(o.isBone)bones[o.name]=o});
  const mixer=new T.AnimationMixer(asset),actions={};
@@ -111,7 +118,8 @@ export function createRaceHorse(T,scene,h,silkHex,frameCapHex='#89929b',frameCap
  const shadow=makeShadow(1.15,2.9),footShadows=Array.from({length:4},()=>makeShadow(.26,.30));
  const localPoint=(bone,out=new T.Vector3())=>{bone.getWorldPosition(out);return out.applyMatrix4(inverse)};
  const joint=(a,b,l1,l2,pole)=>{const d=b.clone().sub(a),len=Math.max(.0001,d.length());d.divideScalar(len);const along=Math.min(l1,(l1*l1-l2*l2+len*len)/(2*len));const normal=pole.clone().addScaledVector(d,-pole.dot(d)).normalize();return a.clone().addScaledVector(d,along).addScaledVector(normal,Math.sqrt(Math.max(0,l1*l1-along*along)))};
- const model={root,anim,asset,rider,shadow,gallopRig:'racing-sprint-v19',artDirection:'skinned-thoroughbred-v16',gaitState:null};
+ const model={root,anim,asset,rider,shadow,gallopRig:'racing-sprint-v19',artDirection:'photo-thoroughbred-v24',bodyAudit:()=>({...coat.geometry.userData,vertices:coat.geometry.attributes.position.count}),gaitState:null};
+ model.showEquipment=visible=>{rider.visible=saddle.visible=visible;for(const l of limbs)for(const key of ['stirrup','rein','strap'])l[key].visible=visible;for(const name of ['FittedSaddlecloth','RacingSaddleAndGirth','SaddlePiping'])asset.getObjectByName(name).visible=visible};
  model.pose=(phase,active,rightWeight,sprint=0)=>{
   actions.left.setEffectiveWeight(active*(1-rightWeight));actions.right.setEffectiveWeight(active*rightWeight);actions.idle.setEffectiveWeight(1-active);
   actions.left.time=actions.right.time=phase*source.motion.duration;actions.idle.time=0;mixer.update(0);

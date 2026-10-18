@@ -182,13 +182,13 @@ import {jockeyCap} from './core/jockey-caps.js?v=cap-v1';
  const models=[];
  let horseV3Ready=false,modelError='';
  try{
-  const horseV3=await import("./assets/horse-anime.js?v=centered-numbers-v23");
+  const horseV3=await import("./assets/horse-anime.js?v=photo-body-v24");
   await horseV3.preloadRaceHorse(THREE);
   for(const h of HS){
    const frameCap=capFor(h);
    models.push(horseV3.createRaceHorse(THREE,scene,h,silkColors[h.no-1],frameCap.hex,frameCap.outline,frameCap.pattern||null,frameCap.secondary||'#FFFFFF'));
   }
-  horseV3Ready=models.length===HS.length&&models.every(m=>m.artDirection==='skinned-thoroughbred-v16');
+  horseV3Ready=models.length===HS.length&&models.every(m=>m.artDirection==='photo-thoroughbred-v24');
   if(!horseV3Ready)throw new Error('アニメ馬モデルと出走'+HS.length+'頭の整合性を確認できませんでした');
  }catch(e){
   modelError=String(e?.stack||e);
@@ -308,7 +308,7 @@ import {jockeyCap} from './core/jockey-caps.js?v=cap-v1';
  status.textContent='3D RACE · '+models.length+'頭';
  document.getElementById('horse-model-version').textContent='EQUINE v19 · RACING SPRINT';
  const liveTitle=document.querySelector('.live-head strong');if(liveTitle)liveTitle.textContent+=' · v19';
- window.KYOTO_RENDER_STATUS={ready:true,model:'skinned-thoroughbred-v16',gait:'racing-sprint-v19',venue:venueReady?'full':'fallback',
+ window.KYOTO_RENDER_STATUS={ready:true,model:'photo-thoroughbred-v24',gait:'racing-sprint-v19',venue:venueReady?'full':'fallback',
   horses:models.length,camera:'mobile-first-fixed-direction-five-cut-dolly-v19',courseView:config.courseView,
   cinematic:true,saddleclothNames:true,goalBoard:!!goalBoard,gateDisappears:true,
   continuousRunOut:true,goalBoardSide:'far',furlongDigits:furlongPosts.map(x=>x.digit),landmarks:kyotoLandmarks?.audit||null};

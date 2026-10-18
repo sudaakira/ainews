@@ -417,8 +417,8 @@ assert.match(cinemaCSS,/prefers-reduced-motion/);
 assert.match(cinemaCSS,/env\(safe-area-inset-bottom/);
 assert.match(cinemaCSS,/height:100dvh/);
 assert.match(cinemaJS,/finishOrder\.slice\(0,3\)/);
-assert.match(render,/skinned-thoroughbred-v16/);
-assert.match(anime,/skinned-thoroughbred-v16/);
+assert.match(render,/photo-thoroughbred-v24/);
+assert.match(anime,/photo-thoroughbred-v24/);
 assert.match(html,/kyoto-v11/);
 console.log('Five broadcast cuts, outside rail, fixed far-side finish, continuous run-out and exact rank ✓');
 
