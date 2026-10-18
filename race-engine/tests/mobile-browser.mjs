@@ -18,6 +18,10 @@ const baseUrl=new URL(process.env.RACE_URL||'http://127.0.0.1:8765/race-engine/?
 baseUrl.searchParams.set('replay','20261017');
 baseUrl.searchParams.delete('at');
 const url=baseUrl.toString();
+// CI uses CPU-only SwiftShader. Simulation time advances by bounded RAF
+// steps, so reaching/passing the line can take longer than 15 wall seconds.
+// Keep every movement/rank assertion; allow the software renderer to finish.
+const runoutDeadline=process.env.CI?60000:15000;
 let baselineRank=null;
 const browser=await chromium.launch({headless:true,args:['--use-gl=angle','--use-angle=swiftshader','--enable-webgl','--enable-unsafe-swiftshader','--disable-dev-shm-usage']});
 mkdirSync('/tmp/race-mobile-shots',{recursive:true});
@@ -222,9 +226,9 @@ try{
    await page.screenshot({path:'/tmp/race-mobile-shots/shuka-'+vp.width+'-sprint-v19.png'});
    // Observe real playback across the winner's line: translation AND gait continue.
    await seek(980);await page.locator('#live-play').click();
-   await page.waitForFunction(()=>window.RACE_SCENE_AUDIT?.runOut===true,null,{timeout:15000});
+   await page.waitForFunction(()=>window.RACE_SCENE_AUDIT?.runOut===true,null,{timeout:runoutDeadline});
    const before=await page.evaluate(()=>window.RACE_SCENE_AUDIT);
-   await page.waitForFunction(t=>window.RACE_SCENE_AUDIT?.clock>t+.8,before.clock,{timeout:10000});
+   await page.waitForFunction(t=>window.RACE_SCENE_AUDIT?.clock>t+.8,before.clock,{timeout:runoutDeadline});
    const after=await page.evaluate(()=>({scene:window.RACE_SCENE_AUDIT,playing:window.KYOTO_RACE.LIVE.playing}));
    assert.equal(after.playing,true,'autoplay does not stop at goal');
    assert.ok(after.scene.visualTime>before.visualTime,'animation clock keeps advancing');
