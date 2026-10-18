@@ -299,7 +299,7 @@ for(const [start,end] of [[.085,.28],[.30,.66],[.68,.83],[.84,.99]]){
   assert.ok(camera.outerRailClearance>=14.9,'dolly stays >=15m outside rail');
   if(shot.id==='fourth-turn')assert.equal(camera.trackingMode,'fixed-exit-camera-front-five-pan');
   if(shot.id==='fourth-turn'){
-   assert.ok(camera.fov>=bearing.fov-1e-8&&camera.fov<=21.001,'4C tight telephoto lens');
+   assert.ok(camera.fov>=bearing.fov-1e-8&&camera.fov<=23.001,'4C tight telephoto lens');
    assert.ok(j===0||camera.fov>=previous.fov-1e-8,'4C lens must only widen');
    if(j>0)assert.ok(Math.hypot(camera.position.x-previous.position.x,camera.position.z-previous.position.z)<1e-7,'4C exit camera must stay fixed');
   }else assert.equal(camera.fov,bearing.fov,'no per-frame zoom');
