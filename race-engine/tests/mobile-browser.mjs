@@ -144,6 +144,17 @@ try{
     assert.equal(Number(visibleOrder[0]),state.director.pose.subjects[0]);
     await page.screenshot({path:'/tmp/race-mobile-shots/shuka-'+vp.width+'-'+id+'.png'});
    }
+   // The former 4C clipping happened AFTER the ordinary .77 still. Inspect
+   // actual WebGL projection near the exit as well, on portrait and desktop.
+   for(const value of [800,820,835]){
+    await seek(value);
+    await page.waitForFunction(()=>{const a=window.RACE_SCENE_AUDIT,p=window.RACE_CINEMATIC_DEBUG?.pose;return a?.shot==='fourth-turn'&&a.cameraTrackingError<.2&&Math.abs(a.cameraRenderedFov-p.fov)<.15},null,{timeout:10000});
+    const a=await page.evaluate(()=>window.RACE_SCENE_AUDIT);
+    assert.ok(a.leadVisible&&a.leadNoseScreenX>.30&&a.leadNoseScreenX<.70,
+     '4C exit must not crop the actual lead horse: '+JSON.stringify({width:vp.width,value,x:a.leadNoseScreenX}));
+    console.log('FOURTH_TURN_EXIT',JSON.stringify({width:vp.width,value,x:a.leadNoseScreenX}));
+    await page.screenshot({path:'/tmp/race-mobile-shots/shuka-'+vp.width+'-fourth-turn-'+value+'.png'});
+   }
    // Verify MOVING 8x video, not just five static stills. On iPhone the
    // broadcast camera should move with the pack without turning or zooming.
    await seek(350);
