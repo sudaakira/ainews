@@ -2,7 +2,7 @@
  * Metres, forward +Z. Rendering only; no prediction/RNG/race-position imports.
  * Asset provenance and conversion are in docs/gallop-v16.md and tools/.
  */
-import {prepareRacingTack,createRacingTack} from './racing-tack.js?v=photo-body-v24';
+import {prepareRacingTack,createRacingTack} from './racing-tack.js?v=photo-body-v24.1';
 import {rebuildThoroughbred,rebuildHorseHair,coatEnvironment} from './thoroughbred-body.js?v=24';
 let source,helpers,loading;
 const SCALE=.46;

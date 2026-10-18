@@ -8,8 +8,17 @@ export function prepareRacingTack(T,coat,scale){
  for(let i=0;i<g.attributes.position.count;i++)positions.push(...coat.getVertexPosition(i,new T.Vector3()).applyMatrix4(coat.matrixWorld).multiplyScalar(scale).toArray());
  const surface=new T.BufferGeometry();surface.setAttribute('position',new T.Float32BufferAttribute(positions,3));if(g.index)surface.setIndex(g.index.clone());surface.computeVertexNormals();
  const body=new T.Mesh(surface,new T.MeshBasicMaterial({side:T.DoubleSide}));body.updateMatrixWorld();
+ // Every fitting ray lies in a constant-Z plane. Partition the EXACT source
+ // triangles along Z, retaining original vertex IDs for barycentric weights.
+ // This is broad-phase rejection, not a simplified collision horse: it avoids
+ // scanning all 27,904 triangles thousands of times when fitting the new skin.
+ const count=96,position=surface.attributes.position,sourceIndex=surface.index,buckets=Array.from({length:count},()=>[]);
+ let zMin=Infinity,zMax=-Infinity;for(let i=0;i<position.count;i++){zMin=Math.min(zMin,position.getZ(i));zMax=Math.max(zMax,position.getZ(i))}
+ const bin=z=>T.MathUtils.clamp(Math.floor((z-zMin)/(zMax-zMin)*count),0,count-1);
+ for(let i=0;i<(sourceIndex?sourceIndex.count:position.count);i+=3){const ids=[0,1,2].map(k=>sourceIndex?sourceIndex.getX(i+k):i+k),zs=ids.map(id=>position.getZ(id));for(let j=bin(Math.min(...zs)-1e-10);j<=bin(Math.max(...zs)+1e-10);j++)buckets[j].push(...ids)}
+ const slices=buckets.map(indices=>{const geo=new T.BufferGeometry();geo.setAttribute('position',position);geo.setAttribute('normal',surface.attributes.normal);geo.setIndex(indices);const m=new T.Mesh(geo,body.material);m.updateMatrixWorld();return m});
  const ray=new T.Raycaster(),worldInverse=coat.matrixWorld.clone().invert(),si=g.attributes.skinIndex,sw=g.attributes.skinWeight;
- const cast=(origin,direction)=>{ray.set(origin,direction);const hit=ray.intersectObject(body,false)[0];if(!hit)throw Error('Tack surface miss '+origin.toArray());return hit};
+ const cast=(origin,direction)=>{ray.set(origin,direction);const hit=ray.intersectObject(slices[bin(origin.z)],false)[0];if(!hit)throw Error('Tack surface miss '+origin.toArray());return hit};
  const top=(x,z)=>cast(new T.Vector3(x,3,z),new T.Vector3(0,-1,0));
  const radial=(angle,z)=>{const cy=top(0,z).point.y-.34;return cast(new T.Vector3(0,cy,z),new T.Vector3(Math.sin(angle),Math.cos(angle),0))};
  const weights=hit=>{
@@ -64,7 +73,7 @@ export function prepareRacingTack(T,coat,scale){
  // Piping outlines the raised cantle, pommel and thin seat rather than a blob.
  const edge=[];for(let i=0;i<=24;i++)edge.push(seatPoint(0,i/24));for(let i=1;i<=32;i++)edge.push(seatPoint(i/32,1));for(let i=23;i>=0;i--)edge.push(seatPoint(1,i/24));for(let i=31;i>=0;i--)edge.push(seatPoint(i/32,0));
  trim.strip(edge.length-1,6,(r,u)=>{const i=Math.round(r*(edge.length-1)),at=edge[i],t=edge[(i+1)%edge.length].point.clone().sub(edge[(i+edge.length-1)%edge.length].point).normalize(),n=new T.Vector3(0,1,0).addScaledVector(t,-t.y).normalize(),b=t.clone().cross(n),a=u*Math.PI*2;trim.vertex(at.point.clone().addScaledVector(n,Math.cos(a)*.004).addScaledVector(b,Math.sin(a)*.004),at.hit,0x554437)});
- body.material.dispose();surface.dispose();
+ for(const m of slices)m.geometry.dispose();body.material.dispose();surface.dispose();
  return {cloth:cloth.geometry(),leather:leather.geometry().geo,trim:trim.geometry().geo,stirrupVertices,seatVertex:upper+Math.floor(seatRows/2)*(seatCols+1)+seatCols/2,revision:'photo-blue-saddlecloth-v24'};
 }
 
