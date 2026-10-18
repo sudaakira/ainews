@@ -328,7 +328,9 @@ export function followLockedCameraPose(rig,order,path,{distance=2000,venue='京�
   const progress=Math.max(0,Math.min(1,(leader.p-.68)/.15));
   const ease=progress*progress*(3-2*progress);
   // Tight shot of ~5 leaders, modest easing as they reach the exit.
-  const fov=12+9*ease;
+  // Keep the full leading contest visible on a narrow iPhone viewport.
+  // 12° cropped the actual leader to x=.133 in the smoke projection.
+  const fov=18+5*ease;
   const laneAtStation=-(position.x-station.x)*station.dz+(position.z-station.z)*station.dx;
   const clearance=right?rail-laneAtStation:laneAtStation-rail;
   if(clearance<14.9)throw new Error('4C fixed exit camera crossed outer rail');
