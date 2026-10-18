@@ -25,7 +25,7 @@ assert.equal(jockeyCap({no:4,frame:2,capPattern:'quartered'},{},()=>3).secondary
 assert.equal(jockeyCap({no:4,frame:1,capPattern:'eighths'},{},()=>3).secondary,'#74D3E8');
 assert.equal(jockeyCap({no:4,frame:3,capPattern:'unverified'},{},()=>3).pattern,undefined);
 console.log('JRA official 8-frame jockey helmets, exceptional dyed caps, and provisional draw ✓');
-for(const id of ['swan-2026','sample-demo','tokyo-20261012-11','tokyo-20261012-12','kyoto-20261012-12','shuka-2026']){
+for(const id of ['swan-2026','sample-demo','tokyo-20261012-11','tokyo-20261012-12','kyoto-20261012-12','shuka-2026','kikka-2026']){
  const {default:config}=await load('races/'+id+'.js');
  const factor=createFactors(config),regression=createRegression(config,factor),sim=createSimulator(config,regression);
  // Reused for ALL races, not only the 秋華賞.
@@ -167,6 +167,14 @@ for(const id of ['swan-2026','sample-demo','tokyo-20261012-11','tokyo-20261012-1
   assert.deepEqual(first,sim.simulate({...options,pace:config.defaultPace},1000,config.seed));
   assert.ok(Math.abs(first.reduce((a,x)=>a+x.win,0)-100)<1e-6);
   assert.ok(Math.abs(first.reduce((a,x)=>a+x.p3,0)-300)<1e-6);
+ }else if(id==='kikka-2026'){
+  assert.equal(config.distance,3000);
+  assert.equal(config.courseView,'kyoto-3000-outer');
+  assert.equal(config.horses.length,18);
+  assert.equal(config.provisionalDraw,true);
+  assert.equal(config.scenarios.length,9);
+  assert.equal(regression.FEATURES.find(f=>f.id==='blood').weight,10);
+  assert.ok(config.horses.every(h=>regression.scores(h,options).draw===50));
  }else{
   assert.equal(config.demo,true,'sample must be clearly fictional');
   assert.ok(config.horses.every(h=>factor.factors(h).total===0),'unavailable factors must be neutral');

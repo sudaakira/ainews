@@ -20,6 +20,10 @@ export function createRegression(config,F){
   {id:'distance',label:'距離変更・距離適性',weight:3,confidence:'暫定',note:'距離実績メモからの距離適性推定'},
   {id:'bias',label:'当日馬場バイアス',weight:2,confidence:'未確認',note:'初期値は中立。前有利・外差し等は利用者が選ぶ仮説'}
  ];
+ for(const f of FEATURES){
+  const override=config.featureDefinitions?.[f.id];
+  if(override)Object.assign(f,override,{id:f.id});
+ }
  if(FEATURES.reduce((sum,f)=>sum+f.weight,0)!==100)throw new Error('Default weights must total 100');
  // Race-local proxies must be explicitly provided. Missing fields stay neutral (50).
  const INPUTS=config.inputs||{};
@@ -91,7 +95,7 @@ export function createRegression(config,F){
   const fitnessRisk=rest!==null&&rest>=120&&/肺出血|屈腱炎|骨折/.test(h.minus||'');
   if(fitnessRisk){state=Math.min(state,36);rotation=Math.min(rotation,24);}
 
-  return {
+  const values={
    course:Number.isFinite(inp[0])?inp[0]:50,
    recent:Number.isFinite(Number(h.base))&&h.base!==null?clamp(55+(h.base-103)*2.8,15,96):50,
    lap:Number.isFinite(inp[1])?inp[1]:50,
@@ -107,6 +111,17 @@ export function createRegression(config,F){
    distance:Number.isFinite(inp[4])?inp[4]:50,
    bias:biasScore
   };
+  // Race-specific evidence scores are explicit, audited inputs. They never
+  // backfill missing values or change any existing race's defaults.
+  const observed=config.featureScores?.[h.no]||{};
+  for(const f of FEATURES)if(Number.isFinite(observed[f.id]))values[f.id]=clamp(observed[f.id],0,100);
+  const response=config.conditionResponses?.[h.no]||{};
+  for(const f of FEATURES){
+   const change=(response.pace?.[f.id]||0)*pace+(response.speed?.[f.id]||0)*(speed-2)
+    +(response.ground?.[ground]?.[f.id]||0)+(response.variants?.[scenario.variant]?.[f.id]||0);
+   values[f.id]=clamp(values[f.id]+change,0,100);
+  }
+  return values;
  }
  function evaluate(h,scenario={}){
   const values=scores(h,scenario),w=weights(scenario);
@@ -135,7 +150,7 @@ export function createRegression(config,F){
  }
  function docSummary(){
   return {features:FEATURES.length,defaultWeight:100,race:config.id,
-   unverified:['完全5代血統','厩舎の定量成績','全出走の直接対戦・ラップ','当日馬場バイアス','当週/1週前調教全時計','人気・オッズ（期待値の評価不可）']};
+   unverified:config.unverified||['完全5代血統','厩舎の定量成績','全出走の直接対戦・ラップ','当日馬場バイアス','当週/1週前調教全時計','人気・オッズ（期待値の評価不可）']};
  }
  return Object.freeze({FEATURES,INPUTS,DEFAULTS,BIASES,GROUNDS,
   scores,evaluate,weights,baselineWeights,docSummary});
