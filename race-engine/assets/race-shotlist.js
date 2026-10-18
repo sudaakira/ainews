@@ -17,6 +17,7 @@ export function chooseRaceShot(progress,cuts=RACE_SHOT_LIST.map(s=>s.until)){
  return RACE_SHOT_LIST[cuts.findIndex(x=>p<x)]||RACE_SHOT_LIST[4];
 }
 export function courseShotCuts(route,routeLength,config){
+ if(config.courseView==='kyoto-3000-outer')return [.12,.58,.78,1-403.7/3000,Infinity];
  return config.venue==='京都'&&config.distance===2000&&config.surface==='芝'
    ? [...RACE_SHOT_LIST.map(s=>s.until)]
    : [.08,.30,.62,.84,Infinity];
@@ -245,7 +246,7 @@ export function raceCameraPose({shot,progress,order,path,aspect=1,clock=Infinity
  // frame can push the leader off the iPhone edge halfway through the turn.
  // Simulate the actual rail dolly and reserve lead room across the full cut.
  if(shot.id==='fourth-turn'){
-  const sampleProgress=[.675,.70,.73,.75,.78,.81,.835];
+  const sampleProgress=distance===3000?[.781,.795,.81,.825,.84,.85,.864]:[.675,.70,.73,.75,.78,.81,.835];
   const screens=[];
   for(const p of sampleProgress){
    const candidate=followLockedCameraPose({pose:{...result,shotId:shot.id},startLeaderProgress:lead.p},
@@ -301,7 +302,7 @@ export function followLockedCameraPose(rig,order,path,{distance=2000,venue='京�
   // One stationary low camera at the 4C EXIT, outside the physical rail.
   // Follow the leading five by smoothly aiming at their lead horse and
   // using a tight telephoto lens. Camera position never follows the pack.
-  const exitProgress=.835;
+  const exitProgress=distance===3000?1-403.7/3000:.835;
   const station=path(exitProgress);
   const right=direction!=='左',sign=right?1:-1;
   const half=venue==='京都'&&distance===2000?KYOTO_INNER.width/2:13.5;
@@ -325,12 +326,18 @@ export function followLockedCameraPose(rig,order,path,{distance=2000,venue='京�
    return sum;
   },{x:0,y:0,z:0,weight:0});
   const look={x:focus.x/focus.weight,y:focus.y/focus.weight,z:focus.z/focus.weight};
-  const progress=Math.max(0,Math.min(1,(leader.p-.68)/.15));
+  const progress=Math.max(0,Math.min(1,(leader.p-(distance===3000?.78:.68))/(distance===3000?.085:.15)));
   const ease=progress*progress*(3-2*progress);
   // Tight shot of ~5 leaders, modest easing as they reach the exit.
   // Keep the full leading contest visible on a narrow iPhone viewport.
   // 12° cropped the actual leader to x=.133 in the smoke projection.
-  const fov=18+5*ease;
+  // The 3000m race reaches this fixed station from a longer approach.
+  // Maintain a useful horse size with a continuous telephoto pullback;
+  // camera position stays fixed and the inner-course broadcast is unchanged.
+  const cameraDistance=Math.hypot(nose.x-position.x,nose.z-position.z);
+  const fov=distance===3000
+   ?clamp(2*Math.atan(3/(.36*Math.max(30,cameraDistance)))*180/Math.PI,4,28)
+   :18+5*ease;
   // The five-horse centroid can be several metres behind the leader. Close
   // to the exit that angle exceeded the entire portrait lens, clipping the
   // leader despite the unchanged fixed camera. Smoothly limit ONLY the pan

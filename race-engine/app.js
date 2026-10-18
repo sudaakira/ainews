@@ -1,8 +1,10 @@
+import {kyotoOuterMapPath} from './assets/kyoto-outer-3000.js?v=kikka-1';
 import {kyotoMapPath} from './assets/kyoto-course.js?v=kyoto-v11-1';
 /* Race-engine shared UI application. Loaded after per-race configuration. */
 import {jockeyCap,JRA_JOCKEY_CAPS} from './core/jockey-caps.js?v=cap-v1';
 import {FINISH_GAP,runOutProgress,playbackEnd,playbackRate,finishCrossings} from './assets/race-playback.js?v=kyoto-v11-1';
 const config=window.RACE_CONFIG;
+const isKyotoOuter3000=config?.courseView==='kyoto-3000-outer';
 const isKyotoInner=config?.venue==='京都'&&config?.distance===2000&&config?.surface==='芝';
 const FACTOR=window.SWAN_FACTORS,LOOP=window.SWAN_LOOP,SIM=window.RACE_SIM;
 if(!config||!FACTOR||!LOOP||!SIM)throw Error('Race configuration has not loaded');
@@ -30,7 +32,44 @@ if(docLinks){
   (entries.length?'<p class="small">'+entries.map(([type,url])=>
     '<a rel="noopener" target="_blank" href="'+url+'">'+type+'の資料</a>').join(' ／ ')+'</p>':'')+
   (config.historicalTrends?'<details style="margin:12px 0;background:#f3f6f6;border:1px solid #b9c9c8;border-radius:8px;padding:10px"><summary><b>📊 添付データ：過去10年の秋華賞・京都開催8回の傾向</b></summary><p class="small">'+(config.drawConfirmed?'確定枠順を京都開催8回の枠別傾向で弱く補正。枠だけで馬の実力を逆転させない。':'枠は確定するまで中立。')+' 京都開催8回の前走4角4番手以内＝0-3-2-50（3着内9.1%）、5番手以下＝8-5-6-65（3着内22.6%）。ローズS勝馬や位置取りだけで消さず、既存の先行力・展開項目内に平滑化した軽微な補正だけを適用。</p><p class="small">脚質：逃げ0-2-0-6／先行2-0-1-23／差し6-4-7-47／追込0-2-0-39。キャリア5・6戦優位などは診断用途。人気は能力に使用せず、未確認4角は中立。</p><p class="small">詳細な数表と修正ログ：GitHubの race-engine/races/shuka-2026.js を参照。2021・2022年阪神代替を枠・脚質から除外。</p></details>':'')+
-  '<p class="small">※着順率は未校正モデル内の出現率。'+(isKyotoInner?'京都内回りの公開コース図・寸法・高低差に基づく復元モデルです。':config.courseView==='kyoto-1400-outer'?'':'3Dは汎用模式図で実際の競馬場の高低差・距離形状を再現しません。')+'</p>';
+  '<p class="small">※着順率は未校正モデル内の出現率。'+(isKyotoOuter3000?'京都外回りの公開寸法に基づく復元モデルです。3000m・2度の坂越えを再現します（測量データではありません）。':isKyotoInner?'京都内回りの公開コース図・寸法・高低差に基づく復元モデルです。':config.courseView==='kyoto-1400-outer'?'':'3Dは汎用模式図で実際の競馬場の高低差・距離形状を再現しません。')+'</p>';
+}
+if(config.evidenceUrl){
+ const liveNote=document.querySelector('.live-note');if(liveNote)liveNote.textContent='仮想レース。再生時計3分03秒5は映像用で、予測タイムではありません。';
+ const genericNote=document.querySelector('.factor-settings > p.small:last-child');
+ if(genericNote)genericNote.textContent='5代血統・全戦績は照合済み。枠順、最終調教、当日馬場、実オッズは未確定。シナリオの改善・回復は仮説です。';
+ if(docLinks){
+  docLinks.insertAdjacentHTML('beforeend','<p><a href="'+config.reportUrl+'" target="_blank">全頭の予想・配点・シナリオ結果</a> ／ <a href="'+config.evidenceUrl+'" target="_blank">全21頭の戦績・5代血統データ</a></p>');
+  if(config.reserves?.length)docLinks.insertAdjacentHTML('beforeend','<p>除外対象（現時点）：'+config.reserves.map(h=>h.name).join('、')+'</p>');
+ }
+ const sourceBox=document.createElement('details');sourceBox.className='card';sourceBox.id='race-evidence';
+ sourceBox.innerHTML='<summary>📖 全21頭の戦績・5代血統・調教・騎手データ</summary><p>登録馬も含めた全頭の確認資料を表示します。</p><div id="race-evidence-content"></div>';
+ document.querySelector('.card.horse-list').insertAdjacentElement('afterend',sourceBox);
+ let loaded=false;
+ sourceBox.addEventListener('toggle',async()=>{
+  if(!sourceBox.open||loaded)return;
+  const target=sourceBox.querySelector('#race-evidence-content');target.textContent='読み込み中…';
+  try{
+   const response=await fetch(config.evidenceUrl);if(!response.ok)throw Error('HTTP '+response.status);
+   const data=await response.json();target.replaceChildren();
+   const table=(headers,rows)=>{
+    const wrap=document.createElement('div');wrap.style.overflowX='auto';const table=document.createElement('table');table.className='factor-table';
+    const row=(items,header=false)=>{const tr=document.createElement('tr');for(const value of items){const td=document.createElement(header?'th':'td');td.textContent=value??'未確認';tr.append(td)}return tr};
+    table.append(row(headers,true));rows.forEach(r=>table.append(row(r)));wrap.append(table);return wrap;
+   };
+   for(const h of data.horses){
+    const item=document.createElement('details'),title=document.createElement('summary');
+    title.textContent=h.name+' ／ '+({expected:'出走想定',withdrawn:'回避',reserve:'除外対象'}[h.status]);item.append(title);
+    const note=document.createElement('p');note.textContent=h.bloodInterpretation;item.append(note);
+    const j=h.jockeyCourseStats,stats=document.createElement('p');
+    stats.textContent=h.jockey+'：京都芝3000m '+(j?j.races+'騎乗・複勝率'+j.place_rate+'%・複勝回収率'+j.place_payback+'%':'集計資料に掲載なし・中立')+'。'+h.statsScope;item.append(stats);
+    item.append(table(['日付','開催','競走','着順','距離・馬場','時計','位置取り','前後区間','上がり','斤量'],h.records.map(r=>[r.date,r.venue,r.race,r.finish,r.distance+' '+r.ground,r.time,r.corners,r.paceFirstLast3f,r.last3f,r.weight])));
+    const ped=document.createElement('details'),summary=document.createElement('summary');summary.textContent='全5代62枠の血統（F＝父、M＝母）';ped.append(summary);
+    ped.append(table(['系譜','世代','祖先'],h.pedigree.map(p=>[p.path,p.generation+'代',p.name])));item.append(ped);target.append(item);
+   }
+   loaded=true;
+  }catch(error){target.textContent='資料を読み込めませんでした。再度開くと再試行します。'}
+ });
 }
 const cameraAll=document.querySelector('[data-camera="wide"]');
 if(cameraAll)cameraAll.textContent='🏟️ '+config.venue+'・全景';
@@ -38,7 +77,18 @@ const auditTitle=document.querySelector('.card.breakdown summary');
 if(auditTitle)auditTitle.textContent='📊 14項目・全'+FIELD+'頭の採点表';
 const horseListTitle=document.querySelector('.horse-list summary');
 if(horseListTitle)horseListTitle.textContent='🐎 全'+FIELD+'頭の詳細を見る';
-const el=id=>document.getElementById(id);let probs=[],n=20000;
+const el=id=>document.getElementById(id);let probs=[],n=20000,activeVariant='';
+if(config.scenarios?.length){
+ const select=document.createElement('select');select.id='race-scenario';select.setAttribute('aria-label','展開別シナリオ');
+ select.innerHTML=config.scenarios.map(s=>'<option value="'+s.id+'">'+s.label+'</option>').join('');
+ el('pace').parentElement.insertBefore(select,el('pace').previousElementSibling);
+ select.onchange=()=>{
+  const s=config.scenarios.find(s=>s.id===select.value);if(!s)return;
+  activeVariant=s.options.variant||'';
+  for(const [key,id] of Object.entries({pace:'pace',speed:'speed',ground:'ground-mode',bias:'bias-mode',vol:'vol'}))if(s.options[key]!==undefined)el(id).value=String(s.options[key]);
+  el('pace').oninput?.();el('speed').oninput?.();el('vol').oninput?.();run();sampleLiveRace();
+ };
+}
 const random=SIM.random,norm=SIM.norm;
 function initWeightControls(){
  const box=el('weight-controls');
@@ -68,7 +118,7 @@ function initWeightControls(){
  for(const id of ['ground-mode','bias-mode'])el(id).onchange=refresh;
  update();
 }
-function opts(){return{pace:+el('pace').value,speed:+el('speed').value,vol:+el('vol').value,
+function opts(){return{variant:activeVariant,pace:+el('pace').value,speed:+el('speed').value,vol:+el('vol').value,
  ground:el('ground-mode').value,bias:el('bias-mode').value,
  weights:Object.fromEntries(LOOP.FEATURES.map(f=>[f.id,+el('weight-'+f.id).value]))}}
 const runRace=(r,s,computed)=>SIM.runRace(r,s,computed);
@@ -138,7 +188,7 @@ function cards(){
    '<span class="pill">'+h.age+'</span><span class="pill">'+(config.provisionalDraw?'枠未確定':FACTOR.frame(h.no)+'枠')+'</span>'+
    '<span class="pill">'+h.style+'</span><p>'+h.j+' / '+h.trainer+' / '+h.kg+'kg</p>'+
    '<p><b>暫定総合評価：'+v.rating.toFixed(1)+' / 100点</b>　3着内率 '+(p?p.p3.toFixed(1):'—')+'%</p>'+
-   (h.workout?'<p style="padding:9px;border:1px solid #bfd6ce;border-radius:8px"><b>⏱ 追い切り：</b>'+h.workout.status+'（'+h.workout.date+'）／'+h.workout.venue+' '+h.workout.time+'／'+h.workout.note+'</p>':'')+
+   (h.workout?'<p style="padding:9px;border:1px solid #bfd6ce;border-radius:8px"><b>⏱ 追い切り：</b>'+(h.workout.status||h.workout.verification||'未確認')+'（'+(h.workout.date||'日付未確認')+'）／'+(h.workout.venue||h.workout.track||'')+' '+(h.workout.time||h.workout.clock||'時計未確認')+'／'+(h.workout.note||h.workout.content||'')+'</p>':'')+
    (h.pressWorkoutGrade?'<p><b>10/16全頭調教診断：</b>'+h.pressWorkoutGrade+'（専門家所見／調教状態の補助情報）</p>':'')+
    (h.drawRemark?'<p><b>枠・金曜陣営コメント：</b>'+h.drawRemark+'</p>':'')+
    (h.trainingWeight?'<p><b>JRA調教後馬体重：</b>'+h.trainingWeight.kg+'kg（前走 '+h.trainingWeight.lastKg+'kg）／10月'+h.trainingWeight.day+'日 '+h.trainingWeight.location+'計量。輸送後・当日体重とは異なり採点不使用。</p>':'')+
@@ -147,9 +197,9 @@ function cards(){
    '<p><b>強み：</b>'+h.plus+'</p><p class="risk"><b>注意：</b>'+h.minus+'</p>'+
    '<details><summary>14項目の条件回帰採点・血統・近走を表示</summary>'+
    '<table class="factor-table horse-score-table"><thead><tr><th>評価項目</th><th>素点</th><th>配点</th></tr></thead><tbody>'+scoreRows+'</tbody></table>'+
-   '<p>父 '+h.father+'／母父 '+h.mfather+'</p><p><b>近4走：</b>'+h.history+'</p>'+
-   '<p><b>状態：</b>調教 '+(h.training||'未確定')+'・前走から'+h.rest+'日</p>'+ (Number.isFinite(h.trainingScore)?'<p>当週の補間状態素点 '+h.trainingScore+' / 100（裁量値・未校正）</p>':'')+(Number.isInteger(h.lastRace4c)?'<p><b>前走4角：</b>'+h.lastRace4c+'番手（公式結果で照合済。過去傾向の反映は小さく制限）</p>':'')+ (h.officialPeakRating?'<p><b>JRA2026年最高レーティング：</b>'+h.officialPeakRating+' '+h.officialPeakDistance+'（今回の予想点ではなく、年間ピーク）</p>':'')+
-   '<p class="small">血統は父・母父のみ確認。完全5代血統、全走のラップ、未確認の調教・騎手統計は欠測扱い。代理点は未校正です。</p>'+
+   '<p>父 '+h.father+'／母父 '+h.mfather+'</p>'+(h.bloodNote?'<p><b>5代血統の見立て：</b>'+h.bloodNote+'</p>':'')+'<p><b>近走：</b>'+h.history+'</p>'+
+   '<p><b>状態：</b>調教 '+(h.training||(h.workout?.verification||'未確定'))+'・前走から'+h.rest+'日</p>'+ (Number.isFinite(h.trainingScore)?'<p>状態の暫定素点 '+h.trainingScore+' / 100（裁量値・未校正）</p>':'')+(Number.isInteger(h.lastRace4c)?'<p><b>前走4角：</b>'+h.lastRace4c+'番手（公式結果で照合済。過去傾向の反映は小さく制限）</p>':'')+ (h.officialPeakRating?'<p><b>JRA2026年最高レーティング：</b>'+h.officialPeakRating+' '+h.officialPeakDistance+'（今回の予想点ではなく、年間ピーク）</p>':'')+
+   '<p class="small">'+(config.evidenceUrl?'全5代の血統と全戦績を確認済み。最終調教・枠順・当日馬場は未確定。採点は未校正です。':'血統は父・母父のみ確認。完全5代血統、全走のラップ、未確認の調教・騎手統計は欠測扱い。代理点は未校正です。')+'</p>'+
    '</details></article>';
  }).join('');
 }
@@ -218,6 +268,11 @@ if(config.venue==='京都'&&config.distance===2000&&config.surface==='芝'){
  svg.querySelectorAll('text').forEach(t=>{if(t.textContent==='高低差は未再現')t.textContent='3コーナー 高低差3.1m';if(t.textContent==='直線長は模式表示')t.textContent='最後の直線328.4m';if(t.textContent==='勾配は未再現')t.textContent='4コーナーへ下り';});
 }
 
+if(isKyotoOuter3000){
+ route.setAttribute('d',kyotoOuterMapPath());route.setAttribute('data-course-model','kyoto-outer-A-3000-metric');
+ const svg=document.getElementById('kyoto-map');svg.setAttribute('aria-label','京都芝3000m外回り・2度の坂越え・1周目ゴール通過');
+ svg.querySelectorAll('text').forEach(t=>{const v=t.textContent;if(v.includes('汎用模式図'))t.textContent='芝3000m 外回り・2度の坂越え';if(v.includes('高低差'))t.textContent='3コーナー 高低差4.3m';if(v.includes('直線長'))t.textContent='最後の直線403.7m';});
+}
 const routeLength=route.getTotalLength();
 const routeAt=d=>route.getPointAtLength(config.direction==='左'?routeLength-d:d);
 // Race markers show jockey CAP colour, not the race-silk colour.

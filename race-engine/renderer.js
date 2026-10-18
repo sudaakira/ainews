@@ -1,3 +1,4 @@
+import {kyotoOuterPath,kyotoOuterHeight,KYOTO_OUTER_3000} from './assets/kyoto-outer-3000.js?v=kikka-1';
 import {kyotoPath,kyotoHeight,KYOTO_INNER,runnerLane,kyotoOuterCourseOffset} from './assets/kyoto-course.js?v=kyoto-v12';
 
 /* True WebGL 3D horses and racecourse. CDN failure retains the self-contained SVG view. */
@@ -23,7 +24,10 @@ import {jockeyCap} from './core/jockey-caps.js?v=cap-v1';
  const api=window.KYOTO_RACE;
  if(!api)throw Error('Race state unavailable');
  const {HS,LIVE,route,routeLength,horseProgress,config}=api;const CENTER=(HS.length+1)/2;const distance=config.distance;
- const metricKyoto=config.venue==='京都'&&distance===2000&&config.surface==='芝';
+ const outer3000=config.courseView==='kyoto-3000-outer';
+ const metricKyoto=outer3000||(config.venue==='京都'&&distance===2000&&config.surface==='芝');
+ const courseProfile=outer3000?KYOTO_OUTER_3000:KYOTO_INNER;
+ const metricPath=outer3000?kyotoOuterPath:kyotoPath,metricHeight=outer3000?kyotoOuterHeight:kyotoHeight;
  const capFor=h=>jockeyCap(h,config,horse=>window.SWAN_FACTORS.frame(horse));
  const scene=new THREE.Scene();scene.background=new THREE.Color(0x9dd8f0);scene.fog=new THREE.FogExp2(0xc5e7ef,.00055);
  const camera=new THREE.PerspectiveCamera(50,1,.1,2200);
@@ -104,7 +108,7 @@ import {jockeyCap} from './core/jockey-caps.js?v=cap-v1';
   return 4.3*(u*u*(3-2*u));
  }
  function path(t){
-  if(metricKyoto)return kyotoPath(t);
+  if(metricKyoto)return metricPath(t);
   const normalized=Math.max(0,Math.min(1,t));
   const sign=config.direction==='左'?-1:1;
   const d=(sign===-1?1-normalized:normalized)*routeLength;
@@ -114,7 +118,7 @@ import {jockeyCap} from './core/jockey-caps.js?v=cap-v1';
   const runOut=Math.max(0,t-1)*routeLength*W;
   return {x:(p.x-430)*W+dx/l*runOut,z:(p.y-277)*W+dz/l*runOut,dx:dx/l,dz:dz/l,y:heightAt(normalized)};
  }
- const count=800,half=metricKyoto?13.5:12.8,trackEnd=metricKyoto?KYOTO_INNER.lap/2000:1.22;
+ const count=800,half=metricKyoto?13.5:12.8,trackEnd=metricKyoto?courseProfile.lap/distance:1.22;
  function offsetPoint(t,lane,yOffset=0){let p=path(t);return new THREE.Vector3(p.x-p.dz*lane,p.y+yOffset,p.z+p.dx*lane)}
  const verts=[],norm=[],uv=[],idx=[];
  for(let i=0;i<=count;i++){let t=i/count*trackEnd;for(let side of [-1,1]){let p=offsetPoint(t,side*half,.015);verts.push(p.x,p.y,p.z);uv.push(side===-1?0:1,t*20)}}
@@ -136,7 +140,7 @@ import {jockeyCap} from './core/jockey-caps.js?v=cap-v1';
   ribbon(()=>0,75,turf);
   ribbon(()=>40,22,new THREE.MeshLambertMaterial({color:0xc5a77d,side:THREE.DoubleSide}),.96);
   // Outer bend separates from the inner at 3C and rejoins at 4C.
-  const outer=kyotoOuterCourseOffset;
+  const outer=outer3000?(()=>40):kyotoOuterCourseOffset;
   ribbon(outer,27,turf);
   const outerPts=[];for(let i=0;i<=500;i++){const t=i/500*trackEnd;outerPts.push(offsetPoint(t,outer(t)-14,.9))}
   const curve=new THREE.CatmullRomCurve3(outerPts),rail=new THREE.Mesh(new THREE.TubeGeometry(curve,1000,.08,5),white);scene.add(rail);
@@ -147,7 +151,7 @@ import {jockeyCap} from './core/jockey-caps.js?v=cap-v1';
  // 京都・馬場内のターフビジョン64mと池。コース形状や馬群の判定は変更しない。
  const kyotoLandmarks=metricKyoto
   ?(await import('./assets/kyoto-landmarks.js?v=kyoto-tv-pond-v4'))
-    .buildKyotoLandmarks(THREE,scene,{raceName:'秋華賞'}):null;
+    .buildKyotoLandmarks(THREE,scene,{raceName:config.name}):null;
  // Sparse actual 3D grass tufts on the turf, instanced in one draw call for mobile performance.
  const bladeGeo=new THREE.BufferGeometry();
  bladeGeo.setAttribute('position',new THREE.Float32BufferAttribute([-.035,0,0,.035,0,0,0,.23,0],3));
@@ -298,7 +302,7 @@ import {jockeyCap} from './core/jockey-caps.js?v=cap-v1';
  const {createJRAFurlongPosts}=await import("./assets/jra-furlong-posts.js?v=geo-v6");
  const furlongPosts=createJRAFurlongPosts({THREE,scene,offsetPoint,distance,half});
  // Cinematic director replaces manual angle selection for every race.
- const {createRaceCinematics}=await import("./assets/race-cinematics.js?v=mobile-camera-v27");
+ const {createRaceCinematics}=await import("./assets/race-cinematics.js?v=kikka-1-mobile-camera-v27");
  const cinematics=createRaceCinematics({THREE,scene,stage,models,config,capFor,path,route,routeLength});
  const cameraBlockers=[];scene.traverse(o=>{if(o.isMesh&&o.userData.cameraOccluder)cameraBlockers.push(o)});
  const visibilityRay=new THREE.Raycaster();
@@ -358,7 +362,7 @@ import {jockeyCap} from './core/jockey-caps.js?v=cap-v1';
    );
    m.root.scale.setScalar(1);
    m.root.rotation.y=Math.atan2(d.dx,d.dz);
-   if(metricKyoto){const slope=(kyotoHeight(p+.0005)-kyotoHeight(p-.0005))/2;m.root.rotation.x=-Math.atan(slope);}
+   if(metricKyoto){const slope=(metricHeight(p+.0005)-metricHeight(p-.0005))/(distance*.001);m.root.rotation.x=-Math.atan(slope);}
    // Articulated four-leg gallop, driven by smooth screen time.
    // The same playback clock drives limbs before and after the finish.
    const visualTime=LIVE.visualTime;
@@ -464,7 +468,7 @@ import {jockeyCap} from './core/jockey-caps.js?v=cap-v1';
    shot:shotDirection?.shot,goalSide:'far',
    runOut:clock>LIVE.duration,clock,visualTime:LIVE.visualTime,
    positions:models.map(m=>({x:m.root.position.x,y:m.root.position.y,z:m.root.position.z})),
-   course:metricKyoto?KYOTO_INNER:null,
+   course:metricKyoto?courseProfile:null,
    cameraForwardDot:(camera.position.x-smoothLook.x)*path(1).dx+(camera.position.z-smoothLook.z)*path(1).dz,
    goalDepth,goalBehindHorses:goalDepth!==null&&goalDepth>farthestHorse,
    gallopPhase:models[0].gallopAudit?.phase,gallopLead:models[0].gallopAudit?.lead,gallopFlight:models[0].gallopAudit?.flight,gallopHoofs:models[0].gallopAudit?.hoofs,

@@ -22,7 +22,9 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Validate shared engine (18-horse and 6-horse cases)
-        run: node race-engine/tests/smoke.mjs
+        run: |
+          node race-engine/tests/smoke.mjs
+          node race-engine/tests/kikka-2026.mjs
       - name: Prepare static site
         run: |
           mkdir -p _site/swan-2026 _site/race-engine
@@ -45,6 +47,7 @@ jobs:
           server_pid=$!
           trap 'kill $server_pid || true' EXIT
           PLAYWRIGHT_ENTRY=/tmp/race-playwright/node_modules/playwright/index.mjs node race-engine/tests/mobile-browser.mjs
+          PLAYWRIGHT_ENTRY=/tmp/race-playwright/node_modules/playwright/index.mjs node race-engine/tests/kikka-browser.mjs
       - name: Save real-browser 16x screenshots for visual review
         if: always()
         uses: actions/upload-artifact@v4
