@@ -332,6 +332,26 @@ for(const [start,end] of [[.085,.28],[.30,.66],[.68,.83],[.84,.99]]){
 }
 assert.match(cinemaJS,/lockedRig/);
 assert.match(cinemaJS,/mustRebase/);
+// Regression: a five-runner centroid used to crop the leader near the 4C
+// exit (x=.125 then off-screen), even though the camera station never moved.
+for(const aspect of [.48,.54,.76,1.6]){
+ const group=p=>Array.from({length:17},(_,i)=>({no:i+1,p:p-i*.0022}));
+ const pose=raceCameraPose({shot:chooseRaceShot(.68),progress:.68,order:group(.68),
+  path:cameraKyotoPath,aspect,distance:2000,venue:'京都'});
+ const rig={pose,startLeaderProgress:.68};let preceding=null;
+ for(let i=0;i<=150;i++){
+  const p=.68+i*.001,frame=followLockedCameraPose(rig,group(p),cameraKyotoPath),q=cameraKyotoPath(p),lane=cameraRunnerLane(1,17,p);
+  const nose={x:q.x-q.dz*lane+q.dx*2.7,y:q.y+2,z:q.z+q.dx*lane+q.dz*2.7};
+  const screen=projectTest(nose,frame,aspect);
+  assert.ok(screen.x>.32&&screen.x<.68,'4C pan keeps the real leader in the central safe area '+JSON.stringify({aspect,p,x:screen.x}));
+  if(preceding){
+   assert.deepEqual(frame.position,preceding.position,'4C camera is stationary');
+   assert.ok(frame.fov>=preceding.fov,'original monotonic zoom is preserved');
+   const yaw=f=>Math.atan2(f.look.x-f.position.x,f.look.z-f.position.z),delta=yaw(frame)-yaw(preceding);
+   assert.ok(Math.abs(Math.atan2(Math.sin(delta),Math.cos(delta)))<.15,'4C pan is continuous without snapping');
+  }preceding=frame;
+ }
+}
 console.log('iPhone five cuts: 400+ smooth course-relative locked bearings, zero zoom jitter, leader always visible ✓');
 
 // The finish replay runs beyond p=1; its bearing must never reverse.

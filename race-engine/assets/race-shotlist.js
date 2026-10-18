@@ -229,7 +229,7 @@ export function raceCameraPose({shot,progress,order,path,aspect=1,clock=Infinity
   : (venue==='京都'&&distance===2000?kyotoOuterCourseOffset(pCenter+(isGate?0:inFront/distance)):0)+half;
  const outsideDist=rightCircuit?railLane-cameraLane:cameraLane-railLane;
  if(outsideDist<8)throw new Error('Outside-rail camera is INSIDE track: '+outsideDist.toFixed(2)+'m');
- const result={...pose,shotId:shot.id,fov,side:side*scale,subjects:group.map(o=>o.no),
+ const result={...pose,viewportAspect:a,shotId:shot.id,fov,side:side*scale,subjects:group.map(o=>o.no),
   lensShiftX,outerRailSign:outsideSign,tracked:group.length,
   mode:isGate?'gate-front-broadcast':'rail-broadcast-'+shot.id,
   outerRailClearance:outsideDist,cameraLane,railLane,railOutsideVerified:true,outerCourseBulge:groupBulge,
@@ -331,6 +331,20 @@ export function followLockedCameraPose(rig,order,path,{distance=2000,venue='京�
   // Keep the full leading contest visible on a narrow iPhone viewport.
   // 12° cropped the actual leader to x=.133 in the smoke projection.
   const fov=18+5*ease;
+  // The five-horse centroid can be several metres behind the leader. Close
+  // to the exit that angle exceeded the entire portrait lens, clipping the
+  // leader despite the unchanged fixed camera. Smoothly limit ONLY the pan
+  // offset from the leader's bearing. tanh has no clamp boundary/jump; the
+  // stationary camera and the original monotonic 18–23° zoom are preserved.
+  const aspect=rig.pose.viewportAspect||.54;
+  const leadYaw=Math.atan2(nose.x-position.x,nose.z-position.z);
+  const groupYaw=Math.atan2(look.x-position.x,look.z-position.z);
+  const delta=Math.atan2(Math.sin(groupYaw-leadYaw),Math.cos(groupYaw-leadYaw));
+  const maxPan=Math.atan(Math.tan(fov*Math.PI/360)*aspect*.30);
+  const yaw=leadYaw+maxPan*Math.tanh(delta/maxPan);
+  const aimDistance=Math.hypot(look.x-position.x,look.z-position.z);
+  look.x=position.x+Math.sin(yaw)*aimDistance;
+  look.z=position.z+Math.cos(yaw)*aimDistance;
   const laneAtStation=-(position.x-station.x)*station.dz+(position.z-station.z)*station.dx;
   const clearance=right?rail-laneAtStation:laneAtStation-rail;
   if(clearance<14.9)throw new Error('4C fixed exit camera crossed outer rail');
