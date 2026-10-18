@@ -312,11 +312,23 @@ export function followLockedCameraPose(rig,order,path,{distance=2000,venue='äº¬é
   const q=path(leader.p),lane=runnerLane(leader.no,order.length,leader.p);
   const nose={x:q.x-q.dz*lane+q.dx*2.7,y:q.y+2,
    z:q.z+q.dx*lane+q.dz*2.7};
-  const look={x:nose.x,y:nose.y+.5,z:nose.z};
+  // Pan toward the center of the front 3-5 horses rather than chasing a
+  // single nose; this keeps the leading contest in a stable tight frame.
+  const leaders=order.slice(0,Math.min(5,order.length));
+  const focus=leaders.reduce((sum,horse,i)=>{
+   const h=path(horse.p),l=runnerLane(horse.no,order.length,horse.p);
+   const w=i<3?1.25:0.75;
+   sum.x+=(h.x-h.dz*l+h.dx*2.7)*w;
+   sum.y+=(h.y+2.5)*w;
+   sum.z+=(h.z+h.dx*l+h.dz*2.7)*w;
+   sum.weight+=w;
+   return sum;
+  },{x:0,y:0,z:0,weight:0});
+  const look={x:focus.x/focus.weight,y:focus.y/focus.weight,z:focus.z/focus.weight};
   const progress=Math.max(0,Math.min(1,(leader.p-.68)/.15));
   const ease=progress*progress*(3-2*progress);
   // Tight shot of ~5 leaders, modest easing as they reach the exit.
-  const fov=18+5*ease;
+  const fov=12+9*ease;
   const laneAtStation=-(position.x-station.x)*station.dz+(position.z-station.z)*station.dx;
   const clearance=right?rail-laneAtStation:laneAtStation-rail;
   if(clearance<14.9)throw new Error('4C fixed exit camera crossed outer rail');
@@ -325,7 +337,7 @@ export function followLockedCameraPose(rig,order,path,{distance=2000,venue='äº¬é
    railOutsideVerified:true,leadNumber:leader.no,lockedCamera:true,
    cameraTrackYaw:0,baseShotId:'fourth-turn',
    leadNoseViewportTarget:.5,forwardGap:.5,
-   trackingMode:'fixed-exit-camera-leader-pan',pullbackProgress:ease};
+   trackingMode:'fixed-exit-camera-front-five-pan',pullbackProgress:ease};
  }
  const advance=rig.pose.stationAheadMeters||0;
  const startStation=path(rig.pose.referenceProgress+advance/distance);
