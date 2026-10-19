@@ -1,0 +1,342 @@
+{
+  "asOf": "2026-10-19T23:41:35+09:00",
+  "previousAsOf": "2026-10-18T16:01:04+09:00",
+  "method": "配点100を維持。血統10点枠は10/19分析へ統一。馬体・走法の三項目点は総合点に足さず資料として表示。状態・距離は陣営の確認材料から修正した裁量点。JRA年間最高値は参考表示のみで二重加算しない。",
+  "defaultSettings": {
+    "previous": {
+      "rate": 8,
+      "vol": 10
+    },
+    "current": {
+      "rate": 8,
+      "vol": 5
+    }
+  },
+  "roster": {
+    "registered": 21,
+    "expected": 18,
+    "withdrawn": [
+      "アルトラムス"
+    ],
+    "reserves": [
+      "イブキ",
+      "ミッキーファルコン"
+    ],
+    "drawConfirmed": false,
+    "jockeysProvisional": true
+  },
+  "track": {
+    "baseline": "良・高速想定",
+    "bias": "中立",
+    "note": "10/25の当日馬場は未発表。10/18内2000mの結果を外3000mの偏りへ直結させず、前有利・外差しを別条件で比較。"
+  },
+  "riderStats": {
+    "scope": "京都・芝3000m、2023-10-17〜2026-10-17、8競走。集計元の現役騎手掲載範囲。少数標本は縮小、未掲載は未確認。",
+    "note": "10/18版の京都芝3000mスナップショットを継承。新規再集計値とは扱わず、未掲載は中立。"
+  },
+  "sources": {
+    "JRA": "https://www.jra.go.jp/keiba/tokubetsu/pdf/2026/kikka.pdf",
+    "コース寸法": "https://www.jra.go.jp/facilities/race/kyoto/course/index.html",
+    "神戸新聞杯": "https://www.jra.go.jp/datafile/seiseki/replay/2026/088.html",
+    "セントライト記念": "https://www.jra.go.jp/datafile/seiseki/replay/2026/084.html",
+    "日本ダービー": "https://www.jra.go.jp/datafile/seiseki/g1/derby/result/derby2026.html",
+    "全頭戦績": "https://race.netkeiba.com/race/shutuba_past.html?race_id=202608040911",
+    "一週前西": "https://umanity.jp/racedata/race_newsdet.php?nid=11880096",
+    "一週前東": "https://umanity.jp/racedata/race_newsdet.php?nid=11880088",
+    "同条件騎手と厩舎": "https://www.keibadata.com/courses/kyoto/turf/3000",
+    "10月19日JRA最高レーティング": "https://www.jra.go.jp/datafile/ranking/g1/2026/kikka.html",
+    "10月19日想定騎手": "https://own.netkeiba.com/news/news_detail.html?id=346035",
+    "10月19日陣営談話": "https://umanity.jp/racedata/race_newsdet.php?nid=11880323",
+    "10月19日一週前総括": "https://own.netkeiba.com/news/news_detail.html?id=346078",
+    "10月19日馬体資料": "https://www.daily.co.jp/umaya/horsecheck/P20261019MS20119.shtml"
+  },
+  "rows": [
+    {
+      "name": "アウダーシア",
+      "no": 1,
+      "jockey": "津村明秀",
+      "previousJockey": "津村明秀",
+      "latest": "10/19確認：京都への適合と緩さ改善を陣営が評価。発馬と外を回す距離損は残る。",
+      "changes": {
+        "training": {
+          "before": 87,
+          "after": 88
+        },
+        "blood": {
+          "before": 85,
+          "after": 88
+        }
+      },
+      "bodyEra": "10月19日公開写真"
+    },
+    {
+      "name": "アスクエジンバラ",
+      "no": 2,
+      "jockey": "岩田康誠",
+      "previousJockey": "岩田康誠",
+      "latest": "10/19確認：陣営は計画通りの調整を報告。3000mでは枠と流れ、折り合いを重視。",
+      "changes": {
+        "blood": {
+          "before": 86,
+          "after": 87
+        }
+      },
+      "bodyEra": "10月19日公開写真"
+    },
+    {
+      "name": "エムズビギン",
+      "no": 3,
+      "jockey": "岩田望来",
+      "previousJockey": "岩田望来",
+      "latest": "10/19確認：陣営は持久力より折り合いを課題視。詳細な調教負荷は未確認で状態点50を維持。",
+      "changes": {},
+      "bodyEra": "5月25日公開写真・春の構造参考点"
+    },
+    {
+      "name": "キンググローリー",
+      "no": 4,
+      "jockey": "丹内祐次",
+      "previousJockey": "丹内祐次",
+      "latest": "10/19確認：帰厩後の順調さと距離延長歓迎の説明を確認。時計・併せ詳細の欠測は残す。",
+      "changes": {
+        "blood": {
+          "before": 86,
+          "after": 83
+        }
+      },
+      "bodyEra": "秋の立ち写真未確認"
+    },
+    {
+      "name": "コンジェスタス",
+      "no": 5,
+      "jockey": "西村淳也",
+      "previousJockey": "西村淳也",
+      "latest": "10/19確認：叩いての状態良化と省力的な追走を支持。京都実績・母の2500m実績と合わせ距離延長を再評価。",
+      "changes": {
+        "training": {
+          "before": 84,
+          "after": 86
+        },
+        "blood": {
+          "before": 84,
+          "after": 90
+        },
+        "distance": {
+          "before": 84,
+          "after": 88
+        }
+      },
+      "bodyEra": "10月19日公開写真"
+    },
+    {
+      "name": "ゴーイントゥスカイ",
+      "no": 6,
+      "jockey": "武豊",
+      "previousJockey": "武豊",
+      "latest": "10/19確認：一週前の右回り改善報告を再確認。ただし実戦の坂下りでの解消は未証明。",
+      "changes": {
+        "blood": {
+          "before": 84,
+          "after": 82
+        }
+      },
+      "bodyEra": "10月19日公開写真"
+    },
+    {
+      "name": "サノノグレーター",
+      "no": 7,
+      "jockey": "田辺裕信",
+      "previousJockey": "田辺裕信",
+      "latest": "10/19確認：追い切りでの良化は確認。短い距離での末脚を3000mへ直結させない。",
+      "changes": {
+        "blood": {
+          "before": 77,
+          "after": 75
+        }
+      },
+      "bodyEra": "10月19日公開写真"
+    },
+    {
+      "name": "ジャスティンシカゴ",
+      "no": 8,
+      "jockey": "原優介",
+      "previousJockey": "原優介",
+      "latest": "10/19確認：陣営は後躯の緩さ軽減と体の張りを評価。最新馬体分析の距離面の留保も残す。",
+      "changes": {
+        "training": {
+          "before": 85,
+          "after": 87
+        },
+        "blood": {
+          "before": 85,
+          "after": 88
+        }
+      },
+      "bodyEra": "10月19日公開写真"
+    },
+    {
+      "name": "ショウナンガルフ",
+      "no": 9,
+      "jockey": "田山旺佑",
+      "previousJockey": "田山旺佑",
+      "latest": "10/19確認：集中力の再現が課題。距離延長だけで近走の低調を解消とは扱わない。",
+      "changes": {
+        "blood": {
+          "before": 85,
+          "after": 79
+        }
+      },
+      "bodyEra": "5月25日公開写真・春の構造参考点"
+    },
+    {
+      "name": "ショウナンハヤナミ",
+      "no": 10,
+      "jockey": "池添謙一",
+      "previousJockey": "池添謙一",
+      "latest": "10/19確認：一度使った良化を支持。復帰2戦目の上積みは評価するが秋の立ち写真は未確認。",
+      "changes": {
+        "training": {
+          "before": 84,
+          "after": 86
+        },
+        "blood": {
+          "before": 83,
+          "after": 85
+        }
+      },
+      "bodyEra": "秋の立ち写真未確認"
+    },
+    {
+      "name": "シートゥサミット",
+      "no": 11,
+      "jockey": "酒井学",
+      "previousJockey": "酒井学",
+      "latest": "10/19確認：10/17の実質最終追いと心身の充実を確認。京都2400mの実走を血統点の低さより重視。",
+      "changes": {
+        "training": {
+          "before": 88,
+          "after": 90
+        },
+        "blood": {
+          "before": 78,
+          "after": 70
+        }
+      },
+      "bodyEra": "10月19日公開写真"
+    },
+    {
+      "name": "ダノンヒストリー",
+      "no": 12,
+      "jockey": "C.ルメール",
+      "previousJockey": "C.ルメール",
+      "latest": "10/19確認：健康状態・息遣いを支持。輸送と左右バランスの調整、57kg・相手強化が確認点。",
+      "changes": {
+        "training": {
+          "before": 70,
+          "after": 72
+        },
+        "blood": {
+          "before": 91,
+          "after": 88
+        }
+      },
+      "bodyEra": "10月19日公開写真"
+    },
+    {
+      "name": "チャリングクロス",
+      "no": 13,
+      "jockey": "石川裕紀人",
+      "previousJockey": "石川裕紀人",
+      "latest": "10/19確認：一週前の負荷と持久戦への見通しを確認。血統点95でも近走7着・相手強化・秋馬体未確認を残す。",
+      "changes": {
+        "training": {
+          "before": 67,
+          "after": 72
+        },
+        "blood": {
+          "before": 89,
+          "after": 95
+        },
+        "distance": {
+          "before": 88,
+          "after": 90
+        }
+      },
+      "bodyEra": "秋の立ち写真未確認"
+    },
+    {
+      "name": "ナリタエスペランサ",
+      "no": 14,
+      "jockey": "北村友一",
+      "previousJockey": "北村友一",
+      "latest": "10/19確認：状態の上昇が十分でないとの陣営説明を反映。状態50→45、改善を確認できた場合は別条件で比較。",
+      "changes": {
+        "training": {
+          "before": 50,
+          "after": 45
+        },
+        "blood": {
+          "before": 84,
+          "after": 80
+        }
+      },
+      "bodyEra": "10月19日公開写真"
+    },
+    {
+      "name": "バステール",
+      "no": 15,
+      "jockey": "川田将雅",
+      "previousJockey": "川田将雅",
+      "latest": "10/19確認：ハミと後躯の使い方を調整中。良化の意図と実際の改善を区別し、改善条件を残す。",
+      "changes": {
+        "blood": {
+          "before": 85,
+          "after": 81
+        }
+      },
+      "bodyEra": "10月19日公開写真"
+    },
+    {
+      "name": "マジョレルブルー",
+      "no": 16,
+      "jockey": "戸崎圭太",
+      "previousJockey": "戸崎圭太",
+      "latest": "10/19確認：調教での集中と運びやすさを支持。最新馬体分析では後躯の完成度に留保、成長を先取りしない。",
+      "changes": {
+        "blood": {
+          "before": 90,
+          "after": 89
+        }
+      },
+      "bodyEra": "10月19日公開写真"
+    },
+    {
+      "name": "ラージアンサンブル",
+      "no": 17,
+      "jockey": "坂井瑠星",
+      "previousJockey": "坂井瑠星",
+      "latest": "10/19確認：休み明けの内容と折り合いを評価。手前の切替と反応の改善が上位進出の条件。",
+      "changes": {
+        "blood": {
+          "before": 87,
+          "after": 79
+        }
+      },
+      "bodyEra": "10月19日公開写真・10月14日撮影のクラブ資料も確認"
+    },
+    {
+      "name": "ロブチェン",
+      "no": 18,
+      "jockey": "松山弘平",
+      "previousJockey": "松山弘平",
+      "latest": "10/19確認：順調な調整と一週前の動きを再確認。前走序盤のもたつき、初3000mの折り合いが確認点。",
+      "changes": {
+        "blood": {
+          "before": 94,
+          "after": 92
+        }
+      },
+      "bodyEra": "10月19日公開写真"
+    }
+  ]
+}

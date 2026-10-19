@@ -13,9 +13,15 @@ assert.ok(!c.horses.some(h=>['アルトラムス','イブキ','ミッキーフ�
 const loop=createRegression(c,createFactors(c));
 assert.equal(loop.FEATURES.reduce((s,f)=>s+f.weight,0),100);
 for(const h of c.horses)assert.equal(loop.scores(h).draw,50,'no registration-order draw bonus');
-for(const name of ['エムズビギン','キンググローリー','ナリタエスペランサ']){
+for(const name of ['エムズビギン','キンググローリー']){
  const h=c.horses.find(h=>h.name===name);assert.equal(loop.scores(h).training,50);
 }
+assert.equal(loop.scores(c.horses.find(h=>h.name==='ナリタエスペランサ')).training,45,'reported fitness concern is not a missing observation');
+assert.equal(c.defaultVol,5);assert.equal(c.defaultPlaybackRate,8);
+assert.ok(c.asOf.startsWith('2026-10-19'));
+assert.equal(c.horses.find(h=>h.name==='チャリングクロス').j,'石川裕紀人');
+assert.equal(c.horses.filter(h=>h.suitability.body===null).length,3,'missing autumn photos stay missing');
+assert.equal(c.horses.filter(h=>h.suitability.bodyEra.startsWith('5月')).length,2,'spring photos must remain labelled');
 let meters=0,previous=path(0),peaks=0;
 for(let i=1;i<=12000;i++){
  const p=i/12000,q=path(p);meters+=Math.hypot(q.x-previous.x,q.z-previous.z);previous=q;

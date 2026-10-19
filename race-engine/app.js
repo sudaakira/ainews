@@ -39,6 +39,7 @@ if(config.evidenceUrl){
  const genericNote=document.querySelector('.factor-settings > p.small:last-child');
  if(genericNote)genericNote.textContent='5代血統・全戦績は照合済み。枠順、最終調教、当日馬場、実オッズは未確定。シナリオの改善・回復は仮説です。';
  if(docLinks){
+  if(config.updateSummary)docLinks.insertAdjacentHTML('beforeend','<p style="font-weight:700">'+config.updateSummary+'</p>');
   docLinks.insertAdjacentHTML('beforeend','<p><a href="'+config.reportUrl+'" target="_blank">全頭の予想・配点・シナリオ結果</a> ／ <a href="'+config.evidenceUrl+'" target="_blank">全21頭の戦績・5代血統データ</a></p>');
   if(config.reserves?.length)docLinks.insertAdjacentHTML('beforeend','<p>除外対象（現時点）：'+config.reserves.map(h=>h.name).join('、')+'</p>');
  }
@@ -193,6 +194,7 @@ function cards(){
    (h.drawRemark?'<p><b>枠・金曜陣営コメント：</b>'+h.drawRemark+'</p>':'')+
    (h.trainingWeight?'<p><b>JRA調教後馬体重：</b>'+h.trainingWeight.kg+'kg（前走 '+h.trainingWeight.lastKg+'kg）／10月'+h.trainingWeight.day+'日 '+h.trainingWeight.location+'計量。輸送後・当日体重とは異なり採点不使用。</p>':'')+
    (h.latest?'<p style="background:#e7f5ef;padding:9px;border-radius:8px"><b>📅 直近調査：</b>'+h.latest+'</p>':'')+
+   (h.suitability?'<p class="suitability"><b>血統・馬体・走法（適性の参考点）：</b> 血統 '+h.suitability.blood+'／馬体 '+(h.suitability.body===null?'未採点':h.suitability.body)+'／走法 '+h.suitability.gait+'。'+h.suitability.bodyEra+'。総合評価への単純加算はしていません。'+(h.suitability.source?' <a target="_blank" rel="noopener" href="'+h.suitability.source+'">馬体資料</a>':'')+'</p><p class="small">'+h.suitability.headline+'。'+h.suitability.caution+'</p>':'')+
    (h.evaluationAudit?'<details style="border:1px solid #b3cbd3;padding:9px;border-radius:8px;background:#f4f9fc"><summary><b>📝 実走証拠に基づく採点再検証（10/16）</b></summary><p>芝2000m未経験をコース・血統・距離で多重減点しない。初距離の不確実性は順位変動（SD）に残す。</p><table class="factor-table"><thead><tr><th>評価</th><th>旧素点</th><th>修正素点</th></tr></thead><tbody>'+[['course','同コース・近接距離'],['lap','ラップ・直接対戦'],['blood','血統'],['distance','距離適性'],['sd','順位変動SD']].map(p=>'<tr><td>'+p[1]+'</td><td>'+h.evaluationAudit.previous[p[0]]+'</td><td>'+h.evaluationAudit.revised[p[0]]+'</td></tr>').join('')+'</tbody></table><p class="small">ローズS1000m58.9秒、ノーステッキで0.5秒差。JRA-VAN血統分析で配合適性を再確認。ほか16頭の入力と採点配点は据え置き。</p></details>':'')+
    '<p><b>強み：</b>'+h.plus+'</p><p class="risk"><b>注意：</b>'+h.minus+'</p>'+
    '<details><summary>14項目の条件回帰採点・血統・近走を表示</summary>'+

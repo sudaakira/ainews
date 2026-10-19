@@ -1,5 +1,7 @@
 {
-  "asOf": "2026-10-18T16:01:04+09:00",
+  "asOf": "2026-10-19T23:41:35+09:00",
+  "recordSnapshotAsOf": "2026-10-18T16:01:04+09:00",
+  "updateAuditUrl": "./kikka-2026-update-20261019.json",
   "registrationCount": 21,
   "expectedRunners": 18,
   "withdrawn": [
