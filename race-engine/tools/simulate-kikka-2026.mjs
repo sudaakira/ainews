@@ -11,13 +11,13 @@ const [{default:config},{createFactors},{createRegression},{createSimulator}]=aw
 ]);
 const evidence=JSON.parse(read('data/kikka-2026-evidence.json'));
 const F=createFactors(config),loop=createRegression(config,F),sim=createSimulator(config,loop);
-const seed=config.seed,count=50000;
+const seed=config.seed,count=50000,stamp=config.asOf.slice(0,10).replaceAll('-','');
 assert.equal(evidence.horses.length,21);
 assert.equal(evidence.horses.reduce((s,h)=>s+h.records.length,0),143);
 for(const h of evidence.horses){
  assert.equal(h.pedigree.length,62);
  assert.equal(new Set(h.pedigree.map(p=>p.path)).size,62);
- assert.ok(h.records.every(r=>r.date<='2026/10/18'));
+ assert.ok(h.records.every(r=>r.date<=config.asOf.slice(0,10).replaceAll('-','/')));
 }
 const scenarios=config.scenarios.map(s=>{
  const result=sim.simulate({...s.options,weights:loop.DEFAULTS},count,seed);
@@ -27,10 +27,10 @@ const scenarios=config.scenarios.map(s=>{
 });
 const base=scenarios[0];
 assert.deepEqual(sim.simulate({...base.options,weights:loop.DEFAULTS},count,seed).sort((a,b)=>b.rating-a.rating||a.no-b.no),base.result);
-const dispersion=[6,10,14].map(vol=>({vol,result:sim.simulate({...base.options,vol,weights:loop.DEFAULTS},count,seed)}));
+const dispersion=[5,10,14].map(vol=>({vol,result:sim.simulate({...base.options,vol,weights:loop.DEFAULTS},count,seed)}));
 // Common random numbers, same seed and n: only assumptions change.
 const totals={scenarioDraws:scenarios.length*count,dispersionDraws:dispersion.length*count,distinctDraws:scenarios.length*count+2*count,reproducibilityExtraDraws:count};
-const independentSeeds=[20261019,20261020].map(seed=>({seed,result:sim.simulate({...base.options,weights:loop.DEFAULTS},count,seed)}));
+const independentSeeds=[seed+1,seed+2].map(seed=>({seed,result:sim.simulate({...base.options,weights:loop.DEFAULTS},count,seed)}));
 totals.seedValidationDraws=independentSeeds.length*count;
 totals.distinctDraws+=totals.seedValidationDraws;
 const names=Object.fromEntries(config.horses.map(h=>[h.name,h.no]));
@@ -49,10 +49,17 @@ const ticketHitRate=(tickets)=>{
 };
 const threeBox=['ロブチェン','ダノンヒストリー','マジョレルブルー'];
 const trioTickets=[threeBox];
-const output={race:config.id,asOf:config.asOf,count,seed,totals,calibrated:false,method:'Subjective evidence-weighted score + independent Gaussian ranking noise. 3D animates a sampled ranking; no physical race interactions are modeled.',scenarios,dispersion,independentSeeds,tickets:{trioOnePoint:trioTickets,trioSixPoints:tickets,onePointModelHitPct:ticketHitRate(trioTickets),sixPointModelHitPct:ticketHitRate(tickets),actualOdds:null,expectedReturn:null}};
+const previous=JSON.parse(read('results/kikka-2026-20261018.json'));
+const matched=sim.simulate({...base.options,vol:10,weights:loop.DEFAULTS},count,previous.seed);
+totals.matchedComparisonDraws=count;totals.distinctDraws+=count;
+const comparison=base.result.map(h=>{const old=previous.scenarios[0].result.find(x=>x.name===h.name),same=matched.find(x=>x.name===h.name);return {name:h.name,previousRating:old.rating,rating:h.rating,delta:Math.round((h.rating-old.rating)*10)/10,previousTop3Vol10:old.p3,updatedTop3Vol10SameSeed:same.p3,updatedTop3DefaultVol5:h.p3};});
+const pairs=[];
+{const r=sim.random(seed),scores=config.horses.map(h=>loop.evaluate(h,base.options).rating),counts=new Map();for(let i=0;i<count;i++){const order=sim.runRace(r,base.options,scores);for(let a=0;a<3;a++)for(let b=a+1;b<3;b++){const key=[order[a],order[b]].sort((a,b)=>a-b).join('-');const row=counts.get(key)||{wide:0,quinella:0};row.wide++;if(a===0&&b===1)row.quinella++;counts.set(key,row);}}for(const [key,n]of counts){const ids=key.split('-').map(Number);pairs.push({horses:ids.map(no=>config.horses[no-1].name),widePct:n.wide/count*100,quinellaPct:n.quinella/count*100});}pairs.sort((a,b)=>b.widePct-a.widePct);assert.ok(Math.abs(pairs.reduce((s,p)=>s+p.widePct,0)-300)<1e-8);assert.ok(Math.abs(pairs.reduce((s,p)=>s+p.quinellaPct,0)-100)<1e-8);}
+totals.pairExtraDraws=count;
+const output={race:config.id,asOf:config.asOf,count,seed,totals,calibrated:false,method:'Subjective evidence-weighted score + independent Gaussian ranking noise. 3D animates a sampled ranking; no physical race interactions are modeled.',scenarios,dispersion,independentSeeds,comparison,pairs,tickets:{trioOnePoint:trioTickets,trioSixPoints:tickets,onePointModelHitPct:ticketHitRate(trioTickets),sixPointModelHitPct:ticketHitRate(tickets),actualOdds:null,expectedReturn:null}};
 mkdirSync(resolve(root,'results'),{recursive:true});
-writeFileSync(resolve(root,'results/kikka-2026-20261018.json'),JSON.stringify(output,null,2)+'\n');
+writeFileSync(resolve(root,'results/kikka-2026-'+stamp+'.json'),JSON.stringify(output,null,2)+'\n');
 const rows=[['scenario','no_provisional','horse','rating','win_pct_model','top3_pct_model']];
 for(const s of scenarios)for(const h of s.result)rows.push([s.id,h.no,h.name,h.rating,h.win.toFixed(3),h.p3.toFixed(3)]);
-writeFileSync(resolve(root,'results/kikka-2026-20261018.csv'),'\ufeff'+rows.map(r=>r.join(',')).join('\n')+'\n');
+writeFileSync(resolve(root,'results/kikka-2026-'+stamp+'.csv'),'\ufeff'+rows.map(r=>r.join(',')).join('\n')+'\n');
 console.log(JSON.stringify({totals,baseline:base.result,tickets:output.tickets},null,2));

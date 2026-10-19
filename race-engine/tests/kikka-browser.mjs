@@ -24,6 +24,9 @@ try{
   assert.equal(initial.status.horses,18);assert.equal(initial.status.model,'photo-thoroughbred-v24');
   assert.equal(initial.status.courseView,'kyoto-3000-outer');assert.equal(initial.scene.course.distance,3000);
   assert.equal(initial.seed,20261018);assert.equal(initial.rank.length,18);
+  assert.equal(await page.locator('#vol').inputValue(),'5');
+  assert.ok((await page.locator('header').innerText()).includes('2026-10-19'));
+  assert.equal(await page.locator('#horses .suitability').count(),18);
   assert.equal(await page.locator('.tracking-number').count(),18);
   assert.equal(await page.locator('#race-front-labels').count(),0);
   if(vp.width<700){
