@@ -1,0 +1,292 @@
+{
+  "asOf": "2026-10-20T19:15:54+09:00",
+  "previousAsOf": "2026-10-19T23:41:35+09:00",
+  "previousStamp": "20261019",
+  "method": "14項目100点・8倍速・ばらつき5を維持。新規調整報道と過去記事の新規確認、情報継承を別表示。血統・馬体・走法の点数は10/19版を継承し、他者の推奨印・予想オッズを能力の入力にしない。小幅な裁量補正と仮定を分離。",
+  "defaultSettings": {
+    "previous": {
+      "rate": 8,
+      "vol": 5
+    },
+    "current": {
+      "rate": 8,
+      "vol": 5
+    }
+  },
+  "roster": {
+    "registered": 21,
+    "expected": 18,
+    "withdrawn": [
+      "アルトラムス"
+    ],
+    "reserves": [
+      "イブキ",
+      "ミッキーファルコン"
+    ],
+    "drawConfirmed": false,
+    "jockeysProvisional": true,
+    "note": "19日想定騎手と20日JRA・報道を照合。新規の確定出馬表ではない。"
+  },
+  "track": {
+    "baseline": "良・高速想定",
+    "bias": "中立",
+    "note": "10/25の当日馬場は未発表。前有利・外差しと道悪を別条件で比較。"
+  },
+  "sourceAccess": "取得できた公開本文・公開検索抜粋の範囲を利用。取得できない会員限定詳評は採点に使わない。",
+  "suitabilitySnapshot": "20261019",
+  "sources": {
+    "JRA": "https://www.jra.go.jp/keiba/tokubetsu/pdf/2026/kikka.pdf",
+    "コース寸法": "https://www.jra.go.jp/facilities/race/kyoto/course/index.html",
+    "神戸新聞杯": "https://www.jra.go.jp/datafile/seiseki/replay/2026/088.html",
+    "セントライト記念": "https://www.jra.go.jp/datafile/seiseki/replay/2026/084.html",
+    "日本ダービー": "https://www.jra.go.jp/datafile/seiseki/g1/derby/result/derby2026.html",
+    "全頭戦績": "https://race.netkeiba.com/race/shutuba_past.html?race_id=202608040911",
+    "一週前西": "https://umanity.jp/racedata/race_newsdet.php?nid=11880096",
+    "一週前東": "https://umanity.jp/racedata/race_newsdet.php?nid=11880088",
+    "同条件騎手と厩舎": "https://www.keibadata.com/courses/kyoto/turf/3000",
+    "10月19日JRA最高レーティング": "https://www.jra.go.jp/datafile/ranking/g1/2026/kikka.html",
+    "10月19日想定騎手": "https://own.netkeiba.com/news/news_detail.html?id=346035",
+    "10月19日陣営談話": "https://umanity.jp/racedata/race_newsdet.php?nid=11880323",
+    "10月19日一週前総括": "https://own.netkeiba.com/news/news_detail.html?id=346078",
+    "10月19日馬体資料": "https://www.daily.co.jp/umaya/horsecheck/P20261019MS20119.shtml",
+    "JRA出走馬情報・10月20日照合": "https://www.jra.go.jp/keiba/g1/kikka/horse.html",
+    "10月20日コンジェスタス調整": "https://own.netkeiba.com/news/news_detail.html?id=346168",
+    "10月20日ロブチェン調整": "https://tospo-keiba.jp/breaking_news/76830",
+    "10月20日ジャスティンシカゴ調整": "https://tospo-keiba.jp/breaking_news/76827",
+    "10月20日バステール課題": "https://tospo-keiba.jp/breaking_news/76833",
+    "キンググローリーの欠測修正・10月15日取材": "https://keiba.sponichi.co.jp/news/20261015s00004048026000c"
+  },
+  "rows": [
+    {
+      "name": "アウダーシア",
+      "no": 1,
+      "jockey": "津村明秀",
+      "kind": "retained",
+      "publishedAt": "2026-10-19",
+      "eventDate": null,
+      "reviewedAt": "2026-10-20T19:15:54+09:00",
+      "source": null,
+      "latest": "10/20再照合：新しい調整材料は確認できず、前版を継承。京都への適合と緩さ改善を陣営が評価。発馬と外を回す距離損は残る。",
+      "changes": {}
+    },
+    {
+      "name": "アスクエジンバラ",
+      "no": 2,
+      "jockey": "岩田康誠",
+      "kind": "retained",
+      "publishedAt": "2026-10-19",
+      "eventDate": null,
+      "reviewedAt": "2026-10-20T19:15:54+09:00",
+      "source": null,
+      "latest": "10/20再照合：新しい調整材料は確認できず、前版を継承。陣営は計画通りの調整を報告。3000mでは枠と流れ、折り合いを重視。",
+      "changes": {}
+    },
+    {
+      "name": "エムズビギン",
+      "no": 3,
+      "jockey": "岩田望来",
+      "kind": "retained",
+      "publishedAt": "2026-10-19",
+      "eventDate": null,
+      "reviewedAt": "2026-10-20T19:15:54+09:00",
+      "source": null,
+      "latest": "10/20再照合：新しい調整材料は確認できず、前版を継承。陣営は持久力より折り合いを課題視。詳細な調教負荷は未確認で状態点50を維持。",
+      "changes": {}
+    },
+    {
+      "name": "キンググローリー",
+      "no": 4,
+      "jockey": "丹内祐次",
+      "kind": "newly-verified-earlier-report",
+      "publishedAt": "2026-10-15",
+      "eventDate": "2026-10-14",
+      "reviewedAt": "2026-10-20T19:15:54+09:00",
+      "source": "https://keiba.sponichi.co.jp/news/20261015s00004048026000c",
+      "latest": "10/20照合：前版の内容欠測を修正。10/15付の新聞取材で6F82.6−1F12.0、単走でリズム良く走れた内容を確認でき、状態50→78。10/20の新しい追い切りではない。",
+      "changes": {
+        "training": {
+          "before": 50,
+          "after": 78
+        }
+      }
+    },
+    {
+      "name": "コンジェスタス",
+      "no": 5,
+      "jockey": "西村淳也",
+      "kind": "new-report",
+      "publishedAt": "2026-10-20",
+      "eventDate": "2026-10-20",
+      "reviewedAt": "2026-10-20T19:15:54+09:00",
+      "source": "https://own.netkeiba.com/news/news_detail.html?id=346168",
+      "latest": "10/20照合：CW周回と坂路の通常メニュー。体重を保ちながら体形がすっきりしたとの新しい陣営説明を支持し、状態86→88。新しい計量値の確定発表ではない。",
+      "changes": {
+        "training": {
+          "before": 86,
+          "after": 88
+        }
+      }
+    },
+    {
+      "name": "ゴーイントゥスカイ",
+      "no": 6,
+      "jockey": "武豊",
+      "kind": "retained",
+      "publishedAt": "2026-10-19",
+      "eventDate": null,
+      "reviewedAt": "2026-10-20T19:15:54+09:00",
+      "source": null,
+      "latest": "10/20再照合：新しい調整材料は確認できず、前版を継承。一週前の右回り改善報告を再確認。ただし実戦の坂下りでの解消は未証明。",
+      "changes": {}
+    },
+    {
+      "name": "サノノグレーター",
+      "no": 7,
+      "jockey": "田辺裕信",
+      "kind": "retained",
+      "publishedAt": "2026-10-19",
+      "eventDate": null,
+      "reviewedAt": "2026-10-20T19:15:54+09:00",
+      "source": null,
+      "latest": "10/20再照合：新しい調整材料は確認できず、前版を継承。追い切りでの良化は確認。短い距離での末脚を3000mへ直結させない。",
+      "changes": {}
+    },
+    {
+      "name": "ジャスティンシカゴ",
+      "no": 8,
+      "jockey": "原優介",
+      "kind": "new-report",
+      "publishedAt": "2026-10-20",
+      "eventDate": "2026-10-20",
+      "reviewedAt": "2026-10-20T19:15:54+09:00",
+      "source": "https://tospo-keiba.jp/breaking_news/76827",
+      "latest": "10/20照合：20日は翌日の追い切りに備える坂路調整。陣営が乳酸値の測定も踏まえて持久力に言及。具体値・測定条件は非公表で、距離素点80→83の小幅な仮説補正にとどめる。折り合いは引き続き条件。",
+      "changes": {
+        "distance": {
+          "before": 80,
+          "after": 83
+        }
+      }
+    },
+    {
+      "name": "ショウナンガルフ",
+      "no": 9,
+      "jockey": "田山旺佑",
+      "kind": "retained",
+      "publishedAt": "2026-10-19",
+      "eventDate": null,
+      "reviewedAt": "2026-10-20T19:15:54+09:00",
+      "source": null,
+      "latest": "10/20再照合：新しい調整材料は確認できず、前版を継承。集中力の再現が課題。距離延長だけで近走の低調を解消とは扱わない。",
+      "changes": {}
+    },
+    {
+      "name": "ショウナンハヤナミ",
+      "no": 10,
+      "jockey": "池添謙一",
+      "kind": "retained",
+      "publishedAt": "2026-10-19",
+      "eventDate": null,
+      "reviewedAt": "2026-10-20T19:15:54+09:00",
+      "source": null,
+      "latest": "10/20再照合：新しい調整材料は確認できず、前版を継承。一度使った良化を支持。復帰2戦目の上積みは評価するが秋の立ち写真は未確認。",
+      "changes": {}
+    },
+    {
+      "name": "シートゥサミット",
+      "no": 11,
+      "jockey": "酒井学",
+      "kind": "retained",
+      "publishedAt": "2026-10-19",
+      "eventDate": null,
+      "reviewedAt": "2026-10-20T19:15:54+09:00",
+      "source": null,
+      "latest": "10/20再照合：新しい調整材料は確認できず、前版を継承。10/17の実質最終追いと心身の充実を確認。京都2400mの実走を血統点の低さより重視。",
+      "changes": {}
+    },
+    {
+      "name": "ダノンヒストリー",
+      "no": 12,
+      "jockey": "C.ルメール",
+      "kind": "retained",
+      "publishedAt": "2026-10-19",
+      "eventDate": null,
+      "reviewedAt": "2026-10-20T19:15:54+09:00",
+      "source": null,
+      "latest": "10/20再照合：新しい調整材料は確認できず、前版を継承。健康状態・息遣いを支持。輸送と左右バランスの調整、57kg・相手強化が確認点。",
+      "changes": {}
+    },
+    {
+      "name": "チャリングクロス",
+      "no": 13,
+      "jockey": "石川裕紀人",
+      "kind": "retained",
+      "publishedAt": "2026-10-19",
+      "eventDate": null,
+      "reviewedAt": "2026-10-20T19:15:54+09:00",
+      "source": null,
+      "latest": "10/20再照合：新しい調整材料は確認できず、前版を継承。一週前の負荷と持久戦への見通しを確認。血統点95でも近走7着・相手強化・秋馬体未確認を残す。",
+      "changes": {}
+    },
+    {
+      "name": "ナリタエスペランサ",
+      "no": 14,
+      "jockey": "北村友一",
+      "kind": "retained",
+      "publishedAt": "2026-10-19",
+      "eventDate": null,
+      "reviewedAt": "2026-10-20T19:15:54+09:00",
+      "source": null,
+      "latest": "10/20再照合：新しい調整材料は確認できず、前版を継承。状態の上昇が十分でないとの陣営説明を反映。状態50→45、改善を確認できた場合は別条件で比較。",
+      "changes": {}
+    },
+    {
+      "name": "バステール",
+      "no": 15,
+      "jockey": "川田将雅",
+      "kind": "new-report",
+      "publishedAt": "2026-10-20",
+      "eventDate": "2026-10-20",
+      "reviewedAt": "2026-10-20T19:15:54+09:00",
+      "source": "https://tospo-keiba.jp/breaking_news/76833",
+      "latest": "10/20照合：20日朝はウッドで脚慣らし。後躯をさらに使う課題が残るとの説明を確認。馬体診断の好評価だけで実走の課題を解消したとはせず、採点を維持。",
+      "changes": {}
+    },
+    {
+      "name": "マジョレルブルー",
+      "no": 16,
+      "jockey": "戸崎圭太",
+      "kind": "retained",
+      "publishedAt": "2026-10-19",
+      "eventDate": null,
+      "reviewedAt": "2026-10-20T19:15:54+09:00",
+      "source": null,
+      "latest": "10/20再照合：新しい調整材料は確認できず、前版を継承。調教での集中と運びやすさを支持。最新馬体分析では後躯の完成度に留保、成長を先取りしない。",
+      "changes": {}
+    },
+    {
+      "name": "ラージアンサンブル",
+      "no": 17,
+      "jockey": "坂井瑠星",
+      "kind": "retained",
+      "publishedAt": "2026-10-19",
+      "eventDate": null,
+      "reviewedAt": "2026-10-20T19:15:54+09:00",
+      "source": null,
+      "latest": "10/20再照合：新しい調整材料は確認できず、前版を継承。休み明けの内容と折り合いを評価。手前の切替と反応の改善が上位進出の条件。",
+      "changes": {}
+    },
+    {
+      "name": "ロブチェン",
+      "no": 18,
+      "jockey": "松山弘平",
+      "kind": "new-report",
+      "publishedAt": "2026-10-20",
+      "eventDate": "2026-10-20",
+      "reviewedAt": "2026-10-20T19:15:54+09:00",
+      "source": "https://tospo-keiba.jp/breaking_news/76830",
+      "latest": "10/20照合：20日は坂路を軽く1本。通常調整で順調との報道を確認。強い追い切りの新時計ではないため状態90を維持。",
+      "changes": {}
+    }
+  ]
+}

@@ -1,7 +1,7 @@
 {
-  "asOf": "2026-10-19T23:41:35+09:00",
+  "asOf": "2026-10-20T19:15:54+09:00",
   "recordSnapshotAsOf": "2026-10-18T16:01:04+09:00",
-  "updateAuditUrl": "./kikka-2026-update-20261019.json",
+  "updateAuditUrl": "./kikka-2026-update-20261020.json",
   "registrationCount": 21,
   "expectedRunners": 18,
   "withdrawn": [
@@ -3307,9 +3307,9 @@
         "date": "2026-10-14",
         "track": "美浦ウッド",
         "clock": "6F82.6−1F12.0",
-        "content": "時計は単一の調教集計資料。負荷・併せ内容の独立確認ができず、状態採点は50の中立。",
-        "verification": "単資料・内容未確認",
-        "source": "https://note.com/tiger_z/n/n232d1356f00e"
+        "content": "単走でリズム良く追走。10/15付新聞取材を10/20に確認。前版の内容欠測を解消し状態素点78。",
+        "verification": "新聞取材確認（10/15公表・10/20照合）",
+        "source": "https://keiba.sponichi.co.jp/news/20261015s00004048026000c"
       },
       "jockeyCourseStats": null,
       "stableCourseStats": null,

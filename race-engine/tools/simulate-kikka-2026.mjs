@@ -34,7 +34,7 @@ const independentSeeds=[seed+1,seed+2].map(seed=>({seed,result:sim.simulate({...
 totals.seedValidationDraws=independentSeeds.length*count;
 totals.distinctDraws+=totals.seedValidationDraws;
 const names=Object.fromEntries(config.horses.map(h=>[h.name,h.no]));
-const core=['ダノンヒストリー','マジョレルブルー','シートゥサミット','コンジェスタス'];
+const core=base.result.filter(h=>h.name!=='ロブチェン').sort((a,b)=>b.p3-a.p3).slice(0,4).map(h=>h.name);
 const tickets=[];
 for(let i=0;i<core.length;i++)for(let j=i+1;j<core.length;j++)tickets.push(['ロブチェン',core[i],core[j]]);
 assert.equal(tickets.length,6);
@@ -47,12 +47,12 @@ const ticketHitRate=(tickets)=>{
  }
  return hits/count*100;
 };
-const threeBox=['ロブチェン','ダノンヒストリー','マジョレルブルー'];
+const threeBox=base.result.slice(0,3).map(h=>h.name);
 const trioTickets=[threeBox];
-const previous=JSON.parse(read('results/kikka-2026-20261018.json'));
-const matched=sim.simulate({...base.options,vol:10,weights:loop.DEFAULTS},count,previous.seed);
+const previous=JSON.parse(read('results/kikka-2026-'+config.previousStamp+'.json'));
+const matched=sim.simulate({...base.options,vol:previous.scenarios[0].options.vol,weights:loop.DEFAULTS},count,previous.seed);
 totals.matchedComparisonDraws=count;totals.distinctDraws+=count;
-const comparison=base.result.map(h=>{const old=previous.scenarios[0].result.find(x=>x.name===h.name),same=matched.find(x=>x.name===h.name);return {name:h.name,previousRating:old.rating,rating:h.rating,delta:Math.round((h.rating-old.rating)*10)/10,previousTop3Vol10:old.p3,updatedTop3Vol10SameSeed:same.p3,updatedTop3DefaultVol5:h.p3};});
+const comparison=base.result.map(h=>{const old=previous.scenarios[0].result.find(x=>x.name===h.name),same=matched.find(x=>x.name===h.name);return {name:h.name,previousRating:old.rating,rating:h.rating,delta:Math.round((h.rating-old.rating)*10)/10,previousTop3Pct:old.p3,updatedTop3SameSeedPct:same.p3,updatedTop3DefaultPct:h.p3};});
 const pairs=[];
 {const r=sim.random(seed),scores=config.horses.map(h=>loop.evaluate(h,base.options).rating),counts=new Map();for(let i=0;i<count;i++){const order=sim.runRace(r,base.options,scores);for(let a=0;a<3;a++)for(let b=a+1;b<3;b++){const key=[order[a],order[b]].sort((a,b)=>a-b).join('-');const row=counts.get(key)||{wide:0,quinella:0};row.wide++;if(a===0&&b===1)row.quinella++;counts.set(key,row);}}for(const [key,n]of counts){const ids=key.split('-').map(Number);pairs.push({horses:ids.map(no=>config.horses[no-1].name),widePct:n.wide/count*100,quinellaPct:n.quinella/count*100});}pairs.sort((a,b)=>b.widePct-a.widePct);assert.ok(Math.abs(pairs.reduce((s,p)=>s+p.widePct,0)-300)<1e-8);assert.ok(Math.abs(pairs.reduce((s,p)=>s+p.quinellaPct,0)-100)<1e-8);}
 totals.pairExtraDraws=count;
