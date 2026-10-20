@@ -13,12 +13,24 @@ assert.ok(!c.horses.some(h=>['アルトラムス','イブキ','ミッキーフ�
 const loop=createRegression(c,createFactors(c));
 assert.equal(loop.FEATURES.reduce((s,f)=>s+f.weight,0),100);
 for(const h of c.horses)assert.equal(loop.scores(h).draw,50,'no registration-order draw bonus');
-for(const name of ['エムズビギン','キンググローリー']){
+for(const name of ['エムズビギン']){
  const h=c.horses.find(h=>h.name===name);assert.equal(loop.scores(h).training,50);
 }
 assert.equal(loop.scores(c.horses.find(h=>h.name==='ナリタエスペランサ')).training,45,'reported fitness concern is not a missing observation');
 assert.equal(c.defaultVol,5);assert.equal(c.defaultPlaybackRate,8);
-assert.ok(c.asOf.startsWith('2026-10-19'));
+assert.ok(c.asOf.startsWith('2026-10-20'));
+assert.equal(loop.scores(c.horses.find(h=>h.name==='キンググローリー')).training,78,'verified earlier workout resolves missing data');
+assert.equal(c.horses.filter(h=>h.latestReviewKind==='new-report').length,4);
+assert.equal(c.horses.filter(h=>h.latestReviewKind==='newly-verified-earlier-report').length,1);
+const audit=JSON.parse(read('data/kikka-2026-update-20261020.json'));
+assert.equal(audit.rows.length,18);assert.equal(audit.asOf,c.asOf);
+const priorResults=JSON.parse(read('results/kikka-2026-20261019.json'));
+for(const h of c.horses){
+ const row=audit.rows.find(x=>x.name===h.name);
+ assert.equal(row.reviewedAt,c.asOf);
+ if(row.kind==='retained')assert.equal(loop.evaluate(h,{}).rating,priorResults.scenarios[0].result.find(x=>x.name===h.name).rating);
+}
+for(const name of ['エムズビギン','キンググローリー','ナリタエスペランサ'])assert.equal(loop.scores(c.horses.find(h=>h.name===name),{variant:'unknownTrainingGood'}).training,80);
 assert.equal(c.horses.find(h=>h.name==='チャリングクロス').j,'石川裕紀人');
 assert.equal(c.horses.filter(h=>h.suitability.body===null).length,3,'missing autumn photos stay missing');
 assert.equal(c.horses.filter(h=>h.suitability.bodyEra.startsWith('5月')).length,2,'spring photos must remain labelled');
