@@ -1,0 +1,1004 @@
+{
+  "asOf": "2026-10-21T12:21:53+09:00",
+  "previousAsOf": "2026-10-20T19:15:54+09:00",
+  "previousStamp": "20261020",
+  "method": "100点配点を維持。状態の新情報と、良高速→重・通常速度という想定変更を別系列で比較。重はsoft、不良はheavy。道悪実走・血統の仮説補正は全18頭を一覧化。学習済み回帰・校正済み確率ではない。",
+  "defaultSettings": {
+    "previous": {
+      "ground": "good",
+      "speed": 2,
+      "rate": 8,
+      "vol": 5
+    },
+    "current": {
+      "ground": "soft",
+      "speed": 0,
+      "rate": 8,
+      "vol": 5
+    }
+  },
+  "roster": {
+    "registered": 21,
+    "expected": 18,
+    "drawConfirmed": false
+  },
+  "sourceAccess": "取得できた公開本文・公開検索抜粋・見出しの範囲のみ。現在の最終追い内容を確認できた馬だけworkoutを更新。",
+  "rows": [
+    {
+      "no": 1,
+      "name": "アウダーシア",
+      "jockey": "津村明秀",
+      "kind": "final-workout",
+      "publishedAt": "2026-10-21",
+      "eventDate": "2026-10-21",
+      "reviewedAt": "2026-10-21T12:21:53+09:00",
+      "source": "https://www.nikkansports.com/keiba/news/202610210000155.html",
+      "sourceAccess": "公開本文",
+      "latest": "10/21最終追い確認：津村騎手で約2馬身追走し併入。手応えは相手に劣勢でも、陣営は十分に仕上がったと説明。状態88を維持。",
+      "changes": {}
+    },
+    {
+      "no": 2,
+      "name": "アスクエジンバラ",
+      "jockey": "岩田康誠",
+      "kind": "new-comment",
+      "publishedAt": "2026-10-21",
+      "eventDate": null,
+      "reviewedAt": "2026-10-21T12:21:53+09:00",
+      "source": "https://dir.netkeiba.com/keiba/news/news_preview.html?no=346189",
+      "sourceAccess": "取得できた公開抜粋・見出し",
+      "latest": "10/21公表資料：今朝公表の陣営短評は前走より良い状態との内容。今日の最終追い時計の確認には至らず、状態88を継承。",
+      "changes": {}
+    },
+    {
+      "no": 3,
+      "name": "エムズビギン",
+      "jockey": "岩田望来",
+      "kind": "retained",
+      "publishedAt": "2026-10-19",
+      "eventDate": null,
+      "reviewedAt": "2026-10-21T12:21:53+09:00",
+      "source": null,
+      "sourceAccess": "前版継承",
+      "latest": "10/21再照合：新しい最終追いの公開内容を確認できず、前版を継承。新しい調整材料は確認できず、前版を継承。陣営は持久力より折り合いを課題視。詳細な調教負荷は未確認で状態点50を維持。",
+      "changes": {}
+    },
+    {
+      "no": 4,
+      "name": "キンググローリー",
+      "jockey": "丹内祐次",
+      "kind": "retained",
+      "publishedAt": "2026-10-15",
+      "eventDate": null,
+      "reviewedAt": "2026-10-21T12:21:53+09:00",
+      "source": "https://keiba.sponichi.co.jp/news/20261015s00004048026000c",
+      "sourceAccess": "前版継承",
+      "latest": "10/21再照合：新しい最終追いの公開内容を確認できず、前版を継承。前版の内容欠測を修正。10/15付の新聞取材で6F82.6−1F12.0、単走でリズム良く走れた内容を確認でき、状態50→78。10/20の新しい追い切りではない。",
+      "changes": {}
+    },
+    {
+      "no": 5,
+      "name": "コンジェスタス",
+      "jockey": "西村淳也",
+      "kind": "final-workout",
+      "publishedAt": "2026-10-21",
+      "eventDate": "2026-10-21",
+      "reviewedAt": "2026-10-21T12:21:53+09:00",
+      "source": "https://umanity.jp/racedata/race_newsdet.php?nid=11880471",
+      "sourceAccess": "公開本文",
+      "latest": "10/21最終追い確認：坂路2本目の単走で力強い脚取り。前走より動ける感触と体質良化を陣営が支持し、状態88→90。",
+      "changes": {
+        "training": {
+          "before": 88,
+          "after": 90
+        }
+      }
+    },
+    {
+      "no": 6,
+      "name": "ゴーイントゥスカイ",
+      "jockey": "武豊",
+      "kind": "new-comment",
+      "publishedAt": "2026-10-21",
+      "eventDate": "2026-10-20",
+      "reviewedAt": "2026-10-21T12:21:53+09:00",
+      "source": "https://dir.netkeiba.com/keiba/news/news_preview.html?no=346188",
+      "sourceAccess": "取得できた公開抜粋・見出し",
+      "latest": "10/21公表資料：今朝公表の記事は火曜朝の軽い坂路調整。今日の最終追い切りと混同せず、状態88を継承。右回りの実戦確認は引き続き必要。",
+      "changes": {}
+    },
+    {
+      "no": 7,
+      "name": "サノノグレーター",
+      "jockey": "田辺裕信",
+      "kind": "final-workout",
+      "publishedAt": "2026-10-21",
+      "eventDate": "2026-10-21",
+      "reviewedAt": "2026-10-21T12:21:53+09:00",
+      "source": "https://tospo-keiba.jp/breaking_news/76840",
+      "sourceAccess": "公開検索抜粋",
+      "latest": "10/21最終追い確認：田辺騎手でウッド単走。順調との説明で状態87を維持。陣営の雨への懸念と前走稍重11着を重馬場の留保に反映。",
+      "changes": {}
+    },
+    {
+      "no": 8,
+      "name": "ジャスティンシカゴ",
+      "jockey": "原優介",
+      "kind": "final-workout",
+      "publishedAt": "2026-10-21",
+      "eventDate": "2026-10-21",
+      "reviewedAt": "2026-10-21T12:21:53+09:00",
+      "source": "https://umanity.jp/racedata/race_newsdet.php?nid=11880465",
+      "sourceAccess": "公開本文",
+      "latest": "10/21最終追い確認：原騎手で約1秒追走、馬なりでクビ先着。一定のリズムと折り合いを支持し、状態87→90。距離適性83は継承。",
+      "changes": {
+        "training": {
+          "before": 87,
+          "after": 90
+        }
+      }
+    },
+    {
+      "no": 9,
+      "name": "ショウナンガルフ",
+      "jockey": "田山旺佑",
+      "kind": "retained",
+      "publishedAt": "2026-10-19",
+      "eventDate": null,
+      "reviewedAt": "2026-10-21T12:21:53+09:00",
+      "source": null,
+      "sourceAccess": "前版継承",
+      "latest": "10/21再照合：新しい最終追いの公開内容を確認できず、前版を継承。新しい調整材料は確認できず、前版を継承。集中力の再現が課題。距離延長だけで近走の低調を解消とは扱わない。",
+      "changes": {}
+    },
+    {
+      "no": 10,
+      "name": "ショウナンハヤナミ",
+      "jockey": "池添謙一",
+      "kind": "retained",
+      "publishedAt": "2026-10-19",
+      "eventDate": null,
+      "reviewedAt": "2026-10-21T12:21:53+09:00",
+      "source": null,
+      "sourceAccess": "前版継承",
+      "latest": "10/21再照合：新しい最終追いの公開内容を確認できず、前版を継承。新しい調整材料は確認できず、前版を継承。一度使った良化を支持。復帰2戦目の上積みは評価するが秋の立ち写真は未確認。",
+      "changes": {}
+    },
+    {
+      "no": 11,
+      "name": "シートゥサミット",
+      "jockey": "酒井学",
+      "kind": "new-comment",
+      "publishedAt": "2026-10-21",
+      "eventDate": null,
+      "reviewedAt": "2026-10-21T12:21:53+09:00",
+      "source": "https://umanity.jp/racedata/race_newsdet.php?nid=11880456",
+      "sourceAccess": "取得できた公開抜粋・見出し",
+      "latest": "10/21公表資料：今朝の特集でメンタル面改善が紹介されている。取得できた公開見出しの範囲を記録し、10/17実質最終追いと状態90を継承。",
+      "changes": {}
+    },
+    {
+      "no": 12,
+      "name": "ダノンヒストリー",
+      "jockey": "C.ルメール",
+      "kind": "final-workout",
+      "publishedAt": "2026-10-21",
+      "eventDate": "2026-10-21",
+      "reviewedAt": "2026-10-21T12:21:53+09:00",
+      "source": "https://www.nikkansports.com/keiba/news/202610210000215.html",
+      "sourceAccess": "公開本文",
+      "latest": "10/21最終追い確認：2頭併せで大きなフットワークと良い呼吸・リズムを確認したとの取材。最終追いの具体的内容から状態72→86。重・不良の本人実績は未確認。",
+      "changes": {
+        "training": {
+          "before": 72,
+          "after": 86
+        }
+      }
+    },
+    {
+      "no": 13,
+      "name": "チャリングクロス",
+      "jockey": "石川裕紀人",
+      "kind": "new-comment",
+      "publishedAt": "2026-10-21",
+      "eventDate": null,
+      "reviewedAt": "2026-10-21T12:21:53+09:00",
+      "source": "https://news.netkeiba.com/?no=346194&pid=news_view",
+      "sourceAccess": "取得できた公開抜粋・見出し",
+      "latest": "10/21公表資料：今朝の陣営談話は心肺機能を支持。具体的な新しい最終追い内容は確認できず、状態72を継承。兄の能力を本人の点数に転用しない。",
+      "changes": {}
+    },
+    {
+      "no": 14,
+      "name": "ナリタエスペランサ",
+      "jockey": "北村友一",
+      "kind": "retained",
+      "publishedAt": "2026-10-19",
+      "eventDate": null,
+      "reviewedAt": "2026-10-21T12:21:53+09:00",
+      "source": null,
+      "sourceAccess": "前版継承",
+      "latest": "10/21再照合：新しい最終追いの公開内容を確認できず、前版を継承。新しい調整材料は確認できず、前版を継承。状態の上昇が十分でないとの陣営説明を反映。状態50→45、改善を確認できた場合は別条件で比較。",
+      "changes": {}
+    },
+    {
+      "no": 15,
+      "name": "バステール",
+      "jockey": "川田将雅",
+      "kind": "final-workout",
+      "publishedAt": "2026-10-21",
+      "eventDate": "2026-10-21",
+      "reviewedAt": "2026-10-21T12:21:53+09:00",
+      "source": "https://umanity.jp/racedata/race_newsdet.php?nid=11880466",
+      "sourceAccess": "公開本文",
+      "latest": "10/21最終追い確認：従来のハミに戻した3頭併せで余裕ある動き。陣営・騎手が先週より良化を支持し状態50→76。前走の道悪大敗と実戦での再現性は留保。",
+      "changes": {
+        "training": {
+          "before": 50,
+          "after": 76
+        }
+      }
+    },
+    {
+      "no": 16,
+      "name": "マジョレルブルー",
+      "jockey": "戸崎圭太",
+      "kind": "retained",
+      "publishedAt": "2026-10-19",
+      "eventDate": null,
+      "reviewedAt": "2026-10-21T12:21:53+09:00",
+      "source": null,
+      "sourceAccess": "前版継承",
+      "latest": "10/21再照合：新しい最終追いの公開内容を確認できず、前版を継承。新しい調整材料は確認できず、前版を継承。調教での集中と運びやすさを支持。最新馬体分析では後躯の完成度に留保、成長を先取りしない。",
+      "changes": {}
+    },
+    {
+      "no": 17,
+      "name": "ラージアンサンブル",
+      "jockey": "坂井瑠星",
+      "kind": "retained",
+      "publishedAt": "2026-10-19",
+      "eventDate": null,
+      "reviewedAt": "2026-10-21T12:21:53+09:00",
+      "source": null,
+      "sourceAccess": "前版継承",
+      "latest": "10/21再照合：新しい最終追いの公開内容を確認できず、前版を継承。新しい調整材料は確認できず、前版を継承。休み明けの内容と折り合いを評価。手前の切替と反応の改善が上位進出の条件。",
+      "changes": {}
+    },
+    {
+      "no": 18,
+      "name": "ロブチェン",
+      "jockey": "松山弘平",
+      "kind": "final-workout",
+      "publishedAt": "2026-10-21",
+      "eventDate": "2026-10-21",
+      "reviewedAt": "2026-10-21T12:21:53+09:00",
+      "source": "https://umanity.jp/racedata/race_newsdet.php?nid=11880464",
+      "sourceAccess": "公開本文",
+      "latest": "10/21最終追い確認：併走相手を追走し、わずかに促して素早い反応。折り合いと叩いた軽さを支持して状態90→94。重馬場の京都新馬勝ちも支持材料。",
+      "changes": {
+        "training": {
+          "before": 90,
+          "after": 94
+        }
+      }
+    }
+  ],
+  "previousModel": {
+    "featureScores": {
+      "1": {
+        "course": 80,
+        "recent": 85,
+        "lap": 86,
+        "training": 88,
+        "blood": 88,
+        "distance": 86,
+        "pace": 75,
+        "stable": 50.8,
+        "rotation": 82,
+        "draw": 50,
+        "sex": 50,
+        "load": 50
+      },
+      "2": {
+        "course": 81,
+        "recent": 86,
+        "lap": 84,
+        "training": 88,
+        "blood": 87,
+        "distance": 82,
+        "pace": 85,
+        "stable": 50,
+        "rotation": 82,
+        "draw": 50,
+        "sex": 50,
+        "load": 50
+      },
+      "3": {
+        "course": 83,
+        "recent": 82,
+        "lap": 88,
+        "training": 50,
+        "blood": 93,
+        "distance": 92,
+        "pace": 72,
+        "stable": 49.8,
+        "rotation": 82,
+        "draw": 50,
+        "sex": 50,
+        "load": 50
+      },
+      "4": {
+        "course": 78,
+        "recent": 78,
+        "lap": 78,
+        "training": 78,
+        "blood": 83,
+        "distance": 88,
+        "pace": 85,
+        "stable": 50,
+        "rotation": 82,
+        "draw": 50,
+        "sex": 50,
+        "load": 50
+      },
+      "5": {
+        "course": 91,
+        "recent": 86,
+        "lap": 85,
+        "training": 88,
+        "blood": 90,
+        "distance": 88,
+        "pace": 77,
+        "stable": 50,
+        "rotation": 82,
+        "draw": 50,
+        "sex": 50,
+        "load": 50
+      },
+      "6": {
+        "course": 69,
+        "recent": 91,
+        "lap": 89,
+        "training": 88,
+        "blood": 82,
+        "distance": 87,
+        "pace": 70,
+        "stable": 50.5,
+        "rotation": 82,
+        "draw": 50,
+        "sex": 50,
+        "load": 50
+      },
+      "7": {
+        "course": 68,
+        "recent": 78,
+        "lap": 76,
+        "training": 87,
+        "blood": 75,
+        "distance": 71,
+        "pace": 67,
+        "stable": 50,
+        "rotation": 82,
+        "draw": 50,
+        "sex": 50,
+        "load": 50
+      },
+      "8": {
+        "course": 79,
+        "recent": 88,
+        "lap": 86,
+        "training": 87,
+        "blood": 88,
+        "distance": 83,
+        "pace": 86,
+        "stable": 50,
+        "rotation": 82,
+        "draw": 50,
+        "sex": 50,
+        "load": 50
+      },
+      "9": {
+        "course": 62,
+        "recent": 63,
+        "lap": 62,
+        "training": 56,
+        "blood": 79,
+        "distance": 70,
+        "pace": 60,
+        "stable": 50,
+        "rotation": 82,
+        "draw": 50,
+        "sex": 50,
+        "load": 50
+      },
+      "10": {
+        "course": 77,
+        "recent": 74,
+        "lap": 72,
+        "training": 86,
+        "blood": 85,
+        "distance": 80,
+        "pace": 73,
+        "stable": 50,
+        "rotation": 82,
+        "draw": 50,
+        "sex": 50,
+        "load": 50
+      },
+      "11": {
+        "course": 88,
+        "recent": 85,
+        "lap": 84,
+        "training": 90,
+        "blood": 70,
+        "distance": 79,
+        "pace": 78,
+        "stable": 50,
+        "rotation": 82,
+        "draw": 50,
+        "sex": 50,
+        "load": 50
+      },
+      "12": {
+        "course": 82,
+        "recent": 86,
+        "lap": 88,
+        "training": 72,
+        "blood": 88,
+        "distance": 94,
+        "pace": 82,
+        "stable": 51.2,
+        "rotation": 72,
+        "draw": 50,
+        "sex": 50,
+        "load": 50
+      },
+      "13": {
+        "course": 80,
+        "recent": 78,
+        "lap": 77,
+        "training": 72,
+        "blood": 95,
+        "distance": 90,
+        "pace": 80,
+        "stable": 49.7,
+        "rotation": 72,
+        "draw": 50,
+        "sex": 50,
+        "load": 50
+      },
+      "14": {
+        "course": 79,
+        "recent": 72,
+        "lap": 73,
+        "training": 45,
+        "blood": 80,
+        "distance": 84,
+        "pace": 85,
+        "stable": 50,
+        "rotation": 82,
+        "draw": 50,
+        "sex": 50,
+        "load": 50
+      },
+      "15": {
+        "course": 74,
+        "recent": 85,
+        "lap": 87,
+        "training": 50,
+        "blood": 81,
+        "distance": 88,
+        "pace": 66,
+        "stable": 49.7,
+        "rotation": 82,
+        "draw": 50,
+        "sex": 50,
+        "load": 50
+      },
+      "16": {
+        "course": 86,
+        "recent": 82,
+        "lap": 83,
+        "training": 84,
+        "blood": 89,
+        "distance": 89,
+        "pace": 84,
+        "stable": 49.8,
+        "rotation": 82,
+        "draw": 50,
+        "sex": 50,
+        "load": 50
+      },
+      "17": {
+        "course": 79,
+        "recent": 82,
+        "lap": 81,
+        "training": 85,
+        "blood": 79,
+        "distance": 84,
+        "pace": 82,
+        "stable": 50.8,
+        "rotation": 82,
+        "draw": 50,
+        "sex": 50,
+        "load": 50
+      },
+      "18": {
+        "course": 88,
+        "recent": 98,
+        "lap": 95,
+        "training": 90,
+        "blood": 92,
+        "distance": 90,
+        "pace": 82,
+        "stable": 48.8,
+        "rotation": 82,
+        "draw": 50,
+        "sex": 50,
+        "load": 50
+      }
+    },
+    "conditionResponses": {
+      "1": {
+        "pace": {
+          "pace": 3,
+          "lap": 2
+        },
+        "speed": {
+          "lap": 0.5
+        },
+        "ground": {
+          "yielding": {
+            "lap": -1
+          },
+          "soft": {
+            "lap": -3,
+            "distance": -1,
+            "blood": 1
+          },
+          "heavy": {
+            "lap": -5,
+            "distance": -3
+          }
+        },
+        "variants": {}
+      },
+      "2": {
+        "pace": {
+          "pace": -2,
+          "lap": 0
+        },
+        "speed": {
+          "lap": 0.5
+        },
+        "ground": {
+          "yielding": {
+            "lap": -1
+          },
+          "soft": {
+            "lap": -3,
+            "distance": -1,
+            "blood": 1
+          },
+          "heavy": {
+            "lap": -5,
+            "distance": -3
+          }
+        },
+        "variants": {}
+      },
+      "3": {
+        "pace": {
+          "pace": 3,
+          "lap": 2
+        },
+        "speed": {
+          "lap": 0.5
+        },
+        "ground": {
+          "yielding": {
+            "lap": -1
+          },
+          "soft": {
+            "lap": -3,
+            "distance": -1
+          },
+          "heavy": {
+            "lap": -5,
+            "distance": -3
+          }
+        },
+        "variants": {
+          "unknownTrainingGood": {
+            "training": 30
+          },
+          "emsPulls": {
+            "pace": -24,
+            "lap": -8,
+            "distance": -8
+          }
+        }
+      },
+      "4": {
+        "pace": {
+          "pace": -4,
+          "lap": -1
+        },
+        "speed": {
+          "lap": -0.5
+        },
+        "ground": {
+          "yielding": {
+            "lap": -1
+          },
+          "soft": {
+            "lap": -3,
+            "distance": -1
+          },
+          "heavy": {
+            "lap": -5,
+            "distance": -3
+          }
+        },
+        "variants": {
+          "unknownTrainingGood": {
+            "training": 2
+          }
+        }
+      },
+      "5": {
+        "pace": {
+          "pace": 0,
+          "lap": 0
+        },
+        "speed": {
+          "lap": 0.5
+        },
+        "ground": {
+          "yielding": {
+            "lap": -1
+          },
+          "soft": {
+            "lap": -3,
+            "distance": -1
+          },
+          "heavy": {
+            "lap": -5,
+            "distance": -3
+          }
+        },
+        "variants": {}
+      },
+      "6": {
+        "pace": {
+          "pace": 3,
+          "lap": 2
+        },
+        "speed": {
+          "lap": 0.5
+        },
+        "ground": {
+          "yielding": {
+            "lap": -1
+          },
+          "soft": {
+            "lap": -3,
+            "distance": -1
+          },
+          "heavy": {
+            "lap": -5,
+            "distance": -3
+          }
+        },
+        "variants": {
+          "rightImproves": {
+            "course": 12,
+            "lap": 3,
+            "recent": 2
+          },
+          "rightPersists": {
+            "course": -10,
+            "lap": -6,
+            "pace": -10
+          }
+        }
+      },
+      "7": {
+        "pace": {
+          "pace": 3,
+          "lap": 2
+        },
+        "speed": {
+          "lap": -0.5
+        },
+        "ground": {
+          "yielding": {
+            "lap": -1
+          },
+          "soft": {
+            "lap": -3,
+            "distance": -1
+          },
+          "heavy": {
+            "lap": -5,
+            "distance": -3
+          }
+        },
+        "variants": {}
+      },
+      "8": {
+        "pace": {
+          "pace": -2,
+          "lap": 0
+        },
+        "speed": {
+          "lap": 0.5
+        },
+        "ground": {
+          "yielding": {
+            "lap": -1
+          },
+          "soft": {
+            "lap": -3,
+            "distance": -1
+          },
+          "heavy": {
+            "lap": -5,
+            "distance": -3
+          }
+        },
+        "variants": {}
+      },
+      "9": {
+        "pace": {
+          "pace": 3,
+          "lap": 2
+        },
+        "speed": {
+          "lap": -0.5
+        },
+        "ground": {
+          "yielding": {
+            "lap": -1
+          },
+          "soft": {
+            "lap": -3,
+            "distance": -1
+          },
+          "heavy": {
+            "lap": -5,
+            "distance": -3
+          }
+        },
+        "variants": {}
+      },
+      "10": {
+        "pace": {
+          "pace": 0,
+          "lap": 0
+        },
+        "speed": {
+          "lap": -0.5
+        },
+        "ground": {
+          "yielding": {
+            "lap": -1
+          },
+          "soft": {
+            "lap": -3,
+            "distance": -1
+          },
+          "heavy": {
+            "lap": -5,
+            "distance": -3
+          }
+        },
+        "variants": {}
+      },
+      "11": {
+        "pace": {
+          "pace": 0,
+          "lap": -1,
+          "distance": -2
+        },
+        "speed": {
+          "lap": 0.5
+        },
+        "ground": {
+          "yielding": {
+            "lap": -1
+          },
+          "soft": {
+            "lap": -3,
+            "distance": -3
+          },
+          "heavy": {
+            "lap": -5,
+            "distance": -3
+          }
+        },
+        "variants": {}
+      },
+      "12": {
+        "pace": {
+          "pace": -2,
+          "lap": 2,
+          "distance": 1.5
+        },
+        "speed": {
+          "lap": 0.5
+        },
+        "ground": {
+          "yielding": {
+            "lap": -1
+          },
+          "soft": {
+            "lap": -3,
+            "distance": -1
+          },
+          "heavy": {
+            "lap": -5,
+            "distance": -3
+          }
+        },
+        "variants": {}
+      },
+      "13": {
+        "pace": {
+          "pace": -2,
+          "lap": 0
+        },
+        "speed": {
+          "lap": -0.5
+        },
+        "ground": {
+          "yielding": {
+            "lap": -1
+          },
+          "soft": {
+            "lap": -3,
+            "distance": -1
+          },
+          "heavy": {
+            "lap": -5,
+            "distance": -3
+          }
+        },
+        "variants": {}
+      },
+      "14": {
+        "pace": {
+          "pace": -4,
+          "lap": -1
+        },
+        "speed": {
+          "lap": -0.5
+        },
+        "ground": {
+          "yielding": {
+            "lap": -1
+          },
+          "soft": {
+            "lap": -3,
+            "distance": -1
+          },
+          "heavy": {
+            "lap": -5,
+            "distance": -3
+          }
+        },
+        "variants": {
+          "unknownTrainingGood": {
+            "training": 35
+          }
+        }
+      },
+      "15": {
+        "pace": {
+          "pace": 0,
+          "lap": 0
+        },
+        "speed": {
+          "lap": 0.5
+        },
+        "ground": {
+          "yielding": {
+            "lap": -1
+          },
+          "soft": {
+            "lap": -3,
+            "distance": -1
+          },
+          "heavy": {
+            "lap": -5,
+            "distance": -3
+          }
+        },
+        "variants": {
+          "balanceRestored": {
+            "training": 30,
+            "course": 8,
+            "lap": 5,
+            "recent": 4
+          },
+          "balancePersists": {
+            "training": -15,
+            "course": -5
+          }
+        }
+      },
+      "16": {
+        "pace": {
+          "pace": -2,
+          "lap": 0
+        },
+        "speed": {
+          "lap": -0.5
+        },
+        "ground": {
+          "yielding": {
+            "lap": -1
+          },
+          "soft": {
+            "lap": -3,
+            "distance": -1
+          },
+          "heavy": {
+            "lap": -5,
+            "distance": -3
+          }
+        },
+        "variants": {}
+      },
+      "17": {
+        "pace": {
+          "pace": -2,
+          "lap": 0
+        },
+        "speed": {
+          "lap": -0.5
+        },
+        "ground": {
+          "yielding": {
+            "lap": -1
+          },
+          "soft": {
+            "lap": -3,
+            "distance": -1,
+            "blood": 1
+          },
+          "heavy": {
+            "lap": -5,
+            "distance": -3
+          }
+        },
+        "variants": {}
+      },
+      "18": {
+        "pace": {
+          "pace": 0,
+          "lap": 0
+        },
+        "speed": {
+          "lap": 0.5
+        },
+        "ground": {
+          "yielding": {
+            "lap": 0,
+            "blood": 1
+          },
+          "soft": {
+            "lap": -1,
+            "blood": 2
+          },
+          "heavy": {
+            "lap": -2,
+            "blood": 2
+          }
+        },
+        "variants": {}
+      }
+    }
+  }
+}

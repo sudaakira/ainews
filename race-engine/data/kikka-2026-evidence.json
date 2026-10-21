@@ -1,7 +1,7 @@
 {
-  "asOf": "2026-10-20T19:15:54+09:00",
+  "asOf": "2026-10-21T12:21:53+09:00",
   "recordSnapshotAsOf": "2026-10-18T16:01:04+09:00",
-  "updateAuditUrl": "./kikka-2026-update-20261020.json",
+  "updateAuditUrl": "./kikka-2026-update-20261021.json",
   "registrationCount": 21,
   "expectedRunners": 18,
   "withdrawn": [
@@ -512,12 +512,12 @@
       },
       "bloodInterpretation": "キズナの母系Storm CatとDamascus、母父ルーラーシップのトニービンを確認。速力と持続力は見込めるが3000mは実証前。",
       "workout": {
-        "date": "2026-10-14",
+        "date": "2026-10-21",
         "track": "美浦W",
-        "clock": "6F81.8−1F11.4",
-        "content": "一杯。先行してマスカレードボールに半馬身遅れ。前走の緩さは改善との説明。",
-        "verification": "取材報道",
-        "source": "https://www.nikkansports.com/keiba/news/202610140001564.html"
+        "clock": "6F85.0−1F12.0",
+        "content": "津村騎手で約2馬身追走し併入。手応えは相手に劣勢でも、陣営は十分に仕上がったと説明。状態88を維持。",
+        "verification": "新聞取材本文確認",
+        "source": "https://www.nikkansports.com/keiba/news/202610210000155.html"
       },
       "jockeyCourseStats": null,
       "stableCourseStats": {
@@ -3787,12 +3787,12 @@
       "crosses": {},
       "bloodInterpretation": "父コントレイルのUnbridled's Song、母系Alamosa・O'Reilly・Danskeを確認。母系の距離材料と京都2200m実績を併せて評価。",
       "workout": {
-        "date": "2026-10-15",
+        "date": "2026-10-21",
         "track": "栗東坂路",
-        "clock": "4F54.3−1F12.0",
-        "content": "単走でやや強めの負荷。前走より上向きとの説明。",
-        "verification": "取材報道",
-        "source": "https://umanity.jp/racedata/race_newsdet.php?nid=11880096"
+        "clock": "4F54.3−3F39.2−1F12.2",
+        "content": "坂路2本目の単走で力強い脚取り。前走より動ける感触と体質良化を陣営が支持し、状態88→90。",
+        "verification": "新聞取材本文確認",
+        "source": "https://umanity.jp/racedata/race_newsdet.php?nid=11880471"
       },
       "jockeyCourseStats": {
         "name": "西村淳也",
@@ -4891,12 +4891,12 @@
       },
       "bloodInterpretation": "母父ジャングルポケット、その下トニービン、母系4代Caerleonを確認。距離材料はあるが本人の2200m実績が弱く、血統だけで逆転させない。",
       "workout": {
-        "date": "2026-10-15",
+        "date": "2026-10-21",
         "track": "美浦W",
-        "clock": "6F81.3−1F11.1",
-        "content": "併せ馬に2馬身半先着。長めの調整を積んだとの説明。",
-        "verification": "取材報道",
-        "source": "https://umanity.jp/racedata/race_newsdet.php?nid=11880088"
+        "clock": "6F88.3−1F12.6",
+        "content": "田辺騎手でウッド単走。順調との説明で状態87を維持。陣営の雨への懸念と前走稍重11着を重馬場の留保に反映。",
+        "verification": "公開検索抜粋",
+        "source": "https://tospo-keiba.jp/breaking_news/76840"
       },
       "jockeyCourseStats": {
         "name": "田辺裕信",
@@ -5423,12 +5423,12 @@
       },
       "bloodInterpretation": "スワーヴリチャードのハーツクライ・Unbridled's Songと、母父キングカメハメハを確認。折り合いと持続加速に期待するが2400m以上未経験。",
       "workout": {
-        "date": "2026-10-15",
+        "date": "2026-10-21",
         "track": "美浦W",
-        "clock": "5F66.4−1F12.0",
-        "content": "3頭併せの最後方から馬なりで最先着。帰厩直後より体の張りが改善、まだ上積み余地。",
-        "verification": "取材報道",
-        "source": "https://umanity.jp/racedata/race_newsdet.php?nid=11880088"
+        "clock": "5F66.6−4F52.2−3F38.2−1F11.9",
+        "content": "原騎手で約1秒追走、馬なりでクビ先着。一定のリズムと折り合いを支持し、状態87→90。距離適性83は継承。",
+        "verification": "新聞取材本文確認",
+        "source": "https://umanity.jp/racedata/race_newsdet.php?nid=11880465"
       },
       "jockeyCourseStats": null,
       "stableCourseStats": null,
@@ -7451,12 +7451,12 @@
       },
       "bloodInterpretation": "エピファネイア側4代Roberto・Sadler's Wells、母系Tizway・Tiznowを確認。母はダノンベルーガと同じコーステッド。距離根拠は血統名より本人の2600m2戦を優先。",
       "workout": {
-        "date": "2026-10-15",
+        "date": "2026-10-21",
         "track": "美浦W",
-        "clock": "5F66.6−1F11.8",
-        "content": "先行して一杯。手応えは見劣り。ハロー後の時計条件と良好な息遣いを考慮。左右のバランスを調整中。先着幅は媒体差があり採点に使わない。",
-        "verification": "取材報道",
-        "source": "https://news.netkeiba.com/?no=345676&pid=news_view"
+        "clock": "6F85.0−1F11.7",
+        "content": "2頭併せで大きなフットワークと良い呼吸・リズムを確認したとの取材。最終追いの具体的内容から状態72→86。重・不良の本人実績は未確認。",
+        "verification": "新聞取材本文確認",
+        "source": "https://www.nikkansports.com/keiba/news/202610210000215.html"
       },
       "jockeyCourseStats": {
         "name": "C.ルメール",
@@ -9048,12 +9048,12 @@
       },
       "bloodInterpretation": "キタサンブラック×アルデバランII。母系Common Grounds・Atlantic Blueを確認。父の長距離実績だけで現状の走りの課題を補わない。",
       "workout": {
-        "date": "2026-10-15",
+        "date": "2026-10-21",
         "track": "栗東CW",
-        "clock": "6F82.5−1F11.4",
-        "content": "一杯で2頭にクビ差遅れ。左へ突っ張る課題が残るとの陣営説明を重視。時計だけで高評価しない。",
-        "verification": "取材報道",
-        "source": "https://umanity.jp/racedata/race_newsdet.php?nid=11880096"
+        "clock": "6F85.8−5F69.2−4F53.2−3F37.8−1F11.6",
+        "content": "従来のハミに戻した3頭併せで余裕ある動き。陣営・騎手が先週より良化を支持し状態50→76。前走の道悪大敗と実戦での再現性は留保。",
+        "verification": "新聞取材本文確認",
+        "source": "https://umanity.jp/racedata/race_newsdet.php?nid=11880466"
       },
       "jockeyCourseStats": {
         "name": "川田将雅",
@@ -11123,12 +11123,12 @@
       },
       "bloodInterpretation": "ワールドプレミアの母マンデラから3代Acatenango・4代Surumu。母父Giant's Causeway、母系5代Roberto・Blushing Groomを確認。持続力と速力の両方を支える構成。",
       "workout": {
-        "date": "2026-10-15",
+        "date": "2026-10-21",
         "track": "栗東CW",
-        "clock": "6F80.7−1F11.4",
-        "content": "3頭を最後方から追い、大外を回って終いを促し最先着。落ち着きと前週からの改善。",
-        "verification": "取材報道",
-        "source": "https://news.netkeiba.com/?no=345635&pid=news_view"
+        "clock": "4F52.5−3F36.9−1F11.1",
+        "content": "併走相手を追走し、わずかに促して素早い反応。折り合いと叩いた軽さを支持して状態90→94。重馬場の京都新馬勝ちも支持材料。",
+        "verification": "新聞取材本文確認",
+        "source": "https://umanity.jp/racedata/race_newsdet.php?nid=11880464"
       },
       "jockeyCourseStats": {
         "name": "松山弘平",

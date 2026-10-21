@@ -37,7 +37,8 @@ if(docLinks){
 if(config.evidenceUrl){
  const liveNote=document.querySelector('.live-note');if(liveNote)liveNote.textContent='仮想レース。再生時計3分03秒5は映像用で、予測タイムではありません。';
  const genericNote=document.querySelector('.factor-settings > p.small:last-child');
- if(genericNote)genericNote.textContent='5代血統・全戦績は照合済み。枠順、最終調教、当日馬場、実オッズは未確定。シナリオの改善・回復は仮説です。';
+ if(genericNote)genericNote.textContent=config.informationNote||'5代血統・全戦績は照合済み。枠順、最終調教、当日馬場、実オッズは未確定。シナリオの改善・回復は仮説です。';
+ if(liveNote&&config.assumptionLabel)liveNote.textContent=config.assumptionLabel+'。再生時計3分03秒5は映像用で、予測タイムではありません。';
  if(docLinks){
   if(config.updateSummary)docLinks.insertAdjacentHTML('beforeend','<p style="font-weight:700">'+config.updateSummary+'</p>');
   docLinks.insertAdjacentHTML('beforeend','<p><a href="'+config.reportUrl+'" target="_blank">全頭の予想・配点・シナリオ結果</a> ／ <a href="'+config.evidenceUrl+'" target="_blank">全21頭の戦績・5代血統データ</a></p>');
@@ -222,6 +223,8 @@ el('simulate').onclick=run;el('csv').onclick=()=>{
  a.download=config.id+'_condition_loop.csv';a.click();URL.revokeObjectURL(a.href);
 };el('pace').oninput=()=>el('pacelabel').textContent=['超スロー','スロー','ややスロー','中立','ややハイ','ハイ','超ハイ'][+el('pace').value+3];el('speed').oninput=()=>el('speedlabel').textContent=['通常','やや高速','高速','レコード級'][+el('speed').value];el('vol').oninput=()=>el('vollabel').textContent=el('vol').value;
 if(Number.isInteger(config.defaultPace))el('pace').value=String(Math.max(-3,Math.min(3,config.defaultPace)));
+if(Number.isInteger(config.defaultSpeed))el('speed').value=String(Math.max(0,Math.min(3,config.defaultSpeed)));
+if(config.defaultGround&&Array.from(el('ground-mode').options).some(option=>option.value===config.defaultGround))el('ground-mode').value=config.defaultGround;
  if(Number.isFinite(config.defaultVol))el('vol').value=String(Math.max(1,Math.min(16,config.defaultVol)));
  if(Number.isFinite(config.defaultPlaybackRate)&&[1,2,4,8,16].includes(config.defaultPlaybackRate))el('live-rate').value=String(config.defaultPlaybackRate);
  if(config.defaultBias&&Array.from(el('bias-mode').options).some(option=>option.value===config.defaultBias))el('bias-mode').value=config.defaultBias;
