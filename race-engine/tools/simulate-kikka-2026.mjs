@@ -50,9 +50,18 @@ const ticketHitRate=(tickets)=>{
 const threeBox=base.result.slice(0,3).map(h=>h.name);
 const trioTickets=[threeBox];
 const previous=JSON.parse(read('results/kikka-2026-'+config.previousStamp+'.json'));
-const matched=sim.simulate({...base.options,vol:previous.scenarios[0].options.vol,weights:loop.DEFAULTS},count,previous.seed);
-totals.matchedComparisonDraws=count;totals.distinctDraws+=count;
-const comparison=base.result.map(h=>{const old=previous.scenarios[0].result.find(x=>x.name===h.name),same=matched.find(x=>x.name===h.name);return {name:h.name,previousRating:old.rating,rating:h.rating,delta:Math.round((h.rating-old.rating)*10)/10,previousTop3Pct:old.p3,updatedTop3SameSeedPct:same.p3,updatedTop3DefaultPct:h.p3};});
+const audit=JSON.parse(read('data/kikka-2026-update-'+stamp+'.json'));
+const priorConfig={...config,...audit.previousModel};
+const priorLoop=createRegression(priorConfig,createFactors(priorConfig));
+const priorSim=createSimulator(priorConfig,priorLoop);
+const matched=sim.simulate({...base.options,weights:loop.DEFAULTS},count,previous.seed);
+const updatedDry=sim.simulate({...previous.scenarios[0].options,weights:loop.DEFAULTS},count,previous.seed);
+const oldHeavy=priorSim.simulate({...base.options,weights:priorLoop.DEFAULTS},count,previous.seed);
+totals.matchedComparisonDraws=3*count;totals.distinctDraws+=3*count;
+const comparison=base.result.map(h=>{
+ const old=previous.scenarios[0].result.find(x=>x.name===h.name),dry=updatedDry.find(x=>x.name===h.name),wet=oldHeavy.find(x=>x.name===h.name),same=matched.find(x=>x.name===h.name),round=x=>Math.round(x*10)/10;
+ return {name:h.name,previousRating:old.rating,updatedDryRating:dry.rating,oldHeavyRating:wet.rating,rating:h.rating,delta:round(h.rating-old.rating),informationDelta:round(dry.rating-old.rating),groundDelta:round(h.rating-dry.rating),heavyUpdateDelta:round(h.rating-wet.rating),previousTop3Pct:old.p3,updatedDrySameSeedPct:dry.p3,oldHeavySameSeedPct:wet.p3,updatedTop3SameSeedPct:same.p3,updatedTop3DefaultPct:h.p3};
+});
 const pairs=[];
 {const r=sim.random(seed),scores=config.horses.map(h=>loop.evaluate(h,base.options).rating),counts=new Map();for(let i=0;i<count;i++){const order=sim.runRace(r,base.options,scores);for(let a=0;a<3;a++)for(let b=a+1;b<3;b++){const key=[order[a],order[b]].sort((a,b)=>a-b).join('-');const row=counts.get(key)||{wide:0,quinella:0};row.wide++;if(a===0&&b===1)row.quinella++;counts.set(key,row);}}for(const [key,n]of counts){const ids=key.split('-').map(Number);pairs.push({horses:ids.map(no=>config.horses[no-1].name),widePct:n.wide/count*100,quinellaPct:n.quinella/count*100});}pairs.sort((a,b)=>b.widePct-a.widePct);assert.ok(Math.abs(pairs.reduce((s,p)=>s+p.widePct,0)-300)<1e-8);assert.ok(Math.abs(pairs.reduce((s,p)=>s+p.quinellaPct,0)-100)<1e-8);}
 totals.pairExtraDraws=count;

@@ -1,4 +1,4 @@
-/** Evidence update through 2026-10-20 19:15 JST. */
+/** Kikuka Sho: October 21 final workouts; user-assumed heavy-going baseline. */
 export default {
   "schemaVersion": 1,
   "id": "kikka-2026",
@@ -20,8 +20,8 @@ export default {
   },
   "duration": 183.5,
   "demo": false,
-  "asOf": "2026-10-20T19:15:54+09:00",
-  "seed": 20261020,
+  "asOf": "2026-10-21T12:21:53+09:00",
+  "seed": 20261021,
   "provisionalDraw": true,
   "drawConfirmed": false,
   "finalRunnersConfirmed": false,
@@ -31,7 +31,7 @@ export default {
   "defaultPlaybackRate": 8,
   "defaultSimulations": 50000,
   "defaultBias": "neutral",
-  "notes": "10/20 19:15 JST照合。既報の回避1頭・除外対象2頭を分けた想定18頭。10/20の調整報道・JRA出走馬情報を照合。コンジェスタスの状態、ジャスティンシカゴの距離仮説を小幅修正。キンググローリーは10/15付新聞記事で調教内容を確認し欠測扱いを修正（新規追い切りではない）。エムズビギンの詳細負荷は未確認で50、ナリタエスペランサの状態留保45を維持。5代血統と馬体・走法点は10/19版を継承。枠順・当週最終追い・当日馬場・実オッズは未確定。8倍速・ばらつき5、12条件各50,000回。率は未校正モデル内出現率。",
+  "notes": "10/21 12:21 JST照合。ユーザー指定の重馬場を基準とする想定18頭。今日の最終追いを確認できた7頭と、談話・見出しだけの4頭、前版継承7頭を各馬に明示。ロブチェン、コンジェスタス、ダノンヒストリー、ジャスティンシカゴ、バステールの状態を更新。全18頭の道悪実走と5代血統を照合し、稍重・重・不良を分けて比較。初期設定8倍速・ばらつき5。枠順・当日馬場・実オッズは未確定。最終追い未確認の馬は状態を継承。率は未校正モデル内出現率。",
   "horses": [
     {
       "no": 1,
@@ -53,16 +53,16 @@ export default {
       "minus": "3000m未経験。ダービー11着、後方待機で詰まるリスク。",
       "bloodNote": "キズナの母系Storm CatとDamascus、母父ルーラーシップのトニービンを確認。速力と持続力は見込めるが3000mは実証前。",
       "workout": {
-        "date": "2026-10-14",
+        "date": "2026-10-21",
         "track": "美浦W",
-        "clock": "6F81.8−1F11.4",
-        "content": "一杯。先行してマスカレードボールに半馬身遅れ。前走の緩さは改善との説明。",
-        "verification": "取材報道",
-        "source": "https://www.nikkansports.com/keiba/news/202610140001564.html"
+        "clock": "6F85.0−1F12.0",
+        "content": "津村騎手で約2馬身追走し併入。手応えは相手に劣勢でも、陣営は十分に仕上がったと説明。状態88を維持。",
+        "verification": "新聞取材本文確認",
+        "source": "https://www.nikkansports.com/keiba/news/202610210000155.html"
       },
       "horseId": "2023107321",
       "evidenceIndex": 0,
-      "latest": "10/20再照合：新しい調整材料は確認できず、前版を継承。京都への適合と緩さ改善を陣営が評価。発馬と外を回す距離損は残る。",
+      "latest": "10/21最終追い確認：津村騎手で約2馬身追走し併入。手応えは相手に劣勢でも、陣営は十分に仕上がったと説明。状態88を維持。",
       "suitability": {
         "blood": 88,
         "body": 85,
@@ -74,9 +74,11 @@ export default {
       },
       "officialPeakRating": 113,
       "officialPeakDistance": "M",
-      "reviewedAt": "2026-10-20T19:15:54+09:00",
-      "latestEvidenceDate": "2026-10-19",
-      "latestReviewKind": "retained"
+      "reviewedAt": "2026-10-21T12:21:53+09:00",
+      "latestEvidenceDate": "2026-10-21",
+      "latestReviewKind": "final-workout",
+      "latestSource": "https://www.nikkansports.com/keiba/news/202610210000155.html",
+      "wetAssessment": "稍重セントライト記念3着・0.3秒差。本人の対応を支持するが、重3000mへは段階が違う。"
     },
     {
       "no": 2,
@@ -107,7 +109,7 @@ export default {
       },
       "horseId": "2023106400",
       "evidenceIndex": 1,
-      "latest": "10/20再照合：新しい調整材料は確認できず、前版を継承。陣営は計画通りの調整を報告。3000mでは枠と流れ、折り合いを重視。",
+      "latest": "10/21公表資料：今朝公表の陣営短評は前走より良い状態との内容。今日の最終追い時計の確認には至らず、状態88を継承。",
       "suitability": {
         "blood": 87,
         "body": 86,
@@ -119,9 +121,11 @@ export default {
       },
       "officialPeakRating": 115,
       "officialPeakDistance": "I",
-      "reviewedAt": "2026-10-20T19:15:54+09:00",
-      "latestEvidenceDate": "2026-10-19",
-      "latestReviewKind": "retained"
+      "reviewedAt": "2026-10-21T12:21:53+09:00",
+      "latestEvidenceDate": "2026-10-21",
+      "latestReviewKind": "new-comment",
+      "latestSource": "https://dir.netkeiba.com/keiba/news/news_preview.html?no=346189",
+      "wetAssessment": "稍重セントライト記念で前に行き4着・0.3秒差。道悪対応は支持、重3000mで早く動く消耗は残す。"
     },
     {
       "no": 3,
@@ -152,7 +156,7 @@ export default {
       },
       "horseId": "2023107127",
       "evidenceIndex": 4,
-      "latest": "10/20再照合：新しい調整材料は確認できず、前版を継承。陣営は持久力より折り合いを課題視。詳細な調教負荷は未確認で状態点50を維持。",
+      "latest": "10/21再照合：新しい最終追いの公開内容を確認できず、前版を継承。新しい調整材料は確認できず、前版を継承。陣営は持久力より折り合いを課題視。詳細な調教負荷は未確認で状態点50を維持。",
       "suitability": {
         "blood": 93,
         "body": 89,
@@ -164,9 +168,10 @@ export default {
       },
       "officialPeakRating": 110,
       "officialPeakDistance": "M",
-      "reviewedAt": "2026-10-20T19:15:54+09:00",
+      "reviewedAt": "2026-10-21T12:21:53+09:00",
       "latestEvidenceDate": "2026-10-19",
-      "latestReviewKind": "retained"
+      "latestReviewKind": "retained",
+      "wetAssessment": "京都稍重1800mの新馬2着。キタサンブラック×Galileoの持続力仮説を小幅に扱い、3000mの力みを優先。"
     },
     {
       "no": 4,
@@ -197,7 +202,7 @@ export default {
       },
       "horseId": "2023100021",
       "evidenceIndex": 5,
-      "latest": "10/20照合：前版の内容欠測を修正。10/15付の新聞取材で6F82.6−1F12.0、単走でリズム良く走れた内容を確認でき、状態50→78。10/20の新しい追い切りではない。",
+      "latest": "10/21再照合：新しい最終追いの公開内容を確認できず、前版を継承。前版の内容欠測を修正。10/15付の新聞取材で6F82.6−1F12.0、単走でリズム良く走れた内容を確認でき、状態50→78。10/20の新しい追い切りではない。",
       "suitability": {
         "blood": 83,
         "body": null,
@@ -207,10 +212,11 @@ export default {
         "headline": "母系の距離根拠と2500～2600mの実走で拾う馬",
         "caution": "京都新聞杯2200mは13着。長距離条件戦の実績だけで京都の速い加速への対応を証明しない。父の未知と母系の距離根拠を別々に残す。近2走55kgから本番57kgへの変化も考慮する。"
       },
-      "reviewedAt": "2026-10-20T19:15:54+09:00",
+      "reviewedAt": "2026-10-21T12:21:53+09:00",
       "latestEvidenceDate": "2026-10-15",
-      "latestReviewKind": "newly-verified-earlier-report",
-      "latestSource": "https://keiba.sponichi.co.jp/news/20261015s00004048026000c"
+      "latestReviewKind": "retained",
+      "latestSource": "https://keiba.sponichi.co.jp/news/20261015s00004048026000c",
+      "wetAssessment": "中山稍重2200mの未勝利3着・0.1秒差。長距離の先行実績はあるが、G1での重3000mは未確認。"
     },
     {
       "no": 5,
@@ -223,7 +229,7 @@ export default {
       "mfather": "Alamosa",
       "rest": 34,
       "training": null,
-      "trainingScore": 88,
+      "trainingScore": 90,
       "style": "中団",
       "base": null,
       "sd": 6.2,
@@ -232,16 +238,16 @@ export default {
       "minus": "2400mG1では9着。3000mと実際の馬体の絞れ方は未確認。",
       "bloodNote": "父コントレイルのUnbridled's Song、母系Alamosa・O'Reilly・Danskeを確認。母系の距離材料と京都2200m実績を併せて評価。",
       "workout": {
-        "date": "2026-10-15",
+        "date": "2026-10-21",
         "track": "栗東坂路",
-        "clock": "4F54.3−1F12.0",
-        "content": "単走でやや強めの負荷。前走より上向きとの説明。",
-        "verification": "取材報道",
-        "source": "https://umanity.jp/racedata/race_newsdet.php?nid=11880096"
+        "clock": "4F54.3−3F39.2−1F12.2",
+        "content": "坂路2本目の単走で力強い脚取り。前走より動ける感触と体質良化を陣営が支持し、状態88→90。",
+        "verification": "新聞取材本文確認",
+        "source": "https://umanity.jp/racedata/race_newsdet.php?nid=11880471"
       },
       "horseId": "2023106963",
       "evidenceIndex": 6,
-      "latest": "10/20照合：CW周回と坂路の通常メニュー。体重を保ちながら体形がすっきりしたとの新しい陣営説明を支持し、状態86→88。新しい計量値の確定発表ではない。",
+      "latest": "10/21最終追い確認：坂路2本目の単走で力強い脚取り。前走より動ける感触と体質良化を陣営が支持し、状態88→90。",
       "suitability": {
         "blood": 90,
         "body": 90,
@@ -253,10 +259,11 @@ export default {
       },
       "officialPeakRating": 113,
       "officialPeakDistance": "L",
-      "reviewedAt": "2026-10-20T19:15:54+09:00",
-      "latestEvidenceDate": "2026-10-20",
-      "latestReviewKind": "new-report",
-      "latestSource": "https://own.netkeiba.com/news/news_detail.html?id=346168"
+      "reviewedAt": "2026-10-21T12:21:53+09:00",
+      "latestEvidenceDate": "2026-10-21",
+      "latestReviewKind": "final-workout",
+      "latestSource": "https://umanity.jp/racedata/race_newsdet.php?nid=11880471",
+      "wetAssessment": "本人の稍重以上の実走は保持資料にない。母の2500m実績は距離根拠であり、重馬場巧者の証明にはしない。"
     },
     {
       "no": 6,
@@ -287,7 +294,7 @@ export default {
       },
       "horseId": "2023105378",
       "evidenceIndex": 7,
-      "latest": "10/20再照合：新しい調整材料は確認できず、前版を継承。一週前の右回り改善報告を再確認。ただし実戦の坂下りでの解消は未証明。",
+      "latest": "10/21公表資料：今朝公表の記事は火曜朝の軽い坂路調整。今日の最終追い切りと混同せず、状態88を継承。右回りの実戦確認は引き続き必要。",
       "suitability": {
         "blood": 82,
         "body": 89,
@@ -299,9 +306,11 @@ export default {
       },
       "officialPeakRating": 117,
       "officialPeakDistance": "L",
-      "reviewedAt": "2026-10-20T19:15:54+09:00",
-      "latestEvidenceDate": "2026-10-19",
-      "latestReviewKind": "retained"
+      "reviewedAt": "2026-10-21T12:21:53+09:00",
+      "latestEvidenceDate": "2026-10-21",
+      "latestReviewKind": "new-comment",
+      "latestSource": "https://dir.netkeiba.com/keiba/news/news_preview.html?no=346188",
+      "wetAssessment": "稍重セントライト記念6着・0.4秒差。母母母父Forty Niner（4代目）とBlushing Groomを5代内に確認。道悪時のみ血統素点+2。右回りの課題を別に残す。"
     },
     {
       "no": 7,
@@ -323,16 +332,16 @@ export default {
       "minus": "主な好走は1800m。2200m11着から800m延長し、追走と折り合いが不確実。",
       "bloodNote": "母父ジャングルポケット、その下トニービン、母系4代Caerleonを確認。距離材料はあるが本人の2200m実績が弱く、血統だけで逆転させない。",
       "workout": {
-        "date": "2026-10-15",
+        "date": "2026-10-21",
         "track": "美浦W",
-        "clock": "6F81.3−1F11.1",
-        "content": "併せ馬に2馬身半先着。長めの調整を積んだとの説明。",
-        "verification": "取材報道",
-        "source": "https://umanity.jp/racedata/race_newsdet.php?nid=11880088"
+        "clock": "6F88.3−1F12.6",
+        "content": "田辺騎手でウッド単走。順調との説明で状態87を維持。陣営の雨への懸念と前走稍重11着を重馬場の留保に反映。",
+        "verification": "公開検索抜粋",
+        "source": "https://tospo-keiba.jp/breaking_news/76840"
       },
       "horseId": "2023100724",
       "evidenceIndex": 8,
-      "latest": "10/20再照合：新しい調整材料は確認できず、前版を継承。追い切りでの良化は確認。短い距離での末脚を3000mへ直結させない。",
+      "latest": "10/21最終追い確認：田辺騎手でウッド単走。順調との説明で状態87を維持。陣営の雨への懸念と前走稍重11着を重馬場の留保に反映。",
       "suitability": {
         "blood": 75,
         "body": 80,
@@ -344,9 +353,11 @@ export default {
       },
       "officialPeakRating": 110,
       "officialPeakDistance": "M",
-      "reviewedAt": "2026-10-20T19:15:54+09:00",
-      "latestEvidenceDate": "2026-10-19",
-      "latestReviewKind": "retained"
+      "reviewedAt": "2026-10-21T12:21:53+09:00",
+      "latestEvidenceDate": "2026-10-21",
+      "latestReviewKind": "final-workout",
+      "latestSource": "https://tospo-keiba.jp/breaking_news/76840",
+      "wetAssessment": "稍重セントライト記念11着・0.8秒差と陣営の雨への懸念を反映。良のレコード勝ちを重馬場の優位に移さない。"
     },
     {
       "no": 8,
@@ -359,7 +370,7 @@ export default {
       "mfather": "キングカメハメハ",
       "rest": 42,
       "training": null,
-      "trainingScore": 87,
+      "trainingScore": 90,
       "style": "好位",
       "base": null,
       "sd": 6.8,
@@ -368,16 +379,16 @@ export default {
       "minus": "2400m以上の経験なし。前走のスロー好位からG1の長距離へ条件が変わる。",
       "bloodNote": "スワーヴリチャードのハーツクライ・Unbridled's Songと、母父キングカメハメハを確認。折り合いと持続加速に期待するが2400m以上未経験。",
       "workout": {
-        "date": "2026-10-15",
+        "date": "2026-10-21",
         "track": "美浦W",
-        "clock": "5F66.4−1F12.0",
-        "content": "3頭併せの最後方から馬なりで最先着。帰厩直後より体の張りが改善、まだ上積み余地。",
-        "verification": "取材報道",
-        "source": "https://umanity.jp/racedata/race_newsdet.php?nid=11880088"
+        "clock": "5F66.6−4F52.2−3F38.2−1F11.9",
+        "content": "原騎手で約1秒追走、馬なりでクビ先着。一定のリズムと折り合いを支持し、状態87→90。距離適性83は継承。",
+        "verification": "新聞取材本文確認",
+        "source": "https://umanity.jp/racedata/race_newsdet.php?nid=11880465"
       },
       "horseId": "2023106924",
       "evidenceIndex": 9,
-      "latest": "10/20照合：20日は翌日の追い切りに備える坂路調整。陣営が乳酸値の測定も踏まえて持久力に言及。具体値・測定条件は非公表で、距離素点80→83の小幅な仮説補正にとどめる。折り合いは引き続き条件。",
+      "latest": "10/21最終追い確認：原騎手で約1秒追走、馬なりでクビ先着。一定のリズムと折り合いを支持し、状態87→90。距離適性83は継承。",
       "suitability": {
         "blood": 88,
         "body": 79,
@@ -389,10 +400,11 @@ export default {
       },
       "officialPeakRating": 115,
       "officialPeakDistance": "L",
-      "reviewedAt": "2026-10-20T19:15:54+09:00",
-      "latestEvidenceDate": "2026-10-20",
-      "latestReviewKind": "new-report",
-      "latestSource": "https://tospo-keiba.jp/breaking_news/76827"
+      "reviewedAt": "2026-10-21T12:21:53+09:00",
+      "latestEvidenceDate": "2026-10-21",
+      "latestReviewKind": "final-workout",
+      "latestSource": "https://umanity.jp/racedata/race_newsdet.php?nid=11880465",
+      "wetAssessment": "稍重1800m新馬と稍重2200m重賞の2勝。道悪での本人の実走を最優先。重3000mそのものは未経験で、折り合いを残す。"
     },
     {
       "no": 9,
@@ -423,7 +435,7 @@ export default {
       },
       "horseId": "2023105332",
       "evidenceIndex": 10,
-      "latest": "10/20再照合：新しい調整材料は確認できず、前版を継承。集中力の再現が課題。距離延長だけで近走の低調を解消とは扱わない。",
+      "latest": "10/21再照合：新しい最終追いの公開内容を確認できず、前版を継承。新しい調整材料は確認できず、前版を継承。集中力の再現が課題。距離延長だけで近走の低調を解消とは扱わない。",
       "suitability": {
         "blood": 79,
         "body": 80,
@@ -433,9 +445,10 @@ export default {
         "headline": "距離替わりだけでは近走の課題を埋められない",
         "caution": "マイルで負けたから長距離が向くという逆算はしない。過去の好走時の血統イメージより、今回どのように集中して走れるかを優先する。"
       },
-      "reviewedAt": "2026-10-20T19:15:54+09:00",
+      "reviewedAt": "2026-10-21T12:21:53+09:00",
       "latestEvidenceDate": "2026-10-19",
-      "latestReviewKind": "retained"
+      "latestReviewKind": "retained",
+      "wetAssessment": "函館稍重新馬を快勝した一方、直近の稍重1600mは11着。ハービンジャー血統だけで近走不振を解消とはしない。"
     },
     {
       "no": 10,
@@ -466,7 +479,7 @@ export default {
       },
       "horseId": "2023103828",
       "evidenceIndex": 11,
-      "latest": "10/20再照合：新しい調整材料は確認できず、前版を継承。一度使った良化を支持。復帰2戦目の上積みは評価するが秋の立ち写真は未確認。",
+      "latest": "10/21再照合：新しい最終追いの公開内容を確認できず、前版を継承。新しい調整材料は確認できず、前版を継承。一度使った良化を支持。復帰2戦目の上積みは評価するが秋の立ち写真は未確認。",
       "suitability": {
         "blood": 85,
         "body": null,
@@ -478,9 +491,10 @@ export default {
       },
       "officialPeakRating": 108,
       "officialPeakDistance": "I",
-      "reviewedAt": "2026-10-20T19:15:54+09:00",
+      "reviewedAt": "2026-10-21T12:21:53+09:00",
       "latestEvidenceDate": "2026-10-19",
-      "latestReviewKind": "retained"
+      "latestReviewKind": "retained",
+      "wetAssessment": "本人の稍重以上の実走は保持資料にない。Robertoの5代内保有を小さな仮説とし、骨折明け後の実戦内容を優先。"
     },
     {
       "no": 11,
@@ -511,7 +525,7 @@ export default {
       },
       "horseId": "2023101200",
       "evidenceIndex": 12,
-      "latest": "10/20再照合：新しい調整材料は確認できず、前版を継承。10/17の実質最終追いと心身の充実を確認。京都2400mの実走を血統点の低さより重視。",
+      "latest": "10/21公表資料：今朝の特集でメンタル面改善が紹介されている。取得できた公開見出しの範囲を記録し、10/17実質最終追いと状態90を継承。",
       "suitability": {
         "blood": 70,
         "body": 83,
@@ -523,9 +537,11 @@ export default {
       },
       "officialPeakRating": 113,
       "officialPeakDistance": "L",
-      "reviewedAt": "2026-10-20T19:15:54+09:00",
-      "latestEvidenceDate": "2026-10-19",
-      "latestReviewKind": "retained"
+      "reviewedAt": "2026-10-21T12:21:53+09:00",
+      "latestEvidenceDate": "2026-10-21",
+      "latestReviewKind": "new-comment",
+      "latestSource": "https://umanity.jp/racedata/race_newsdet.php?nid=11880456",
+      "wetAssessment": "阪神稍重2400mで2着だが54kgの条件戦。57kg・重3000mで繰り返し捲る負荷を留保。Roberto5代内は補助。"
     },
     {
       "no": 12,
@@ -538,7 +554,7 @@ export default {
       "mfather": "Tizway",
       "rest": 70,
       "training": null,
-      "trainingScore": 72,
+      "trainingScore": 86,
       "style": "好位",
       "base": null,
       "sd": 7.5,
@@ -547,16 +563,16 @@ export default {
       "minus": "2勝クラスからG1へ。55→57kg、約10週ぶり。左右バランスと輸送後の状態を確認したい。",
       "bloodNote": "エピファネイア側4代Roberto・Sadler's Wells、母系Tizway・Tiznowを確認。母はダノンベルーガと同じコーステッド。距離根拠は血統名より本人の2600m2戦を優先。",
       "workout": {
-        "date": "2026-10-15",
+        "date": "2026-10-21",
         "track": "美浦W",
-        "clock": "5F66.6−1F11.8",
-        "content": "先行して一杯。手応えは見劣り。ハロー後の時計条件と良好な息遣いを考慮。左右のバランスを調整中。先着幅は媒体差があり採点に使わない。",
-        "verification": "取材報道",
-        "source": "https://news.netkeiba.com/?no=345676&pid=news_view"
+        "clock": "6F85.0−1F11.7",
+        "content": "2頭併せで大きなフットワークと良い呼吸・リズムを確認したとの取材。最終追いの具体的内容から状態72→86。重・不良の本人実績は未確認。",
+        "verification": "新聞取材本文確認",
+        "source": "https://www.nikkansports.com/keiba/news/202610210000215.html"
       },
       "horseId": "2023107005",
       "evidenceIndex": 13,
-      "latest": "10/20再照合：新しい調整材料は確認できず、前版を継承。健康状態・息遣いを支持。輸送と左右バランスの調整、57kg・相手強化が確認点。",
+      "latest": "10/21最終追い確認：2頭併せで大きなフットワークと良い呼吸・リズムを確認したとの取材。最終追いの具体的内容から状態72→86。重・不良の本人実績は未確認。",
       "suitability": {
         "blood": 88,
         "body": 92,
@@ -566,9 +582,11 @@ export default {
         "headline": "長い距離での実走が血統を補強する対抗候補",
         "caution": "2戦とも条件戦で55kg。G1級相手の57kgと京都の速い加速へ、そのまま着差を移せない。洋芝が得意なことと重・不良の適性は同義ではない。ゲート内の落ち着きも確認点。"
       },
-      "reviewedAt": "2026-10-20T19:15:54+09:00",
-      "latestEvidenceDate": "2026-10-19",
-      "latestReviewKind": "retained"
+      "reviewedAt": "2026-10-21T12:21:53+09:00",
+      "latestEvidenceDate": "2026-10-21",
+      "latestReviewKind": "final-workout",
+      "latestSource": "https://www.nikkansports.com/keiba/news/202610210000215.html",
+      "wetAssessment": "洋芝2600mの圧勝2走はいずれも良。エピファネイアとRobertoの持続力仮説は支持するが、洋芝巧者と重馬場巧者を同一視しない。"
     },
     {
       "no": 13,
@@ -599,7 +617,7 @@ export default {
       },
       "horseId": "2023107389",
       "evidenceIndex": 14,
-      "latest": "10/20再照合：新しい調整材料は確認できず、前版を継承。一週前の負荷と持久戦への見通しを確認。血統点95でも近走7着・相手強化・秋馬体未確認を残す。",
+      "latest": "10/21公表資料：今朝の陣営談話は心肺機能を支持。具体的な新しい最終追い内容は確認できず、状態72を継承。兄の能力を本人の点数に転用しない。",
       "suitability": {
         "blood": 95,
         "body": null,
@@ -609,9 +627,11 @@ export default {
         "headline": "血統1位。本人の馬体評価を埋めてから総合順位を確定する",
         "caution": "全兄クロワデュノールの京都3200m勝利は配合の強い裏づけ。しかし全兄の能力・体形・完成度を本人へ移さない。日本海Sの敗因を成長分の馬体増だけに固定しない。町田特別53kgから本番57kgへの負荷差も残す。"
       },
-      "reviewedAt": "2026-10-20T19:15:54+09:00",
-      "latestEvidenceDate": "2026-10-19",
-      "latestReviewKind": "retained"
+      "reviewedAt": "2026-10-21T12:21:53+09:00",
+      "latestEvidenceDate": "2026-10-21",
+      "latestReviewKind": "new-comment",
+      "latestSource": "https://news.netkeiba.com/?no=346194&pid=news_view",
+      "wetAssessment": "東京稍重2400m・町田特別勝ちを支持。ただし53kgで、今回57kg・相手強化を残す。兄の重馬場実績を本人の実績に数えない。"
     },
     {
       "no": 14,
@@ -642,7 +662,7 @@ export default {
       },
       "horseId": "2023105046",
       "evidenceIndex": 15,
-      "latest": "10/20再照合：新しい調整材料は確認できず、前版を継承。状態の上昇が十分でないとの陣営説明を反映。状態50→45、改善を確認できた場合は別条件で比較。",
+      "latest": "10/21再照合：新しい最終追いの公開内容を確認できず、前版を継承。新しい調整材料は確認できず、前版を継承。状態の上昇が十分でないとの陣営説明を反映。状態50→45、改善を確認できた場合は別条件で比較。",
       "suitability": {
         "blood": 80,
         "body": 81,
@@ -652,9 +672,10 @@ export default {
         "headline": "2600m勝ちは支持材料だが、厳しい持久戦の証明とは分ける",
         "caution": "前走12着からの上昇幅は未確定。父の長距離実績と2600mの着差を二重に加点しない。夏の54kgから本番57kgへの負荷差もある。折り合いが楽になる馬場という陣営の見立ても、道悪巧者の実証とは別。"
       },
-      "reviewedAt": "2026-10-20T19:15:54+09:00",
+      "reviewedAt": "2026-10-21T12:21:53+09:00",
       "latestEvidenceDate": "2026-10-19",
-      "latestReviewKind": "retained"
+      "latestReviewKind": "retained",
+      "wetAssessment": "本人の道悪実走は保持資料にない。キタサンブラックの距離根拠を補助とし、状態留保45と前走大敗を維持。"
     },
     {
       "no": 15,
@@ -667,7 +688,7 @@ export default {
       "mfather": "アルデバランII",
       "rest": 42,
       "training": null,
-      "trainingScore": 50,
+      "trainingScore": 76,
       "style": "中団",
       "base": null,
       "sd": 7.5,
@@ -676,16 +697,16 @@ export default {
       "minus": "セントライト13着、追い切りでも左へ突っ張る課題。最終追い切りで改善しなければ上げない。",
       "bloodNote": "キタサンブラック×アルデバランII。母系Common Grounds・Atlantic Blueを確認。父の長距離実績だけで現状の走りの課題を補わない。",
       "workout": {
-        "date": "2026-10-15",
+        "date": "2026-10-21",
         "track": "栗東CW",
-        "clock": "6F82.5−1F11.4",
-        "content": "一杯で2頭にクビ差遅れ。左へ突っ張る課題が残るとの陣営説明を重視。時計だけで高評価しない。",
-        "verification": "取材報道",
-        "source": "https://umanity.jp/racedata/race_newsdet.php?nid=11880096"
+        "clock": "6F85.8−5F69.2−4F53.2−3F37.8−1F11.6",
+        "content": "従来のハミに戻した3頭併せで余裕ある動き。陣営・騎手が先週より良化を支持し状態50→76。前走の道悪大敗と実戦での再現性は留保。",
+        "verification": "新聞取材本文確認",
+        "source": "https://umanity.jp/racedata/race_newsdet.php?nid=11880466"
       },
       "horseId": "2023107247",
       "evidenceIndex": 16,
-      "latest": "10/20照合：20日朝はウッドで脚慣らし。後躯をさらに使う課題が残るとの説明を確認。馬体診断の好評価だけで実走の課題を解消したとはせず、採点を維持。",
+      "latest": "10/21最終追い確認：従来のハミに戻した3頭併せで余裕ある動き。陣営・騎手が先週より良化を支持し状態50→76。前走の道悪大敗と実戦での再現性は留保。",
       "suitability": {
         "blood": 81,
         "body": 88,
@@ -697,10 +718,11 @@ export default {
       },
       "officialPeakRating": 117,
       "officialPeakDistance": "L",
-      "reviewedAt": "2026-10-20T19:15:54+09:00",
-      "latestEvidenceDate": "2026-10-20",
-      "latestReviewKind": "new-report",
-      "latestSource": "https://tospo-keiba.jp/breaking_news/76833"
+      "reviewedAt": "2026-10-21T12:21:53+09:00",
+      "latestEvidenceDate": "2026-10-21",
+      "latestReviewKind": "final-workout",
+      "latestSource": "https://umanity.jp/racedata/race_newsdet.php?nid=11880466",
+      "wetAssessment": "稍重セントライト記念13着・1.0秒差。JRAも前走の馬場不向きを指摘。今日の調教良化と重馬場適性は別に評価。"
     },
     {
       "no": 16,
@@ -731,7 +753,7 @@ export default {
       },
       "horseId": "2023103531",
       "evidenceIndex": 17,
-      "latest": "10/20再照合：新しい調整材料は確認できず、前版を継承。調教での集中と運びやすさを支持。最新馬体分析では後躯の完成度に留保、成長を先取りしない。",
+      "latest": "10/21再照合：新しい最終追いの公開内容を確認できず、前版を継承。新しい調整材料は確認できず、前版を継承。調教での集中と運びやすさを支持。最新馬体分析では後躯の完成度に留保、成長を先取りしない。",
       "suitability": {
         "blood": 89,
         "body": 81,
@@ -741,9 +763,10 @@ export default {
         "headline": "血統と運びやすさは魅力、後躯の完成度は課題",
         "caution": "3連勝は全て重賞外。立ち回りの上手さと血統点の高さで、G1の持久力が完成したとは扱わない。将来の成長分を今回へ先取りしない。"
       },
-      "reviewedAt": "2026-10-20T19:15:54+09:00",
+      "reviewedAt": "2026-10-21T12:21:53+09:00",
       "latestEvidenceDate": "2026-10-19",
-      "latestReviewKind": "retained"
+      "latestReviewKind": "retained",
+      "wetAssessment": "3連勝はいずれも良。母父シンボリクリスエス経由Robertoを補助にするが、重馬場・G1の本人の証明はない。"
     },
     {
       "no": 17,
@@ -774,7 +797,7 @@ export default {
       },
       "horseId": "2023105560",
       "evidenceIndex": 19,
-      "latest": "10/20再照合：新しい調整材料は確認できず、前版を継承。休み明けの内容と折り合いを評価。手前の切替と反応の改善が上位進出の条件。",
+      "latest": "10/21再照合：新しい最終追いの公開内容を確認できず、前版を継承。新しい調整材料は確認できず、前版を継承。休み明けの内容と折り合いを評価。手前の切替と反応の改善が上位進出の条件。",
       "suitability": {
         "blood": 79,
         "body": 83,
@@ -786,9 +809,10 @@ export default {
       },
       "officialPeakRating": 109,
       "officialPeakDistance": "L",
-      "reviewedAt": "2026-10-20T19:15:54+09:00",
+      "reviewedAt": "2026-10-21T12:21:53+09:00",
       "latestEvidenceDate": "2026-10-19",
-      "latestReviewKind": "retained"
+      "latestReviewKind": "retained",
+      "wetAssessment": "中山稍重2000m未勝利を0.8秒差勝ち、稍重セントライト記念7着・0.5秒差。Mill Reef5代内は補助。"
     },
     {
       "no": 18,
@@ -801,7 +825,7 @@ export default {
       "mfather": "Giant's Causeway",
       "rest": 34,
       "training": null,
-      "trainingScore": 90,
+      "trainingScore": 94,
       "style": "中団",
       "base": null,
       "sd": 5.5,
@@ -810,16 +834,16 @@ export default {
       "minus": "3000mは初。前哨戦はハナ差で、2冠だけを理由に1着固定するほどの差とはしない。",
       "bloodNote": "ワールドプレミアの母マンデラから3代Acatenango・4代Surumu。母父Giant's Causeway、母系5代Roberto・Blushing Groomを確認。持続力と速力の両方を支える構成。",
       "workout": {
-        "date": "2026-10-15",
+        "date": "2026-10-21",
         "track": "栗東CW",
-        "clock": "6F80.7−1F11.4",
-        "content": "3頭を最後方から追い、大外を回って終いを促し最先着。落ち着きと前週からの改善。",
-        "verification": "取材報道",
-        "source": "https://news.netkeiba.com/?no=345635&pid=news_view"
+        "clock": "4F52.5−3F36.9−1F11.1",
+        "content": "併走相手を追走し、わずかに促して素早い反応。折り合いと叩いた軽さを支持して状態90→94。重馬場の京都新馬勝ちも支持材料。",
+        "verification": "新聞取材本文確認",
+        "source": "https://umanity.jp/racedata/race_newsdet.php?nid=11880464"
       },
       "horseId": "2023107089",
       "evidenceIndex": 20,
-      "latest": "10/20照合：20日は坂路を軽く1本。通常調整で順調との報道を確認。強い追い切りの新時計ではないため状態90を維持。",
+      "latest": "10/21最終追い確認：併走相手を追走し、わずかに促して素早い反応。折り合いと叩いた軽さを支持して状態90→94。重馬場の京都新馬勝ちも支持材料。",
       "suitability": {
         "blood": 92,
         "body": 94,
@@ -831,10 +855,11 @@ export default {
       },
       "officialPeakRating": 119,
       "officialPeakDistance": "I,L",
-      "reviewedAt": "2026-10-20T19:15:54+09:00",
-      "latestEvidenceDate": "2026-10-20",
-      "latestReviewKind": "new-report",
-      "latestSource": "https://tospo-keiba.jp/breaking_news/76830"
+      "reviewedAt": "2026-10-21T12:21:53+09:00",
+      "latestEvidenceDate": "2026-10-21",
+      "latestReviewKind": "final-workout",
+      "latestSource": "https://umanity.jp/racedata/race_newsdet.php?nid=11880464",
+      "wetAssessment": "京都重2000m新馬を0.5秒差で勝利。今回の想定18頭で保持資料に重の実走勝ちがあるのは本馬。距離は2000→3000mであり保証ではない。Blushing Groom・Robertoも5代内。"
     }
   ],
   "featureDefinitions": {
@@ -860,13 +885,13 @@ export default {
       "label": "調教・現在の状態",
       "weight": 12,
       "confidence": "一週前中心",
-      "note": "確認済み一週前内容と10/20調整報道を照合。エムズビギンは詳細負荷未確認で50。キンググローリーは10/15新聞取材で欠測修正し78。ナリタは状態留保45。通常キャンターだけで加点しない。"
+      "note": "10/21の最終追い7頭と陣営情報を照合。エムズビギンは詳細負荷未確認50、ナリタは状態留保45を継承。時計の速さだけでなく負荷・意図・折り合いを評価。"
     },
     "blood": {
       "label": "5代血統・母系",
       "weight": 10,
       "confidence": "全21頭62枠照合",
-      "note": "10/19の5代血統再分析の点数へ全頭統一。祖先名の含有だけで距離・道悪の能力を断定しない。"
+      "note": "5代血統の基本点は10/19資料を継承。道悪補正は条件応答内で小幅に適用。Forty Ninerはゴーイントゥスカイの道悪時のみ。回避馬アルトラムスのNever Bendは出走馬へ転用しない。"
     },
     "pace": {
       "label": "折り合い・位置取り・展開",
@@ -896,7 +921,7 @@ export default {
       "label": "性別（全馬牡・配点0）",
       "weight": 0,
       "confidence": "確認済み",
-      "note": "牡馬限定の比較に不要な項目は配点0とし、再配分を明示。"
+      "note": "想定18頭は全馬牡。性別差の配点を0とし、再配分を明示。菊花賞の出走条件自体は牡・牝。"
     },
     "load": {
       "label": "斤量・前走との比較",
@@ -920,7 +945,7 @@ export default {
       "label": "当日バイアス",
       "weight": 1,
       "confidence": "未確定・中立",
-      "note": "10/18の内回り結果を10/25外回りへそのまま転用しない。"
+      "note": "重馬場は依頼上の想定。当日の内外・前後の偏りは未観測で中立。枠順も未確定。"
     }
   },
   "featureScores": {
@@ -984,7 +1009,7 @@ export default {
       "course": 91,
       "recent": 86,
       "lap": 85,
-      "training": 88,
+      "training": 90,
       "blood": 90,
       "distance": 88,
       "pace": 77,
@@ -1026,7 +1051,7 @@ export default {
       "course": 79,
       "recent": 88,
       "lap": 86,
-      "training": 87,
+      "training": 90,
       "blood": 88,
       "distance": 83,
       "pace": 86,
@@ -1082,7 +1107,7 @@ export default {
       "course": 82,
       "recent": 86,
       "lap": 88,
-      "training": 72,
+      "training": 86,
       "blood": 88,
       "distance": 94,
       "pace": 82,
@@ -1124,7 +1149,7 @@ export default {
       "course": 74,
       "recent": 85,
       "lap": 87,
-      "training": 50,
+      "training": 76,
       "blood": 81,
       "distance": 88,
       "pace": 66,
@@ -1166,7 +1191,7 @@ export default {
       "course": 88,
       "recent": 98,
       "lap": 95,
-      "training": 90,
+      "training": 94,
       "blood": 92,
       "distance": 90,
       "pace": 82,
@@ -1188,16 +1213,19 @@ export default {
       },
       "ground": {
         "yielding": {
-          "lap": -1
+          "lap": 0,
+          "distance": 0,
+          "blood": 0
         },
         "soft": {
-          "lap": -3,
-          "distance": -1,
+          "lap": 0,
+          "distance": 0,
           "blood": 1
         },
         "heavy": {
-          "lap": -5,
-          "distance": -3
+          "lap": -2,
+          "distance": -2,
+          "blood": 1
         }
       },
       "variants": {}
@@ -1212,16 +1240,19 @@ export default {
       },
       "ground": {
         "yielding": {
-          "lap": -1
+          "lap": 0,
+          "distance": 0,
+          "blood": 0
         },
         "soft": {
-          "lap": -3,
-          "distance": -1,
+          "lap": -1,
+          "distance": 0,
           "blood": 1
         },
         "heavy": {
-          "lap": -5,
-          "distance": -3
+          "lap": -3,
+          "distance": -2,
+          "blood": 1
         }
       },
       "variants": {}
@@ -1236,15 +1267,19 @@ export default {
       },
       "ground": {
         "yielding": {
-          "lap": -1
+          "lap": 0,
+          "distance": 0,
+          "blood": 0
         },
         "soft": {
-          "lap": -3,
-          "distance": -1
+          "lap": -1,
+          "distance": -1,
+          "blood": 1
         },
         "heavy": {
-          "lap": -5,
-          "distance": -3
+          "lap": -3,
+          "distance": -3,
+          "blood": 1
         }
       },
       "variants": {
@@ -1268,15 +1303,19 @@ export default {
       },
       "ground": {
         "yielding": {
-          "lap": -1
+          "lap": 0,
+          "distance": 0,
+          "blood": 0
         },
         "soft": {
-          "lap": -3,
-          "distance": -1
+          "lap": -1,
+          "distance": 0,
+          "blood": 1
         },
         "heavy": {
-          "lap": -5,
-          "distance": -3
+          "lap": -3,
+          "distance": -2,
+          "blood": 1
         }
       },
       "variants": {
@@ -1295,15 +1334,19 @@ export default {
       },
       "ground": {
         "yielding": {
-          "lap": -1
+          "lap": 0,
+          "distance": 0,
+          "blood": 0
         },
         "soft": {
-          "lap": -3,
-          "distance": -1
+          "lap": -1,
+          "distance": -1,
+          "blood": 1
         },
         "heavy": {
-          "lap": -5,
-          "distance": -3
+          "lap": -3,
+          "distance": -3,
+          "blood": 1
         }
       },
       "variants": {}
@@ -1318,15 +1361,19 @@ export default {
       },
       "ground": {
         "yielding": {
-          "lap": -1
+          "lap": -1,
+          "distance": 0,
+          "blood": 1
         },
         "soft": {
-          "lap": -3,
-          "distance": -1
+          "lap": -2,
+          "distance": -1,
+          "blood": 2
         },
         "heavy": {
-          "lap": -5,
-          "distance": -3
+          "lap": -4,
+          "distance": -3,
+          "blood": 2
         }
       },
       "variants": {
@@ -1352,15 +1399,19 @@ export default {
       },
       "ground": {
         "yielding": {
-          "lap": -1
+          "lap": -4,
+          "distance": -2,
+          "blood": 0
         },
         "soft": {
-          "lap": -3,
-          "distance": -1
+          "lap": -8,
+          "distance": -4,
+          "blood": 0
         },
         "heavy": {
-          "lap": -5,
-          "distance": -3
+          "lap": -10,
+          "distance": -6,
+          "blood": 0
         }
       },
       "variants": {}
@@ -1375,15 +1426,19 @@ export default {
       },
       "ground": {
         "yielding": {
-          "lap": -1
+          "lap": 2,
+          "distance": 1,
+          "blood": 1
         },
         "soft": {
-          "lap": -3,
-          "distance": -1
+          "lap": 4,
+          "distance": 2,
+          "blood": 2
         },
         "heavy": {
-          "lap": -5,
-          "distance": -3
+          "lap": 2,
+          "distance": 0,
+          "blood": 2
         }
       },
       "variants": {}
@@ -1398,15 +1453,19 @@ export default {
       },
       "ground": {
         "yielding": {
-          "lap": -1
+          "lap": -1,
+          "distance": -1,
+          "blood": 0
         },
         "soft": {
-          "lap": -3,
-          "distance": -1
+          "lap": -2,
+          "distance": -2,
+          "blood": 1
         },
         "heavy": {
-          "lap": -5,
-          "distance": -3
+          "lap": -4,
+          "distance": -4,
+          "blood": 1
         }
       },
       "variants": {}
@@ -1421,15 +1480,19 @@ export default {
       },
       "ground": {
         "yielding": {
-          "lap": -1
+          "lap": -1,
+          "distance": -1,
+          "blood": 0
         },
         "soft": {
           "lap": -3,
-          "distance": -1
+          "distance": -2,
+          "blood": 1
         },
         "heavy": {
           "lap": -5,
-          "distance": -3
+          "distance": -4,
+          "blood": 1
         }
       },
       "variants": {}
@@ -1445,15 +1508,19 @@ export default {
       },
       "ground": {
         "yielding": {
-          "lap": -1
+          "lap": 0,
+          "distance": -1,
+          "blood": 0
         },
         "soft": {
-          "lap": -3,
-          "distance": -3
+          "lap": 0,
+          "distance": -2,
+          "blood": 1
         },
         "heavy": {
-          "lap": -5,
-          "distance": -3
+          "lap": -2,
+          "distance": -4,
+          "blood": 1
         }
       },
       "variants": {}
@@ -1469,15 +1536,19 @@ export default {
       },
       "ground": {
         "yielding": {
-          "lap": -1
+          "lap": -1,
+          "distance": 0,
+          "blood": 0
         },
         "soft": {
-          "lap": -3,
-          "distance": -1
+          "lap": -2,
+          "distance": -1,
+          "blood": 1
         },
         "heavy": {
-          "lap": -5,
-          "distance": -3
+          "lap": -4,
+          "distance": -3,
+          "blood": 1
         }
       },
       "variants": {}
@@ -1492,15 +1563,19 @@ export default {
       },
       "ground": {
         "yielding": {
-          "lap": -1
+          "lap": 1,
+          "distance": 0,
+          "blood": 0
         },
         "soft": {
-          "lap": -3,
-          "distance": -1
+          "lap": 2,
+          "distance": 1,
+          "blood": 1
         },
         "heavy": {
-          "lap": -5,
-          "distance": -3
+          "lap": 0,
+          "distance": -1,
+          "blood": 1
         }
       },
       "variants": {}
@@ -1515,15 +1590,19 @@ export default {
       },
       "ground": {
         "yielding": {
-          "lap": -1
+          "lap": -1,
+          "distance": -1,
+          "blood": 0
         },
         "soft": {
           "lap": -3,
-          "distance": -1
+          "distance": -2,
+          "blood": 1
         },
         "heavy": {
           "lap": -5,
-          "distance": -3
+          "distance": -4,
+          "blood": 1
         }
       },
       "variants": {
@@ -1542,23 +1621,27 @@ export default {
       },
       "ground": {
         "yielding": {
-          "lap": -1
+          "lap": -4,
+          "distance": -2,
+          "blood": 0
         },
         "soft": {
-          "lap": -3,
-          "distance": -1
+          "lap": -8,
+          "distance": -4,
+          "blood": 0
         },
         "heavy": {
-          "lap": -5,
-          "distance": -3
+          "lap": -10,
+          "distance": -6,
+          "blood": 0
         }
       },
       "variants": {
         "balanceRestored": {
-          "training": 30,
-          "course": 8,
-          "lap": 5,
-          "recent": 4
+          "training": 8,
+          "course": 4,
+          "lap": 3,
+          "recent": 2
         },
         "balancePersists": {
           "training": -15,
@@ -1576,15 +1659,19 @@ export default {
       },
       "ground": {
         "yielding": {
-          "lap": -1
+          "lap": -1,
+          "distance": 0,
+          "blood": 0
         },
         "soft": {
-          "lap": -3,
-          "distance": -1
+          "lap": -2,
+          "distance": -1,
+          "blood": 1
         },
         "heavy": {
-          "lap": -5,
-          "distance": -3
+          "lap": -4,
+          "distance": -3,
+          "blood": 1
         }
       },
       "variants": {}
@@ -1599,16 +1686,19 @@ export default {
       },
       "ground": {
         "yielding": {
-          "lap": -1
+          "lap": 0,
+          "distance": 0,
+          "blood": 0
         },
         "soft": {
-          "lap": -3,
-          "distance": -1,
+          "lap": 0,
+          "distance": 0,
           "blood": 1
         },
         "heavy": {
-          "lap": -5,
-          "distance": -3
+          "lap": -2,
+          "distance": -2,
+          "blood": 1
         }
       },
       "variants": {}
@@ -1624,14 +1714,17 @@ export default {
       "ground": {
         "yielding": {
           "lap": 0,
+          "distance": 0,
           "blood": 1
         },
         "soft": {
-          "lap": -1,
+          "lap": 1,
+          "distance": 1,
           "blood": 2
         },
         "heavy": {
-          "lap": -2,
+          "lap": 0,
+          "distance": -1,
           "blood": 2
         }
       },
@@ -1641,40 +1734,40 @@ export default {
   "scenarios": [
     {
       "id": "base",
-      "label": "良・高速／中立（基準）",
+      "label": "重・中立（基準）",
       "options": {
         "pace": 0,
-        "speed": 2,
-        "ground": "good",
+        "speed": 0,
+        "ground": "soft",
         "bias": "neutral",
         "vol": 5
       }
     },
     {
       "id": "slow",
-      "label": "良・スロー／前が息を入れる",
+      "label": "重・スロー／前が息を入れる",
       "options": {
         "pace": -2,
-        "speed": 2,
-        "ground": "good",
+        "speed": 0,
+        "ground": "soft",
         "bias": "neutral",
         "vol": 5
       }
     },
     {
       "id": "sustained",
-      "label": "良・持続戦／早め進出",
+      "label": "重・持続戦／早め進出",
       "options": {
         "pace": 2,
-        "speed": 2,
-        "ground": "good",
+        "speed": 0,
+        "ground": "soft",
         "bias": "neutral",
         "vol": 5
       }
     },
     {
       "id": "yielding",
-      "label": "稍重／持久力寄り",
+      "label": "稍重まで回復",
       "options": {
         "pace": 0,
         "speed": 1,
@@ -1684,23 +1777,34 @@ export default {
       }
     },
     {
-      "id": "soft",
-      "label": "重／不確実性を拡大",
+      "id": "heavy",
+      "label": "不良まで悪化／ばらつき8",
       "options": {
-        "pace": 1,
+        "pace": 0,
         "speed": 0,
-        "ground": "soft",
+        "ground": "heavy",
         "bias": "neutral",
         "vol": 8
       }
     },
     {
-      "id": "right-improves",
-      "label": "ゴーイントゥスカイ・右回り改善",
+      "id": "good",
+      "label": "良・高速まで回復",
       "options": {
         "pace": 0,
         "speed": 2,
         "ground": "good",
+        "bias": "neutral",
+        "vol": 5
+      }
+    },
+    {
+      "id": "right-improves",
+      "label": "重・ゴーイントゥスカイ右回り改善",
+      "options": {
+        "pace": 0,
+        "speed": 0,
+        "ground": "soft",
         "bias": "neutral",
         "vol": 5,
         "variant": "rightImproves"
@@ -1708,11 +1812,11 @@ export default {
     },
     {
       "id": "right-persists",
-      "label": "ゴーイントゥスカイ・もたれ継続",
+      "label": "重・ゴーイントゥスカイもたれ継続",
       "options": {
         "pace": 0,
-        "speed": 2,
-        "ground": "good",
+        "speed": 0,
+        "ground": "soft",
         "bias": "neutral",
         "vol": 5,
         "variant": "rightPersists"
@@ -1720,11 +1824,11 @@ export default {
     },
     {
       "id": "balance-restored",
-      "label": "バステール・最終調教で改善",
+      "label": "重・バステール実戦のバランスも改善",
       "options": {
         "pace": 0,
-        "speed": 2,
-        "ground": "good",
+        "speed": 0,
+        "ground": "soft",
         "bias": "neutral",
         "vol": 5,
         "variant": "balanceRestored"
@@ -1732,11 +1836,11 @@ export default {
     },
     {
       "id": "unknown-training-good",
-      "label": "状態留保3頭・状態80を確認した場合",
+      "label": "重・状態留保3頭が状態80",
       "options": {
         "pace": 0,
-        "speed": 2,
-        "ground": "good",
+        "speed": 0,
+        "ground": "soft",
         "bias": "neutral",
         "vol": 5,
         "variant": "unknownTrainingGood"
@@ -1744,42 +1848,53 @@ export default {
     },
     {
       "id": "front",
-      "label": "良・前〜好位有利",
+      "label": "重・前〜好位有利",
       "options": {
         "pace": 0,
-        "speed": 2,
-        "ground": "good",
+        "speed": 0,
+        "ground": "soft",
         "bias": "front",
         "vol": 5
       }
     },
     {
       "id": "outside",
-      "label": "良・外差し優勢",
+      "label": "重・外差し有利",
       "options": {
         "pace": 0,
-        "speed": 2,
-        "ground": "good",
+        "speed": 0,
+        "ground": "soft",
         "bias": "outside",
         "vol": 5
       }
     },
     {
       "id": "ems-pulls",
-      "label": "エムズビギン・1周目に力む",
+      "label": "重・エムズビギン1周目に力む",
       "options": {
         "pace": 0,
-        "speed": 2,
-        "ground": "good",
+        "speed": 0,
+        "ground": "soft",
         "bias": "neutral",
         "vol": 5,
         "variant": "emsPulls"
+      }
+    },
+    {
+      "id": "soft-uncertain",
+      "label": "重・ばらつき8で感度確認",
+      "options": {
+        "pace": 0,
+        "speed": 0,
+        "ground": "soft",
+        "bias": "neutral",
+        "vol": 8
       }
     }
   ],
   "unverified": [
     "確定枠順・最終出走馬と騎手",
-    "当週の最終追い切り（シートゥサミットは10/17実質最終を確認）",
+    "当週最終追いを本日時計まで確認できなかった11頭（シートゥサミットの10/17実質最終は前版から確認済み）",
     "エムズビギンの詳細調教負荷",
     "チャリングクロス・キンググローリー・ショウナンハヤナミの秋馬体写真",
     "エムズビギン・ショウナンガルフの秋馬体写真（春写真は参考）",
@@ -1920,13 +2035,31 @@ export default {
     "10月20日ロブチェン調整": "https://tospo-keiba.jp/breaking_news/76830",
     "10月20日ジャスティンシカゴ調整": "https://tospo-keiba.jp/breaking_news/76827",
     "10月20日バステール課題": "https://tospo-keiba.jp/breaking_news/76833",
-    "キンググローリーの欠測修正・10月15日取材": "https://keiba.sponichi.co.jp/news/20261015s00004048026000c"
+    "キンググローリーの欠測修正・10月15日取材": "https://keiba.sponichi.co.jp/news/20261015s00004048026000c",
+    "JRA出走馬情報・10月21日照合": "https://www.jra.go.jp/keiba/g1/kikka/horse.html",
+    "10月21日最終追い・アウダーシア": "https://www.nikkansports.com/keiba/news/202610210000155.html",
+    "10月21日最終追い・コンジェスタス": "https://umanity.jp/racedata/race_newsdet.php?nid=11880471",
+    "10月21日最終追い・サノノグレーター": "https://tospo-keiba.jp/breaking_news/76840",
+    "10月21日最終追い・ジャスティンシカゴ": "https://umanity.jp/racedata/race_newsdet.php?nid=11880465",
+    "10月21日最終追い・ダノンヒストリー": "https://www.nikkansports.com/keiba/news/202610210000215.html",
+    "10月21日最終追い・バステール": "https://umanity.jp/racedata/race_newsdet.php?nid=11880466",
+    "10月21日最終追い・ロブチェン": "https://umanity.jp/racedata/race_newsdet.php?nid=11880464",
+    "10月21日公開情報・アスクエジンバラ": "https://dir.netkeiba.com/keiba/news/news_preview.html?no=346189",
+    "10月21日公開情報・ゴーイントゥスカイ": "https://dir.netkeiba.com/keiba/news/news_preview.html?no=346188",
+    "10月21日公開情報・シートゥサミット": "https://umanity.jp/racedata/race_newsdet.php?nid=11880456",
+    "10月21日公開情報・チャリングクロス": "https://news.netkeiba.com/?no=346194&pid=news_view",
+    "ラージアンサンブル・クラブ公式近況": "https://greenfarm.co.jp/photo/2312.shtml"
   },
   "evidenceUrl": "./data/kikka-2026-evidence.json",
-  "reportUrl": "./reports/kikka-2026-20261020.html",
-  "dataVersion": "kikka-20261020",
-  "updateSummary": "10/20 19:15版：通常調整と最終追いを区別して更新。キンググローリーの調教欠測を修正。全18頭・12条件、8倍速・ばらつき5。",
+  "reportUrl": "./reports/kikka-2026-20261021.html",
+  "dataVersion": "kikka-20261021-heavy",
+  "updateSummary": "10/21昼・重馬場想定版。全18頭・14条件×50,000回。最終追い7頭を更新。8倍速・ばらつき5。",
   "suitabilityUrl": "./data/kikka-2026-suitability-20261019.json",
-  "updateAuditUrl": "./data/kikka-2026-update-20261020.json",
-  "previousStamp": "20261019"
+  "updateAuditUrl": "./data/kikka-2026-update-20261021.json",
+  "previousStamp": "20261020",
+  "wetEvidenceUrl": "./data/kikka-2026-wet-20261021.json",
+  "defaultGround": "soft",
+  "defaultSpeed": 0,
+  "assumptionLabel": "重馬場想定",
+  "informationNote": "重馬場は依頼上の想定。10/21最終追い確認7頭、談話・見出し4頭、前版継承7頭。枠順・当日馬場・実オッズ未確定。"
 };

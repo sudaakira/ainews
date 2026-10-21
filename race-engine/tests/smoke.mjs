@@ -172,7 +172,7 @@ for(const id of ['swan-2026','sample-demo','tokyo-20261012-11','tokyo-20261012-1
   assert.equal(config.courseView,'kyoto-3000-outer');
   assert.equal(config.horses.length,18);
   assert.equal(config.provisionalDraw,true);
-  assert.equal(config.scenarios.length,12);
+  assert.equal(config.scenarios.length,14);
   assert.equal(regression.FEATURES.find(f=>f.id==='blood').weight,10);
   assert.ok(config.horses.every(h=>regression.scores(h,options).draw===50));
  }else{

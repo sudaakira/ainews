@@ -18,13 +18,22 @@ for(const name of ['エムズビギン']){
 }
 assert.equal(loop.scores(c.horses.find(h=>h.name==='ナリタエスペランサ')).training,45,'reported fitness concern is not a missing observation');
 assert.equal(c.defaultVol,5);assert.equal(c.defaultPlaybackRate,8);
-assert.ok(c.asOf.startsWith('2026-10-20'));
+assert.ok(c.asOf.startsWith('2026-10-21'));
 assert.equal(loop.scores(c.horses.find(h=>h.name==='キンググローリー')).training,78,'verified earlier workout resolves missing data');
-assert.equal(c.horses.filter(h=>h.latestReviewKind==='new-report').length,4);
-assert.equal(c.horses.filter(h=>h.latestReviewKind==='newly-verified-earlier-report').length,1);
-const audit=JSON.parse(read('data/kikka-2026-update-20261020.json'));
+assert.equal(c.horses.filter(h=>h.latestReviewKind==='final-workout').length,7);
+assert.equal(c.defaultGround,'soft');assert.equal(c.defaultSpeed,0);
+assert.deepEqual(c.scenarios[0].options,{pace:0,speed:0,ground:'soft',bias:'neutral',vol:5});
+assert.ok(c.scenarios.some(s=>s.options.ground==='heavy'),'include distinct 不良 case');
+assert.equal(c.horses.filter(h=>h.latestReviewKind==='new-comment').length,4);
+const wet=JSON.parse(read('data/kikka-2026-wet-20261021.json'));assert.equal(wet.rows.length,18);
+assert.equal(wet.rows.filter(x=>x.heavyStarts>0).length,1);
+assert.equal(wet.rows.find(x=>x.name==='ロブチェン').heavyStarts,1);
+assert.equal(wet.rows.find(x=>x.name==='ゴーイントゥスカイ').softAdjustment.blood,2);
+assert.equal(c.conditionResponses[6].ground.good,undefined,'wet-only pedigree adjustment');
+for(const h of c.horses.filter(h=>h.latestReviewKind==='final-workout'))assert.equal(h.workout.date,'2026-10-21');
+const audit=JSON.parse(read('data/kikka-2026-update-20261021.json'));
 assert.equal(audit.rows.length,18);assert.equal(audit.asOf,c.asOf);
-const priorResults=JSON.parse(read('results/kikka-2026-20261019.json'));
+const priorResults=JSON.parse(read('results/kikka-2026-20261020.json'));
 for(const h of c.horses){
  const row=audit.rows.find(x=>x.name===h.name);
  assert.equal(row.reviewedAt,c.asOf);
