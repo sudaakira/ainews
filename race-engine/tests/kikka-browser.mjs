@@ -5,7 +5,7 @@ import {mkdirSync} from 'node:fs';
 const {chromium}=await import(process.env.PLAYWRIGHT_ENTRY||process.env.CODEX_PRIMARY_RUNTIME_NODE_MODULES+'/playwright/index.mjs');
 const browser=await chromium.launch({headless:true,args:['--use-gl=angle','--use-angle=swiftshader','--enable-webgl','--enable-unsafe-swiftshader','--disable-dev-shm-usage']});
 const root=process.env.RACE_LOCAL_ROOT;
-const base=process.env.KIKKA_URL||(root?'http://race.local/race-engine/?race=kikka-2026&replay=20261021':'http://127.0.0.1:8765/race-engine/?race=kikka-2026&replay=20261021');
+const base=process.env.KIKKA_URL||(root?'http://race.local/race-engine/?race=kikka-2026&replay=20261022':'http://127.0.0.1:8765/race-engine/?race=kikka-2026&replay=20261022');
 mkdirSync('/tmp/kikka-mobile-shots',{recursive:true});
 try{
  for(const vp of [{width:390,height:844},{width:1280,height:800}].filter(v=>!process.env.KIKKA_VIEWPORT||v.width===Number(process.env.KIKKA_VIEWPORT))){
@@ -23,13 +23,15 @@ try{
   const initial=await page.evaluate(()=>({status:window.KYOTO_RENDER_STATUS,rank:window.KYOTO_RACE.LIVE.rank,seed:window.KYOTO_RACE.LIVE.replaySeed,scene:window.RACE_SCENE_AUDIT}));
   assert.equal(initial.status.horses,18);assert.equal(initial.status.model,'photo-thoroughbred-v24');
   assert.equal(initial.status.courseView,'kyoto-3000-outer');assert.equal(initial.scene.course.distance,3000);
-  assert.equal(initial.seed,20261021);assert.equal(initial.rank.length,18);
+  assert.equal(initial.seed,20261022);assert.equal(initial.rank.length,18);
+  const draw=await page.evaluate(()=>window.RACE_CONFIG.horses.map(h=>({no:h.no,name:h.name,frame:h.frame})));
+  assert.deepEqual(draw.find(h=>h.name==='ロブチェン'),{no:8,name:'ロブチェン',frame:4});
   assert.equal(await page.locator('#vol').inputValue(),'5');
   assert.equal(await page.locator('#ground-mode').inputValue(),'soft');
   assert.equal(await page.locator('#speed').inputValue(),'0');
   assert.ok((await page.locator('.live-note').innerText()).includes('重馬場想定'));
-  assert.equal(await page.locator('#bars .bar').first().locator('.val small').innerText(),'86.8点');
-  assert.ok((await page.locator('header').innerText()).includes('2026-10-21'));
+  assert.equal(await page.locator('#bars .bar').first().locator('.val small').innerText(),'86.9点');
+  assert.ok((await page.locator('header').innerText()).includes('2026-10-22'));
   assert.equal(await page.locator('#horses .suitability').count(),18);
   assert.equal(await page.locator('.tracking-number').count(),18);
   assert.equal(await page.locator('#race-front-labels').count(),0);
@@ -61,6 +63,9 @@ try{
   await page.locator('#race-scenario').selectOption('base');
   await page.locator('#horse-details').evaluate(e=>e.open=true);
   assert.ok(!(await page.locator('#horses').textContent()).includes('undefined'),'workout fields render completely');
+  assert.ok((await page.locator('#h8').innerText()).includes('4枠'),'actual frame rendered');
+  assert.ok((await page.locator('#h18').innerText()).includes('8枠'),'outer frame rendered');
+  assert.equal(await page.locator('#horses').getByText('JRA調教後馬体重：',{exact:false}).count(),18);
   await page.locator('#race-evidence').evaluate(e=>e.open=true);
   await page.waitForFunction(()=>document.querySelectorAll('#race-evidence-content > details').length===21,null,{timeout:45000}).catch(async error=>{console.error('KIKKA_EVIDENCE',await page.evaluate(()=>({text:document.querySelector('#race-evidence-content')?.textContent?.slice(0,300),count:document.querySelectorAll('#race-evidence-content > details').length,url:window.RACE_CONFIG.evidenceUrl})));throw error});
   await page.locator('#live-play').scrollIntoViewIfNeeded();

@@ -9,55 +9,66 @@ const wet=JSON.parse(read('data/kikka-2026-wet-'+stamp+'.json'));
 const base=r.scenarios[0],rank=base.result,marks=['◎','○','▲','☆','△','△','△','△','条件付'];
 const f=x=>Number(x).toFixed(1),table=(heads,rows)=>'|'+heads.join('|')+'|\n|'+heads.map(()=> '---').join('|')+'|\n'+rows.map(row=>'|'+row.join('|')+'|').join('\n');
 const parts=[
- '# 菊花賞2026｜完全版・条件回帰ループ3D 重馬場想定版',
- config.asOf.replace('T',' ').replace('+09:00',' JST')+'を情報締切として更新。10/25 京都11R 芝3000m外。登録21頭・想定18頭。番号・騎手は仮。',
- '## 現時点の結論',
- rank.slice(0,9).map((h,i)=>(marks[i]||'')+h.name+f(h.rating)).join(' ＞ ')+'。上位に差があっても、未校正モデル上の序列であり確実性を示さない。',
- '[3Dを開く](https://sudaakira.github.io/ainews/race-engine/?race=kikka-2026&replay='+stamp+') ／ [前版と比較](./kikka-2026-'+config.previousStamp+'.html)',
- '## 今日の確認と評価変更',
- '10/21昼までに公開された最終追い7頭、談話・見出し4頭を照合。ロブチェンの状態90→94、コンジェスタス88→90、ジャスティンシカゴ87→90、ダノンヒストリー72→86、バステール50→76。各馬の負荷・意図・折り合いと取材内容による裁量点。時計だけの順位付けではない。新しい最終追いを確認できなかった馬は前版を継承。',
- '配点は従来と同じ100点。血統10点の基本素点は前版を継承し、状態12点枠を更新。道悪によるラップ・距離・血統の補正は各項目の配点内に限定した。血統・馬体・走法の三項目の適性総合点を、この総合評価へ加算していない。JRA最高値も参考表示にとどめ、同じ近走を二重加算しない。各点は裁量仮説であり学習済みの回帰係数ではない。',
- table(['馬名','前版・良高速','更新情報・良高速','更新情報・重','情報差','馬場想定差','変更素点'],rank.map(h=>{const x=r.comparison.find(x=>x.name===h.name),a=audit.rows.find(x=>x.name===h.name);return [h.name,f(x.previousRating),f(x.updatedDryRating),f(h.rating),f(x.informationDelta),f(x.groundDelta),Object.entries(a.changes).map(([k,v])=>k+' '+v.before+'→'+v.after).join('、')||'継承'];})),
- '## 重馬場への適性：全18頭の根拠',
- '重馬場はユーザー指定の前提であり、10/25の実際の発表ではない。soft＝重、heavy＝不良。稍重の好走、重の実績、洋芝の良を区別。道悪実走と5代血統を照合し、補正値は各素点への加減点として示す。京都重2000m勝ちがあるロブチェン、稍重の重賞を勝ったジャスティンシカゴを支持する一方、距離3000mへの延長は全馬で未経験。',
- table(['馬名','道悪実走','重の出走数','重での素点補正','根拠と留保'],wet.rows.map(w=>[w.name,w.records.map(x=>x.date+' '+x.venue+' '+x.distance+' '+x.ground+' '+x.finish+'着 '+x.weight+'kg').join('／')||'保持資料で未確認',w.heavyStarts,Object.entries(w.softAdjustment).map(([k,v])=>k+':'+(v>0?'+':'')+v).join('／'),w.reason])),
- '未知は不得手の証明ではない。Forty Ninerはゴーイントゥスカイの5代内に確認し、道悪時の血統素点+2だけ。Never Bendを持つ回避馬アルトラムスを出走馬へ含めない。道悪補正は実測の回帰係数ではなく、状態と同じく検証前の仮説。',
- '## 今日の照合履歴',
- table(['馬名','区分','報道日／対象日','照合日時'],audit.rows.map(a=>[a.name,a.kind,a.publishedAt+'／'+(a.eventDate||'新規なし'),a.reviewedAt])),
- 'final-workoutは本日の最終追い時計と内容を取得できた7頭。new-commentは談話または見出しのみ4頭で、retainedは最終追いの新規内容を確認できず前版を継承した7頭。公表日と対象日を分け、火曜の軽い調整を今日の最終追いに数えない。検索の公開抜粋までの資料はその範囲に限って利用。',
- '## 基準条件と全18頭',
- '重馬場想定・速度適性は通常／展開と当日バイアスは中立。初期設定8倍速・ばらつき5。各条件50,000回、seed '+r.seed+'。1着率・3着内率は未校正モデルの出現率。50,000回で0回でも実際に好走できないという意味ではない。点数順と率順は個別SDにより一致しない。',
- table(['順位','印','仮番','馬名','総合点','モデル1着率','モデル3着内率'],rank.map((h,i)=>[i+1,marks[i]||'',h.no,h.name,f(h.rating),f(h.win)+'%',f(h.p3)+'%'])),
+ '# 菊花賞2026｜完全版・条件回帰ループ3D 枠順確定・重馬場想定',
+ config.asOf.replace('T',' ').replace('+09:00',' JST')+'照合締切。10/25 京都11R 芝3000m外。出走18頭・正式馬番・枠順・騎手確定。',
+ '[3Dを開く](https://sudaakira.github.io/ainews/race-engine/?race=kikka-2026&replay='+stamp+') ／ [10/21版](./kikka-2026-'+config.previousStamp+'.html)',
+ '## 更新後の結論',
+ rank.slice(0,9).map((h,i)=>(marks[i]||'')+h.no+' '+h.name+' '+f(h.rating)).join(' ＞ '),
+ '重馬場はユーザー指定の想定で、当日発表ではない。初期設定は8倍速・ばらつき5・重・速度0・当日バイアス中立。1着率・3着内率は裁量採点と独立した正規乱数によるモデル内出現率であり、校正された的中確率ではない。3Dは抽選順位の映像化で、馬同士の物理的な干渉を計算した実測シミュレーターではない。',
+ '## 枠順・騎手・調教後馬体重',
+ 'JRA公表の確定枠順と調教後馬体重を全18頭反映。体重は計量時の参考値で輸送や調教等で変動し、当日体重とは異なる。増減だけの機械的な加減点はしない。ラージアンサンブルはクラブ連絡482kg、JRA公表481kgを区別し、一覧はJRAの481kgを使用。',
+ table(['枠','馬番','馬名','騎手・57kg','調教後kg','前走比','計量日・場所'],config.horses.map(h=>{const w=h.trainingWeight;return [h.frame,h.no,h.name,h.j,w.kg,(w.kg-w.lastKg>0?'+':'')+(w.kg-w.lastKg),w.date+' '+w.location];})),
+ '枠色は1白・2黒・3赤・4青・5黄・6緑・7橙・8桃。ロブチェン⑧は青、ダノンヒストリー⑩は黄。7枠・8枠は各3頭。仮番号の登録順から正式馬番へ入れ替え、血統・状態・道悪応答・全戦績の紐付けは馬IDで照合した。',
+ '## 今日の最終調整と採点変更',
+ '前版締切後に確認できた内容を追加。ゴーイントゥスカイは10/22木曜追い、他17頭の最新調整日は10/21。シートゥサミットは10/17が実質最終で、10/21は軽め。キンググローリー・ショウナンガルフは公開時計集計中心のため、内容の独立裏付けを限定と明記し状態点を維持。他紙のS/A/B評価をそのまま採点へ転写していない。',
+ table(['馬番・馬名','調整日','コース・時計','状態素点／前版→今回'],config.horses.map(h=>{const a=audit.rows.find(x=>x.name===h.name),u=a.changes.training;return [h.no+' '+h.name,h.workout.date,h.workout.track+' '+h.workout.clock,u?u.before+'→'+u.after:h.trainingScore+'（維持）'];})),
+ '状態素点は総合12点枠内の裁量値。エムズビギン50→84は内容欠測の解消、ナリタエスペランサ45→78は最新の動きによる留保見直しで、過去実績が増えた意味ではない。アスクエジンバラは長距離を意識した負荷と動き、マジョレルブルー・ラージアンサンブル等は余力と前週比を重視。既に前版へ入れたロブチェンなどの同じ調教を、再報道だけで再加点しない。',
+ '枠順の素点は中立50に対し35〜62、配点は総合1点だけ。距離損と折り合い・位置取りの裁量仮説で、歴史的枠成績から推定した係数ではない。重なら自動的に内・前有利とはしない。以下の枠差は表示用0.1点丸めを含む。',
+ table(['馬名','前版・重','調教更新・枠中立','枠反映・重','調教情報差','枠差','変更素点'],rank.map(h=>{const x=r.comparison.find(x=>x.name===h.name),a=audit.rows.find(x=>x.name===h.name);return [h.name,f(x.previousRating),f(x.updatedUndrawnRating),f(h.rating),f(x.informationDelta),f(x.drawDelta),Object.entries(a.changes).map(([k,v])=>k+' '+v.before+'→'+v.after).join('／')];})),
+ '## 全18頭の予想順位',
+ table(['順位','印','馬番','馬名','総合点','モデル1着率','モデル3着内率'],rank.map((h,i)=>[i+1,marks[i]||'',h.no,h.name,f(h.rating),f(h.win)+'%',f(h.p3)+'%'])),
+ '点数順と出現率順は個別SDにより一致しない。50,000回で0回でも実際に好走不能という意味ではない。',
+ '## 重馬場適性の全頭根拠',
+ '稍重・重・不良は区別する。soft＝重、heavy＝不良。本人の道悪実走を優先し、血統は補助仮説。京都重2000m勝ちと重3000mの適性を同一視しない。全馬3000mは未経験。戦績は10/18取得分を保持し、今日全走を再取得したとは表示しない。',
+ table(['馬番・馬名','道悪実走','重の実出走数','重の素点補正','根拠・留保'],wet.rows.map(w=>[w.no+' '+w.name,w.records.map(x=>x.date+' '+x.venue+' '+x.distance+' '+x.ground+' '+x.finish+'着 '+x.weight+'kg').join('／')||'保持資料に該当なし',w.heavyStarts,Object.entries(w.softAdjustment).map(([k,v])=>k+':'+(v>0?'+':'')+v).join('／'),w.reason])),
+ 'Forty Ninerはゴーイントゥスカイの母母母父・4代目に確認し、道悪時の血統素点+2のみ。回避馬アルトラムスのNever Bend等を出走馬へ転用しない。未知は不得手の証明ではない。道悪補正は実測から学習した係数ではない。',
  '## 14項目の配点',
  table(['項目','配点','確認状態'],Object.entries(config.featureDefinitions).map(([k,v])=>[v.label,v.weight,v.note])),
- '## 条件回帰ループ：'+r.scenarios.length+'条件',
- '各条件を同じseedで比較。前有利と外差しの条件は当日観測ではなく仮説。右回り改善・バステール回復・状態不確実馬の良化は、確認できた事実と混同しない。',
- table(['条件','ばらつき','点数上位3頭'],r.scenarios.map(s=>[s.label,s.options.vol,s.result.slice(0,3).map(h=>h.name+' '+f(h.rating)).join(' ＞ ')])),
- '## 数値が動いた理由を分ける',
- '前版・更新版とも初期ばらつき5。seed20261020・各50,000回を共通にし、前版の良高速→今日の情報だけ反映した良高速→今日の重想定という3段階で比較。さらに前版の採点・条件応答を保存し、同じ重・速度・seedでも再計算した。現在の公開初期seedは20261021。',
- table(['馬名','前版・良高速','更新情報・良高速','前版入力・重','更新情報・重／同seed','更新情報・重／現seed'],r.comparison.map(x=>[x.name,f(x.previousTop3Pct)+'%',f(x.updatedDrySameSeedPct)+'%',f(x.oldHeavySameSeedPct)+'%',f(x.updatedTop3SameSeedPct)+'%',f(x.updatedTop3DefaultPct)+'%'])),
- table(['ばらつき仮定','ロブチェン・モデル1着率','同3着内率'],r.dispersion.map(s=>{const h=s.result.find(h=>h.name==='ロブチェン');return [s.vol,f(h.win)+'%',f(h.p3)+'%'];})),
- '## 馬連・ワイドの同時好走',
- '同一の仮想レースで1・2着に入る組を馬連、両馬が3着以内に入る組をワイドとして直接集計。単独の3着内率を掛け合わせていない。実オッズは未発売・未取得のため、期待回収率は計算しない。',
- table(['組み合わせ','馬連・モデル出現率','ワイド・モデル出現率'],r.pairs.slice(0,12).map(p=>[p.horses.join('－'),f(p.quinellaPct)+'%',f(p.widePct)+'%'])),
- '相手4頭はモデル3着内率の高い順に選択：'+[...new Set(r.tickets.trioSixPoints.flat().filter(n=>n!=='ロブチェン'))].join('／')+'。三連複はロブチェン＋この4頭から2頭の6点（モデル的中率'+f(r.tickets.sixPointModelHitPct)+'%）。点数上位3頭の1点は'+r.tickets.trioOnePoint[0].join('－')+'（同'+f(r.tickets.onePointModelHitPct)+'%）。周辺馬との差は小さく、4頭へ絞る取りこぼしも残る。未校正モデルの出現率であり実際の的中確率・期待値ではない。枠・未取得馬の最終調教・実オッズ確認前の暫定候補。',
- '## 京都3000m・馬場と展開',
- 'キンググローリーとナリタエスペランサが逃げ候補。シートゥサミットは途中の捲りを分けて考える。1周目の坂・スタンド前で折り合い、2周目の坂から下りで加速を持続できるかを重視。3Dは公開寸法を基に3000m・坂2回・直線403.7mを再現した復元モデルで、測量データではない。映像用の3分03秒5は予測時計ではない。',
- '10/25の馬場・枠順は未発表。重馬場という前提でも、内有利・前有利を自動的に設定しない。重の中立・前有利・外差し、持続戦・スローに加えて、稍重・良への回復、不良への悪化を比較する。最終追いは7頭の本日時計まで確認。残る馬は既知の一週前等を継承した。',
- '## 全18頭の完全比較'
- ];
- for(const [i,x]of rank.entries()){
-  const h=config.horses[x.no-1],s=h.suitability,stats=config.factors.riders[h.j],rides=stats?.reduce((a,b)=>a+b,0),roi=config.factors.riderROI[h.j];
-  parts.push('### '+(i+1)+'. '+h.name+'｜'+f(x.rating)+'点',h.j+'（想定）／'+h.trainer+'／'+h.kg+'kg／前走から'+h.rest+'日。JRA2026最高値：'+(h.officialPeakRating?h.officialPeakRating+' '+h.officialPeakDistance:'対象レースの公表最高値なし。能力ゼロを意味しない')+'。',h.latest,'重馬場評価：'+h.wetAssessment,'強み：'+h.plus+' 注意：'+h.minus,'5代血統：'+h.bloodNote,'血統・馬体・走法の参考点：'+s.blood+'／'+(s.body===null?'未採点':s.body)+'／'+s.gait+'。'+s.bodyEra+'。'+s.headline+'。'+s.caution,'追い切り資料（'+h.workout.verification+'）：'+(h.workout.date||'日付未確認')+' '+(h.workout.track||'')+' '+(h.workout.clock||'詳細未確認')+'。'+h.workout.content,'同条件騎手：'+(rides?rides+'騎乗、'+stats.join('-')+'、複勝率'+f((stats[0]+stats[1]+stats[2])/rides*100)+'%、複勝回収率'+(roi??'未確認')+'%。':'既存の掲載集計になく中立。')+' 集計期間・少数標本は下記参照。','[全戦績](https://db.netkeiba.com/horse/result/'+h.horseId+'/) ／ [5代血統](https://db.netkeiba.com/horse/ped/'+h.horseId+'/)'+(s.source?' ／ [馬体資料]('+s.source+')':'')+' ／ [調教資料]('+h.workout.source+')');
- }
- parts.push('## 確認範囲・残る情報',
- '全21頭の戦績143件（実出走142戦・取消1件）、5代62枠×21頭を10/18版から継承。戦績・血統の元データ取得日時を保持し、10/21に全走を新規取得したとは表示しない。最新の出走想定・談話と照合した。アルトラムスは左後肢跛行による回避、イブキ・ミッキーファルコンは除外対象のまま。',
- '馬体評価は前版の別分析で確認した13頭の10/19公開写真、2頭の春写真を参照。チャリングクロス・キンググローリー・ショウナンハヤナミは秋の立ち写真未確認。エムズビギン・ショウナンガルフは春写真で、現在の出来を確認した点ではない。血統95点のチャリングクロスを総合95点と読み替えない。',
- '騎手・厩舎の同条件集計は既存スナップショットを継承。'+config.factors.scope+' 一人の高回収率を馬の能力と同一視しない。',
- '実行記録：'+r.scenarios.length+'条件×50,000回＝'+r.totals.scenarioDraws.toLocaleString()+'回。ばらつき3種・別seed2本・旧版と同seedの3系列比較・再現性・馬連/ワイドの同時集計を別途実行。勝率合計100%、3着内率合計300%、ワイド全組合計300%、馬連全組合計100%を検証。独立したパラメータとseedの組は'+r.totals.distinctDraws.toLocaleString()+'試行で、同じ系列の再利用を水増ししない。',
- '[全戦績・5代血統JSON](../data/kikka-2026-evidence.json) ／ [10/19適性資料](../data/kikka-2026-suitability-20261019.json) ／ [重馬場の全頭根拠](../data/kikka-2026-wet-'+stamp+'.json) ／ [採点変更履歴](../data/kikka-2026-update-'+stamp+'.json) ／ [全シナリオ結果](../results/kikka-2026-'+stamp+'.json) ／ [CSV](../results/kikka-2026-'+stamp+'.csv)',
+ '血統・馬体・走法の参考点を総合点へ再加算していない。JRA最高レーティングは年間ピークの参考表示であり、今回の予想点ではない。騎手・厩舎の同条件集計は小標本を縮小し、未掲載は中立。配点合計100。',
+ '## 条件回帰ループ：14条件',
+ table(['条件','ばらつき','点数上位3頭'],r.scenarios.map(s=>[s.label,s.options.vol,s.result.slice(0,3).map(h=>h.no+' '+h.name+' '+f(h.rating)).join(' ＞ ')])),
+ '各条件50,000回、同seed20261022で比較。右回り改善・バステール実戦バランス改善・状態3頭の上振れは未確認の仮説。状態上振れはエムズビギン88、キンググローリー84、ナリタエスペランサ84とし、前版の「状態80」設定を流用しない。前有利・外差しは仮説で当日の観測ではない。',
+ '## 更新差と乱数差を分離',
+ '比較の3系列は全て重・速度0・ばらつき5・中立・seed20261021。前版入力を完全保存して再現し、調教更新・枠中立、調教更新・枠反映と比べた。正式馬番へ並べ替えたことだけで乱数の割当が変わらないよう、比較時は各馬を旧登録順に揃え、結果を馬名で結合。公開基準は正式馬番順・seed20261022で、最後の列との違いは情報差だけではなく乱数系列の差も含む。',
+ table(['馬名','前版・重','調教更新・枠中立／同乱数','枠反映／同乱数','公開基準／新乱数'],r.comparison.map(x=>[x.name,f(x.previousTop3Pct)+'%',f(x.updatedUndrawnSameSeedPct)+'%',f(x.updatedTop3SameSeedPct)+'%',f(x.updatedTop3DefaultPct)+'%'])),
+ table(['ばらつき','ロブチェン1着率','同3着内率'],r.dispersion.map(s=>{const h=s.result.find(h=>h.name==='ロブチェン');return [s.vol,f(h.win)+'%',f(h.p3)+'%'];})),
+ '## 同時好走と組み合わせ候補',
+ '馬連は同一仮想レースの1・2着、ワイドは両馬3着以内を直接集計。各馬の単独率を掛け合わせていない。実オッズ未取得で期待回収率は算出しない。',
+ table(['組み合わせ','馬連・モデル内率','ワイド・モデル内率'],r.pairs.slice(0,12).map(p=>[p.horses.join('－'),f(p.quinellaPct)+'%',f(p.widePct)+'%'])),
+ '点数上位3頭の三連複1点：'+r.tickets.trioOnePoint[0].join('－')+'（モデル内出現率'+f(r.tickets.onePointModelHitPct)+'%）。ロブチェンとモデル3着内率上位4頭から2頭の6点：相手'+[...new Set(r.tickets.trioSixPoints.flat().filter(n=>n!=='ロブチェン'))].join('／')+'（同'+f(r.tickets.sixPointModelHitPct)+'%）。実際の的中確率・期待値ではない。絞る取りこぼしがあり、当日確認前の候補。',
+ '## 京都3000mと展開',
+ 'キンググローリー・ナリタエスペランサの先行、シートゥサミットの途中進出を分ける。1周目の坂とスタンド前での折り合い、2度目の坂からの持続力を重視。外枠の距離損は折り合い・進路自由との両面で考える。3Dは公開寸法を基にした3000m・坂2回・直線403.7mの復元モデルで測量値ではない。再生用3分03秒5は予測タイムではない。',
+ '## 全18頭の詳細比較'
+];
+for(const [i,x]of rank.entries()){
+ const h=config.horses[x.no-1],s=h.suitability,w=h.trainingWeight,stats=config.factors.riders[h.j],rides=stats?.reduce((a,b)=>a+b,0);
+ parts.push('### '+(i+1)+'. '+h.no+' '+h.name+'｜'+f(x.rating)+'点',
+ h.frame+'枠'+h.no+'番／'+h.j+'（確定）／'+h.trainer+'／57kg／前走から'+h.rest+'日。JRA2026最高値：'+(h.officialPeakRating?h.officialPeakRating+' '+h.officialPeakDistance:'公表対象値なし。能力ゼロではない')+'。',
+ h.latest,h.drawRemark,'重馬場評価：'+h.wetAssessment,'強み：'+h.plus+' 注意：'+h.minus,'5代血統：'+h.bloodNote,
+ '血統・馬体・走法の参考点：'+s.blood+'／'+(s.body===null?'未採点':s.body)+'／'+s.gait+'。'+s.bodyEra+'。'+s.headline+'。'+s.caution,
+ '調教資料（'+h.workout.verification+'）：'+h.workout.date+' '+h.workout.track+' '+h.workout.clock+'。'+h.workout.content,
+ 'JRA調教後体重：'+w.kg+'kg、前走'+w.lastKg+'kg、'+w.date+' '+w.location+'計量。採点不使用。',
+ '同条件騎手：'+(rides?rides+'騎乗、'+stats.join('-')+'、複勝率'+f((stats[0]+stats[1]+stats[2])/rides*100)+'%、複勝回収率'+(config.factors.riderROI[h.j]??'未確認')+'%。':'掲載集計になく中立。')+' '+config.factors.scope,
+ '[全戦績](https://db.netkeiba.com/horse/result/'+h.horseId+'/) ／ [5代血統](https://db.netkeiba.com/horse/ped/'+h.horseId+'/) ／ [最終調整]('+h.workout.source+')'+(h.workout.clockSource?' ／ [時計集計]('+h.workout.clockSource+')':'')+(s.source?' ／ [馬体資料]('+s.source+')':''));
+}
+parts.push('## 確認範囲・残る情報',
+ '登録21頭の戦績143件（実出走142・取消1）、5代62枠×21頭は10/18取得分を継承。出走18頭の最終調整・確定枠順・騎手・調教後体重を10/22に照合。イブキとミッキーファルコンは収得賞金順で除外（非抽選）、アルトラムスは既報の回避で採点対象外。',
+ '秋馬体は13頭の10/19写真、2頭の春写真を使用。チャリングクロス・キンググローリー・ショウナンハヤナミは秋立ち写真未確認。エムズビギン・ショウナンガルフの春写真を現在の出来と混同しない。',
+ '当日の馬場・内外バイアス・体重・パドック・実オッズは未取得。キンググローリーとショウナンガルフの最終追い内容は公開集計中心で独立裏付け限定。全走の200m個別ラップは未取得。',
+ '実行記録：14条件×50,000回＝'+r.totals.scenarioDraws.toLocaleString()+'回。ばらつき3種、別seed2本、旧登録順・同seedの3系列比較、再現性、馬連・ワイド直接集計を別途検証。勝率合計100%、3着内率300%、ワイド全組300%、馬連全組100%。異なる入力またはseedの系列は計'+r.totals.distinctDraws.toLocaleString()+'試行。再利用系列を水増ししない。',
+ '[戦績・5代血統JSON](../data/kikka-2026-evidence.json) ／ [適性資料](../data/kikka-2026-suitability-20261019.json) ／ [道悪根拠](../data/kikka-2026-wet-'+stamp+'.json) ／ [採点変更・前版保存](../data/kikka-2026-update-'+stamp+'.json) ／ [全条件結果](../results/kikka-2026-'+stamp+'.json) ／ [CSV](../results/kikka-2026-'+stamp+'.csv)',
  '## 出典',...Object.entries(config.sources).map(([title,url])=>'['+title+']('+url+')')
- );
+);
  const md=parts.join('\n\n')+'\n',escape=s=>s.replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;');
  const inline=s=>escape(s).replace(/\[([^\]]+)\]\(([^)]+)\)/g,'<a href="$2" target="_blank" rel="noopener">$1</a>');
  const html=parts.map(s=>{

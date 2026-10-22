@@ -1,4 +1,4 @@
-/** Reproduce frozen pre-draw rankings, sensitivity runs and ticket counts. */
+/** Reproduce confirmed-draw rankings, sensitivity runs and ticket counts. */
 import assert from 'node:assert/strict';
 import {readFileSync,writeFileSync,mkdirSync} from 'node:fs';
 import {resolve,dirname,relative} from 'node:path';
@@ -51,16 +51,40 @@ const threeBox=base.result.slice(0,3).map(h=>h.name);
 const trioTickets=[threeBox];
 const previous=JSON.parse(read('results/kikka-2026-'+config.previousStamp+'.json'));
 const audit=JSON.parse(read('data/kikka-2026-update-'+stamp+'.json'));
-const priorConfig={...config,...audit.previousModel};
+// Preserve identity-to-random-number assignment across the renumbered draw.
+const priorConfig=audit.previousModel;
 const priorLoop=createRegression(priorConfig,createFactors(priorConfig));
 const priorSim=createSimulator(priorConfig,priorLoop);
-const matched=sim.simulate({...base.options,weights:loop.DEFAULTS},count,previous.seed);
-const updatedDry=sim.simulate({...previous.scenarios[0].options,weights:loop.DEFAULTS},count,previous.seed);
-const oldHeavy=priorSim.simulate({...base.options,weights:priorLoop.DEFAULTS},count,previous.seed);
+const identityOrder=priorConfig.horses.map(old=>{
+ const latest=config.horses.find(h=>h.horseId===old.horseId);
+ assert.ok(latest,'identity survives draw renumbering');
+ return {...latest,no:old.no};
+});
+function comparisonConfig(neutralDraw=false){
+ const mapped={...config,horses:identityOrder};
+ for(const key of ['featureScores','conditionResponses','inputs','speedAdapt']){
+  if(!config[key])continue;
+  mapped[key]=Object.fromEntries(identityOrder.map(h=>{
+   const actual=config.horses.find(x=>x.horseId===h.horseId);
+   const value=structuredClone(config[key][actual.no]);
+   if(key==='featureScores'&&neutralDraw)value.draw=50;
+   return [h.no,value];
+  }));
+ }
+ return mapped;
+}
+const matchedRun=c=>{
+ const l=createRegression(c,createFactors(c));
+ return createSimulator(c,l).simulate({...base.options,weights:l.DEFAULTS},count,previous.seed);
+};
+const priorMatched=priorSim.simulate({...base.options,weights:priorLoop.DEFAULTS},count,previous.seed);
+assert.deepEqual(priorMatched.slice().sort((a,b)=>b.rating-a.rating||a.no-b.no),previous.scenarios[0].result,'frozen prior model exactly reproduced');
+const updatedUndrawn=matchedRun(comparisonConfig(true));
+const matched=matchedRun(comparisonConfig(false));
 totals.matchedComparisonDraws=3*count;totals.distinctDraws+=3*count;
 const comparison=base.result.map(h=>{
- const old=previous.scenarios[0].result.find(x=>x.name===h.name),dry=updatedDry.find(x=>x.name===h.name),wet=oldHeavy.find(x=>x.name===h.name),same=matched.find(x=>x.name===h.name),round=x=>Math.round(x*10)/10;
- return {name:h.name,previousRating:old.rating,updatedDryRating:dry.rating,oldHeavyRating:wet.rating,rating:h.rating,delta:round(h.rating-old.rating),informationDelta:round(dry.rating-old.rating),groundDelta:round(h.rating-dry.rating),heavyUpdateDelta:round(h.rating-wet.rating),previousTop3Pct:old.p3,updatedDrySameSeedPct:dry.p3,oldHeavySameSeedPct:wet.p3,updatedTop3SameSeedPct:same.p3,updatedTop3DefaultPct:h.p3};
+ const old=priorMatched.find(x=>x.name===h.name),undrawn=updatedUndrawn.find(x=>x.name===h.name),same=matched.find(x=>x.name===h.name),round=x=>Math.round(x*10)/10;
+ return {no:h.no,name:h.name,previousRating:old.rating,updatedUndrawnRating:undrawn.rating,rating:h.rating,delta:round(h.rating-old.rating),informationDelta:round(undrawn.rating-old.rating),drawDelta:round(h.rating-undrawn.rating),previousTop3Pct:old.p3,updatedUndrawnSameSeedPct:undrawn.p3,updatedTop3SameSeedPct:same.p3,updatedTop3DefaultPct:h.p3};
 });
 const pairs=[];
 {const r=sim.random(seed),scores=config.horses.map(h=>loop.evaluate(h,base.options).rating),counts=new Map();for(let i=0;i<count;i++){const order=sim.runRace(r,base.options,scores);for(let a=0;a<3;a++)for(let b=a+1;b<3;b++){const key=[order[a],order[b]].sort((a,b)=>a-b).join('-');const row=counts.get(key)||{wide:0,quinella:0};row.wide++;if(a===0&&b===1)row.quinella++;counts.set(key,row);}}for(const [key,n]of counts){const ids=key.split('-').map(Number);pairs.push({horses:ids.map(no=>config.horses[no-1].name),widePct:n.wide/count*100,quinellaPct:n.quinella/count*100});}pairs.sort((a,b)=>b.widePct-a.widePct);assert.ok(Math.abs(pairs.reduce((s,p)=>s+p.widePct,0)-300)<1e-8);assert.ok(Math.abs(pairs.reduce((s,p)=>s+p.quinellaPct,0)-100)<1e-8);}
@@ -68,7 +92,7 @@ totals.pairExtraDraws=count;
 const output={race:config.id,asOf:config.asOf,count,seed,totals,calibrated:false,method:'Subjective evidence-weighted score + independent Gaussian ranking noise. 3D animates a sampled ranking; no physical race interactions are modeled.',scenarios,dispersion,independentSeeds,comparison,pairs,tickets:{trioOnePoint:trioTickets,trioSixPoints:tickets,onePointModelHitPct:ticketHitRate(trioTickets),sixPointModelHitPct:ticketHitRate(tickets),actualOdds:null,expectedReturn:null}};
 mkdirSync(resolve(root,'results'),{recursive:true});
 writeFileSync(resolve(root,'results/kikka-2026-'+stamp+'.json'),JSON.stringify(output,null,2)+'\n');
-const rows=[['scenario','no_provisional','horse','rating','win_pct_model','top3_pct_model']];
+const rows=[['scenario','horse_no','horse','rating','win_pct_model','top3_pct_model']];
 for(const s of scenarios)for(const h of s.result)rows.push([s.id,h.no,h.name,h.rating,h.win.toFixed(3),h.p3.toFixed(3)]);
 writeFileSync(resolve(root,'results/kikka-2026-'+stamp+'.csv'),'\ufeff'+rows.map(r=>r.join(',')).join('\n')+'\n');
 console.log(JSON.stringify({totals,baseline:base.result,tickets:output.tickets},null,2));

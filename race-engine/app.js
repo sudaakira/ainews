@@ -42,7 +42,7 @@ if(config.evidenceUrl){
  if(docLinks){
   if(config.updateSummary)docLinks.insertAdjacentHTML('beforeend','<p style="font-weight:700">'+config.updateSummary+'</p>');
   docLinks.insertAdjacentHTML('beforeend','<p><a href="'+config.reportUrl+'" target="_blank">全頭の予想・配点・シナリオ結果</a> ／ <a href="'+config.evidenceUrl+'" target="_blank">全21頭の戦績・5代血統データ</a></p>');
-  if(config.reserves?.length)docLinks.insertAdjacentHTML('beforeend','<p>除外対象（現時点）：'+config.reserves.map(h=>h.name).join('、')+'</p>');
+  if(config.reserves?.length)docLinks.insertAdjacentHTML('beforeend','<p>'+(config.reservesLabel||'除外対象（現時点）')+'：'+config.reserves.map(h=>h.name).join('、')+'</p>');
  }
  const sourceBox=document.createElement('details');sourceBox.className='card';sourceBox.id='race-evidence';
  sourceBox.innerHTML='<summary>📖 全21頭の戦績・5代血統・調教・騎手データ</summary><p>登録馬も含めた全頭の確認資料を表示します。</p><div id="race-evidence-content"></div>';
@@ -61,7 +61,7 @@ if(config.evidenceUrl){
    };
    for(const h of data.horses){
     const item=document.createElement('details'),title=document.createElement('summary');
-    title.textContent=h.name+' ／ '+({expected:'出走想定',withdrawn:'回避',reserve:'除外対象'}[h.status]);item.append(title);
+    title.textContent=h.name+' ／ '+({expected:'出走想定',confirmed:'出走確定',withdrawn:'回避',reserve:'除外対象',excluded:'除外（非抽選）'}[h.status]);item.append(title);
     const note=document.createElement('p');note.textContent=h.bloodInterpretation;item.append(note);
     const j=h.jockeyCourseStats,stats=document.createElement('p');
     stats.textContent=h.jockey+'：京都芝3000m '+(j?j.races+'騎乗・複勝率'+j.place_rate+'%・複勝回収率'+j.place_payback+'%':'集計資料に掲載なし・中立')+'。'+h.statsScope;item.append(stats);
@@ -174,7 +174,7 @@ function renderFactors(s){
     .sort((a,b)=>ev.detail[b.id].score-ev.detail[a.id].score)
     .slice(0,2).map(f=>f.label).join('・');
    return '<tr><td><b>'+(config.provisionalDraw?'仮'+h.no:h.no)+' '+h.name+'</b><small>'+h.j+'</small></td>'+
-    '<td><strong>'+ev.rating.toFixed(1)+'</strong></td><td>'+best+'</td><td>'+(config.provisionalDraw?'枠未確定':FACTOR.frame(h.no)+'枠')+'</td></tr>';
+    '<td><strong>'+ev.rating.toFixed(1)+'</strong></td><td>'+best+'</td><td>'+(config.provisionalDraw?'枠未確定':FACTOR.frame(h)+'枠')+'</td></tr>';
   }).join('')+'</tbody></table>';
 }
 function cards(){
@@ -187,12 +187,12 @@ function cards(){
     d.score.toFixed(1)+'</td><td>'+d.effectiveWeight.toFixed(1)+'</td></tr>';
   }).join('');
   return '<article class="horse" id="h'+h.no+'"><h3>'+(config.provisionalDraw?'仮'+h.no:h.no)+' '+h.name+'</h3>'+
-   '<span class="pill">'+h.age+'</span><span class="pill">'+(config.provisionalDraw?'枠未確定':FACTOR.frame(h.no)+'枠')+'</span>'+
+   '<span class="pill">'+h.age+'</span><span class="pill">'+(config.provisionalDraw?'枠未確定':FACTOR.frame(h)+'枠')+'</span>'+
    '<span class="pill">'+h.style+'</span><p>'+h.j+' / '+h.trainer+' / '+h.kg+'kg</p>'+
    '<p><b>暫定総合評価：'+v.rating.toFixed(1)+' / 100点</b>　3着内率 '+(p?p.p3.toFixed(1):'—')+'%</p>'+
    (h.workout?'<p style="padding:9px;border:1px solid #bfd6ce;border-radius:8px"><b>⏱ 追い切り：</b>'+(h.workout.status||h.workout.verification||'未確認')+'（'+(h.workout.date||'日付未確認')+'）／'+(h.workout.venue||h.workout.track||'')+' '+(h.workout.time||h.workout.clock||'時計未確認')+'／'+(h.workout.note||h.workout.content||'')+'</p>':'')+
    (h.pressWorkoutGrade?'<p><b>10/16全頭調教診断：</b>'+h.pressWorkoutGrade+'（専門家所見／調教状態の補助情報）</p>':'')+
-   (h.drawRemark?'<p><b>枠・金曜陣営コメント：</b>'+h.drawRemark+'</p>':'')+
+   (h.drawRemark?'<p><b>枠順・陣営情報：</b>'+h.drawRemark+'</p>':'')+
    (h.trainingWeight?'<p><b>JRA調教後馬体重：</b>'+h.trainingWeight.kg+'kg（前走 '+h.trainingWeight.lastKg+'kg）／10月'+h.trainingWeight.day+'日 '+h.trainingWeight.location+'計量。輸送後・当日体重とは異なり採点不使用。</p>':'')+
    (h.latest?'<p style="background:#e7f5ef;padding:9px;border-radius:8px"><b>📅 直近調査：</b>'+h.latest+(h.latestSource?' <a href="'+h.latestSource+'" target="_blank" rel="noopener">報道元</a>':'')+'</p>':'')+
    (h.suitability?'<p class="suitability"><b>血統・馬体・走法（適性の参考点）：</b> 血統 '+h.suitability.blood+'／馬体 '+(h.suitability.body===null?'未採点':h.suitability.body)+'／走法 '+h.suitability.gait+'。'+h.suitability.bodyEra+'。総合評価への単純加算はしていません。'+(h.suitability.source?' <a target="_blank" rel="noopener" href="'+h.suitability.source+'">馬体資料</a>':'')+'</p><p class="small">'+h.suitability.headline+'。'+h.suitability.caution+'</p>':'')+
@@ -202,7 +202,7 @@ function cards(){
    '<table class="factor-table horse-score-table"><thead><tr><th>評価項目</th><th>素点</th><th>配点</th></tr></thead><tbody>'+scoreRows+'</tbody></table>'+
    '<p>父 '+h.father+'／母父 '+h.mfather+'</p>'+(h.bloodNote?'<p><b>5代血統の見立て：</b>'+h.bloodNote+'</p>':'')+'<p><b>近走：</b>'+h.history+'</p>'+
    '<p><b>状態：</b>調教 '+(h.training||(h.workout?.verification||'未確定'))+'・前走から'+h.rest+'日</p>'+ (Number.isFinite(h.trainingScore)?'<p>状態の暫定素点 '+h.trainingScore+' / 100（裁量値・未校正）</p>':'')+(Number.isInteger(h.lastRace4c)?'<p><b>前走4角：</b>'+h.lastRace4c+'番手（公式結果で照合済。過去傾向の反映は小さく制限）</p>':'')+ (h.officialPeakRating?'<p><b>JRA2026年最高レーティング：</b>'+h.officialPeakRating+' '+h.officialPeakDistance+'（今回の予想点ではなく、年間ピーク）</p>':'')+
-   '<p class="small">'+(config.evidenceUrl?'全5代の血統と全戦績を確認済み。最終調教・枠順・当日馬場は未確定。採点は未校正です。':'血統は父・母父のみ確認。完全5代血統、全走のラップ、未確認の調教・騎手統計は欠測扱い。代理点は未校正です。')+'</p>'+
+   '<p class="small">'+(config.evidenceUrl?(config.horseEvidenceNote||'全5代の血統と全戦績を確認済み。最終調教・枠順・当日馬場は未確定。採点は未校正です。'):'血統は父・母父のみ確認。完全5代血統、全走のラップ、未確認の調教・騎手統計は欠測扱い。代理点は未校正です。')+'</p>'+
    '</details></article>';
  }).join('');
 }

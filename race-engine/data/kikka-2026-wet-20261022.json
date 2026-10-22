@@ -1,0 +1,632 @@
+{
+  "asOf": "2026-10-22T19:07:28+09:00",
+  "assumedGround": "重",
+  "notActualRaceDayObservation": true,
+  "recordSnapshotAsOf": "2026-10-18T16:01:04+09:00",
+  "method": "稍重の好走を重3000mの実績と同一視しない。血統保有は補助仮説。各調整値は各素点への加減点で総合点への直接加算ではない。",
+  "rows": [
+    {
+      "no": 1,
+      "name": "エムズビギン",
+      "records": [
+        {
+          "date": "2025/10/26",
+          "venue": "3京都9",
+          "race": "2歳新馬",
+          "finish": "2",
+          "jockey": "ルメール",
+          "weight": "56",
+          "distance": "芝1800",
+          "ground": "稍",
+          "time": "1:50.9",
+          "margin": "0.4",
+          "corners": "5-5",
+          "paceFirstLast3f": "38.1-33.7",
+          "last3f": "33.6",
+          "bodyWeight": "504(0)"
+        }
+      ],
+      "ancestors": [],
+      "recordSource": "https://db.netkeiba.com/horse/result/2023107127/",
+      "pedigreeSource": "https://db.netkeiba.com/horse/ped/2023107127/",
+      "heavyStarts": 0,
+      "softAdjustment": {
+        "lap": -1,
+        "distance": -1,
+        "blood": 1
+      },
+      "reason": "京都稍重1800mの新馬2着。キタサンブラック×Galileoの持続力仮説を小幅に扱い、3000mの力みを優先。"
+    },
+    {
+      "no": 2,
+      "name": "コンジェスタス",
+      "records": [],
+      "ancestors": [],
+      "recordSource": "https://db.netkeiba.com/horse/result/2023106963/",
+      "pedigreeSource": "https://db.netkeiba.com/horse/ped/2023106963/",
+      "heavyStarts": 0,
+      "softAdjustment": {
+        "lap": -1,
+        "distance": -1,
+        "blood": 1
+      },
+      "reason": "本人の稍重以上の実走は保持資料にない。母の2500m実績は距離根拠であり、重馬場巧者の証明にはしない。"
+    },
+    {
+      "no": 3,
+      "name": "アウダーシア",
+      "records": [
+        {
+          "date": "2026/09/13",
+          "venue": "4中山4",
+          "race": "朝日セントライト記念(GII)",
+          "finish": "3",
+          "jockey": "津村明秀",
+          "weight": "57",
+          "distance": "芝2200",
+          "ground": "稍",
+          "time": "2:14.3",
+          "margin": "0.3",
+          "corners": "9-10-10-8",
+          "paceFirstLast3f": "36.3-34.5",
+          "last3f": "34.0",
+          "bodyWeight": "506(+6)"
+        }
+      ],
+      "ancestors": [],
+      "recordSource": "https://db.netkeiba.com/horse/result/2023107321/",
+      "pedigreeSource": "https://db.netkeiba.com/horse/ped/2023107321/",
+      "heavyStarts": 0,
+      "softAdjustment": {
+        "lap": 0,
+        "distance": 0,
+        "blood": 1
+      },
+      "reason": "稍重セントライト記念3着・0.3秒差。本人の対応を支持するが、重3000mへは段階が違う。"
+    },
+    {
+      "no": 4,
+      "name": "ショウナンガルフ",
+      "records": [
+        {
+          "date": "2026/09/27",
+          "venue": "4阪神9",
+          "race": "ポートアイランドS(L)",
+          "finish": "11",
+          "jockey": "田山旺佑",
+          "weight": "55",
+          "distance": "芝1600",
+          "ground": "稍",
+          "time": "1:35.7",
+          "margin": "0.9",
+          "corners": "11-11",
+          "paceFirstLast3f": "36.2-33.8",
+          "last3f": "33.9",
+          "bodyWeight": "474(-10)"
+        },
+        {
+          "date": "2025/07/06",
+          "venue": "1函館8",
+          "race": "2歳新馬",
+          "finish": "1",
+          "jockey": "池添謙一",
+          "weight": "55",
+          "distance": "芝1800",
+          "ground": "稍",
+          "time": "1:51.1",
+          "margin": "-1.1",
+          "corners": "2-2-2-2",
+          "paceFirstLast3f": "38.5-35.5",
+          "last3f": "35.4",
+          "bodyWeight": "474(0)"
+        }
+      ],
+      "ancestors": [],
+      "recordSource": "https://db.netkeiba.com/horse/result/2023105332/",
+      "pedigreeSource": "https://db.netkeiba.com/horse/ped/2023105332/",
+      "heavyStarts": 0,
+      "softAdjustment": {
+        "lap": -2,
+        "distance": -2,
+        "blood": 1
+      },
+      "reason": "函館稍重新馬を快勝した一方、直近の稍重1600mは11着。ハービンジャー血統だけで近走不振を解消とはしない。"
+    },
+    {
+      "no": 5,
+      "name": "ジャスティンシカゴ",
+      "records": [
+        {
+          "date": "2026/09/13",
+          "venue": "4中山4",
+          "race": "朝日セントライト記念(GII)",
+          "finish": "1",
+          "jockey": "原優介",
+          "weight": "57",
+          "distance": "芝2200",
+          "ground": "稍",
+          "time": "2:14.0",
+          "margin": "-0.2",
+          "corners": "2-3-4-3",
+          "paceFirstLast3f": "36.3-34.5",
+          "last3f": "34.2",
+          "bodyWeight": "508(+2)"
+        },
+        {
+          "date": "2025/08/17",
+          "venue": "1札幌8",
+          "race": "2歳新馬",
+          "finish": "1",
+          "jockey": "武豊",
+          "weight": "55",
+          "distance": "芝1800",
+          "ground": "稍",
+          "time": "1:52.6",
+          "margin": "0.0",
+          "corners": "1-1-1-1",
+          "paceFirstLast3f": "39.7-35.6",
+          "last3f": "35.6",
+          "bodyWeight": "488(0)"
+        }
+      ],
+      "ancestors": [],
+      "recordSource": "https://db.netkeiba.com/horse/result/2023106924/",
+      "pedigreeSource": "https://db.netkeiba.com/horse/ped/2023106924/",
+      "heavyStarts": 0,
+      "softAdjustment": {
+        "lap": 4,
+        "distance": 2,
+        "blood": 2
+      },
+      "reason": "稍重1800m新馬と稍重2200m重賞の2勝。道悪での本人の実走を最優先。重3000mそのものは未経験で、折り合いを残す。"
+    },
+    {
+      "no": 6,
+      "name": "バステール",
+      "records": [
+        {
+          "date": "2026/09/13",
+          "venue": "4中山4",
+          "race": "朝日セントライト記念(GII)",
+          "finish": "13",
+          "jockey": "川田将雅",
+          "weight": "57",
+          "distance": "芝2200",
+          "ground": "稍",
+          "time": "2:15.0",
+          "margin": "1.0",
+          "corners": "15-15-14-15",
+          "paceFirstLast3f": "36.3-34.5",
+          "last3f": "34.3",
+          "bodyWeight": "472(+8)"
+        }
+      ],
+      "ancestors": [],
+      "recordSource": "https://db.netkeiba.com/horse/result/2023107247/",
+      "pedigreeSource": "https://db.netkeiba.com/horse/ped/2023107247/",
+      "heavyStarts": 0,
+      "softAdjustment": {
+        "lap": -8,
+        "distance": -4,
+        "blood": 0
+      },
+      "reason": "稍重セントライト記念13着・1.0秒差。JRAも前走の馬場不向きを指摘。今日の調教良化と重馬場適性は別に評価。"
+    },
+    {
+      "no": 7,
+      "name": "ラージアンサンブル",
+      "records": [
+        {
+          "date": "2026/09/13",
+          "venue": "4中山4",
+          "race": "朝日セントライト記念(GII)",
+          "finish": "7",
+          "jockey": "岩田望来",
+          "weight": "57",
+          "distance": "芝2200",
+          "ground": "稍",
+          "time": "2:14.5",
+          "margin": "0.5",
+          "corners": "6-5-3-3",
+          "paceFirstLast3f": "36.3-34.5",
+          "last3f": "34.8",
+          "bodyWeight": "476(+6)"
+        },
+        {
+          "date": "2025/12/14",
+          "venue": "5中山4",
+          "race": "2歳未勝利",
+          "finish": "1",
+          "jockey": "岩田望来",
+          "weight": "56",
+          "distance": "芝2000",
+          "ground": "稍",
+          "time": "2:03.0",
+          "margin": "-0.8",
+          "corners": "6-5-5-5",
+          "paceFirstLast3f": "36.9-36.5",
+          "last3f": "35.9",
+          "bodyWeight": "472(-2)"
+        }
+      ],
+      "ancestors": [
+        {
+          "path": "FMMMF",
+          "generation": 5,
+          "name": "Mill Reef (米)",
+          "url": "https://db.netkeiba.com/horse/000a000e32/"
+        }
+      ],
+      "recordSource": "https://db.netkeiba.com/horse/result/2023105560/",
+      "pedigreeSource": "https://db.netkeiba.com/horse/ped/2023105560/",
+      "heavyStarts": 0,
+      "softAdjustment": {
+        "lap": 0,
+        "distance": 0,
+        "blood": 1
+      },
+      "reason": "中山稍重2000m未勝利を0.8秒差勝ち、稍重セントライト記念7着・0.5秒差。Mill Reef5代内は補助。"
+    },
+    {
+      "no": 8,
+      "name": "ロブチェン",
+      "records": [
+        {
+          "date": "2025/11/09",
+          "venue": "4京都2",
+          "race": "2歳新馬",
+          "finish": "1",
+          "jockey": "松山弘平",
+          "weight": "56",
+          "distance": "芝2000",
+          "ground": "重",
+          "time": "2:04.5",
+          "margin": "-0.5",
+          "corners": "1-1-1-1",
+          "paceFirstLast3f": "38.1-35.4",
+          "last3f": "35.4",
+          "bodyWeight": "516(0)"
+        }
+      ],
+      "ancestors": [
+        {
+          "path": "MFMFF",
+          "generation": 5,
+          "name": "Blushing Groom (仏)",
+          "url": "https://db.netkeiba.com/horse/000a001340/"
+        },
+        {
+          "path": "MFMMF",
+          "generation": 5,
+          "name": "Roberto (米)",
+          "url": "https://db.netkeiba.com/horse/000a0012cb/"
+        }
+      ],
+      "recordSource": "https://db.netkeiba.com/horse/result/2023107089/",
+      "pedigreeSource": "https://db.netkeiba.com/horse/ped/2023107089/",
+      "heavyStarts": 1,
+      "softAdjustment": {
+        "lap": 1,
+        "distance": 1,
+        "blood": 2
+      },
+      "reason": "京都重2000m新馬を0.5秒差で勝利。今回の想定18頭で保持資料に重の実走勝ちがあるのは本馬。距離は2000→3000mであり保証ではない。Blushing Groom・Robertoも5代内。"
+    },
+    {
+      "no": 9,
+      "name": "ゴーイントゥスカイ",
+      "records": [
+        {
+          "date": "2026/09/13",
+          "venue": "4中山4",
+          "race": "朝日セントライト記念(GII)",
+          "finish": "6",
+          "jockey": "武豊",
+          "weight": "57",
+          "distance": "芝2200",
+          "ground": "稍",
+          "time": "2:14.4",
+          "margin": "0.4",
+          "corners": "14-13-12-11",
+          "paceFirstLast3f": "36.3-34.5",
+          "last3f": "34.0",
+          "bodyWeight": "502(+4)"
+        }
+      ],
+      "ancestors": [
+        {
+          "path": "MMMF",
+          "generation": 4,
+          "name": "フォーティナイナー",
+          "url": "https://db.netkeiba.com/horse/000a000134/"
+        },
+        {
+          "path": "MMMMF",
+          "generation": 5,
+          "name": "Blushing Groom (仏)",
+          "url": "https://db.netkeiba.com/horse/000a001340/"
+        }
+      ],
+      "recordSource": "https://db.netkeiba.com/horse/result/2023105378/",
+      "pedigreeSource": "https://db.netkeiba.com/horse/ped/2023105378/",
+      "heavyStarts": 0,
+      "softAdjustment": {
+        "lap": -2,
+        "distance": -1,
+        "blood": 2
+      },
+      "reason": "稍重セントライト記念6着・0.4秒差。母母母父Forty Niner（4代目）とBlushing Groomを5代内に確認。道悪時のみ血統素点+2。右回りの課題を別に残す。"
+    },
+    {
+      "no": 10,
+      "name": "ダノンヒストリー",
+      "records": [],
+      "ancestors": [
+        {
+          "path": "FFFF",
+          "generation": 4,
+          "name": "Roberto (米)",
+          "url": "https://db.netkeiba.com/horse/000a0012cb/"
+        }
+      ],
+      "recordSource": "https://db.netkeiba.com/horse/result/2023107005/",
+      "pedigreeSource": "https://db.netkeiba.com/horse/ped/2023107005/",
+      "heavyStarts": 0,
+      "softAdjustment": {
+        "lap": -2,
+        "distance": -1,
+        "blood": 1
+      },
+      "reason": "洋芝2600mの圧勝2走はいずれも良。エピファネイアとRobertoの持続力仮説は支持するが、洋芝巧者と重馬場巧者を同一視しない。"
+    },
+    {
+      "no": 11,
+      "name": "アスクエジンバラ",
+      "records": [
+        {
+          "date": "2026/09/13",
+          "venue": "4中山4",
+          "race": "朝日セントライト記念(GII)",
+          "finish": "4",
+          "jockey": "岩田康誠",
+          "weight": "57",
+          "distance": "芝2200",
+          "ground": "稍",
+          "time": "2:14.3",
+          "margin": "0.3",
+          "corners": "2-2-1-1",
+          "paceFirstLast3f": "36.3-34.5",
+          "last3f": "34.8",
+          "bodyWeight": "470(+4)"
+        }
+      ],
+      "ancestors": [],
+      "recordSource": "https://db.netkeiba.com/horse/result/2023106400/",
+      "pedigreeSource": "https://db.netkeiba.com/horse/ped/2023106400/",
+      "heavyStarts": 0,
+      "softAdjustment": {
+        "lap": -1,
+        "distance": 0,
+        "blood": 1
+      },
+      "reason": "稍重セントライト記念で前に行き4着・0.3秒差。道悪対応は支持、重3000mで早く動く消耗は残す。"
+    },
+    {
+      "no": 12,
+      "name": "サノノグレーター",
+      "records": [
+        {
+          "date": "2026/09/13",
+          "venue": "4中山4",
+          "race": "朝日セントライト記念(GII)",
+          "finish": "11",
+          "jockey": "田辺裕信",
+          "weight": "57",
+          "distance": "芝2200",
+          "ground": "稍",
+          "time": "2:14.8",
+          "margin": "0.8",
+          "corners": "13-13-14-11",
+          "paceFirstLast3f": "36.3-34.5",
+          "last3f": "34.2",
+          "bodyWeight": "470(+8)"
+        }
+      ],
+      "ancestors": [],
+      "recordSource": "https://db.netkeiba.com/horse/result/2023100724/",
+      "pedigreeSource": "https://db.netkeiba.com/horse/ped/2023100724/",
+      "heavyStarts": 0,
+      "softAdjustment": {
+        "lap": -8,
+        "distance": -4,
+        "blood": 0
+      },
+      "reason": "稍重セントライト記念11着・0.8秒差と陣営の雨への懸念を反映。良のレコード勝ちを重馬場の優位に移さない。"
+    },
+    {
+      "no": 13,
+      "name": "キンググローリー",
+      "records": [
+        {
+          "date": "2026/03/07",
+          "venue": "2中山3",
+          "race": "3歳未勝利",
+          "finish": "3",
+          "jockey": "丹内祐次",
+          "weight": "57",
+          "distance": "芝2200",
+          "ground": "稍",
+          "time": "2:15.7",
+          "margin": "0.1",
+          "corners": "2-2-2-1",
+          "paceFirstLast3f": "37.8-36.1",
+          "last3f": "36.2",
+          "bodyWeight": "470(-4)"
+        }
+      ],
+      "ancestors": [
+        {
+          "path": "FMFFF",
+          "generation": 5,
+          "name": "Roberto (米)",
+          "url": "https://db.netkeiba.com/horse/000a0012cb/"
+        }
+      ],
+      "recordSource": "https://db.netkeiba.com/horse/result/2023100021/",
+      "pedigreeSource": "https://db.netkeiba.com/horse/ped/2023100021/",
+      "heavyStarts": 0,
+      "softAdjustment": {
+        "lap": -1,
+        "distance": 0,
+        "blood": 1
+      },
+      "reason": "中山稍重2200mの未勝利3着・0.1秒差。長距離の先行実績はあるが、G1での重3000mは未確認。"
+    },
+    {
+      "no": 14,
+      "name": "マジョレルブルー",
+      "records": [],
+      "ancestors": [
+        {
+          "path": "MFFF",
+          "generation": 4,
+          "name": "Roberto (米)",
+          "url": "https://db.netkeiba.com/horse/000a0012cb/"
+        }
+      ],
+      "recordSource": "https://db.netkeiba.com/horse/result/2023103531/",
+      "pedigreeSource": "https://db.netkeiba.com/horse/ped/2023103531/",
+      "heavyStarts": 0,
+      "softAdjustment": {
+        "lap": -2,
+        "distance": -1,
+        "blood": 1
+      },
+      "reason": "3連勝はいずれも良。母父シンボリクリスエス経由Robertoを補助にするが、重馬場・G1の本人の証明はない。"
+    },
+    {
+      "no": 15,
+      "name": "シートゥサミット",
+      "records": [
+        {
+          "date": "2026/06/20",
+          "venue": "3阪神5",
+          "race": "3歳以上1勝クラス",
+          "finish": "2",
+          "jockey": "酒井学",
+          "weight": "54",
+          "distance": "芝2400",
+          "ground": "稍",
+          "time": "2:26.1",
+          "margin": "0.3",
+          "corners": "14-13-6-5",
+          "paceFirstLast3f": "37.1-35.5",
+          "last3f": "35.4",
+          "bodyWeight": "520(+2)"
+        },
+        {
+          "date": "2025/10/26",
+          "venue": "3京都9",
+          "race": "2歳新馬",
+          "finish": "3",
+          "jockey": "小崎綾也",
+          "weight": "56",
+          "distance": "芝1800",
+          "ground": "稍",
+          "time": "1:51.5",
+          "margin": "1.0",
+          "corners": "8-8",
+          "paceFirstLast3f": "38.1-33.7",
+          "last3f": "33.7",
+          "bodyWeight": "518(0)"
+        }
+      ],
+      "ancestors": [
+        {
+          "path": "FFFFF",
+          "generation": 5,
+          "name": "Roberto (米)",
+          "url": "https://db.netkeiba.com/horse/000a0012cb/"
+        }
+      ],
+      "recordSource": "https://db.netkeiba.com/horse/result/2023101200/",
+      "pedigreeSource": "https://db.netkeiba.com/horse/ped/2023101200/",
+      "heavyStarts": 0,
+      "softAdjustment": {
+        "lap": 0,
+        "distance": -2,
+        "blood": 1
+      },
+      "reason": "阪神稍重2400mで2着だが54kgの条件戦。57kg・重3000mで繰り返し捲る負荷を留保。Roberto5代内は補助。"
+    },
+    {
+      "no": 16,
+      "name": "ショウナンハヤナミ",
+      "records": [],
+      "ancestors": [
+        {
+          "path": "FMFFF",
+          "generation": 5,
+          "name": "Roberto (米)",
+          "url": "https://db.netkeiba.com/horse/000a0012cb/"
+        }
+      ],
+      "recordSource": "https://db.netkeiba.com/horse/result/2023103828/",
+      "pedigreeSource": "https://db.netkeiba.com/horse/ped/2023103828/",
+      "heavyStarts": 0,
+      "softAdjustment": {
+        "lap": -3,
+        "distance": -2,
+        "blood": 1
+      },
+      "reason": "本人の稍重以上の実走は保持資料にない。Robertoの5代内保有を小さな仮説とし、骨折明け後の実戦内容を優先。"
+    },
+    {
+      "no": 17,
+      "name": "チャリングクロス",
+      "records": [
+        {
+          "date": "2026/06/20",
+          "venue": "3東京5",
+          "race": "町田特別(2勝クラス)",
+          "finish": "1",
+          "jockey": "戸崎圭太",
+          "weight": "53",
+          "distance": "芝2400",
+          "ground": "稍",
+          "time": "2:26.9",
+          "margin": "-0.3",
+          "corners": "3-3-3-3",
+          "paceFirstLast3f": "37.8-34.9",
+          "last3f": "34.5",
+          "bodyWeight": "488(+8)"
+        }
+      ],
+      "ancestors": [],
+      "recordSource": "https://db.netkeiba.com/horse/result/2023107389/",
+      "pedigreeSource": "https://db.netkeiba.com/horse/ped/2023107389/",
+      "heavyStarts": 0,
+      "softAdjustment": {
+        "lap": 2,
+        "distance": 1,
+        "blood": 1
+      },
+      "reason": "東京稍重2400m・町田特別勝ちを支持。ただし53kgで、今回57kg・相手強化を残す。兄の重馬場実績を本人の実績に数えない。"
+    },
+    {
+      "no": 18,
+      "name": "ナリタエスペランサ",
+      "records": [],
+      "ancestors": [],
+      "recordSource": "https://db.netkeiba.com/horse/result/2023105046/",
+      "pedigreeSource": "https://db.netkeiba.com/horse/ped/2023105046/",
+      "heavyStarts": 0,
+      "softAdjustment": {
+        "lap": -3,
+        "distance": -2,
+        "blood": 1
+      },
+      "reason": "本人の道悪実走は保持資料にない。キタサンブラックの距離根拠を補助とし、状態留保45と前走大敗を維持。"
+    }
+  ]
+}
