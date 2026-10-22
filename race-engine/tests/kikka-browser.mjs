@@ -26,7 +26,8 @@ try{
   assert.equal(initial.seed,20261022);assert.equal(initial.rank.length,18);
   const draw=await page.evaluate(()=>window.RACE_CONFIG.horses.map(h=>({no:h.no,name:h.name,frame:h.frame})));
   assert.deepEqual(draw.find(h=>h.name==='ロブチェン'),{no:8,name:'ロブチェン',frame:4});
-  assert.equal(await page.locator('#vol').inputValue(),'5');
+  assert.equal(await page.locator('#vol').inputValue(),'3');
+  assert.equal(await page.locator('#live-rate').inputValue(),'4');
   assert.equal(await page.locator('#ground-mode').inputValue(),'soft');
   assert.equal(await page.locator('#speed').inputValue(),'0');
   assert.ok((await page.locator('.live-note').innerText()).includes('重馬場想定'));
@@ -61,6 +62,7 @@ try{
   const baseline=await page.evaluate(()=>window.SWAN_LOOP.evaluate(window.RACE_CONFIG.horses.find(h=>h.name==='ゴーイントゥスカイ'),{}).rating);
   assert.ok(improved>baseline);
   await page.locator('#race-scenario').selectOption('base');
+  assert.equal(await page.locator('#vol').inputValue(),'3','base scenario restores the requested default');
   await page.locator('#horse-details').evaluate(e=>e.open=true);
   assert.ok(!(await page.locator('#horses').textContent()).includes('undefined'),'workout fields render completely');
   assert.ok((await page.locator('#h8').innerText()).includes('4枠'),'actual frame rendered');
@@ -73,6 +75,33 @@ try{
   await page.waitForFunction(()=>window.KYOTO_RACE.LIVE.clock>window.KYOTO_RACE.LIVE.duration+1,null,{timeout:60000});
   const final=await page.evaluate(()=>({expected:window.KYOTO_RACE.LIVE.rank.slice(0,3),text:document.querySelector('#race').textContent,clock:window.KYOTO_RACE.LIVE.clock}));
   for(const no of final.expected){const name=await page.evaluate(no=>window.RACE_CONFIG.horses[no-1].name,no);assert.ok(final.text.includes(name));}
+  // Instant finish uses the current sampled race; it never rolls a new result.
+  await seek(.35);
+  const beforeSkip=await page.evaluate(()=>window.KYOTO_RACE.LIVE.rank.slice());
+  await page.locator('#live-rate').selectOption('instant');
+  await page.waitForFunction(()=>document.getElementById('race').classList.contains('finished'));
+  const skipped=await page.evaluate(()=>({rank:window.KYOTO_RACE.LIVE.rank,playing:window.KYOTO_RACE.LIVE.playing,
+   clock:window.KYOTO_RACE.LIVE.clock,duration:window.KYOTO_RACE.LIVE.duration,
+   allFinished:window.RACE_CONFIG.horses.every(h=>window.KYOTO_RACE.horseProgress(h.no,window.KYOTO_RACE.LIVE.clock)>=1)}));
+  assert.deepEqual(skipped.rank,beforeSkip);assert.equal(skipped.playing,false);assert.ok(skipped.clock>=skipped.duration);
+  assert.equal(skipped.allFinished,true);
+  for(const no of skipped.rank.slice(0,3))assert.ok((await page.locator('#race').innerText()).includes(await page.evaluate(n=>window.RACE_CONFIG.horses[n-1].name,no)));
+  await page.waitForFunction(()=>document.getElementById('race-speed-label').textContent==='即ゴール');
+  assert.ok(await page.evaluate(()=>Object.values(window.RACE_SCENE_AUDIT.cameraRenderedPosition).every(Number.isFinite)));
+  await page.locator('#live-reset').click();
+  assert.ok(await page.evaluate(()=>!window.KYOTO_RACE.LIVE.playing&&document.getElementById('race').classList.contains('finished')),'new race respects instant mode');
+  await page.locator('#live-play').click();
+  assert.ok(await page.evaluate(()=>!window.KYOTO_RACE.LIVE.playing&&document.getElementById('race').classList.contains('finished')),'start respects instant mode');
+  await page.locator('#live-rate').selectOption('4');
+  await page.locator('#live-reset').click();
+  assert.equal(await page.evaluate(()=>window.KYOTO_RACE.LIVE.clock),0);
+  await page.locator('#live-play').click();
+  await page.waitForFunction(()=>window.KYOTO_RACE.LIVE.clock>0);
+  const runningRank=await page.evaluate(()=>window.KYOTO_RACE.LIVE.rank.slice());
+  await page.locator('#live-rate').selectOption('instant');
+  assert.deepEqual(await page.evaluate(()=>window.KYOTO_RACE.LIVE.rank),runningRank);
+  assert.equal(await page.evaluate(()=>window.KYOTO_RACE.LIVE.playing),false);
+  await page.screenshot({path:'/tmp/kikka-mobile-shots/kikka-'+vp.width+'-instant.png'});
   assert.deepEqual(errors,[]);
   console.log('KIKKA_BROWSER',JSON.stringify({width:vp.width,expected:final.expected,clock:final.clock,errors}));
   await page.close();

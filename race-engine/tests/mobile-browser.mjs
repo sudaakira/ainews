@@ -109,7 +109,7 @@ try{
      assert.ok(Number.isFinite(actual)&&Math.abs(actual-target)<.18,
       'actual 3D lead horse nose must follow front-space target: '+actual+' vs '+target);
     }
-    assert.ok(id==='start'||state.director.pose.fov<=(id==='backstretch'?38:34),
+    assert.ok(id==='start'||state.director.pose.fov<=(id==='backstretch'?38:id==='fourth-turn'?36:34),
       'corner/finish shots use telephoto; backstretch uses a wider lateral field lens: '+id+' '+state.director.pose.fov);
     assert.equal(await page.locator('#race-front-labels').count(),0,'no floating horse-name cards or leader arrows');
     const expectedSubjects=id==='start'?[17,17]:id==='backstretch'?[7,7]:id==='fourth-turn'?[5,5]:id==='first-corner'?[6,7]:[3,4];

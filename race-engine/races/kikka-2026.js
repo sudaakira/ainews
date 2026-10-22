@@ -27,11 +27,11 @@ export default {
   "finalRunnersConfirmed": true,
   "standardWeight": 57,
   "defaultPace": 0,
-  "defaultVol": 5,
-  "defaultPlaybackRate": 8,
+  "defaultVol": 3,
+  "defaultPlaybackRate": 4,
   "defaultSimulations": 50000,
   "defaultBias": "neutral",
-  "notes": "10/22 19:07 JST照合。確定18頭・正式馬番・枠色・騎手を反映。全18頭の最終調整を照合：ゴーイントゥスカイは10/22木曜追い、他17頭は10/21（シートゥサミットの実質最終は10/17）。調教後馬体重はJRA公表値を全頭表示し採点不使用。重馬場は依頼上の想定で当日バイアスは中立。初期設定8倍速・ばらつき5。当日馬場・体重・実オッズは未反映。率は未校正モデル内出現率。",
+  "notes": "10/22 19:07 JST照合。確定18頭・正式馬番・枠色・騎手を反映。全18頭の最終調整を照合：ゴーイントゥスカイは10/22木曜追い、他17頭は10/21（シートゥサミットの実質最終は10/17）。調教後馬体重はJRA公表値を全頭表示し採点不使用。重馬場は依頼上の想定で当日バイアスは中立。初期設定4倍速・ばらつき3。当日馬場・体重・実オッズは未反映。率は未校正モデル内出現率。",
   "horses": [
     {
       "no": 1,
@@ -2247,7 +2247,7 @@ export default {
   "evidenceUrl": "./data/kikka-2026-evidence.json?v=20261022draw",
   "reportUrl": "./reports/kikka-2026-20261022.html",
   "dataVersion": "kikka-20261022-draw-heavy",
-  "updateSummary": "10/22枠順確定・重馬場想定版。確定18頭の最終調整、調教後体重、正式馬番と枠色。14条件×50,000回。8倍速・ばらつき5。",
+  "updateSummary": "10/22枠順確定・重馬場想定版。確定18頭の最終調整、調教後体重、正式馬番と枠色。14条件×50,000回の保存試算。操作初期値4倍速・ばらつき3。",
   "suitabilityUrl": "./data/kikka-2026-suitability-20261019.json",
   "updateAuditUrl": "./data/kikka-2026-update-20261022.json",
   "previousStamp": "20261021",

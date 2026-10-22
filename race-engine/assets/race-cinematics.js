@@ -10,7 +10,7 @@ export function createRaceCinematics({THREE,scene,stage,models,config,capFor,pat
  const ui=document.createElement('div');ui.id='race-cinematic-overlay';
  ui.setAttribute('aria-live','off');
  ui.innerHTML='<div class="cinema-phase"><span class="cinema-phase-kicker"></span><strong id="cinema-phase-title"></strong><span id="cinema-phase-sub"></span></div>'+
-  '<div class="race-distance"><strong id="race-meters">'+config.distance+'</strong><span id="race-meters-label">m</span><small id="race-speed-label">8×</small></div>'+
+  '<div class="race-distance"><strong id="race-meters">'+config.distance+'</strong><span id="race-meters-label">m</span><small id="race-speed-label">4×</small></div>'+
   '<div class="cinema-finish" id="cinema-finish"><small>仮想レース結果</small><div class="cinema-podium" id="cinema-podium"></div></div>'+
   '<div id="race-arrival" aria-live="polite"></div>'+
   '<div class="race-tracking"><div class="tracking-meta"><span id="tracking-caption">スタート待機</span><span>← 先頭</span></div><div id="race-tracking-field"></div></div>';
@@ -90,7 +90,7 @@ export function createRaceCinematics({THREE,scene,stage,models,config,capFor,pat
   ui.dataset.phase=clock<=0?'gate':runningOut?'run-out':shot.id;
   const remaining=Math.max(0,Math.ceil(config.distance*(1-p)/10)*10);
   meters.textContent=remaining?String(remaining):'GOAL';metersLabel.textContent=remaining?'m':'';
-  speedLabel.textContent=playbackRate(rate,clock,duration)+'×'+(runningOut?' 走り抜け':'');
+  speedLabel.textContent=document.getElementById('live-rate')?.value==='instant'?'即ゴール':playbackRate(rate,clock,duration)+'×'+(runningOut?' 走り抜け':'');
   subtitle.textContent=clock<=0?'まもなく発走':runningOut?'ゴール後も走り抜け':
    shot.id==='first-corner'?'1コーナーへ向けた位置どり':
    shot.id==='backstretch'?'向こう正面、真横から全馬の隊列を確認':

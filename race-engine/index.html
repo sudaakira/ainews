@@ -177,7 +177,7 @@ header p:last-child{font-size:12px;opacity:.8}
   <g id="kyoto-horses"></g>
  </svg></div>
  <input type="range" min="0" max="1000" value="0" id="live-scrub" aria-label="レースの再生位置"/>
- <div id="race-engine-build" style="font:600 11px sans-serif;color:#dceee6;margin:4px 0">3D中継 v26｜iPhone標準・先頭馬に遅れない外ラチ追走</div><div class="live-buttons"><button id="live-play">▶ スタート</button><button id="live-pause" style="background:#4c646b">⏸ 一時停止</button><button id="live-reset" style="background:#4c646b">↺ 新しいレース</button><select id="live-rate" aria-label="再生速度"><option value="1">1倍速</option><option value="2">2倍速</option><option value="4" selected>4倍速</option><option value="8">8倍速</option><option value="16">16倍速</option></select></div>
+ <div id="race-engine-build" style="font:600 11px sans-serif;color:#dceee6;margin:4px 0">3D中継 v26｜iPhone標準・先頭馬に遅れない外ラチ追走</div><div class="live-buttons"><button id="live-play">▶ スタート</button><button id="live-pause" style="background:#4c646b">⏸ 一時停止</button><button id="live-reset" style="background:#4c646b">↺ 新しいレース</button><select id="live-rate" aria-label="再生速度"><option value="1">1倍速</option><option value="2">2倍速</option><option value="4" selected>4倍速</option><option value="8">8倍速</option><option value="16">16倍速</option><option value="instant">即ゴール</option></select></div>
  <div class="result-head"><strong>🏆 レース順位 TOP 3</strong><span id="result-state">スタート待機</span></div>
  <div id="race" class="top3-results" aria-live="off"></div>
  <div class="live-leaders" id="live-leaders" style="margin-top:10px"></div>
@@ -197,7 +197,7 @@ header p:last-child{font-size:12px;opacity:.8}
 try {
  const raceId=new URLSearchParams(location.search).get('race')||'shuka-2026';
  if(!/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(raceId)||raceId.length>60)throw Error('不正なレースID');
- const {default:config}=await import('./races/'+raceId+'.js?v=20261022kikkadraw');
+ const {default:config}=await import('./races/'+raceId+'.js?v=20261022instant43');
  if(config.schemaVersion!==1||config.id!==raceId)throw Error('レース設定の形式が不正です');
  if(!Array.isArray(config.horses)||config.horses.length<3||config.horses.length>18)throw Error('出走頭数は3〜18頭');
  if(config.horses.some((h,i)=>h.no!==i+1||!h.name))throw Error('馬番は1からの連番');
@@ -211,8 +211,8 @@ try {
  window.SWAN_FACTORS=createFactors(config);
  window.SWAN_LOOP=createRegression(config,window.SWAN_FACTORS);
  window.RACE_SIM=createSimulator(config,window.SWAN_LOOP);
- await import('./app.js?v=kikka-20261022-draw-heavy-v19');
- await import('./renderer.js?v=kikka-1-mobile-camera-v27-photo-body-v24.1');
+ await import('./app.js?v=race-20261022-instant-4x-vol3-v20');
+ await import('./renderer.js?v=race-instant-v29-mobile-camera-v28-photo-body-v24.1');
  await import('./assets/premium-mobile.js?v=cinema-v1');
 } catch(e){
  console.error('Race engine initialization failed',e);

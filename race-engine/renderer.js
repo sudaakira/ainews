@@ -302,7 +302,7 @@ import {jockeyCap} from './core/jockey-caps.js?v=cap-v1';
  const {createJRAFurlongPosts}=await import("./assets/jra-furlong-posts.js?v=geo-v6");
  const furlongPosts=createJRAFurlongPosts({THREE,scene,offsetPoint,distance,half});
  // Cinematic director replaces manual angle selection for every race.
- const {createRaceCinematics}=await import("./assets/race-cinematics.js?v=kikka-1-mobile-camera-v27");
+ const {createRaceCinematics}=await import("./assets/race-cinematics.js?v=instant-finish-v29-mobile-camera-v28");
  const cinematics=createRaceCinematics({THREE,scene,stage,models,config,capFor,path,route,routeLength});
  const cameraBlockers=[];scene.traverse(o=>{if(o.isMesh&&o.userData.cameraOccluder)cameraBlockers.push(o)});
  const visibilityRay=new THREE.Raycaster();
@@ -383,7 +383,7 @@ import {jockeyCap} from './core/jockey-caps.js?v=cap-v1';
   // Remove the start stalls after the first seconds; restore on replay.
   gateRoot.visible=clock<=Math.min(6,LIVE.duration*.055);
   const raceProgress=Math.min(1,Math.max(0,clock/LIVE.duration));
-  const rate=+document.getElementById('live-rate').value;
+  const rate=+document.getElementById('live-rate').value||4;
   // Five-cut outer-rail TV broadcast. Only the five edit points switch
   // composition directly. Tracking, optical zoom and lens shift are damped.
   // This affects presentation only, never the predicted order or horses.

@@ -95,8 +95,8 @@ for(const id of ['swan-2026','sample-demo','tokyo-20261012-11','tokyo-20261012-1
   assert.equal(config.asOf,'2026-10-17T17:22:00+09:00');
   assert.equal(config.defaultPace,0);
    assert.equal(config.defaultBias,"front");
-   assert.equal(config.defaultVol,5);
-   assert.equal(config.defaultPlaybackRate,8);
+   assert.equal(config.defaultVol,3);
+   assert.equal(config.defaultPlaybackRate,4);
    assert.equal(config.weather17.cushion,10.8);
    assert.equal(config.weather17.turfMoisture4CPct,7.7);
    assert.equal(config.weather17.turfMoistureFinishPct,6.8);
@@ -307,10 +307,10 @@ for(const [start,end] of [[.085,.28],[.30,.66],[.68,.83],[.84,.99]]){
   const camera=followLockedCameraPose(rig,order(p),cameraKyotoPath,{distance:2000,venue:'京都'});
   assert.ok(camera.lockedCamera,'track-side dolly, not jittery dynamic auto compose');
   assert.ok(camera.outerRailClearance>=14.9,'dolly stays >=15m outside rail');
-  if(shot.id==='fourth-turn')assert.equal(camera.trackingMode,'fixed-exit-camera-front-five-pan');
+  if(shot.id==='fourth-turn')assert.equal(camera.trackingMode,'fixed-exit-camera-stable-broadcast');
   if(shot.id==='fourth-turn'){
-   assert.ok(camera.fov>=bearing.fov-1e-8&&camera.fov<=23.001,'4C tight telephoto lens');
-   assert.ok(j===0||camera.fov>=previous.fov-1e-8,'4C lens must only widen');
+   assert.ok(camera.fov>=18&&camera.fov<=36,'4C portrait-safe broadcast lens');
+   assert.ok(Math.abs(camera.look.y-camera.position.y)<=.151,'4C low camera keeps a level horizon');
    if(j>0)assert.ok(Math.hypot(camera.position.x-previous.position.x,camera.position.z-previous.position.z)<1e-7,'4C exit camera must stay fixed');
   }else assert.equal(camera.fov,bearing.fov,'no per-frame zoom');
   assert.equal(camera.lensShiftX,bearing.lensShiftX,'no per-frame lens shift');
@@ -318,8 +318,7 @@ for(const [start,end] of [[.085,.28],[.30,.66],[.68,.83],[.84,.99]]){
   const target=[initial[0]*co-initial[2]*si,initial[1],initial[0]*si+initial[2]*co];
   const diff=vector(camera).map((v,i)=>Math.abs(v-target[i]));
   if(shot.id==='fourth-turn'){
-   // Fourth turn uses a leader-centered forward-oblique crane rather than
-   // the previous fixed-bearing rail camera. Check the optical axis itself.
+   // The low fixed 4C station pans with the front pack. Check its optical axis.
    const lead=order(p)[0],q=cameraKyotoPath(lead.p),lane=cameraRunnerLane(lead.no,17,p);
    const nose={x:q.x-q.dz*lane+q.dx*2.7,y:q.y+2,z:q.z+q.dx*lane+q.dz*2.7};
    const centered=projectTest(nose,camera,.54);
@@ -356,7 +355,7 @@ for(const aspect of [.48,.54,.76,1.6]){
   assert.ok(screen.x>.32&&screen.x<.68,'4C pan keeps the real leader in the central safe area '+JSON.stringify({aspect,p,x:screen.x}));
   if(preceding){
    assert.deepEqual(frame.position,preceding.position,'4C camera is stationary');
-   assert.ok(frame.fov>=preceding.fov,'original monotonic zoom is preserved');
+   assert.ok(frame.fov>=18&&frame.fov<=36,'4C portrait-safe broadcast lens');
    const yaw=f=>Math.atan2(f.look.x-f.position.x,f.look.z-f.position.z),delta=yaw(frame)-yaw(preceding);
    assert.ok(Math.abs(Math.atan2(Math.sin(delta),Math.cos(delta)))<.15,'4C pan is continuous without snapping');
   }preceding=frame;
