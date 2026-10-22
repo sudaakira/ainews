@@ -1,7 +1,7 @@
 {
-  "asOf": "2026-10-21T12:21:53+09:00",
+  "asOf": "2026-10-22T19:07:28+09:00",
   "recordSnapshotAsOf": "2026-10-18T16:01:04+09:00",
-  "updateAuditUrl": "./kikka-2026-update-20261021.json",
+  "updateAuditUrl": "./kikka-2026-update-20261022.json",
   "registrationCount": 21,
   "expectedRunners": 18,
   "withdrawn": [
@@ -20,7 +20,7 @@
       "horseId": "2023107321",
       "jockey": "津村明秀",
       "trainer": "手塚貴久",
-      "status": "expected",
+      "status": "confirmed",
       "father": "キズナ",
       "mother": "リリーノーブル",
       "mfather": "ルーラーシップ",
@@ -533,6 +533,16 @@
       "sources": {
         "record": "https://db.netkeiba.com/horse/result/2023107321/",
         "pedigree": "https://db.netkeiba.com/horse/ped/2023107321/"
+      },
+      "no": 3,
+      "frame": 2,
+      "trainingWeight": {
+        "kg": 502,
+        "lastKg": 506,
+        "day": 22,
+        "location": "美浦",
+        "date": "2026-10-22",
+        "source": "https://www.jra.go.jp/news/202610/102205.html"
       }
     },
     {
@@ -540,7 +550,7 @@
       "horseId": "2023106400",
       "jockey": "岩田康誠",
       "trainer": "福永祐一",
-      "status": "expected",
+      "status": "confirmed",
       "father": "リオンディーズ",
       "mother": "ハニートリップ",
       "mfather": "マンハッタンカフェ",
@@ -1097,12 +1107,12 @@
       },
       "bloodInterpretation": "リオンディーズのシーザリオ側Sadler's Wellsと、母父マンハッタンカフェを確認。距離延長を支える構成だが母系のタイキシャトルもあり無条件の長距離保証ではない。",
       "workout": {
-        "date": "2026-10-15",
+        "date": "2026-10-21",
         "track": "栗東CW",
-        "clock": "6F83.6−1F10.9",
-        "content": "単走、終いを追う。精神面の落ち着きと成長の説明。",
-        "verification": "取材報道",
-        "source": "https://umanity.jp/racedata/race_newsdet.php?nid=11880096"
+        "clock": "6F81.5−1F11.3",
+        "content": "2周目から負荷を掛ける長距離向けの調整。動きと折り合いを支持し状態88→94。",
+        "verification": "取材本文確認",
+        "source": "https://www.nikkansports.com/keiba/news/202610210000349.html"
       },
       "jockeyCourseStats": {
         "name": "岩田康誠",
@@ -1118,6 +1128,16 @@
       "sources": {
         "record": "https://db.netkeiba.com/horse/result/2023106400/",
         "pedigree": "https://db.netkeiba.com/horse/ped/2023106400/"
+      },
+      "no": 11,
+      "frame": 6,
+      "trainingWeight": {
+        "kg": 484,
+        "lastKg": 470,
+        "day": 22,
+        "location": "栗東",
+        "date": "2026-10-22",
+        "source": "https://www.jra.go.jp/news/202610/102205.html"
       }
     },
     {
@@ -1639,7 +1659,7 @@
       "horseId": "2023105248",
       "jockey": "未定",
       "trainer": "矢野英一",
-      "status": "reserve",
+      "status": "excluded",
       "father": "レイデオロ",
       "mother": "ブリッジクライム",
       "mfather": "ゼンノロブロイ",
@@ -2192,7 +2212,7 @@
       "horseId": "2023107127",
       "jockey": "岩田望来",
       "trainer": "友道康夫",
-      "status": "expected",
+      "status": "confirmed",
       "father": "キタサンブラック",
       "mother": "デルフィニアII",
       "mfather": "Galileo",
@@ -2676,12 +2696,13 @@
       },
       "bloodInterpretation": "父キタサンブラック、母父Galileo、母母Again。Sadler's Wellsは母父側3代とAgain側にも入り、長い距離を支える材料。",
       "workout": {
-        "date": "2026-10-15",
-        "track": "栗東ウッド",
-        "clock": "6F83.9−1F11.2",
-        "content": "時計は単一の調教集計資料。負荷・併せ内容の独立確認ができず、状態採点は50の中立。",
-        "verification": "単資料・内容未確認",
-        "source": "https://note.com/tiger_z/n/n232d1356f00e"
+        "date": "2026-10-21",
+        "track": "栗東PT",
+        "clock": "6F83.0−1F11.9",
+        "content": "単走で折り合いを優先。陣営の動き・叩いた効果を確認し内容欠測の中立50→84。本番での折り合いは留保。",
+        "verification": "陣営取材本文・時計は公開集計",
+        "source": "https://www.radionikkei.jp/keiba_article/news/post_38852.html",
+        "clockSource": "https://umasiru.com/archives/22036"
       },
       "jockeyCourseStats": {
         "name": "岩田望来",
@@ -2705,6 +2726,16 @@
       "sources": {
         "record": "https://db.netkeiba.com/horse/result/2023107127/",
         "pedigree": "https://db.netkeiba.com/horse/ped/2023107127/"
+      },
+      "no": 1,
+      "frame": 1,
+      "trainingWeight": {
+        "kg": 512,
+        "lastKg": 508,
+        "day": 22,
+        "location": "栗東",
+        "date": "2026-10-22",
+        "source": "https://www.jra.go.jp/news/202610/102205.html"
       }
     },
     {
@@ -2712,7 +2743,7 @@
       "horseId": "2023100021",
       "jockey": "丹内祐次",
       "trainer": "古賀慎明",
-      "status": "expected",
+      "status": "confirmed",
       "father": "ダノンプレミアム",
       "mother": "ハーフムーンII",
       "mfather": "Duke of Marmalade",
@@ -3304,12 +3335,12 @@
       },
       "bloodInterpretation": "母父Duke of Marmalade、母母Quarter MoonのSadler's Wells・Shirley Heights、父側Robertoを5代内で確認。2500〜2600m実走と合わせる。",
       "workout": {
-        "date": "2026-10-14",
-        "track": "美浦ウッド",
-        "clock": "6F82.6−1F12.0",
-        "content": "単走でリズム良く追走。10/15付新聞取材を10/20に確認。前版の内容欠測を解消し状態素点78。",
-        "verification": "新聞取材確認（10/15公表・10/20照合）",
-        "source": "https://keiba.sponichi.co.jp/news/20261015s00004048026000c"
+        "date": "2026-10-21",
+        "track": "美浦W",
+        "clock": "6F82.6−1F11.9",
+        "content": "公開時計集計で最終調整を確認。内容の独立裏付けは限定的なため状態78を継承。",
+        "verification": "公開時計集計・内容裏付け限定",
+        "source": "https://umasiru.com/archives/22036"
       },
       "jockeyCourseStats": null,
       "stableCourseStats": null,
@@ -3317,6 +3348,16 @@
       "sources": {
         "record": "https://db.netkeiba.com/horse/result/2023100021/",
         "pedigree": "https://db.netkeiba.com/horse/ped/2023100021/"
+      },
+      "no": 13,
+      "frame": 7,
+      "trainingWeight": {
+        "kg": 480,
+        "lastKg": 466,
+        "day": 21,
+        "location": "美浦",
+        "date": "2026-10-21",
+        "source": "https://www.jra.go.jp/news/202610/102205.html"
       }
     },
     {
@@ -3324,7 +3365,7 @@
       "horseId": "2023106963",
       "jockey": "西村淳也",
       "trainer": "高野友和",
-      "status": "expected",
+      "status": "confirmed",
       "father": "コントレイル",
       "mother": "キラモサ",
       "mfather": "Alamosa",
@@ -3808,6 +3849,16 @@
       "sources": {
         "record": "https://db.netkeiba.com/horse/result/2023106963/",
         "pedigree": "https://db.netkeiba.com/horse/ped/2023106963/"
+      },
+      "no": 2,
+      "frame": 1,
+      "trainingWeight": {
+        "kg": 534,
+        "lastKg": 528,
+        "day": 22,
+        "location": "栗東",
+        "date": "2026-10-22",
+        "source": "https://www.jra.go.jp/news/202610/102205.html"
       }
     },
     {
@@ -3815,7 +3866,7 @@
       "horseId": "2023105378",
       "jockey": "武豊",
       "trainer": "上原佑紀",
-      "status": "expected",
+      "status": "confirmed",
       "father": "コントレイル",
       "mother": "ゴーイントゥザウィンドウ",
       "mfather": "Tapit",
@@ -4311,12 +4362,12 @@
       },
       "bloodInterpretation": "コントレイル×Tapit。母系Pulpit、Indian Charlieと5代Blushing Groomを確認。長い脚は東京実績が主根拠、右回りの課題を血統で打ち消さない。",
       "workout": {
-        "date": "2026-10-15",
+        "date": "2026-10-22",
         "track": "美浦W",
-        "clock": "6F82.5−1F11.5",
-        "content": "3頭併せを追走し、内から仕掛けて1馬身・3馬身先着。調教のもたれ改善と実戦右回りを分離。",
-        "verification": "取材報道",
-        "source": "https://news.netkeiba.com/?no=345667&pid=news_view"
+        "clock": "6F84.9−1F11.9",
+        "content": "10/22木曜追い。3頭の間で折り合い、馬なりで内に先着・外に併入。輸送前の余力を評価し状態88→90。本番右回りの克服とは区別。",
+        "verification": "取材本文確認",
+        "source": "https://umanity.jp/racedata/race_newsdet.php?nid=11880547"
       },
       "jockeyCourseStats": {
         "name": "武豊",
@@ -4340,6 +4391,16 @@
       "sources": {
         "record": "https://db.netkeiba.com/horse/result/2023105378/",
         "pedigree": "https://db.netkeiba.com/horse/ped/2023105378/"
+      },
+      "no": 9,
+      "frame": 5,
+      "trainingWeight": {
+        "kg": 510,
+        "lastKg": 502,
+        "day": 22,
+        "location": "美浦",
+        "date": "2026-10-22",
+        "source": "https://www.jra.go.jp/news/202610/102205.html"
       }
     },
     {
@@ -4347,7 +4408,7 @@
       "horseId": "2023100724",
       "jockey": "田辺裕信",
       "trainer": "尾形和幸",
-      "status": "expected",
+      "status": "confirmed",
       "father": "グレーターロンドン",
       "mother": "メメクザリアーナ",
       "mfather": "ジャングルポケット",
@@ -4912,6 +4973,16 @@
       "sources": {
         "record": "https://db.netkeiba.com/horse/result/2023100724/",
         "pedigree": "https://db.netkeiba.com/horse/ped/2023100724/"
+      },
+      "no": 12,
+      "frame": 6,
+      "trainingWeight": {
+        "kg": 472,
+        "lastKg": 470,
+        "day": 22,
+        "location": "美浦",
+        "date": "2026-10-22",
+        "source": "https://www.jra.go.jp/news/202610/102205.html"
       }
     },
     {
@@ -4919,7 +4990,7 @@
       "horseId": "2023106924",
       "jockey": "原優介",
       "trainer": "宮田敬介",
-      "status": "expected",
+      "status": "confirmed",
       "father": "スワーヴリチャード",
       "mother": "エリカブライト",
       "mfather": "キングカメハメハ",
@@ -5436,6 +5507,16 @@
       "sources": {
         "record": "https://db.netkeiba.com/horse/result/2023106924/",
         "pedigree": "https://db.netkeiba.com/horse/ped/2023106924/"
+      },
+      "no": 5,
+      "frame": 3,
+      "trainingWeight": {
+        "kg": 509,
+        "lastKg": 508,
+        "day": 21,
+        "location": "美浦",
+        "date": "2026-10-21",
+        "source": "https://www.jra.go.jp/news/202610/102205.html"
       }
     },
     {
@@ -5443,7 +5524,7 @@
       "horseId": "2023105332",
       "jockey": "田山旺佑",
       "trainer": "須貝尚介",
-      "status": "expected",
+      "status": "confirmed",
       "father": "ハービンジャー",
       "mother": "ミカリーニョ",
       "mfather": "ハーツクライ",
@@ -5947,12 +6028,12 @@
       },
       "bloodInterpretation": "ハービンジャーのDansili・Beringと母父ハーツクライ。血統の距離材料はある一方、本人の2400m大敗・近況を優先。",
       "workout": {
-        "date": "2026-10-15",
+        "date": "2026-10-21",
         "track": "栗東CW",
-        "clock": "6F82.5−1F11.8",
-        "content": "一杯でガイアメンテに1馬身遅れ。陣営は条件を模索中と説明。",
-        "verification": "取材報道",
-        "source": "https://umanity.jp/racedata/race_newsdet.php?nid=11880096"
+        "clock": "6F84.5−1F11.5",
+        "content": "直線強めの併せ追いで半馬身遅れとの公開集計。最終時計を追加するが状態56は維持。",
+        "verification": "公開時計集計・内容裏付け限定",
+        "source": "https://umasiru.com/archives/22036"
       },
       "jockeyCourseStats": null,
       "stableCourseStats": null,
@@ -5960,6 +6041,16 @@
       "sources": {
         "record": "https://db.netkeiba.com/horse/result/2023105332/",
         "pedigree": "https://db.netkeiba.com/horse/ped/2023105332/"
+      },
+      "no": 4,
+      "frame": 2,
+      "trainingWeight": {
+        "kg": 480,
+        "lastKg": 474,
+        "day": 22,
+        "location": "栗東",
+        "date": "2026-10-22",
+        "source": "https://www.jra.go.jp/news/202610/102205.html"
       }
     },
     {
@@ -5967,7 +6058,7 @@
       "horseId": "2023103828",
       "jockey": "池添謙一",
       "trainer": "渡辺薫彦",
-      "status": "expected",
+      "status": "confirmed",
       "father": "レイデオロ",
       "mother": "ショウナンバーチ",
       "mfather": "ディープインパクト",
@@ -6416,12 +6507,12 @@
       },
       "bloodInterpretation": "レイデオロ側のシンボリクリスエス・5代Roberto、母父ディープインパクトを確認。距離延長の余地と実績不足を併記。",
       "workout": {
-        "date": "2026-10-15",
-        "track": "栗東CW",
-        "clock": "6F84.7−1F11.4",
-        "content": "馬なり。休み明けを使い身のこなしと気合乗りが良化との説明。",
-        "verification": "取材報道",
-        "source": "https://umanity.jp/racedata/race_newsdet.php?nid=11880096"
+        "date": "2026-10-21",
+        "track": "栗東坂路",
+        "clock": "4F52.9−1F12.0",
+        "content": "池添騎手で坂路単走。活気と叩いた上積みを支持し状態86→88。休養後の実戦再現は別課題。",
+        "verification": "取材本文確認",
+        "source": "https://www.nikkansports.com/keiba/column/daily_best3/news/202610210000435.html"
       },
       "jockeyCourseStats": {
         "name": "池添謙一",
@@ -6437,6 +6528,16 @@
       "sources": {
         "record": "https://db.netkeiba.com/horse/result/2023103828/",
         "pedigree": "https://db.netkeiba.com/horse/ped/2023103828/"
+      },
+      "no": 16,
+      "frame": 8,
+      "trainingWeight": {
+        "kg": 460,
+        "lastKg": 456,
+        "day": 21,
+        "location": "栗東",
+        "date": "2026-10-21",
+        "source": "https://www.jra.go.jp/news/202610/102205.html"
       }
     },
     {
@@ -6444,7 +6545,7 @@
       "horseId": "2023101200",
       "jockey": "酒井学",
       "trainer": "吉岡辰弥",
-      "status": "expected",
+      "status": "confirmed",
       "father": "モーリス",
       "mother": "フラワーバレイ",
       "mfather": "ディスクリートキャット",
@@ -6971,12 +7072,12 @@
       "crosses": {},
       "bloodInterpretation": "モーリス側の5代Roberto・4代Sadler's Wellsを確認。母系ディスクリートキャット・Forestry・Unbridledの速力も強く、3000mは折り合いと省エネが条件。",
       "workout": {
-        "date": "2026-10-17",
-        "track": "栗東CW",
-        "clock": "6F83.2−1F11.1",
-        "content": "実質最終の3頭併せ。大外から1馬身・2馬身先着。距離延長は陣営も未確定と説明。",
-        "verification": "取材報道・実質最終",
-        "source": "https://keiba.sponichi.co.jp/news/20261017s00004000512000c"
+        "date": "2026-10-21",
+        "track": "栗東坂路",
+        "clock": "4F57.8−1F13.6",
+        "content": "10/17のCW6F83.2−1F11.1が実質最終。10/21は軽い調整で、遅い時計を悪化とは扱わず状態90を維持。",
+        "verification": "取材本文確認",
+        "source": "https://keiba.sponichi.co.jp/news/20261021s00004048335000c"
       },
       "jockeyCourseStats": {
         "name": "酒井学",
@@ -6992,6 +7093,16 @@
       "sources": {
         "record": "https://db.netkeiba.com/horse/result/2023101200/",
         "pedigree": "https://db.netkeiba.com/horse/ped/2023101200/"
+      },
+      "no": 15,
+      "frame": 7,
+      "trainingWeight": {
+        "kg": 530,
+        "lastKg": 524,
+        "day": 22,
+        "location": "栗東",
+        "date": "2026-10-22",
+        "source": "https://www.jra.go.jp/news/202610/102205.html"
       }
     },
     {
@@ -6999,7 +7110,7 @@
       "horseId": "2023107005",
       "jockey": "C.ルメール",
       "trainer": "堀宣行",
-      "status": "expected",
+      "status": "confirmed",
       "father": "エピファネイア",
       "mother": "コーステッド",
       "mfather": "Tizway",
@@ -7480,6 +7591,16 @@
       "sources": {
         "record": "https://db.netkeiba.com/horse/result/2023107005/",
         "pedigree": "https://db.netkeiba.com/horse/ped/2023107005/"
+      },
+      "no": 10,
+      "frame": 5,
+      "trainingWeight": {
+        "kg": 483,
+        "lastKg": 478,
+        "day": 21,
+        "location": "美浦",
+        "date": "2026-10-21",
+        "source": "https://www.jra.go.jp/news/202610/102205.html"
       }
     },
     {
@@ -7487,7 +7608,7 @@
       "horseId": "2023107389",
       "jockey": "石川裕紀人",
       "trainer": "奥村武",
-      "status": "expected",
+      "status": "confirmed",
       "father": "キタサンブラック",
       "mother": "ライジングクロス",
       "mfather": "Cape Cross",
@@ -7991,12 +8112,12 @@
       },
       "bloodInterpretation": "キタサンブラック×ライジングクロスで、母父Cape Cross、母母Woodrisingを確認。全兄の実績を本人の能力へ転記せず、2400m勝利と状態で判断。",
       "workout": {
-        "date": "2026-10-15",
+        "date": "2026-10-21",
         "track": "美浦W",
-        "clock": "6F81.9−1F11.6",
-        "content": "3頭併せで一杯、手応え劣勢で併入。前走時の体の余裕を絞る調整中。",
-        "verification": "取材報道",
-        "source": "https://umanity.jp/racedata/race_newsdet.php?nid=11880088"
+        "clock": "5F67.7−1F11.6",
+        "content": "3頭併せの中央で集中を保ち、内に併入・外にクビ先着との新聞取材。状態72→84。相手強化は残す。",
+        "verification": "取材本文確認",
+        "source": "https://umanity.jp/racedata/race_newsdet.php?nid=11880540"
       },
       "jockeyCourseStats": null,
       "stableCourseStats": {
@@ -8012,6 +8133,16 @@
       "sources": {
         "record": "https://db.netkeiba.com/horse/result/2023107389/",
         "pedigree": "https://db.netkeiba.com/horse/ped/2023107389/"
+      },
+      "no": 17,
+      "frame": 8,
+      "trainingWeight": {
+        "kg": 497,
+        "lastKg": 506,
+        "day": 22,
+        "location": "美浦",
+        "date": "2026-10-22",
+        "source": "https://www.jra.go.jp/news/202610/102205.html"
       }
     },
     {
@@ -8019,7 +8150,7 @@
       "horseId": "2023105046",
       "jockey": "北村友一",
       "trainer": "福永祐一",
-      "status": "expected",
+      "status": "confirmed",
       "father": "キタサンブラック",
       "mother": "ワンダーフィリー",
       "mfather": "Invincible Spirit",
@@ -8535,12 +8666,12 @@
       },
       "bloodInterpretation": "キタサンブラック×Invincible Spirit、母母父Distant Relativeを確認。2600m実績はあるが、前半3F40.1の緩い流れによる勝利を分けて扱う。",
       "workout": {
-        "date": null,
-        "track": null,
-        "clock": null,
-        "content": "一週前の基準時計は確認できず。調教していないとは判断せず、状態は中立50。",
-        "verification": "未確認",
-        "source": "https://note.com/tiger_z/n/n232d1356f00e"
+        "date": "2026-10-21",
+        "track": "栗東CW",
+        "clock": "4F51.7−1F11.8",
+        "content": "北村友騎手でリズムと軽いフットワークを確認したとの取材。状態留保45→78。前走12着の実績点は据え置く。",
+        "verification": "取材本文確認",
+        "source": "https://keiba.sponichi.co.jp/news/20261021s00004048337000c"
       },
       "jockeyCourseStats": {
         "name": "北村友一",
@@ -8556,6 +8687,16 @@
       "sources": {
         "record": "https://db.netkeiba.com/horse/result/2023105046/",
         "pedigree": "https://db.netkeiba.com/horse/ped/2023105046/"
+      },
+      "no": 18,
+      "frame": 8,
+      "trainingWeight": {
+        "kg": 478,
+        "lastKg": 470,
+        "day": 21,
+        "location": "栗東",
+        "date": "2026-10-21",
+        "source": "https://www.jra.go.jp/news/202610/102205.html"
       }
     },
     {
@@ -8563,7 +8704,7 @@
       "horseId": "2023107247",
       "jockey": "川田将雅",
       "trainer": "斉藤崇史",
-      "status": "expected",
+      "status": "confirmed",
       "father": "キタサンブラック",
       "mother": "マンビア",
       "mfather": "アルデバランII",
@@ -9077,6 +9218,16 @@
       "sources": {
         "record": "https://db.netkeiba.com/horse/result/2023107247/",
         "pedigree": "https://db.netkeiba.com/horse/ped/2023107247/"
+      },
+      "no": 6,
+      "frame": 3,
+      "trainingWeight": {
+        "kg": 464,
+        "lastKg": 472,
+        "day": 21,
+        "location": "栗東",
+        "date": "2026-10-21",
+        "source": "https://www.jra.go.jp/news/202610/102205.html"
       }
     },
     {
@@ -9084,7 +9235,7 @@
       "horseId": "2023103531",
       "jockey": "戸崎圭太",
       "trainer": "友道康夫",
-      "status": "expected",
+      "status": "confirmed",
       "father": "コントレイル",
       "mother": "ブルーミングアレー",
       "mfather": "シンボリクリスエス",
@@ -9572,12 +9723,12 @@
       },
       "bloodInterpretation": "コントレイル×シンボリクリスエス。母系4代Roberto・Sadler's Wellsを確認し、京都2400mでシートゥサミットを下した実走を重ねる。",
       "workout": {
-        "date": "2026-10-15",
-        "track": "栗東CW",
-        "clock": "6F82.2−1F11.9",
-        "content": "馬なりで内に1馬身半先着、外に併入。力まず余力を残す内容との説明。",
-        "verification": "取材報道",
-        "source": "https://umanity.jp/racedata/race_newsdet.php?nid=11880096"
+        "date": "2026-10-21",
+        "track": "栗東坂路",
+        "clock": "4F54.1−1F12.7",
+        "content": "余力を残す最終追い。バランスと力みの少なさを支持し状態84→88。近走成績の再加算はしない。",
+        "verification": "取材本文確認",
+        "source": "https://www.nikkansports.com/keiba/news/202610210000763.html"
       },
       "jockeyCourseStats": {
         "name": "戸崎圭太",
@@ -9601,6 +9752,16 @@
       "sources": {
         "record": "https://db.netkeiba.com/horse/result/2023103531/",
         "pedigree": "https://db.netkeiba.com/horse/ped/2023103531/"
+      },
+      "no": 14,
+      "frame": 7,
+      "trainingWeight": {
+        "kg": 492,
+        "lastKg": 486,
+        "day": 22,
+        "location": "栗東",
+        "date": "2026-10-22",
+        "source": "https://www.jra.go.jp/news/202610/102205.html"
       }
     },
     {
@@ -9608,7 +9769,7 @@
       "horseId": "2023107259",
       "jockey": "浜中俊",
       "trainer": "堀宣行",
-      "status": "reserve",
+      "status": "excluded",
       "father": "エピファネイア",
       "mother": "ミッキークイーン",
       "mfather": "ディープインパクト",
@@ -10108,7 +10269,7 @@
       "horseId": "2023105560",
       "jockey": "坂井瑠星",
       "trainer": "武井亮",
-      "status": "expected",
+      "status": "confirmed",
       "father": "ベンバトル",
       "mother": "ナスノフォルテ",
       "mfather": "ジャスタウェイ",
@@ -10603,12 +10764,12 @@
       "crosses": {},
       "bloodInterpretation": "ベンバトルのDubawi・Selkirkと、5代Mill Reef・Shirley Heights・Caerleonを確認。欧州血統だけの一律道悪加点を避け、2200m実走と合わせる。",
       "workout": {
-        "date": "2026-10-15",
+        "date": "2026-10-21",
         "track": "美浦W",
-        "clock": "6F79.2−1F12.0",
-        "content": "3頭併せで2馬身先着。折り合いに不安なしとの説明。速い全体時計を能力へ二重加点しない。",
-        "verification": "取材報道",
-        "source": "https://umanity.jp/racedata/race_newsdet.php?nid=11880088"
+        "clock": "6F81.3−1F12.1",
+        "content": "石神騎手で馬なり併入。10/22クラブ更新の動き・息の前週比良化を確認し状態85→88。クラブ計量482kgとJRA公表481kgは別値。",
+        "verification": "取材本文確認",
+        "source": "https://greenfarm.co.jp/photo/2312.shtml"
       },
       "jockeyCourseStats": {
         "name": "坂井瑠星",
@@ -10632,6 +10793,16 @@
       "sources": {
         "record": "https://db.netkeiba.com/horse/result/2023105560/",
         "pedigree": "https://db.netkeiba.com/horse/ped/2023105560/"
+      },
+      "no": 7,
+      "frame": 4,
+      "trainingWeight": {
+        "kg": 481,
+        "lastKg": 476,
+        "day": 21,
+        "location": "美浦",
+        "date": "2026-10-21",
+        "source": "https://www.jra.go.jp/news/202610/102205.html"
       }
     },
     {
@@ -10639,7 +10810,7 @@
       "horseId": "2023107089",
       "jockey": "松山弘平",
       "trainer": "杉山晴紀",
-      "status": "expected",
+      "status": "confirmed",
       "father": "ワールドプレミア",
       "mother": "ソングライティング",
       "mfather": "Giant's Causeway",
@@ -11152,6 +11323,16 @@
       "sources": {
         "record": "https://db.netkeiba.com/horse/result/2023107089/",
         "pedigree": "https://db.netkeiba.com/horse/ped/2023107089/"
+      },
+      "no": 8,
+      "frame": 4,
+      "trainingWeight": {
+        "kg": 524,
+        "lastKg": 518,
+        "day": 21,
+        "location": "栗東",
+        "date": "2026-10-21",
+        "source": "https://www.jra.go.jp/news/202610/102205.html"
       }
     }
   ],
@@ -11190,5 +11371,7 @@
   "sourceStatus": "出走馬・騎手は想定。枠順・最終調教・当日馬場・実オッズは未確定。",
   "recordCount": 143,
   "actualStarts": 142,
-  "cancellations": 1
+  "cancellations": 1,
+  "drawConfirmed": true,
+  "finalRunnersConfirmed": true
 }
