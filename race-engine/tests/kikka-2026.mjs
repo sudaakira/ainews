@@ -23,7 +23,7 @@ assert.equal(jockeyCap(c.horses[9],c).hex,'#FFD600');
 for(const h of c.horses)assert.equal(createFactors(c).frame(h),h.frame);
 assert.equal(loop.FEATURES.reduce((s,f)=>s+f.weight,0),100);
 assert.equal(loop.FEATURES.find(x=>x.id==='draw').weight,1);
-assert.equal(c.defaultVol,5);assert.equal(c.defaultPlaybackRate,8);
+assert.equal(c.defaultVol,3);assert.equal(c.defaultPlaybackRate,4);
 assert.ok(c.asOf.startsWith('2026-10-22'));assert.equal(c.seed,20261022);
 assert.equal(c.horses.filter(h=>h.latestReviewKind==='final-workout').length,18);
 assert.equal(c.defaultGround,'soft');assert.equal(c.defaultSpeed,0);

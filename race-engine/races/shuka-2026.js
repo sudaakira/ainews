@@ -1183,8 +1183,8 @@ export default {
   ],
   "defaultPace": 0,
   "defaultBias": "front",
-  "defaultVol": 5,
-  "defaultPlaybackRate": 8,
+  "defaultVol": 3,
+  "defaultPlaybackRate": 4,
   "defaultSimulations": 50000,
   "historicalTrends": {
     "scope": "2016-2025秋華賞。脚質・枠は京都開催8回（2021・22年の阪神代替を除外）。前走成績・キャリアは過去10年（阪神代替含む）。同じデータの関連列は重複採点しない。",

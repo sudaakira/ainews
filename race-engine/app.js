@@ -87,7 +87,7 @@ if(config.scenarios?.length){
  select.onchange=()=>{
   const s=config.scenarios.find(s=>s.id===select.value);if(!s)return;
   activeVariant=s.options.variant||'';
-  for(const [key,id] of Object.entries({pace:'pace',speed:'speed',ground:'ground-mode',bias:'bias-mode',vol:'vol'}))if(s.options[key]!==undefined)el(id).value=String(s.options[key]);
+  for(const [key,id] of Object.entries({pace:'pace',speed:'speed',ground:'ground-mode',bias:'bias-mode',vol:'vol'}))if(s.options[key]!==undefined)el(id).value=String(key==='vol'&&s.id==='base'?(config.defaultVol??s.options[key]):s.options[key]);
   el('pace').oninput?.();el('speed').oninput?.();el('vol').oninput?.();run();sampleLiveRace();
  };
 }
@@ -325,10 +325,11 @@ function sampleLiveRace(){
  const s=opts(),r=random(seed);
  LIVE.rank=runRace(r,s);LIVE.seed=r()*1000;LIVE.replaySeed=seed;
  LIVE.clock=useStartFrame?LIVE.duration*initialPosition/1000:0;
- LIVE.visualTime=0;LIVE.ready=true;LIVE.playing=false;LIVE.last=0;LIVE.playbackAtFinish=false;
+ LIVE.visualTime=0;LIVE.ready=true;LIVE.playing=false;LIVE.last=0;LIVE.playbackAtFinish=false;LIVE.instantFinished=false;
  shareRaceFrame(useStartFrame?initialPosition:null);
  replayIndicator.textContent='🎥 再現ID '+seed+' ｜ URLで同じ展開を再現（設定変更・新しいレースは別展開）';
  el('live-status').textContent='スタート待機';raceview.lastKey='';el('result-state').textContent='スタート待機';el('race').classList.remove('finished');el('race').innerHTML=['🥇','🥈','🥉'].map((medal,i)=>'<div class="place-card place-'+(i+1)+'"><div class="place-rank">'+medal+' '+(i+1)+'着</div><div class="place-number">—</div><div class="place-name">レース待機中</div></div>').join('');drawLive();
+ if(el('live-rate').value==='instant')finishLiveRace();
 }
 function ease(t){return t*t*(3-2*t)}
 function horseProgress(no,sec){
@@ -370,12 +371,18 @@ function drawLive(){
   if(crossed.length>=3)raceview(LIVE.rank,true);
  }
 }
+function finishLiveRace(){
+ if(!LIVE.ready)return;
+ LIVE.clock=LIVE.duration*(1+(FIELD-1)*FINISH_GAP)+.01;
+ LIVE.playing=false;LIVE.last=0;LIVE.playbackAtFinish=true;LIVE.instantFinished=true;
+ shareRaceFrame(1000);drawLive();
+}
 function liveFrame(t){
  if(LIVE.playing){
   if(LIVE.last){
    const dt=Math.min(.12,Math.max(0,(t-LIVE.last)/1000));
-   const rate=playbackRate(+el('live-rate').value,LIVE.clock,LIVE.duration);
-   // Playback defaults to 8x (adjustable up to 16x); gallop motion remains smooth.
+   const rate=playbackRate(+el('live-rate').value||4,LIVE.clock,LIVE.duration);
+   // Playback defaults to 4x (adjustable up to 16x); gallop motion remains smooth.
    // This avoids stroboscopic frozen/jerky legs at high playback speeds.
    LIVE.clock=Math.min(playbackEnd(LIVE.duration,FIELD),LIVE.clock+dt*rate);
    LIVE.visualTime+=dt*(1+.13*Math.log2(rate));
@@ -385,10 +392,15 @@ function liveFrame(t){
  }
  LIVE.raf=requestAnimationFrame(liveFrame);
 }
-el('live-play').onclick=()=>{if(!LIVE.ready||LIVE.clock>=playbackEnd(LIVE.duration,FIELD))sampleLiveRace();LIVE.playing=true;LIVE.last=0;el('live-status').textContent='● シミュレーション再生中';};
+el('live-rate').onchange=()=>{if(el('live-rate').value==='instant')finishLiveRace();};
+el('live-play').onclick=()=>{
+ if(!LIVE.ready||LIVE.instantFinished||LIVE.clock>=playbackEnd(LIVE.duration,FIELD))sampleLiveRace();
+ if(el('live-rate').value==='instant'){finishLiveRace();return;}
+ LIVE.playing=true;LIVE.last=0;el('live-status').textContent='● シミュレーション再生中';
+};
 el('live-pause').onclick=()=>{LIVE.playing=false;LIVE.last=0;el('live-status').textContent='一時停止';};
 el('live-reset').onclick=()=>sampleLiveRace();
-el('live-scrub').oninput=v=>{LIVE.clock=LIVE.duration*(+v.target.value)/1000;LIVE.playing=false;LIVE.last=0;LIVE.playbackAtFinish=false;el('live-status').textContent=LIVE.clock>0?'一時停止':'スタート待機';shareRaceFrame(v.target.value);drawLive();};
+el('live-scrub').oninput=v=>{LIVE.clock=LIVE.duration*(+v.target.value)/1000;LIVE.playing=false;LIVE.last=0;LIVE.playbackAtFinish=false;LIVE.instantFinished=false;el('live-status').textContent=LIVE.clock>0?'一時停止':'スタート待機';shareRaceFrame(v.target.value);drawLive();};
 const oldSim=el('simulate').onclick;el('simulate').onclick=()=>{oldSim();sampleLiveRace();};
 sampleLiveRace();LIVE.raf=requestAnimationFrame(liveFrame);
 window.KYOTO_RACE={HS,LIVE,route,routeLength,horseProgress,config};
