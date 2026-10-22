@@ -308,47 +308,35 @@ export function followLockedCameraPose(rig,order,path,{distance=2000,venue='京�
   const half=venue==='京都'&&distance===2000?KYOTO_INNER.width/2:13.5;
   const rail=(venue==='京都'&&distance===2000?kyotoOuterCourseOffset(exitProgress):0)+(right?-half:half);
   const outside=rail-sign*18;
-  const position={x:station.x-station.dz*outside,y:station.y+5.2,
+  const position={x:station.x-station.dz*outside,y:station.y+3.5,
    z:station.z+station.dx*outside};
   const q=path(leader.p),lane=runnerLane(leader.no,order.length,leader.p);
   const nose={x:q.x-q.dz*lane+q.dx*2.7,y:q.y+2,
    z:q.z+q.dx*lane+q.dz*2.7};
-  // Pan toward the center of the front 3-5 horses rather than chasing a
-  // single nose; this keeps the leading contest in a stable tight frame.
+  // Broadcast tripod: fixed station and stable horizon. Aim at the leading
+  // pack's ground-level center, without a high crane/downward perspective.
   const leaders=order.slice(0,Math.min(5,order.length));
   const focus=leaders.reduce((sum,horse,i)=>{
    const h=path(horse.p),l=runnerLane(horse.no,order.length,horse.p);
-   const w=i<3?1.25:0.75;
+   const w=i<3?1.2:.7;
    sum.x+=(h.x-h.dz*l+h.dx*2.7)*w;
-   sum.y+=(h.y+2.5)*w;
    sum.z+=(h.z+h.dx*l+h.dz*2.7)*w;
    sum.weight+=w;
    return sum;
-  },{x:0,y:0,z:0,weight:0});
-  const look={x:focus.x/focus.weight,y:focus.y/focus.weight,z:focus.z/focus.weight};
-  const progress=Math.max(0,Math.min(1,(leader.p-(distance===3000?.78:.68))/(distance===3000?.085:.15)));
-  const ease=progress*progress*(3-2*progress);
-  // Tight shot of ~5 leaders, modest easing as they reach the exit.
-  // Keep the full leading contest visible on a narrow iPhone viewport.
-  // 12° cropped the actual leader to x=.133 in the smoke projection.
-  // The 3000m race reaches this fixed station from a longer approach.
-  // Maintain a useful horse size with a continuous telephoto pullback;
-  // camera position stays fixed and the inner-course broadcast is unchanged.
+  },{x:0,z:0,weight:0});
+  const look={x:focus.x/focus.weight,y:position.y-.8,z:focus.z/focus.weight};
   const cameraDistance=Math.hypot(nose.x-position.x,nose.z-position.z);
-  const fov=distance===3000
-   ?clamp(2*Math.atan(3/(.36*Math.max(30,cameraDistance)))*180/Math.PI,4,28)
-   :18+5*ease;
-  // The five-horse centroid can be several metres behind the leader. Close
-  // to the exit that angle exceeded the entire portrait lens, clipping the
-  // leader despite the unchanged fixed camera. Smoothly limit ONLY the pan
-  // offset from the leader's bearing. tanh has no clamp boundary/jump; the
-  // stationary camera and the original monotonic 18–23° zoom are preserved.
-  const aspect=rig.pose.viewportAspect||.54;
+  const aspect=Math.max(.48,rig.pose.viewportAspect||.54);
+  // Match apparent horse scale between cuts, but do not animate the zoom.
+  // Ensure the leader remains comfortably inside the portrait safe area.
   const leadYaw=Math.atan2(nose.x-position.x,nose.z-position.z);
   const groupYaw=Math.atan2(look.x-position.x,look.z-position.z);
   const delta=Math.atan2(Math.sin(groupYaw-leadYaw),Math.cos(groupYaw-leadYaw));
-  const maxPan=Math.atan(Math.tan(fov*Math.PI/360)*aspect*.30);
-  const yaw=leadYaw+maxPan*Math.tanh(delta/maxPan);
+  const desiredFov=2*Math.atan(5/Math.max(24,cameraDistance))*180/Math.PI;
+  const fov=clamp(Math.max(desiredFov,2*Math.atan(Math.tan(Math.abs(delta)) / (aspect*.52))*180/Math.PI),18,36);
+  // Keep aim slightly closer to the leader, rather than the rear of the pack.
+  const maxPan=Math.atan(Math.tan(fov*Math.PI/360)*aspect*.25);
+  const yaw=leadYaw+maxPan*Math.tanh(delta/Math.max(.0001,maxPan));
   const aimDistance=Math.hypot(look.x-position.x,look.z-position.z);
   look.x=position.x+Math.sin(yaw)*aimDistance;
   look.z=position.z+Math.cos(yaw)*aimDistance;
@@ -360,7 +348,7 @@ export function followLockedCameraPose(rig,order,path,{distance=2000,venue='京�
    railOutsideVerified:true,leadNumber:leader.no,lockedCamera:true,
    cameraTrackYaw:0,baseShotId:'fourth-turn',
    leadNoseViewportTarget:.5,forwardGap:.5,
-   trackingMode:'fixed-exit-camera-front-five-pan',pullbackProgress:ease};
+   trackingMode:'fixed-exit-camera-stable-broadcast',pullbackProgress:0};
  }
  const advance=rig.pose.stationAheadMeters||0;
  const startStation=path(rig.pose.referenceProgress+advance/distance);
