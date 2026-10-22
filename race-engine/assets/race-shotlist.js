@@ -308,7 +308,7 @@ export function followLockedCameraPose(rig,order,path,{distance=2000,venue='京�
   const half=venue==='京都'&&distance===2000?KYOTO_INNER.width/2:13.5;
   const rail=(venue==='京都'&&distance===2000?kyotoOuterCourseOffset(exitProgress):0)+(right?-half:half);
   const outside=rail-sign*18;
-  const position={x:station.x-station.dz*outside,y:station.y+3.5,
+  const position={x:station.x-station.dz*outside,y:station.y+2.5,
    z:station.z+station.dx*outside};
   const q=path(leader.p),lane=runnerLane(leader.no,order.length,leader.p);
   const nose={x:q.x-q.dz*lane+q.dx*2.7,y:q.y+2,
@@ -324,7 +324,7 @@ export function followLockedCameraPose(rig,order,path,{distance=2000,venue='京�
    sum.weight+=w;
    return sum;
   },{x:0,z:0,weight:0});
-  const look={x:focus.x/focus.weight,y:position.y-.8,z:focus.z/focus.weight};
+  const look={x:focus.x/focus.weight,y:position.y-.15,z:focus.z/focus.weight};
   const cameraDistance=Math.hypot(nose.x-position.x,nose.z-position.z);
   const aspect=Math.max(.48,rig.pose.viewportAspect||.54);
   // Match apparent horse scale between cuts, but do not animate the zoom.
@@ -385,7 +385,7 @@ export function followLockedCameraPose(rig,order,path,{distance=2000,venue='京�
  // Fourth turn: follow the lead horse with ONE deterministic, continuous
  // translation. The old two sequential corrections fought each other,
  // especially where the outside rail curves away from the pack.
- if(rig.pose.shotId==='fourth-turn'||rig.pose.shotId==='backstretch'){
+ if(rig.pose.shotId==='fourth-turn'||rig.pose.shotId==='backstretch'||rig.pose.shotId==='start'){
   const q=path(leader.p),lane=runnerLane(leader.no,order.length,leader.p);
   const nose={x:q.x-q.dz*lane+q.dx*2.7,y:q.y+2,z:q.z+q.dx*lane+q.dz*2.7};
   const first=path(rig.startLeaderProgress);
