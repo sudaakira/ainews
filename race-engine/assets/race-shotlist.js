@@ -1,4 +1,4 @@
-import {KYOTO_CUTS,runnerLane,kyotoOuterCourseOffset,KYOTO_INNER} from './kyoto-course.js?v=kyoto-v12';
+import {KYOTO_CUTS,runnerLane,kyotoOuterCourseOffset,KYOTO_INNER} from './kyoto-course.js?v=pack-v1-smooth';
 /**
  * JRA-style, five-camera Kyoto broadcast, reconstructed from supplied JRA reference frames:
  * 01 Start gate, 02 first corner positioning, 03 backstretch lateral field view,
@@ -78,7 +78,7 @@ export function raceCameraPose({shot,progress,order,path,aspect=1,clock=Infinity
  const group=isGate?order.slice():pickSubjects(shot,order,distance,aspect);
  const pCenter=isGate?0:(shot.id==='backstretch'||shot.id==='fourth-turn'?lead.p:group.reduce((sum,o,i)=>sum+o.p*(i===0?1.6:1),0)/(group.length+.6));
  const center=path(pCenter),field=group.map(o=>{
-  const q=path(o.p),lane=runnerLane(o.no,order.length,progress);
+  const q=path(o.p),lane=o.lane??runnerLane(o.no,order.length,progress);
   return {x:q.x-q.dz*lane,y:q.y,z:q.z+q.dx*lane,dx:q.dx,dz:q.dz,no:o.no,p:o.p};
  });
  const framingField=shot.id==='backstretch'?field.slice(0,4):shot.id==='fourth-turn'?field.slice(0,3):field;
@@ -202,7 +202,7 @@ export function raceCameraPose({shot,progress,order,path,aspect=1,clock=Infinity
   // leader's nose (22% on lateral TV shots). At an almost head-on angle
   // the room transitions continuously to the center/forward depth; a sign
   // flip at the corner must not teleport the camera to the opposite side.
-  const q=path(lead.p),lane=runnerLane(lead.no,order.length,progress);
+  const q=path(lead.p),lane=lead.lane??runnerLane(lead.no,order.length,progress);
   const ahead=(meters)=>({
    x:q.x-q.dz*lane+q.dx*meters,
    y:q.y+2.02,
@@ -252,7 +252,7 @@ export function raceCameraPose({shot,progress,order,path,aspect=1,clock=Infinity
    const candidate=followLockedCameraPose({pose:{...result,shotId:shot.id},startLeaderProgress:lead.p},
     [{no:lead.no,p:lead.p+(p-progress)}],path,{distance,venue,direction});
    const q=path(lead.p+(p-progress));
-   const lane=runnerLane(lead.no,order.length,p);
+   const lane=lead.lane??runnerLane(lead.no,order.length,p);
    const nose={x:q.x-q.dz*lane+q.dx*2.7,y:q.y+2,z:q.z+q.dx*lane+q.dz*2.7};
    const projected=projectPoint(nose,candidate.position,candidate.look,fov,a);
    if(projected.visible) screens.push(.5+.5*(projected.x-result.lensShiftX));
@@ -272,7 +272,7 @@ export function raceCameraPose({shot,progress,order,path,aspect=1,clock=Infinity
   // The cut can be entered directly at any progress (seek/deep link).
   // Reconcile the REAL leader's projected nose at this exact entry point;
   // the precomposed arc alone assumes an earlier cut entrance.
-  const q=path(lead.p),lane=runnerLane(lead.no,order.length,progress);
+  const q=path(lead.p),lane=lead.lane??runnerLane(lead.no,order.length,progress);
   const nose={x:q.x-q.dz*lane+q.dx*2,y:q.y+2,z:q.z+q.dx*lane+q.dz*2};
   const projected=projectPoint(nose,result.position,result.look,result.fov,a);
   if(projected.visible){
@@ -310,14 +310,14 @@ export function followLockedCameraPose(rig,order,path,{distance=2000,venue='äº¬é
   const outside=rail-sign*18;
   const position={x:station.x-station.dz*outside,y:station.y+2.5,
    z:station.z+station.dx*outside};
-  const q=path(leader.p),lane=runnerLane(leader.no,order.length,leader.p);
+  const q=path(leader.p),lane=leader.lane??runnerLane(leader.no,order.length,leader.p);
   const nose={x:q.x-q.dz*lane+q.dx*2.7,y:q.y+2,
    z:q.z+q.dx*lane+q.dz*2.7};
   // Broadcast tripod: fixed station and stable horizon. Aim at the leading
   // pack's ground-level center, without a high crane/downward perspective.
   const leaders=order.slice(0,Math.min(5,order.length));
   const focus=leaders.reduce((sum,horse,i)=>{
-   const h=path(horse.p),l=runnerLane(horse.no,order.length,horse.p);
+   const h=path(horse.p),l=horse.lane??runnerLane(horse.no,order.length,horse.p);
    const w=i<3?1.2:.7;
    sum.x+=(h.x-h.dz*l+h.dx*2.7)*w;
    sum.z+=(h.z+h.dx*l+h.dz*2.7)*w;
@@ -386,10 +386,10 @@ export function followLockedCameraPose(rig,order,path,{distance=2000,venue='äº¬é
  // translation. The old two sequential corrections fought each other,
  // especially where the outside rail curves away from the pack.
  if(rig.pose.shotId==='fourth-turn'||rig.pose.shotId==='backstretch'||rig.pose.shotId==='start'){
-  const q=path(leader.p),lane=runnerLane(leader.no,order.length,leader.p);
+  const q=path(leader.p),lane=leader.lane??runnerLane(leader.no,order.length,leader.p);
   const nose={x:q.x-q.dz*lane+q.dx*2.7,y:q.y+2,z:q.z+q.dx*lane+q.dz*2.7};
   const first=path(rig.startLeaderProgress);
-  const firstLane=runnerLane(leader.no,order.length,rig.startLeaderProgress);
+  const firstLane=rig.startLeaderLane??runnerLane(leader.no,order.length,rig.startLeaderProgress);
   const initial={x:first.x-first.dz*firstLane+first.dx*2.7,y:first.y+2,z:first.z+first.dx*firstLane+first.dz*2.7};
   const expected=rotate(initial);
   // Correct the camera's full translation rather than steering its aim.

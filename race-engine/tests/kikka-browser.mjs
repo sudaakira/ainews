@@ -24,6 +24,7 @@ try{
   assert.equal(initial.status.horses,18);assert.equal(initial.status.model,'photo-thoroughbred-v24');
   assert.equal(initial.status.courseView,'kyoto-3000-outer');assert.equal(initial.scene.course.distance,3000);
   assert.equal(initial.seed,20261022);assert.equal(initial.rank.length,18);
+  assert.equal(initial.scene.packVersion,'pack-v1');
   const draw=await page.evaluate(()=>window.RACE_CONFIG.horses.map(h=>({no:h.no,name:h.name,frame:h.frame})));
   assert.deepEqual(draw.find(h=>h.name==='ロブチェン'),{no:8,name:'ロブチェン',frame:4});
   assert.equal(await page.locator('#vol').inputValue(),'3');
@@ -49,6 +50,13 @@ try{
   for(const [p,id] of [[.04,'start'],[.18,'first-corner'],[.369,'first-corner'],[.64,'backstretch'],[.79,'fourth-turn'],[.82,'fourth-turn'],[.85,'fourth-turn'],[.864,'fourth-turn'],[.91,'finish'],[.999,'finish']]){
    await seek(p);const scene=await page.evaluate(()=>window.RACE_SCENE_AUDIT);
    assert.equal(scene.shot,id);assert.equal(scene.leadersOccluded,0);
+   // The camera, WebGL models and shared replay must use the very same
+   // dynamic lanes; a visually correct but disconnected planner is not enough.
+   for(const horse of scene.packStates){
+    const pos=scene.positions[horse.no-1];
+    assert.ok(Math.hypot(pos.x-horse.x,pos.z-horse.z)<.001,'actual 3D trajectory alignment');
+    assert.ok(Math.abs(horse.lane)<=12.00001,'actual 3D rail clearance');
+   }
    assert.ok(scene.leadVisible,'leader visible '+vp.width+' '+p+' '+JSON.stringify({x:scene.leadScreenX,y:scene.leadScreenY}));
    assert.ok(scene.cameraOuterRailClearance>=11.9,'camera outside rail '+p);
    if(p===.369){assert.equal(scene.goalBoardVisible,true);assert.equal(await page.locator('.cinema-finish-visible').count(),0,'first goal passage is not the finish');}

@@ -25,6 +25,7 @@ jobs:
         run: |
           node race-engine/tests/smoke.mjs
           node race-engine/tests/kikka-2026.mjs
+          node race-engine/tests/race-pack.mjs
       - name: Prepare static site
         run: |
           mkdir -p _site/swan-2026 _site/race-engine

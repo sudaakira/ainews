@@ -1,6 +1,6 @@
 import {raceCommentary,ANNOUNCER_SVG} from './race-commentary.js?v=announcer-v30';
 /** Clean cel-racing broadcast. All positions and results are read from the shared engine. */
-import {chooseRaceShot,courseShotCuts,raceCameraPose,followLockedCameraPose} from './race-shotlist.js?v=mobile-camera-v28-kikka';
+import {chooseRaceShot,courseShotCuts,raceCameraPose,followLockedCameraPose} from './race-shotlist.js?v=pack-v1-camera-v28';
 import {finishCrossings,playbackRate} from './race-playback.js?v=kyoto-v11-1';
 
 export function createRaceCinematics({THREE,scene,stage,models,config,capFor,path,route,routeLength}){
@@ -142,7 +142,7 @@ export function createRaceCinematics({THREE,scene,stage,models,config,capFor,pat
   if(mustRebase){
    const base=raceCameraPose({shot,progress:p,order,path,aspect:camera.aspect,
     clock,direction:config.direction,distance:config.distance,venue:config.venue});
-   lockedRig={pose:{...base,shotId:shot.id},startLeaderProgress:order[0].p,
+   lockedRig={pose:{...base,shotId:shot.id},startLeaderProgress:order[0].p,startLeaderLane:order[0].lane,
     mode:gateMode,aspect:camera.aspect};
    cameraRebases++;cut=true;lastMode=base.mode;
   }

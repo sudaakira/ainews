@@ -7,9 +7,10 @@ const SCALE=.700213,goal=403.7;
 const homeStart=1200+(403.7-328.4)/SCALE;
 const segments=[
  [[homeStart,536],[homeStart-(homeStart-604)/3,536],[604+(homeStart-604)/3,536],[604,536]],
- [[604,536],[415,536],[357,334],[520,220]],
+ // C1 tangent joins: offset runners and rails must not jump at a bend exit.
+ [[604,536],[415,536],[357,220+163*36/190],[520,220]],
  [[520,220],[710,184],[910,142],[1100,110]],
- [[1100,110],[1300,65],[1440,238],[1430,345]],
+ [[1100,110],[1300,110-200*32/190],[1430+107*5/100,238],[1430,345]],
  [[1430,345],[1425,445],[1390,536],[homeStart,536]]
 ];
 function trace(sy){
@@ -26,11 +27,16 @@ function trace(sy){
 let lo=.05,hi=2;
 for(let i=0;i<50;i++){const mid=(lo+hi)/2;if(trace(mid).length<KYOTO_OUTER_3000.lap)lo=mid;else hi=mid}
 const {arr,length}=trace((lo+hi)/2);
+for(let i=0;i<arr.length;i++){
+ const a=arr[i===0?arr.length-2:i-1],b=arr[i===arr.length-1?1:i+1];
+ const l=Math.hypot(b.x-a.x,b.z-a.z);arr[i].dx=(b.x-a.x)/l;arr[i].dz=(b.z-a.z)/l;
+}
 function loop(s){
  s=((s%length)+length)%length;let low=0,high=arr.length-1;
  while(high-low>1){const m=(low+high)>>1;if(arr[m].s<s)low=m;else high=m}
- const a=arr[low],b=arr[high],t=(s-a.s)/(b.s-a.s),l=Math.hypot(b.x-a.x,b.z-a.z);
- return {x:a.x+(b.x-a.x)*t,z:a.z+(b.z-a.z)*t,dx:(b.x-a.x)/l,dz:(b.z-a.z)/l};
+ const a=arr[low],b=arr[high],t=(s-a.s)/(b.s-a.s);
+ const dx=a.dx+(b.dx-a.dx)*t,dz=a.dz+(b.dz-a.dz)*t,l=Math.hypot(dx,dz);
+ return {x:a.x+(b.x-a.x)*t,z:a.z+(b.z-a.z)*t,dx:dx/l,dz:dz/l};
 }
 const smooth=x=>{x=Math.max(0,Math.min(1,x));return x*x*(3-2*x)};
 export function kyotoOuterHeight(t){

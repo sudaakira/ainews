@@ -1,5 +1,5 @@
-import {kyotoOuterPath,kyotoOuterHeight,KYOTO_OUTER_3000} from './assets/kyoto-outer-3000.js?v=kikka-1';
-import {kyotoPath,kyotoHeight,KYOTO_INNER,runnerLane,kyotoOuterCourseOffset} from './assets/kyoto-course.js?v=kyoto-v12';
+import {kyotoOuterPath,kyotoOuterHeight,KYOTO_OUTER_3000} from './assets/kyoto-outer-3000.js?v=pack-v1-smooth';
+import {kyotoPath,kyotoHeight,KYOTO_INNER,kyotoOuterCourseOffset} from './assets/kyoto-course.js?v=pack-v1-smooth';
 
 /* True WebGL 3D horses and racecourse. CDN failure retains the self-contained SVG view. */
 import {jockeyCap} from './core/jockey-caps.js?v=cap-v1';
@@ -23,7 +23,7 @@ import {jockeyCap} from './core/jockey-caps.js?v=cap-v1';
  try{
  const api=window.KYOTO_RACE;
  if(!api)throw Error('Race state unavailable');
- const {HS,LIVE,route,routeLength,horseProgress,config}=api;const CENTER=(HS.length+1)/2;const distance=config.distance;
+ const {HS,LIVE,route,routeLength,horseProgress,horseState,config}=api;const CENTER=(HS.length+1)/2;const distance=config.distance;
  const outer3000=config.courseView==='kyoto-3000-outer';
  const metricKyoto=outer3000||(config.venue==='京都'&&distance===2000&&config.surface==='芝');
  const courseProfile=outer3000?KYOTO_OUTER_3000:KYOTO_INNER;
@@ -302,7 +302,7 @@ import {jockeyCap} from './core/jockey-caps.js?v=cap-v1';
  const {createJRAFurlongPosts}=await import("./assets/jra-furlong-posts.js?v=geo-v6");
  const furlongPosts=createJRAFurlongPosts({THREE,scene,offsetPoint,distance,half});
  // Cinematic director replaces manual angle selection for every race.
- const {createRaceCinematics}=await import("./assets/race-cinematics.js?v=announcer-v30-instant43-camera-v28");
+ const {createRaceCinematics}=await import("./assets/race-cinematics.js?v=pack-v1-announcer-v30-camera-v28");
  const cinematics=createRaceCinematics({THREE,scene,stage,models,config,capFor,path,route,routeLength});
  const cameraBlockers=[];scene.traverse(o=>{if(o.isMesh&&o.userData.cameraOccluder)cameraBlockers.push(o)});
  const visibilityRay=new THREE.Raycaster();
@@ -329,7 +329,7 @@ import {jockeyCap} from './core/jockey-caps.js?v=cap-v1';
   const frameDt=lastFrame?Math.min(.12,Math.max(0,(now-lastFrame)/1000)):1/60;lastFrame=now;
   const clock=LIVE.clock;
   const visualP=h=>horseProgress(h.no,clock);
-  const order=HS.map(h=>({no:h.no,p:visualP(h)}))
+  const order=HS.map(h=>horseState(h.no,clock))
    .sort((a,b)=>b.p-a.p || LIVE.rank.indexOf(a.no)-LIVE.rank.indexOf(b.no));
   if(now-lastHud>180){
    lastHud=now;
@@ -351,7 +351,7 @@ import {jockeyCap} from './core/jockey-caps.js?v=cap-v1';
    // At zero time all race horses are physically inside their own starting stalls.
    // Stall coordinates are in the gate's local frame; after the break the model
    // transitions smoothly onto the course's racing lanes.
-   const lane=runnerLane(h.no,HS.length,clock/LIVE.duration);
+   const motion=horseState(h.no,clock),lane=motion.lane;
    const gateX=gateRoot.position.x+startDir.dz*(h.no-CENTER)*1.20;
    const gateZ=gateRoot.position.z-startDir.dx*(h.no-CENTER)*1.20;
    const staging=Math.max(0,1-Math.min(1,clock/.8));
@@ -361,15 +361,13 @@ import {jockeyCap} from './core/jockey-caps.js?v=cap-v1';
     (d.z+d.dx*lane)*(1-staging)+gateZ*staging
    );
    m.root.scale.setScalar(1);
-   m.root.rotation.y=Math.atan2(d.dx,d.dz);
+   m.root.rotation.y=Math.atan2(motion.dx,motion.dz);
    if(metricKyoto){const slope=(metricHeight(p+.0005)-metricHeight(p-.0005))/(distance*.001);m.root.rotation.x=-Math.atan(slope);}
    // Articulated four-leg gallop, driven by smooth screen time.
    // The same playback clock drives limbs before and after the finish.
    const visualTime=LIVE.visualTime;
    // Track-based cadence without visual strobing at 16x playback.
-   const t0=Math.max(0,Math.min(LIVE.duration-.01,clock-.4));
-   const t1=Math.min(LIVE.duration,Math.max(t0+.01,clock+.4));
-   const speedMps=Math.abs(horseProgress(h.no,t1)-horseProgress(h.no,t0))*distance/(t1-t0);
+   const speedMps=motion.speed;
    const cornerLead=config.direction==='左'?'left':'right';
    const straightLead=cornerLead==='left'?'right':'left';
    // Illustrative straight hand change, configurable by each horse.
@@ -468,6 +466,8 @@ import {jockeyCap} from './core/jockey-caps.js?v=cap-v1';
    shot:shotDirection?.shot,goalSide:'far',
    runOut:clock>LIVE.duration,clock,visualTime:LIVE.visualTime,
    positions:models.map(m=>({x:m.root.position.x,y:m.root.position.y,z:m.root.position.z})),
+   packVersion:api.pack.version,
+   packStates:order.map(h=>({no:h.no,p:h.p,lane:h.lane,x:h.x,z:h.z,dx:h.dx,dz:h.dz,speed:h.speed})),
    course:metricKyoto?courseProfile:null,
    cameraForwardDot:(camera.position.x-smoothLook.x)*path(1).dx+(camera.position.z-smoothLook.z)*path(1).dz,
    goalDepth,goalBehindHorses:goalDepth!==null&&goalDepth>farthestHorse,

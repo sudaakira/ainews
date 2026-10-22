@@ -5,7 +5,10 @@ export const KYOTO_INNER=Object.freeze({lap:1782.8,distance:2000,straight:328.4,
 const start=328.4-217.2,home=596*.700213;
 // The home and back straights are NOT parallel: Kyoto's backstretch angles
 // towards 3C, and its 1–2 / 3–4 ends have different radii.
-const segments=[[[1200,536],[1001,536],[803,536],[604,536]],[[604,536],[415,536],[357,334],[520,220]],[[520,220],[710,184],[910,142],[1100,110]],[[1100,110],[1260,83],[1370,223],[1365,330]],[[1365,330],[1360,436],[1300,536],[1200,536]]];
+// Match the exit tangent to the backstretch (190,-36). The former
+// (357,334) control caused a ~25° seam and metre-scale jumps for offset lanes.
+// Length calibration below still preserves the published lap dimension.
+const segments=[[[1200,536],[1001,536],[803,536],[604,536]],[[604,536],[415,536],[357,220+163*36/190],[520,220]],[[520,220],[710,184],[910,142],[1100,110]],[[1100,110],[1260,110-160*32/190],[1370,223],[1365,330]],[[1365,330],[1360,436],[1300,536],[1200,536]]];
 function trace(sy){
  const arr=[];let length=0;
  for(let n=0;n<segments.length;n++)for(let i=n?1:0;i<=220;i++){
@@ -17,11 +20,18 @@ function trace(sy){
 }
 let lo=.1,hi=2;for(let i=0;i<48;i++){const mid=(lo+hi)/2;if(trace(mid).length<1782.8)lo=mid;else hi=mid}
 const sy=(lo+hi)/2,{arr,length}=trace(sy);
+// Interpolate vertex tangents instead of using one constant chord direction
+// per sample. Otherwise offset lanes still jump at every polyline vertex.
+for(let i=0;i<arr.length;i++){
+ const a=arr[i===0?arr.length-2:i-1],b=arr[i===arr.length-1?1:i+1];
+ const l=Math.hypot(b.x-a.x,b.z-a.z);arr[i].dx=(b.x-a.x)/l;arr[i].dz=(b.z-a.z)/l;
+}
 function loop(s){
  s=((s%length)+length)%length;let low=0,high=arr.length-1;
  while(high-low>1){const m=(low+high)>>1;if(arr[m].s<s)low=m;else high=m}
- const a=arr[low],b=arr[high],t=(s-a.s)/(b.s-a.s),l=Math.hypot(b.x-a.x,b.z-a.z);
- return {x:a.x+(b.x-a.x)*t,z:a.z+(b.z-a.z)*t,dx:(b.x-a.x)/l,dz:(b.z-a.z)/l};
+ const a=arr[low],b=arr[high],t=(s-a.s)/(b.s-a.s);
+ const dx=a.dx+(b.dx-a.dx)*t,dz=a.dz+(b.dz-a.dz)*t,l=Math.hypot(dx,dz);
+ return {x:a.x+(b.x-a.x)*t,z:a.z+(b.z-a.z)*t,dx:dx/l,dz:dz/l};
 }
 const smooth=x=>{x=Math.max(0,Math.min(1,x));return x*x*(3-2*x)};
 export function kyotoHeight(t){

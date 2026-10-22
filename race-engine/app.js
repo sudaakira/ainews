@@ -1,8 +1,9 @@
-import {kyotoOuterMapPath} from './assets/kyoto-outer-3000.js?v=kikka-1';
-import {kyotoMapPath} from './assets/kyoto-course.js?v=kyoto-v11-1';
+import {kyotoOuterMapPath,kyotoOuterPath} from './assets/kyoto-outer-3000.js?v=pack-v1-smooth';
+import {kyotoMapPath,kyotoPath} from './assets/kyoto-course.js?v=pack-v1-smooth';
+import {createRacePack,createReplayProgress} from './assets/race-pack.js?v=pack-v1';
 /* Race-engine shared UI application. Loaded after per-race configuration. */
 import {jockeyCap,JRA_JOCKEY_CAPS} from './core/jockey-caps.js?v=cap-v1';
-import {FINISH_GAP,runOutProgress,playbackEnd,playbackRate,finishCrossings} from './assets/race-playback.js?v=kyoto-v11-1';
+import {FINISH_GAP,playbackEnd,playbackRate,finishCrossings} from './assets/race-playback.js?v=kyoto-v11-1';
 const config=window.RACE_CONFIG;
 const isKyotoOuter3000=config?.courseView==='kyoto-3000-outer';
 const isKyotoInner=config?.venue==='京都'&&config?.distance===2000&&config?.surface==='芝';
@@ -34,6 +35,7 @@ if(docLinks){
   (config.historicalTrends?'<details style="margin:12px 0;background:#f3f6f6;border:1px solid #b9c9c8;border-radius:8px;padding:10px"><summary><b>📊 添付データ：過去10年の秋華賞・京都開催8回の傾向</b></summary><p class="small">'+(config.drawConfirmed?'確定枠順を京都開催8回の枠別傾向で弱く補正。枠だけで馬の実力を逆転させない。':'枠は確定するまで中立。')+' 京都開催8回の前走4角4番手以内＝0-3-2-50（3着内9.1%）、5番手以下＝8-5-6-65（3着内22.6%）。ローズS勝馬や位置取りだけで消さず、既存の先行力・展開項目内に平滑化した軽微な補正だけを適用。</p><p class="small">脚質：逃げ0-2-0-6／先行2-0-1-23／差し6-4-7-47／追込0-2-0-39。キャリア5・6戦優位などは診断用途。人気は能力に使用せず、未確認4角は中立。</p><p class="small">詳細な数表と修正ログ：GitHubの race-engine/races/shuka-2026.js を参照。2021・2022年阪神代替を枠・脚質から除外。</p></details>':'')+
   '<p class="small">※着順率は未校正モデル内の出現率。'+(isKyotoOuter3000?'京都外回りの公開寸法に基づく復元モデルです。3000m・2度の坂越えを再現します（測量データではありません）。':isKyotoInner?'京都内回りの公開コース図・寸法・高低差に基づく復元モデルです。':config.courseView==='kyoto-1400-outer'?'':'3Dは汎用模式図で実際の競馬場の高低差・距離形状を再現しません。')+'</p>';
 }
+if(docLinks)docLinks.insertAdjacentHTML('beforeend','<details id="pack-model-note"><summary>馬群・走行ラインのモデル（pack-v1）</summary><p class="small">馬番固定レーンではなく、前馬の後ろ・ラチとの余裕・コーナーの距離ロス・進路の空きに応じて走路を計画します。重馬場想定では急な切り返しを抑えます。</p><p class="small">走行ラインは映像用の仮定です。抽選済みの前後位置と着順は維持し、詰まりによる減速や消耗から勝率を再推定するモデルではありません。</p><p><a href="https://github.com/sudaakira/ainews/blob/main/race-engine/docs/pack-dynamics.md" target="_blank" rel="noopener">調査根拠・経路計画・限界と検証</a></p></details>');
 if(config.evidenceUrl){
  const liveNote=document.querySelector('.live-note');if(liveNote)liveNote.textContent='仮想レース。再生時計3分03秒5は映像用で、予測タイムではありません。';
  const genericNote=document.querySelector('.factor-settings > p.small:last-child');
@@ -280,6 +282,18 @@ if(isKyotoOuter3000){
 }
 const routeLength=route.getTotalLength();
 const routeAt=d=>route.getPointAtLength(config.direction==='左'?routeLength-d:d);
+// The map, camera and horse models consume the same lateral trajectory.
+// Non-Kyoto courses retain their existing explicitly schematic scale.
+function packPath(p){
+ if(isKyotoOuter3000)return kyotoOuterPath(p);
+ if(isKyotoInner)return kyotoPath(p);
+ const s=Math.max(0,Math.min(1,p))*routeLength,q=routeAt(s);
+ const a=routeAt(Math.max(0,s-2)),b=routeAt(Math.min(routeLength,s+2));
+ const len=Math.max(.001,Math.hypot(b.x-a.x,b.y-a.y)),dx=(b.x-a.x)/len,dz=(b.y-a.y)/len;
+ const runOut=Math.max(0,p-1)*routeLength*.245;
+ return {x:(q.x-430)*.245+dx*runOut,z:(q.y-277)*.245+dz*runOut,y:0,dx,dz};
+}
+let pack=null,replayProgress=null;
 // Race markers show jockey CAP colour, not the race-silk colour.
 // Cap colour follows the official JRA frame (1=white through 8=pink).
 function mkSvg(tag,attrs){let e=document.createElementNS(NS,tag);Object.entries(attrs||{}).forEach(([k,v])=>e.setAttribute(k,v));return e}
@@ -324,6 +338,9 @@ function sampleLiveRace(){
  firstRace=false;
  const s=opts(),r=random(seed);
  LIVE.rank=runRace(r,s);LIVE.seed=r()*1000;LIVE.replaySeed=seed;
+ replayProgress=createReplayProgress({horses:HS,duration:LIVE.duration,rank:LIVE.rank,seed:LIVE.seed,pace:s.pace});
+ pack=createRacePack({horses:HS,duration:LIVE.duration,distance,progress:horseProgress,
+  path:packPath,direction:config.direction,ground:s.ground,seed,width:isKyotoOuter3000||isKyotoInner?27:25.6});
  LIVE.clock=useStartFrame?LIVE.duration*initialPosition/1000:0;
  LIVE.visualTime=0;LIVE.ready=true;LIVE.playing=false;LIVE.last=0;LIVE.playbackAtFinish=false;LIVE.instantFinished=false;
  shareRaceFrame(useStartFrame?initialPosition:null);
@@ -331,18 +348,8 @@ function sampleLiveRace(){
  el('live-status').textContent='スタート待機';raceview.lastKey='';el('result-state').textContent='スタート待機';el('race').classList.remove('finished');el('race').innerHTML=['🥇','🥈','🥉'].map((medal,i)=>'<div class="place-card place-'+(i+1)+'"><div class="place-rank">'+medal+' '+(i+1)+'着</div><div class="place-number">—</div><div class="place-name">レース待機中</div></div>').join('');drawLive();
  if(el('live-rate').value==='instant')finishLiveRace();
 }
-function ease(t){return t*t*(3-2*t)}
-function horseProgress(no,sec){
- let p=Math.min(1,Math.max(0,sec/LIVE.duration)),h=HS[no-1],rank=LIVE.rank.indexOf(no);
- if(sec>LIVE.duration)return runOutProgress(rank,sec-LIVE.duration,LIVE.duration);
- let early=h.style==='逃げ'?.012:h.style==='好位'?.0065:h.style==='中団'?-.0015:-.009;
- let shift=early*Math.sin(Math.PI*p)*Math.pow(1-p,.15);
- let pace=+el('pace').value;
- shift+=(h.style==='逃げ'?-.004*pace:h.style==='差し'?.004*pace:0)*Math.sin(Math.PI*p);
- let finishGap=rank*FINISH_GAP*ease(Math.max(0,(p-.47)/.53));
- let jitter=Math.sin(p*24+no*2.6+LIVE.seed)*.0009*Math.sin(Math.PI*p);
- return Math.max(0,Math.min(1,p+shift-finishGap+jitter));
-}
+function horseProgress(no,sec){return replayProgress(no,sec)}
+function horseState(no,sec){return pack.state(no,sec)}
 function drawLive(){
  if(!LIVE.ready)return;
  let progress=Math.min(1,LIVE.clock/LIVE.duration),left=Math.max(0,Math.round(distance*(1-progress)));
@@ -356,7 +363,7 @@ function drawLive(){
   let p=horseProgress(h.no,LIVE.clock),dist=routeLength*Math.min(1,p);
   let pos=routeAt(dist),prev=routeAt(Math.max(0,dist-1)),next=routeAt(Math.min(routeLength,dist+1));
   let dx=next.x-prev.x,dy=next.y-prev.y,len=Math.max(.1,Math.hypot(dx,dy));
-  let lateral=(CENTER-h.no)*4.3, x=pos.x-dy/len*lateral,y=pos.y+dx/len*lateral;
+  let lateral=horseState(h.no,LIVE.clock).lane*(isKyotoOuter3000?.82:isKyotoInner?1.1:1/.245), x=pos.x-dy/len*lateral,y=pos.y+dx/len*lateral;
   if(p>1){x+=dx/len*(p-1)*routeLength;y+=dy/len*(p-1)*routeLength;}
   let g=el('horse-'+h.no);g.setAttribute('transform','translate('+x.toFixed(1)+' '+(y+Math.sin(LIVE.visualTime*11+h.no)*1.2).toFixed(1)+')');
   g.setAttribute('opacity',active.has(h.no)?'1':'.9');
@@ -403,7 +410,8 @@ el('live-reset').onclick=()=>sampleLiveRace();
 el('live-scrub').oninput=v=>{LIVE.clock=LIVE.duration*(+v.target.value)/1000;LIVE.playing=false;LIVE.last=0;LIVE.playbackAtFinish=false;LIVE.instantFinished=false;el('live-status').textContent=LIVE.clock>0?'一時停止':'スタート待機';shareRaceFrame(v.target.value);drawLive();};
 const oldSim=el('simulate').onclick;el('simulate').onclick=()=>{oldSim();sampleLiveRace();};
 sampleLiveRace();LIVE.raf=requestAnimationFrame(liveFrame);
-window.KYOTO_RACE={HS,LIVE,route,routeLength,horseProgress,config};
+window.KYOTO_RACE={HS,LIVE,route,routeLength,horseProgress,horseState,config,
+ get pack(){return pack}};
 window.RACE_APP_READY=true;
 
 
