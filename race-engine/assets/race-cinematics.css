@@ -180,3 +180,14 @@ body.premium-immersive .hero-race .live-note{display:block!important}
  #race-commentary-text{font-size:10px;line-height:1.3;margin-top:3px}#race-commentary-title{font-size:7px}
  #race-course-guide{display:none}.cinema-phase{top:39px}.race-distance{top:39px}
 }
+
+/* Frameless announcer: keep the original portrait unmodified and blend its black
+   backdrop into the commentary bar; no badges, boxes, or speech bubble. */
+#race-commentary-panel{background:#080b0d;border-top:0;box-shadow:none;color:#f4f5f3}
+#race-commentary-panel[data-tone=winner]{background:#080b0d;border-top:0}
+.race-announcer,#race-commentary-panel[data-tone=winner] .race-announcer{border:0;border-radius:0;background:#080b0d;box-shadow:none;overflow:visible;display:flex;align-items:center;justify-content:center}
+.race-announcer img{width:100%;height:100%;object-fit:contain;background:transparent;image-rendering:pixelated}
+.race-speech,#race-commentary-panel[data-tone=winner] .race-speech{min-height:0;padding:5px 8px;background:transparent;border:0;border-radius:0;box-shadow:none}
+.race-speech:before{display:none}
+#race-commentary-text{color:#f5f5f2;margin:0;text-shadow:0 1px 2px #000}
+.race-commentary-channel,.race-speech-header,#race-commentary-title{display:none!important}
