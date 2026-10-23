@@ -14,6 +14,7 @@ CC0の骨格付き馬モデルとギャロップ素材を使用。1頭の横・�
 
 ## 公開ページ
 
+- [2026 菊花賞・10/23更新／重馬場前提](https://sudaakira.github.io/ainews/race-engine/?race=kikka-2026&ui=20261023-heavy) — 確定18頭、4倍速・ばらつき3・即ゴール。全頭談話・金曜調整を追加し、状態点の二重加点を避け、道悪談話3頭を小幅反映。[全頭・15条件のレポート](reports/kikka-2026-20261023.html)。金曜正午の京都芝「良」と、日曜の「重」想定は区別する。
 - [2026 スワンステークス](https://sudaakira.github.io/ainews/race-engine/?race=swan-2026)
 - [2026年10月12日 東京11R オクトーバーS](https://sudaakira.github.io/ainews/race-engine/?race=tokyo-20261012-11) — 東京2000m、18頭、全14項目の配点可変、東京コース統計は別途設定
 - [架空6頭サンプル](https://sudaakira.github.io/ainews/race-engine/?race=sample-demo) — 動作確認用。実在の馬・競走ではありません。

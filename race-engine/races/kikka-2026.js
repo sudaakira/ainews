@@ -1,4 +1,4 @@
-/** October 22 confirmed draw; assumed heavy going. */
+/** October 23 condition review; Friday observed good, Sunday assumed 重 (soft). */
 export default {
   "schemaVersion": 1,
   "id": "kikka-2026",
@@ -9,7 +9,7 @@ export default {
   "raceNumber": 11,
   "surface": "芝",
   "distance": 3000,
-  "course": "外回り・Aコース想定",
+  "course": "外回り・Aコース",
   "direction": "右",
   "courseView": "kyoto-3000-outer",
   "shotLabels": {
@@ -20,8 +20,8 @@ export default {
   },
   "duration": 183.5,
   "demo": false,
-  "asOf": "2026-10-22T19:07:28+09:00",
-  "seed": 20261022,
+  "asOf": "2026-10-23",
+  "seed": 20261023,
   "provisionalDraw": false,
   "drawConfirmed": true,
   "finalRunnersConfirmed": true,
@@ -31,7 +31,7 @@ export default {
   "defaultPlaybackRate": 4,
   "defaultSimulations": 50000,
   "defaultBias": "neutral",
-  "notes": "10/22 19:07 JST照合。確定18頭・正式馬番・枠色・騎手を反映。全18頭の最終調整を照合：ゴーイントゥスカイは10/22木曜追い、他17頭は10/21（シートゥサミットの実質最終は10/17）。調教後馬体重はJRA公表値を全頭表示し採点不使用。重馬場は依頼上の想定で当日バイアスは中立。初期設定4倍速・ばらつき3。当日馬場・体重・実オッズは未反映。率は未校正モデル内出現率。",
+  "notes": "10/23公表の全18頭の談話・金曜調整を確認。10/22確定の馬番・騎手・調教後体重は継承。金曜正午の京都芝は良だが、依頼上の重馬場想定を初期値とする。状態点は全頭据え置き、道悪談話による小幅修正3頭は無効化条件も用意。4倍速・ばらつき3・即ゴール・pack-v1・ピクセル実況を維持。当日体重・パドック・実オッズ未反映。率は未校正モデル内出現率。",
   "horses": [
     {
       "no": 1,
@@ -63,7 +63,7 @@ export default {
       },
       "horseId": "2023107127",
       "evidenceIndex": 4,
-      "latest": "10/22更新・1枠1番：単走で折り合いを優先。陣営の動き・叩いた効果を確認し内容欠測の中立50→84。本番での折り合いは留保。 調教後512kgは採点せず当日再確認。",
+      "latest": "10/23確認：スタミナと力強さが持ち味、陣営は道悪を歓迎。 陣営の適性見立てとして重のラップ・距離素点を各1だけ緩和。道悪3000mの実証ではなく、折り合いへの留保は維持。 最終追いは2026-10-21の資料を保持。",
       "suitability": {
         "blood": 93,
         "body": 89,
@@ -75,10 +75,10 @@ export default {
       },
       "officialPeakRating": 110,
       "officialPeakDistance": "M",
-      "reviewedAt": "2026-10-22T19:07:28+09:00",
-      "latestEvidenceDate": "2026-10-21",
-      "latestReviewKind": "final-workout",
-      "wetAssessment": "京都稍重1800mの新馬2着。キタサンブラック×Galileoの持続力仮説を小幅に扱い、3000mの力みを優先。",
+      "reviewedAt": "2026-10-23",
+      "latestEvidenceDate": "2026-10-23",
+      "latestReviewKind": "dated-stable-comment",
+      "wetAssessment": "京都稍重1800mの新馬2着。キタサンブラック×Galileoの持続力仮説を小幅に扱い、3000mの力みを優先。 10/23公表：スタミナと力強さが持ち味、陣営は道悪を歓迎。 陣営の適性見立てとして重のラップ・距離素点を各1だけ緩和。道悪3000mの実証ではなく、折り合いへの留保は維持。",
       "frame": 1,
       "trainingWeight": {
         "kg": 512,
@@ -89,7 +89,18 @@ export default {
         "source": "https://www.jra.go.jp/news/202610/102205.html"
       },
       "drawRemark": "1枠1番確定。枠素点58（中立50・総合配点1点内の裁量仮説）。当日の内外有利は未観測。",
-      "latestSource": "https://www.radionikkei.jp/keiba_article/news/post_38852.html"
+      "latestSource": "https://umanity.jp/racedata/race_newsdet.php?nid=11880604",
+      "conditionReview": {
+        "no": 1,
+        "publishedDate": "2026-10-23",
+        "eventDate": null,
+        "kind": "dated-stable-comment",
+        "summary": "スタミナと力強さが持ち味、陣営は道悪を歓迎。",
+        "assessment": "陣営の適性見立てとして重のラップ・距離素点を各1だけ緩和。道悪3000mの実証ではなく、折り合いへの留保は維持。",
+        "source": "https://umanity.jp/racedata/race_newsdet.php?nid=11880604",
+        "verification": "公開取材報道",
+        "eventDateNote": "記事公表日を確認。取材・調整の実施日を10/23と断定しない。"
+      }
     },
     {
       "no": 2,
@@ -120,7 +131,7 @@ export default {
       },
       "horseId": "2023106963",
       "evidenceIndex": 6,
-      "latest": "10/22更新・1枠2番：坂路2本目の単走で力強い脚取り。前走より動ける感触と体質良化を陣営が支持し、状態88→90。 調教後534kgは採点せず当日再確認。",
+      "latest": "10/23確認：金曜坂路で力強い動き。体の厚みが増したとの報告。 状態90を維持。調教後534kgは成長の説明と整合するが、当日体重でも適距離の証明でもなく、増量だけでは加減点しない。 最終追いは2026-10-21の資料を保持。",
       "suitability": {
         "blood": 90,
         "body": 90,
@@ -132,10 +143,10 @@ export default {
       },
       "officialPeakRating": 113,
       "officialPeakDistance": "L",
-      "reviewedAt": "2026-10-22T19:07:28+09:00",
-      "latestEvidenceDate": "2026-10-21",
-      "latestReviewKind": "final-workout",
-      "latestSource": "https://umanity.jp/racedata/race_newsdet.php?nid=11880471",
+      "reviewedAt": "2026-10-23",
+      "latestEvidenceDate": "2026-10-23",
+      "latestReviewKind": "friday-condition-review",
+      "latestSource": "https://news.netkeiba.com/?no=346466&pid=news_view&rf=kmatome",
       "wetAssessment": "本人の稍重以上の実走は保持資料にない。母の2500m実績は距離根拠であり、重馬場巧者の証明にはしない。",
       "frame": 1,
       "trainingWeight": {
@@ -146,7 +157,17 @@ export default {
         "date": "2026-10-22",
         "source": "https://www.jra.go.jp/news/202610/102205.html"
       },
-      "drawRemark": "1枠2番確定。枠素点62（中立50・総合配点1点内の裁量仮説）。当日の内外有利は未観測。"
+      "drawRemark": "1枠2番確定。枠素点62（中立50・総合配点1点内の裁量仮説）。当日の内外有利は未観測。",
+      "conditionReview": {
+        "no": 2,
+        "publishedDate": "2026-10-23",
+        "eventDate": "2026-10-23",
+        "kind": "friday-condition-review",
+        "summary": "金曜坂路で力強い動き。体の厚みが増したとの報告。",
+        "assessment": "状態90を維持。調教後534kgは成長の説明と整合するが、当日体重でも適距離の証明でもなく、増量だけでは加減点しない。",
+        "source": "https://news.netkeiba.com/?no=346466&pid=news_view&rf=kmatome",
+        "verification": "公開取材報道"
+      }
     },
     {
       "no": 3,
@@ -177,7 +198,7 @@ export default {
       },
       "horseId": "2023107321",
       "evidenceIndex": 0,
-      "latest": "10/22更新・2枠3番：津村騎手で約2馬身追走し併入。手応えは相手に劣勢でも、陣営は十分に仕上がったと説明。状態88を維持。 調教後502kgは採点せず当日再確認。",
+      "latest": "10/23確認：金曜はコースから坂路。輸送前も状態は安定。 状態88を維持。初の関西輸送後の体重・落ち着きは当日再確認。道悪実績を追加した扱いにはしない。 最終追いは2026-10-21の資料を保持。",
       "suitability": {
         "blood": 88,
         "body": 85,
@@ -189,10 +210,10 @@ export default {
       },
       "officialPeakRating": 113,
       "officialPeakDistance": "M",
-      "reviewedAt": "2026-10-22T19:07:28+09:00",
-      "latestEvidenceDate": "2026-10-21",
-      "latestReviewKind": "final-workout",
-      "latestSource": "https://www.nikkansports.com/keiba/news/202610210000155.html",
+      "reviewedAt": "2026-10-23",
+      "latestEvidenceDate": "2026-10-23",
+      "latestReviewKind": "friday-condition-review",
+      "latestSource": "https://umanity.jp/racedata/race_newsdet.php?nid=11880616",
       "wetAssessment": "稍重セントライト記念3着・0.3秒差。本人の対応を支持するが、重3000mへは段階が違う。",
       "frame": 2,
       "trainingWeight": {
@@ -203,7 +224,17 @@ export default {
         "date": "2026-10-22",
         "source": "https://www.jra.go.jp/news/202610/102205.html"
       },
-      "drawRemark": "2枠3番確定。枠素点59（中立50・総合配点1点内の裁量仮説）。当日の内外有利は未観測。"
+      "drawRemark": "2枠3番確定。枠素点59（中立50・総合配点1点内の裁量仮説）。当日の内外有利は未観測。",
+      "conditionReview": {
+        "no": 3,
+        "publishedDate": "2026-10-23",
+        "eventDate": "2026-10-23",
+        "kind": "friday-condition-review",
+        "summary": "金曜はコースから坂路。輸送前も状態は安定。",
+        "assessment": "状態88を維持。初の関西輸送後の体重・落ち着きは当日再確認。道悪実績を追加した扱いにはしない。",
+        "source": "https://umanity.jp/racedata/race_newsdet.php?nid=11880616",
+        "verification": "公開取材報道"
+      }
     },
     {
       "no": 4,
@@ -234,7 +265,7 @@ export default {
       },
       "horseId": "2023105332",
       "evidenceIndex": 10,
-      "latest": "10/22更新・2枠4番：直線強めの併せ追いで半馬身遅れとの公開集計。最終時計を追加するが状態56は維持。 調教後480kgは採点せず当日再確認。",
+      "latest": "10/23確認：折り合い面の心配は小さいとの陣営見解。 状態56と既存の時計資料を維持。談話の公表日と最終追いの実施日を分け、内容の独立裏付けが増えたとは扱わない。 最終追いは2026-10-21の資料を保持。",
       "suitability": {
         "blood": 79,
         "body": 80,
@@ -244,9 +275,9 @@ export default {
         "headline": "距離替わりだけでは近走の課題を埋められない",
         "caution": "マイルで負けたから長距離が向くという逆算はしない。過去の好走時の血統イメージより、今回どのように集中して走れるかを優先する。"
       },
-      "reviewedAt": "2026-10-22T19:07:28+09:00",
-      "latestEvidenceDate": "2026-10-21",
-      "latestReviewKind": "final-workout",
+      "reviewedAt": "2026-10-23",
+      "latestEvidenceDate": "2026-10-23",
+      "latestReviewKind": "dated-stable-comment",
       "wetAssessment": "函館稍重新馬を快勝した一方、直近の稍重1600mは11着。ハービンジャー血統だけで近走不振を解消とはしない。",
       "frame": 2,
       "trainingWeight": {
@@ -258,7 +289,18 @@ export default {
         "source": "https://www.jra.go.jp/news/202610/102205.html"
       },
       "drawRemark": "2枠4番確定。枠素点55（中立50・総合配点1点内の裁量仮説）。当日の内外有利は未観測。",
-      "latestSource": "https://umasiru.com/archives/22036"
+      "latestSource": "https://umanity.jp/racedata/race_newsdet.php?nid=11880604",
+      "conditionReview": {
+        "no": 4,
+        "publishedDate": "2026-10-23",
+        "eventDate": null,
+        "kind": "dated-stable-comment",
+        "summary": "折り合い面の心配は小さいとの陣営見解。",
+        "assessment": "状態56と既存の時計資料を維持。談話の公表日と最終追いの実施日を分け、内容の独立裏付けが増えたとは扱わない。",
+        "source": "https://umanity.jp/racedata/race_newsdet.php?nid=11880604",
+        "verification": "公開取材報道",
+        "eventDateNote": "記事公表日を確認。取材・調整の実施日を10/23と断定しない。"
+      }
     },
     {
       "no": 5,
@@ -289,7 +331,7 @@ export default {
       },
       "horseId": "2023106924",
       "evidenceIndex": 9,
-      "latest": "10/22更新・3枠5番：原騎手で約1秒追走、馬なりでクビ先着。一定のリズムと折り合いを支持し、状態87→90。距離適性83は継承。 調教後509kgは採点せず当日再確認。",
+      "latest": "10/23確認：金曜は角馬場。元気があり自分のリズムを重視。 状態90を維持。好調の再確認として扱い、早仕掛けへの追従を前提にしない。既存の道悪プラスは据え置き。 最終追いは2026-10-21の資料を保持。",
       "suitability": {
         "blood": 88,
         "body": 79,
@@ -301,10 +343,10 @@ export default {
       },
       "officialPeakRating": 115,
       "officialPeakDistance": "L",
-      "reviewedAt": "2026-10-22T19:07:28+09:00",
-      "latestEvidenceDate": "2026-10-21",
-      "latestReviewKind": "final-workout",
-      "latestSource": "https://umanity.jp/racedata/race_newsdet.php?nid=11880465",
+      "reviewedAt": "2026-10-23",
+      "latestEvidenceDate": "2026-10-23",
+      "latestReviewKind": "friday-condition-review",
+      "latestSource": "https://umanity.jp/racedata/race_newsdet.php?nid=11880616",
       "wetAssessment": "稍重1800m新馬と稍重2200m重賞の2勝。道悪での本人の実走を最優先。重3000mそのものは未経験で、折り合いを残す。",
       "frame": 3,
       "trainingWeight": {
@@ -315,7 +357,17 @@ export default {
         "date": "2026-10-21",
         "source": "https://www.jra.go.jp/news/202610/102205.html"
       },
-      "drawRemark": "3枠5番確定。枠素点60（中立50・総合配点1点内の裁量仮説）。当日の内外有利は未観測。"
+      "drawRemark": "3枠5番確定。枠素点60（中立50・総合配点1点内の裁量仮説）。当日の内外有利は未観測。",
+      "conditionReview": {
+        "no": 5,
+        "publishedDate": "2026-10-23",
+        "eventDate": "2026-10-23",
+        "kind": "friday-condition-review",
+        "summary": "金曜は角馬場。元気があり自分のリズムを重視。",
+        "assessment": "状態90を維持。好調の再確認として扱い、早仕掛けへの追従を前提にしない。既存の道悪プラスは据え置き。",
+        "source": "https://umanity.jp/racedata/race_newsdet.php?nid=11880616",
+        "verification": "公開取材報道"
+      }
     },
     {
       "no": 6,
@@ -346,7 +398,7 @@ export default {
       },
       "horseId": "2023107247",
       "evidenceIndex": 16,
-      "latest": "10/22更新・3枠6番：従来のハミに戻した3頭併せで余裕ある動き。陣営・騎手が先週より良化を支持し状態50→76。前走の道悪大敗と実戦での再現性は留保。 調教後464kgは採点せず当日再確認。",
+      "latest": "10/23確認：金曜は角馬場・CWと駐立確認。状態に問題なし。 状態76を維持。調教後464kgは仕上がりの参考。折り合い・実戦バランス・過去の不良での不振が解消したとは断定しない。 最終追いは2026-10-21の資料を保持。",
       "suitability": {
         "blood": 81,
         "body": 88,
@@ -358,10 +410,10 @@ export default {
       },
       "officialPeakRating": 117,
       "officialPeakDistance": "L",
-      "reviewedAt": "2026-10-22T19:07:28+09:00",
-      "latestEvidenceDate": "2026-10-21",
-      "latestReviewKind": "final-workout",
-      "latestSource": "https://umanity.jp/racedata/race_newsdet.php?nid=11880466",
+      "reviewedAt": "2026-10-23",
+      "latestEvidenceDate": "2026-10-23",
+      "latestReviewKind": "friday-condition-review",
+      "latestSource": "https://dir.netkeiba.com/keiba/news/news_preview.html?no=346451&rf=kssp",
       "wetAssessment": "稍重セントライト記念13着・1.0秒差。JRAも前走の馬場不向きを指摘。今日の調教良化と重馬場適性は別に評価。",
       "frame": 3,
       "trainingWeight": {
@@ -372,7 +424,17 @@ export default {
         "date": "2026-10-21",
         "source": "https://www.jra.go.jp/news/202610/102205.html"
       },
-      "drawRemark": "3枠6番確定。枠素点58（中立50・総合配点1点内の裁量仮説）。当日の内外有利は未観測。"
+      "drawRemark": "3枠6番確定。枠素点58（中立50・総合配点1点内の裁量仮説）。当日の内外有利は未観測。",
+      "conditionReview": {
+        "no": 6,
+        "publishedDate": "2026-10-23",
+        "eventDate": "2026-10-23",
+        "kind": "friday-condition-review",
+        "summary": "金曜は角馬場・CWと駐立確認。状態に問題なし。",
+        "assessment": "状態76を維持。調教後464kgは仕上がりの参考。折り合い・実戦バランス・過去の不良での不振が解消したとは断定しない。",
+        "source": "https://dir.netkeiba.com/keiba/news/news_preview.html?no=346451&rf=kssp",
+        "verification": "公開取材報道"
+      }
     },
     {
       "no": 7,
@@ -403,7 +465,7 @@ export default {
       },
       "horseId": "2023105560",
       "evidenceIndex": 19,
-      "latest": "10/22更新・4枠7番：石神騎手で馬なり併入。10/22クラブ更新の動き・息の前週比良化を確認し状態85→88。クラブ計量482kgとJRA公表481kgは別値。 調教後481kgは採点せず当日再確認。",
+      "latest": "10/23確認：金曜坂路では制御できており、陣営は渋化を歓迎。 状態88を維持。談話を弱い補助根拠として、重のラップ・距離素点を各1だけ上げる。重3000m実績とは区別。 最終追いは2026-10-21の資料を保持。",
       "suitability": {
         "blood": 79,
         "body": 83,
@@ -415,10 +477,10 @@ export default {
       },
       "officialPeakRating": 109,
       "officialPeakDistance": "L",
-      "reviewedAt": "2026-10-22T19:07:28+09:00",
-      "latestEvidenceDate": "2026-10-21",
-      "latestReviewKind": "final-workout",
-      "wetAssessment": "中山稍重2000m未勝利を0.8秒差勝ち、稍重セントライト記念7着・0.5秒差。Mill Reef5代内は補助。",
+      "reviewedAt": "2026-10-23",
+      "latestEvidenceDate": "2026-10-23",
+      "latestReviewKind": "friday-condition-review",
+      "wetAssessment": "中山稍重2000m未勝利を0.8秒差勝ち、稍重セントライト記念7着・0.5秒差。Mill Reef5代内は補助。 10/23公表：金曜坂路では制御できており、陣営は渋化を歓迎。 状態88を維持。談話を弱い補助根拠として、重のラップ・距離素点を各1だけ上げる。重3000m実績とは区別。",
       "frame": 4,
       "trainingWeight": {
         "kg": 481,
@@ -429,7 +491,17 @@ export default {
         "source": "https://www.jra.go.jp/news/202610/102205.html"
       },
       "drawRemark": "4枠7番確定。枠素点56（中立50・総合配点1点内の裁量仮説）。当日の内外有利は未観測。",
-      "latestSource": "https://greenfarm.co.jp/photo/2312.shtml"
+      "latestSource": "https://umanity.jp/racedata/race_newsdet.php?nid=11880616",
+      "conditionReview": {
+        "no": 7,
+        "publishedDate": "2026-10-23",
+        "eventDate": "2026-10-23",
+        "kind": "friday-condition-review",
+        "summary": "金曜坂路では制御できており、陣営は渋化を歓迎。",
+        "assessment": "状態88を維持。談話を弱い補助根拠として、重のラップ・距離素点を各1だけ上げる。重3000m実績とは区別。",
+        "source": "https://umanity.jp/racedata/race_newsdet.php?nid=11880616",
+        "verification": "公開取材報道"
+      }
     },
     {
       "no": 8,
@@ -460,7 +532,7 @@ export default {
       },
       "horseId": "2023107089",
       "evidenceIndex": 20,
-      "latest": "10/22更新・4枠8番：併走相手を追走し、わずかに促して素早い反応。折り合いと叩いた軽さを支持して状態90→94。重馬場の京都新馬勝ちも支持材料。 調教後524kgは採点せず当日再確認。",
+      "latest": "10/23確認：金曜坂路でも落ち着きと体重を維持、枠も好感。 状態94を維持し好調を二重加点しない。良馬場を望む談話はあるが本人の重勝ちは消さず、重3000mへの外挿だけ留保。 最終追いは2026-10-21の資料を保持。",
       "suitability": {
         "blood": 92,
         "body": 94,
@@ -472,10 +544,10 @@ export default {
       },
       "officialPeakRating": 119,
       "officialPeakDistance": "I,L",
-      "reviewedAt": "2026-10-22T19:07:28+09:00",
-      "latestEvidenceDate": "2026-10-21",
-      "latestReviewKind": "final-workout",
-      "latestSource": "https://umanity.jp/racedata/race_newsdet.php?nid=11880464",
+      "reviewedAt": "2026-10-23",
+      "latestEvidenceDate": "2026-10-23",
+      "latestReviewKind": "friday-condition-review",
+      "latestSource": "https://news.netkeiba.com/?no=346450&pid=news_view",
       "wetAssessment": "京都重2000m新馬を0.5秒差で勝利。今回の想定18頭で保持資料に重の実走勝ちがあるのは本馬。距離は2000→3000mであり保証ではない。Blushing Groom・Robertoも5代内。",
       "frame": 4,
       "trainingWeight": {
@@ -486,7 +558,17 @@ export default {
         "date": "2026-10-21",
         "source": "https://www.jra.go.jp/news/202610/102205.html"
       },
-      "drawRemark": "4枠8番確定。枠素点58（中立50・総合配点1点内の裁量仮説）。当日の内外有利は未観測。"
+      "drawRemark": "4枠8番確定。枠素点58（中立50・総合配点1点内の裁量仮説）。当日の内外有利は未観測。",
+      "conditionReview": {
+        "no": 8,
+        "publishedDate": "2026-10-23",
+        "eventDate": "2026-10-23",
+        "kind": "friday-condition-review",
+        "summary": "金曜坂路でも落ち着きと体重を維持、枠も好感。",
+        "assessment": "状態94を維持し好調を二重加点しない。良馬場を望む談話はあるが本人の重勝ちは消さず、重3000mへの外挿だけ留保。",
+        "source": "https://news.netkeiba.com/?no=346450&pid=news_view",
+        "verification": "公開取材報道"
+      }
     },
     {
       "no": 9,
@@ -517,7 +599,7 @@ export default {
       },
       "horseId": "2023105378",
       "evidenceIndex": 7,
-      "latest": "10/22更新・5枠9番：10/22木曜追い。3頭の間で折り合い、馬なりで内に先着・外に併入。輸送前の余力を評価し状態88→90。本番右回りの克服とは区別。 調教後510kgは採点せず当日再確認。",
+      "latest": "10/23確認：好状態で落ち着きもあるとの陣営見解。 10/22木曜最終追いを最新の追い切りとして保持し状態90を維持。右回りのもたれ改善は未確定で別条件に分離。 最終追いは2026-10-22の資料を保持。",
       "suitability": {
         "blood": 82,
         "body": 89,
@@ -529,10 +611,10 @@ export default {
       },
       "officialPeakRating": 117,
       "officialPeakDistance": "L",
-      "reviewedAt": "2026-10-22T19:07:28+09:00",
-      "latestEvidenceDate": "2026-10-22",
-      "latestReviewKind": "final-workout",
-      "latestSource": "https://umanity.jp/racedata/race_newsdet.php?nid=11880547",
+      "reviewedAt": "2026-10-23",
+      "latestEvidenceDate": "2026-10-23",
+      "latestReviewKind": "dated-stable-comment",
+      "latestSource": "https://umanity.jp/racedata/race_newsdet.php?nid=11880604",
       "wetAssessment": "稍重セントライト記念6着・0.4秒差。母母母父Forty Niner（4代目）とBlushing Groomを5代内に確認。道悪時のみ血統素点+2。右回りの課題を別に残す。",
       "frame": 5,
       "trainingWeight": {
@@ -543,7 +625,18 @@ export default {
         "date": "2026-10-22",
         "source": "https://www.jra.go.jp/news/202610/102205.html"
       },
-      "drawRemark": "5枠9番確定。枠素点55（中立50・総合配点1点内の裁量仮説）。当日の内外有利は未観測。"
+      "drawRemark": "5枠9番確定。枠素点55（中立50・総合配点1点内の裁量仮説）。当日の内外有利は未観測。",
+      "conditionReview": {
+        "no": 9,
+        "publishedDate": "2026-10-23",
+        "eventDate": null,
+        "kind": "dated-stable-comment",
+        "summary": "好状態で落ち着きもあるとの陣営見解。",
+        "assessment": "10/22木曜最終追いを最新の追い切りとして保持し状態90を維持。右回りのもたれ改善は未確定で別条件に分離。",
+        "source": "https://umanity.jp/racedata/race_newsdet.php?nid=11880604",
+        "verification": "公開取材報道",
+        "eventDateNote": "記事公表日を確認。取材・調整の実施日を10/23と断定しない。"
+      }
     },
     {
       "no": 10,
@@ -574,7 +667,7 @@ export default {
       },
       "horseId": "2023107005",
       "evidenceIndex": 13,
-      "latest": "10/22更新・5枠10番：2頭併せで大きなフットワークと良い呼吸・リズムを確認したとの取材。最終追いの具体的内容から状態72→86。重・不良の本人実績は未確認。 調教後483kgは採点せず当日再確認。",
+      "latest": "10/23確認：大きなストライドとコースへの期待を示す陣営談。 状態86を維持。大きな歩幅だけで道悪や3000m適性を新たに加点しない。 最終追いは2026-10-21の資料を保持。",
       "suitability": {
         "blood": 88,
         "body": 92,
@@ -584,10 +677,10 @@ export default {
         "headline": "長い距離での実走が血統を補強する対抗候補",
         "caution": "2戦とも条件戦で55kg。G1級相手の57kgと京都の速い加速へ、そのまま着差を移せない。洋芝が得意なことと重・不良の適性は同義ではない。ゲート内の落ち着きも確認点。"
       },
-      "reviewedAt": "2026-10-22T19:07:28+09:00",
-      "latestEvidenceDate": "2026-10-21",
-      "latestReviewKind": "final-workout",
-      "latestSource": "https://www.nikkansports.com/keiba/news/202610210000215.html",
+      "reviewedAt": "2026-10-23",
+      "latestEvidenceDate": "2026-10-23",
+      "latestReviewKind": "dated-stable-comment",
+      "latestSource": "https://umanity.jp/racedata/race_newsdet.php?nid=11880604",
       "wetAssessment": "洋芝2600mの圧勝2走はいずれも良。エピファネイアとRobertoの持続力仮説は支持するが、洋芝巧者と重馬場巧者を同一視しない。",
       "frame": 5,
       "trainingWeight": {
@@ -598,7 +691,18 @@ export default {
         "date": "2026-10-21",
         "source": "https://www.jra.go.jp/news/202610/102205.html"
       },
-      "drawRemark": "5枠10番確定。枠素点56（中立50・総合配点1点内の裁量仮説）。当日の内外有利は未観測。"
+      "drawRemark": "5枠10番確定。枠素点56（中立50・総合配点1点内の裁量仮説）。当日の内外有利は未観測。",
+      "conditionReview": {
+        "no": 10,
+        "publishedDate": "2026-10-23",
+        "eventDate": null,
+        "kind": "dated-stable-comment",
+        "summary": "大きなストライドとコースへの期待を示す陣営談。",
+        "assessment": "状態86を維持。大きな歩幅だけで道悪や3000m適性を新たに加点しない。",
+        "source": "https://umanity.jp/racedata/race_newsdet.php?nid=11880604",
+        "verification": "公開取材報道",
+        "eventDateNote": "記事公表日を確認。取材・調整の実施日を10/23と断定しない。"
+      }
     },
     {
       "no": 11,
@@ -629,7 +733,7 @@ export default {
       },
       "horseId": "2023106400",
       "evidenceIndex": 1,
-      "latest": "10/22更新・6枠11番：2周目から負荷を掛ける長距離向けの調整。動きと折り合いを支持し状態88→94。 調教後484kgは採点せず当日再確認。",
+      "latest": "10/23確認：金曜は岩田康騎手が坂路で確認、状態は良好。 状態94を維持。雨への前向きな談話も確認したが、距離の裏付けや重3000m実績の追加とは扱わない。 最終追いは2026-10-21の資料を保持。",
       "suitability": {
         "blood": 87,
         "body": 86,
@@ -641,10 +745,10 @@ export default {
       },
       "officialPeakRating": 115,
       "officialPeakDistance": "I",
-      "reviewedAt": "2026-10-22T19:07:28+09:00",
-      "latestEvidenceDate": "2026-10-21",
-      "latestReviewKind": "final-workout",
-      "latestSource": "https://www.nikkansports.com/keiba/news/202610210000349.html",
+      "reviewedAt": "2026-10-23",
+      "latestEvidenceDate": "2026-10-23",
+      "latestReviewKind": "friday-condition-review",
+      "latestSource": "https://news.livedoor.com/article/detail/32640467/",
       "wetAssessment": "稍重セントライト記念で前に行き4着・0.3秒差。道悪対応は支持、重3000mで早く動く消耗は残す。",
       "frame": 6,
       "trainingWeight": {
@@ -655,7 +759,17 @@ export default {
         "date": "2026-10-22",
         "source": "https://www.jra.go.jp/news/202610/102205.html"
       },
-      "drawRemark": "6枠11番確定。枠素点52（中立50・総合配点1点内の裁量仮説）。当日の内外有利は未観測。"
+      "drawRemark": "6枠11番確定。枠素点52（中立50・総合配点1点内の裁量仮説）。当日の内外有利は未観測。",
+      "conditionReview": {
+        "no": 11,
+        "publishedDate": "2026-10-23",
+        "eventDate": "2026-10-23",
+        "kind": "friday-condition-review",
+        "summary": "金曜は岩田康騎手が坂路で確認、状態は良好。",
+        "assessment": "状態94を維持。雨への前向きな談話も確認したが、距離の裏付けや重3000m実績の追加とは扱わない。",
+        "source": "https://news.livedoor.com/article/detail/32640467/",
+        "verification": "公開取材報道"
+      }
     },
     {
       "no": 12,
@@ -686,7 +800,7 @@ export default {
       },
       "horseId": "2023100724",
       "evidenceIndex": 8,
-      "latest": "10/22更新・6枠12番：田辺騎手でウッド単走。順調との説明で状態87を維持。陣営の雨への懸念と前走稍重11着を重馬場の留保に反映。 調教後472kgは採点せず当日再確認。",
+      "latest": "10/23確認：金曜坂路2本で元気。輸送を見据えた調整。 状態87を維持。過去の不良で滑ったとの説明は既存留保を支えるが、今回の重で再現すると決めつけず、新たな二重減点もしない。 最終追いは2026-10-21の資料を保持。",
       "suitability": {
         "blood": 75,
         "body": 80,
@@ -698,10 +812,10 @@ export default {
       },
       "officialPeakRating": 110,
       "officialPeakDistance": "M",
-      "reviewedAt": "2026-10-22T19:07:28+09:00",
-      "latestEvidenceDate": "2026-10-21",
-      "latestReviewKind": "final-workout",
-      "latestSource": "https://tospo-keiba.jp/breaking_news/76840",
+      "reviewedAt": "2026-10-23",
+      "latestEvidenceDate": "2026-10-23",
+      "latestReviewKind": "friday-condition-review",
+      "latestSource": "https://umanity.jp/racedata/race_newsdet.php?nid=11880616",
       "wetAssessment": "稍重セントライト記念11着・0.8秒差と陣営の雨への懸念を反映。良のレコード勝ちを重馬場の優位に移さない。",
       "frame": 6,
       "trainingWeight": {
@@ -712,7 +826,17 @@ export default {
         "date": "2026-10-22",
         "source": "https://www.jra.go.jp/news/202610/102205.html"
       },
-      "drawRemark": "6枠12番確定。枠素点50（中立50・総合配点1点内の裁量仮説）。当日の内外有利は未観測。"
+      "drawRemark": "6枠12番確定。枠素点50（中立50・総合配点1点内の裁量仮説）。当日の内外有利は未観測。",
+      "conditionReview": {
+        "no": 12,
+        "publishedDate": "2026-10-23",
+        "eventDate": "2026-10-23",
+        "kind": "friday-condition-review",
+        "summary": "金曜坂路2本で元気。輸送を見据えた調整。",
+        "assessment": "状態87を維持。過去の不良で滑ったとの説明は既存留保を支えるが、今回の重で再現すると決めつけず、新たな二重減点もしない。",
+        "source": "https://umanity.jp/racedata/race_newsdet.php?nid=11880616",
+        "verification": "公開取材報道"
+      }
     },
     {
       "no": 13,
@@ -743,7 +867,7 @@ export default {
       },
       "horseId": "2023100021",
       "evidenceIndex": 5,
-      "latest": "10/22更新・7枠13番：公開時計集計で最終調整を確認。内容の独立裏付けは限定的なため状態78を継承。 調教後480kgは採点せず当日再確認。",
+      "latest": "10/23確認：陣営は距離延長と京都3000mに期待。 状態78を維持。距離期待は既存の血統・距離評価内で扱い、未経験の3000mを確証へ置き換えない。 最終追いは2026-10-21の資料を保持。",
       "suitability": {
         "blood": 83,
         "body": null,
@@ -753,10 +877,10 @@ export default {
         "headline": "母系の距離根拠と2500～2600mの実走で拾う馬",
         "caution": "京都新聞杯2200mは13着。長距離条件戦の実績だけで京都の速い加速への対応を証明しない。父の未知と母系の距離根拠を別々に残す。近2走55kgから本番57kgへの変化も考慮する。"
       },
-      "reviewedAt": "2026-10-22T19:07:28+09:00",
-      "latestEvidenceDate": "2026-10-21",
-      "latestReviewKind": "final-workout",
-      "latestSource": "https://umasiru.com/archives/22036",
+      "reviewedAt": "2026-10-23",
+      "latestEvidenceDate": "2026-10-23",
+      "latestReviewKind": "dated-stable-comment",
+      "latestSource": "https://umanity.jp/racedata/race_newsdet.php?nid=11880604",
       "wetAssessment": "中山稍重2200mの未勝利3着・0.1秒差。長距離の先行実績はあるが、G1での重3000mは未確認。",
       "frame": 7,
       "trainingWeight": {
@@ -767,7 +891,18 @@ export default {
         "date": "2026-10-21",
         "source": "https://www.jra.go.jp/news/202610/102205.html"
       },
-      "drawRemark": "7枠13番確定。枠素点43（中立50・総合配点1点内の裁量仮説）。当日の内外有利は未観測。"
+      "drawRemark": "7枠13番確定。枠素点43（中立50・総合配点1点内の裁量仮説）。当日の内外有利は未観測。",
+      "conditionReview": {
+        "no": 13,
+        "publishedDate": "2026-10-23",
+        "eventDate": null,
+        "kind": "dated-stable-comment",
+        "summary": "陣営は距離延長と京都3000mに期待。",
+        "assessment": "状態78を維持。距離期待は既存の血統・距離評価内で扱い、未経験の3000mを確証へ置き換えない。",
+        "source": "https://umanity.jp/racedata/race_newsdet.php?nid=11880604",
+        "verification": "公開取材報道",
+        "eventDateNote": "記事公表日を確認。取材・調整の実施日を10/23と断定しない。"
+      }
     },
     {
       "no": 14,
@@ -798,7 +933,7 @@ export default {
       },
       "horseId": "2023103531",
       "evidenceIndex": 17,
-      "latest": "10/22更新・7枠14番：余力を残す最終追い。バランスと力みの少なさを支持し状態84→88。近走成績の再加算はしない。 調教後492kgは採点せず当日再確認。",
+      "latest": "10/23確認：金曜は軽いCW。落ち着いているが道悪悪化は懸念。 状態88は維持。良が理想という陣営見解に限り、重のラップ・距離素点を各2下げる裁量仮説。調教悪化とは扱わない。 最終追いは2026-10-21の資料を保持。",
       "suitability": {
         "blood": 89,
         "body": 81,
@@ -808,10 +943,10 @@ export default {
         "headline": "血統と運びやすさは魅力、後躯の完成度は課題",
         "caution": "3連勝は全て重賞外。立ち回りの上手さと血統点の高さで、G1の持久力が完成したとは扱わない。将来の成長分を今回へ先取りしない。"
       },
-      "reviewedAt": "2026-10-22T19:07:28+09:00",
-      "latestEvidenceDate": "2026-10-21",
-      "latestReviewKind": "final-workout",
-      "wetAssessment": "3連勝はいずれも良。母父シンボリクリスエス経由Robertoを補助にするが、重馬場・G1の本人の証明はない。",
+      "reviewedAt": "2026-10-23",
+      "latestEvidenceDate": "2026-10-23",
+      "latestReviewKind": "friday-condition-review",
+      "wetAssessment": "3連勝はいずれも良。母父シンボリクリスエス経由Robertoを補助にするが、重馬場・G1の本人の証明はない。 10/23公表：金曜は軽いCW。落ち着いているが道悪悪化は懸念。 状態88は維持。良が理想という陣営見解に限り、重のラップ・距離素点を各2下げる裁量仮説。調教悪化とは扱わない。",
       "frame": 7,
       "trainingWeight": {
         "kg": 492,
@@ -822,7 +957,17 @@ export default {
         "source": "https://www.jra.go.jp/news/202610/102205.html"
       },
       "drawRemark": "7枠14番確定。枠素点45（中立50・総合配点1点内の裁量仮説）。当日の内外有利は未観測。",
-      "latestSource": "https://www.nikkansports.com/keiba/news/202610210000763.html"
+      "latestSource": "https://news.livedoor.com/article/detail/32637411/",
+      "conditionReview": {
+        "no": 14,
+        "publishedDate": "2026-10-23",
+        "eventDate": "2026-10-23",
+        "kind": "friday-condition-review",
+        "summary": "金曜は軽いCW。落ち着いているが道悪悪化は懸念。",
+        "assessment": "状態88は維持。良が理想という陣営見解に限り、重のラップ・距離素点を各2下げる裁量仮説。調教悪化とは扱わない。",
+        "source": "https://news.livedoor.com/article/detail/32637411/",
+        "verification": "公開取材報道"
+      }
     },
     {
       "no": 15,
@@ -853,7 +998,7 @@ export default {
       },
       "horseId": "2023101200",
       "evidenceIndex": 12,
-      "latest": "10/22更新・7枠15番：10/17のCW6F83.2−1F11.1が実質最終。10/21は軽い調整で、遅い時計を悪化とは扱わず状態90を維持。 調教後530kgは採点せず当日再確認。",
+      "latest": "10/23確認：金曜坂路は軽めで活気を維持との公開報道。 状態90を維持。10/17の実質最終と10/21の軽め調整を保持し、金曜の軽い時計を新しい最終追いに差し替えない。 最終追いは2026-10-21の資料を保持。",
       "suitability": {
         "blood": 70,
         "body": 83,
@@ -865,10 +1010,10 @@ export default {
       },
       "officialPeakRating": 113,
       "officialPeakDistance": "L",
-      "reviewedAt": "2026-10-22T19:07:28+09:00",
-      "latestEvidenceDate": "2026-10-21",
-      "latestReviewKind": "final-workout",
-      "latestSource": "https://keiba.sponichi.co.jp/news/20261021s00004048335000c",
+      "reviewedAt": "2026-10-23",
+      "latestEvidenceDate": "2026-10-23",
+      "latestReviewKind": "friday-condition-review",
+      "latestSource": "https://news.livedoor.com/topics/detail/32637726/",
       "wetAssessment": "阪神稍重2400mで2着だが54kgの条件戦。57kg・重3000mで繰り返し捲る負荷を留保。Roberto5代内は補助。",
       "frame": 7,
       "trainingWeight": {
@@ -879,7 +1024,17 @@ export default {
         "date": "2026-10-22",
         "source": "https://www.jra.go.jp/news/202610/102205.html"
       },
-      "drawRemark": "7枠15番確定。枠素点40（中立50・総合配点1点内の裁量仮説）。当日の内外有利は未観測。"
+      "drawRemark": "7枠15番確定。枠素点40（中立50・総合配点1点内の裁量仮説）。当日の内外有利は未観測。",
+      "conditionReview": {
+        "no": 15,
+        "publishedDate": "2026-10-23",
+        "eventDate": "2026-10-23",
+        "kind": "friday-condition-review",
+        "summary": "金曜坂路は軽めで活気を維持との公開報道。",
+        "assessment": "状態90を維持。10/17の実質最終と10/21の軽め調整を保持し、金曜の軽い時計を新しい最終追いに差し替えない。",
+        "source": "https://news.livedoor.com/topics/detail/32637726/",
+        "verification": "公開記事要旨の範囲"
+      }
     },
     {
       "no": 16,
@@ -910,7 +1065,7 @@ export default {
       },
       "horseId": "2023103828",
       "evidenceIndex": 11,
-      "latest": "10/22更新・8枠16番：池添騎手で坂路単走。活気と叩いた上積みを支持し状態86→88。休養後の実戦再現は別課題。 調教後460kgは採点せず当日再確認。",
+      "latest": "10/23確認：前走の休み明けを踏まえ距離対応に期待との陣営談。 状態88を維持。休養理由は既知情報で、現在の健康状態を推測で診断しない。 最終追いは2026-10-21の資料を保持。",
       "suitability": {
         "blood": 85,
         "body": null,
@@ -922,9 +1077,9 @@ export default {
       },
       "officialPeakRating": 108,
       "officialPeakDistance": "I",
-      "reviewedAt": "2026-10-22T19:07:28+09:00",
-      "latestEvidenceDate": "2026-10-21",
-      "latestReviewKind": "final-workout",
+      "reviewedAt": "2026-10-23",
+      "latestEvidenceDate": "2026-10-23",
+      "latestReviewKind": "dated-stable-comment",
       "wetAssessment": "本人の稍重以上の実走は保持資料にない。Robertoの5代内保有を小さな仮説とし、骨折明け後の実戦内容を優先。",
       "frame": 8,
       "trainingWeight": {
@@ -936,7 +1091,18 @@ export default {
         "source": "https://www.jra.go.jp/news/202610/102205.html"
       },
       "drawRemark": "8枠16番確定。枠素点38（中立50・総合配点1点内の裁量仮説）。当日の内外有利は未観測。",
-      "latestSource": "https://www.nikkansports.com/keiba/column/daily_best3/news/202610210000435.html"
+      "latestSource": "https://umanity.jp/racedata/race_newsdet.php?nid=11880604",
+      "conditionReview": {
+        "no": 16,
+        "publishedDate": "2026-10-23",
+        "eventDate": null,
+        "kind": "dated-stable-comment",
+        "summary": "前走の休み明けを踏まえ距離対応に期待との陣営談。",
+        "assessment": "状態88を維持。休養理由は既知情報で、現在の健康状態を推測で診断しない。",
+        "source": "https://umanity.jp/racedata/race_newsdet.php?nid=11880604",
+        "verification": "公開取材報道",
+        "eventDateNote": "記事公表日を確認。取材・調整の実施日を10/23と断定しない。"
+      }
     },
     {
       "no": 17,
@@ -967,7 +1133,7 @@ export default {
       },
       "horseId": "2023107389",
       "evidenceIndex": 14,
-      "latest": "10/22更新・8枠17番：3頭併せの中央で集中を保ち、内に併入・外にクビ先着との新聞取材。状態72→84。相手強化は残す。 調教後497kgは採点せず当日再確認。",
+      "latest": "10/23確認：心肺面の負荷を意識し、集中して走ることが課題。 状態84を維持。既存の調教負荷を再加点せず、距離延長と実戦での集中力を別の不確実性として保持。 最終追いは2026-10-21の資料を保持。",
       "suitability": {
         "blood": 95,
         "body": null,
@@ -977,10 +1143,10 @@ export default {
         "headline": "血統1位。本人の馬体評価を埋めてから総合順位を確定する",
         "caution": "全兄クロワデュノールの京都3200m勝利は配合の強い裏づけ。しかし全兄の能力・体形・完成度を本人へ移さない。日本海Sの敗因を成長分の馬体増だけに固定しない。町田特別53kgから本番57kgへの負荷差も残す。"
       },
-      "reviewedAt": "2026-10-22T19:07:28+09:00",
-      "latestEvidenceDate": "2026-10-21",
-      "latestReviewKind": "final-workout",
-      "latestSource": "https://umanity.jp/racedata/race_newsdet.php?nid=11880540",
+      "reviewedAt": "2026-10-23",
+      "latestEvidenceDate": "2026-10-23",
+      "latestReviewKind": "dated-stable-comment",
+      "latestSource": "https://umanity.jp/racedata/race_newsdet.php?nid=11880604",
       "wetAssessment": "東京稍重2400m・町田特別勝ちを支持。ただし53kgで、今回57kg・相手強化を残す。兄の重馬場実績を本人の実績に数えない。",
       "frame": 8,
       "trainingWeight": {
@@ -991,7 +1157,18 @@ export default {
         "date": "2026-10-22",
         "source": "https://www.jra.go.jp/news/202610/102205.html"
       },
-      "drawRemark": "8枠17番確定。枠素点35（中立50・総合配点1点内の裁量仮説）。当日の内外有利は未観測。"
+      "drawRemark": "8枠17番確定。枠素点35（中立50・総合配点1点内の裁量仮説）。当日の内外有利は未観測。",
+      "conditionReview": {
+        "no": 17,
+        "publishedDate": "2026-10-23",
+        "eventDate": null,
+        "kind": "dated-stable-comment",
+        "summary": "心肺面の負荷を意識し、集中して走ることが課題。",
+        "assessment": "状態84を維持。既存の調教負荷を再加点せず、距離延長と実戦での集中力を別の不確実性として保持。",
+        "source": "https://umanity.jp/racedata/race_newsdet.php?nid=11880604",
+        "verification": "公開取材報道",
+        "eventDateNote": "記事公表日を確認。取材・調整の実施日を10/23と断定しない。"
+      }
     },
     {
       "no": 18,
@@ -1022,7 +1199,7 @@ export default {
       },
       "horseId": "2023105046",
       "evidenceIndex": 15,
-      "latest": "10/22更新・8枠18番：北村友騎手でリズムと軽いフットワークを確認したとの取材。状態留保45→78。前走12着の実績点は据え置く。 調教後478kgは採点せず当日再確認。",
+      "latest": "10/23確認：前走より良化し、仕上がりを高めたいとの陣営談。 状態78を維持。前版で反映済みの良化確認にとどめ、追い切りの再報道による二重加点を避ける。 最終追いは2026-10-21の資料を保持。",
       "suitability": {
         "blood": 80,
         "body": 81,
@@ -1032,9 +1209,9 @@ export default {
         "headline": "2600m勝ちは支持材料だが、厳しい持久戦の証明とは分ける",
         "caution": "前走12着からの上昇幅は未確定。父の長距離実績と2600mの着差を二重に加点しない。夏の54kgから本番57kgへの負荷差もある。折り合いが楽になる馬場という陣営の見立ても、道悪巧者の実証とは別。"
       },
-      "reviewedAt": "2026-10-22T19:07:28+09:00",
-      "latestEvidenceDate": "2026-10-21",
-      "latestReviewKind": "final-workout",
+      "reviewedAt": "2026-10-23",
+      "latestEvidenceDate": "2026-10-23",
+      "latestReviewKind": "dated-stable-comment",
       "wetAssessment": "本人の道悪実走は保持資料にない。キタサンブラックの距離根拠を補助とし、状態留保45と前走大敗を維持。",
       "frame": 8,
       "trainingWeight": {
@@ -1046,7 +1223,18 @@ export default {
         "source": "https://www.jra.go.jp/news/202610/102205.html"
       },
       "drawRemark": "8枠18番確定。枠素点35（中立50・総合配点1点内の裁量仮説）。当日の内外有利は未観測。",
-      "latestSource": "https://keiba.sponichi.co.jp/news/20261021s00004048337000c"
+      "latestSource": "https://umanity.jp/racedata/race_newsdet.php?nid=11880604",
+      "conditionReview": {
+        "no": 18,
+        "publishedDate": "2026-10-23",
+        "eventDate": null,
+        "kind": "dated-stable-comment",
+        "summary": "前走より良化し、仕上がりを高めたいとの陣営談。",
+        "assessment": "状態78を維持。前版で反映済みの良化確認にとどめ、追い切りの再報道による二重加点を避ける。",
+        "source": "https://umanity.jp/racedata/race_newsdet.php?nid=11880604",
+        "verification": "公開取材報道",
+        "eventDateNote": "記事公表日を確認。取材・調整の実施日を10/23と断定しない。"
+      }
     }
   ],
   "featureDefinitions": {
@@ -1071,8 +1259,8 @@ export default {
     "training": {
       "label": "調教・現在の状態",
       "weight": 12,
-      "confidence": "全18頭最終調整照合",
-      "note": "10/21の17頭と10/22のゴーイントゥスカイを照合。時計・負荷・意図を区別。キンググローリーとショウナンガルフは公開時計集計中心で状態点を継承。"
+      "confidence": "最終追い保持・10/23状態確認",
+      "note": "最終追いは10/21の17頭と10/22のゴーイントゥスカイ。10/23の談話・金曜軽め調整を別欄に追加し、状態点は全18頭維持。談話の公表日と追い切り実施日を混同せず、同じ好調を二重加点しない。"
     },
     "blood": {
       "label": "5代血統・母系",
@@ -1405,8 +1593,8 @@ export default {
           "blood": 0
         },
         "soft": {
-          "lap": -1,
-          "distance": -1,
+          "lap": 0,
+          "distance": 0,
           "blood": 1
         },
         "heavy": {
@@ -1423,6 +1611,10 @@ export default {
           "pace": -24,
           "lap": -8,
           "distance": -8
+        },
+        "fridayWetNeutral": {
+          "lap": -1,
+          "distance": -1
         }
       }
     },
@@ -1587,8 +1779,8 @@ export default {
           "blood": 0
         },
         "soft": {
-          "lap": 0,
-          "distance": 0,
+          "lap": 1,
+          "distance": 1,
           "blood": 1
         },
         "heavy": {
@@ -1597,7 +1789,12 @@ export default {
           "blood": 1
         }
       },
-      "variants": {}
+      "variants": {
+        "fridayWetNeutral": {
+          "lap": -1,
+          "distance": -1
+        }
+      }
     },
     "8": {
       "pace": {
@@ -1792,8 +1989,8 @@ export default {
           "blood": 0
         },
         "soft": {
-          "lap": -2,
-          "distance": -1,
+          "lap": -4,
+          "distance": -3,
           "blood": 1
         },
         "heavy": {
@@ -1802,7 +1999,12 @@ export default {
           "blood": 1
         }
       },
-      "variants": {}
+      "variants": {
+        "fridayWetNeutral": {
+          "lap": 2,
+          "distance": 2
+        }
+      }
     },
     "15": {
       "pace": {
@@ -1927,7 +2129,7 @@ export default {
         "speed": 0,
         "ground": "soft",
         "bias": "neutral",
-        "vol": 5
+        "vol": 3
       }
     },
     {
@@ -1938,7 +2140,7 @@ export default {
         "speed": 0,
         "ground": "soft",
         "bias": "neutral",
-        "vol": 5
+        "vol": 3
       }
     },
     {
@@ -1949,7 +2151,7 @@ export default {
         "speed": 0,
         "ground": "soft",
         "bias": "neutral",
-        "vol": 5
+        "vol": 3
       }
     },
     {
@@ -1960,7 +2162,7 @@ export default {
         "speed": 1,
         "ground": "yielding",
         "bias": "neutral",
-        "vol": 5
+        "vol": 3
       }
     },
     {
@@ -1982,7 +2184,7 @@ export default {
         "speed": 2,
         "ground": "good",
         "bias": "neutral",
-        "vol": 5
+        "vol": 3
       }
     },
     {
@@ -1993,7 +2195,7 @@ export default {
         "speed": 0,
         "ground": "soft",
         "bias": "neutral",
-        "vol": 5,
+        "vol": 3,
         "variant": "rightImproves"
       }
     },
@@ -2005,7 +2207,7 @@ export default {
         "speed": 0,
         "ground": "soft",
         "bias": "neutral",
-        "vol": 5,
+        "vol": 3,
         "variant": "rightPersists"
       }
     },
@@ -2017,7 +2219,7 @@ export default {
         "speed": 0,
         "ground": "soft",
         "bias": "neutral",
-        "vol": 5,
+        "vol": 3,
         "variant": "balanceRestored"
       }
     },
@@ -2029,7 +2231,7 @@ export default {
         "speed": 0,
         "ground": "soft",
         "bias": "neutral",
-        "vol": 5,
+        "vol": 3,
         "variant": "unknownTrainingGood"
       }
     },
@@ -2041,7 +2243,7 @@ export default {
         "speed": 0,
         "ground": "soft",
         "bias": "front",
-        "vol": 5
+        "vol": 3
       }
     },
     {
@@ -2052,7 +2254,7 @@ export default {
         "speed": 0,
         "ground": "soft",
         "bias": "outside",
-        "vol": 5
+        "vol": 3
       }
     },
     {
@@ -2063,7 +2265,7 @@ export default {
         "speed": 0,
         "ground": "soft",
         "bias": "neutral",
-        "vol": 5,
+        "vol": 3,
         "variant": "emsPulls"
       }
     },
@@ -2076,6 +2278,18 @@ export default {
         "ground": "soft",
         "bias": "neutral",
         "vol": 8
+      }
+    },
+    {
+      "id": "friday-wet-neutral",
+      "label": "重・10/23道悪談話の修正を外す",
+      "options": {
+        "pace": 0,
+        "speed": 0,
+        "ground": "soft",
+        "bias": "neutral",
+        "vol": 3,
+        "variant": "fridayWetNeutral"
       }
     }
   ],
@@ -2242,20 +2456,51 @@ export default {
     "10/22クラブ一次情報": "https://greenfarm.co.jp/photo/2312.shtml",
     "10/21アスクエジンバラ最終": "https://www.nikkansports.com/keiba/news/202610210000349.html",
     "10/22ナリタエスペランサ最終": "https://keiba.sponichi.co.jp/news/20261021s00004048337000c",
-    "10/22公開時計集計（評価記号は不使用）": "https://umasiru.com/archives/22036"
+    "10/22公開時計集計（評価記号は不使用）": "https://umasiru.com/archives/22036",
+    "10/23JRA京都馬場発表": "https://www.jra.go.jp/keiba/baba/index2.html",
+    "10/23JRA馬場数値発表（ラジオNIKKEI）": "https://www.radionikkei.jp/keiba_article/news/post_38863.html",
+    "10/23全18頭陣営談話": "https://umanity.jp/racedata/race_newsdet.php?nid=11880604",
+    "10/23美浦金曜調整": "https://umanity.jp/racedata/race_newsdet.php?nid=11880616",
+    "10/23コンジェスタス": "https://news.netkeiba.com/?no=346466&pid=news_view&rf=kmatome",
+    "10/23ロブチェン": "https://news.netkeiba.com/?no=346450&pid=news_view",
+    "10/23バステール": "https://dir.netkeiba.com/keiba/news/news_preview.html?no=346451&rf=kssp",
+    "10/23マジョレルブルー道悪留保": "https://news.livedoor.com/article/detail/32637411/",
+    "10/23アスクエジンバラ": "https://news.livedoor.com/article/detail/32640467/",
+    "10/23シートゥサミット公開要旨": "https://news.livedoor.com/topics/detail/32637726/"
   },
-  "evidenceUrl": "./data/kikka-2026-evidence.json?v=20261022draw",
-  "reportUrl": "./reports/kikka-2026-20261022.html",
-  "dataVersion": "kikka-20261022-draw-heavy",
-  "updateSummary": "10/22枠順確定・重馬場想定版。確定18頭の最終調整、調教後体重、正式馬番と枠色。14条件×50,000回の保存試算。操作初期値4倍速・ばらつき3。",
+  "evidenceUrl": "./data/kikka-2026-evidence.json?v=20261023heavy",
+  "reportUrl": "./reports/kikka-2026-20261023.html",
+  "dataVersion": "kikka-20261023-friday-heavy",
+  "updateSummary": "10/23重馬場想定版。全18頭の最新談話・金曜調整とJRA馬場発表を照合。15条件×50,000回。再生4倍速。初期設定と保存試算のばらつき3（高不確実性条件は8）。",
   "suitabilityUrl": "./data/kikka-2026-suitability-20261019.json",
-  "updateAuditUrl": "./data/kikka-2026-update-20261022.json",
-  "previousStamp": "20261021",
-  "wetEvidenceUrl": "./data/kikka-2026-wet-20261022.json",
+  "updateAuditUrl": "./data/kikka-2026-update-20261023.json",
+  "previousStamp": "20261022",
+  "wetEvidenceUrl": "./data/kikka-2026-wet-20261023.json",
   "defaultGround": "soft",
   "defaultSpeed": 0,
-  "assumptionLabel": "重馬場想定",
-  "informationNote": "枠順・出走18頭・騎手確定。全18頭の最終調整を照合（ゴーイントゥスカイ10/22、他17頭10/21）。重馬場は依頼上の想定。当日馬場・体重・実オッズ未反映。",
+  "assumptionLabel": "重馬場想定（10/23正午の京都芝発表は良）",
+  "informationNote": "10/23の談話・金曜調整を照合。10/22確定18頭・枠順・騎手・調教後体重を継承。金曜実測は良、重は依頼上の想定。当日馬場・体重・実オッズ未反映。",
   "reservesLabel": "非出走（収得賞金順で除外・非抽選）",
-  "horseEvidenceNote": "枠順・騎手と最終調整を照合済み。全戦績・5代血統は10/18取得分を継承。当日馬場・体重は未確定。採点は未校正です。"
+  "horseEvidenceNote": "10/23公表の状態・道悪談話を更新。最終追いは10/21（ゴーイントゥスカイ10/22）。全戦績・5代血統は10/18取得分を継承。採点は未校正です。",
+  "trackObservation": {
+    "asOf": "2026-10-23T12:00:00+09:00",
+    "weather": "晴",
+    "turf": "良",
+    "dirt": "良",
+    "course": "A",
+    "cushion": {
+      "value": 10.8,
+      "measuredAt": "2026-10-23T10:30:00+09:00"
+    },
+    "water": {
+      "goal": 6,
+      "corner4": 7.8,
+      "measuredAt": "2026-10-23T10:30:00+09:00"
+    },
+    "condition": "全周の内柵沿いに軽微な傷み",
+    "source": "https://www.jra.go.jp/keiba/baba/index2.html",
+    "numericSource": "https://www.radionikkei.jp/keiba_article/news/post_38863.html",
+    "appliedToDefaultGround": false,
+    "note": "金曜の観測値。日曜の重を示す数値ではなく、雨量・日曜予報値はモデル未入力。"
+  }
 };

@@ -1,7 +1,7 @@
 {
-  "asOf": "2026-10-22T19:07:28+09:00",
+  "asOf": "2026-10-23",
   "recordSnapshotAsOf": "2026-10-18T16:01:04+09:00",
-  "updateAuditUrl": "./kikka-2026-update-20261022.json",
+  "updateAuditUrl": "./kikka-2026-update-20261023.json",
   "registrationCount": 21,
   "expectedRunners": 18,
   "withdrawn": [
@@ -18,6 +18,16 @@
     {
       "name": "アウダーシア",
       "horseId": "2023107321",
+      "conditionReview": {
+        "no": 3,
+        "publishedDate": "2026-10-23",
+        "eventDate": "2026-10-23",
+        "kind": "friday-condition-review",
+        "summary": "金曜はコースから坂路。輸送前も状態は安定。",
+        "assessment": "状態88を維持。初の関西輸送後の体重・落ち着きは当日再確認。道悪実績を追加した扱いにはしない。",
+        "source": "https://umanity.jp/racedata/race_newsdet.php?nid=11880616",
+        "verification": "公開取材報道"
+      },
       "jockey": "津村明秀",
       "trainer": "手塚貴久",
       "status": "confirmed",
@@ -548,6 +558,16 @@
     {
       "name": "アスクエジンバラ",
       "horseId": "2023106400",
+      "conditionReview": {
+        "no": 11,
+        "publishedDate": "2026-10-23",
+        "eventDate": "2026-10-23",
+        "kind": "friday-condition-review",
+        "summary": "金曜は岩田康騎手が坂路で確認、状態は良好。",
+        "assessment": "状態94を維持。雨への前向きな談話も確認したが、距離の裏付けや重3000m実績の追加とは扱わない。",
+        "source": "https://news.livedoor.com/article/detail/32640467/",
+        "verification": "公開取材報道"
+      },
       "jockey": "岩田康誠",
       "trainer": "福永祐一",
       "status": "confirmed",
@@ -2210,6 +2230,17 @@
     {
       "name": "エムズビギン",
       "horseId": "2023107127",
+      "conditionReview": {
+        "no": 1,
+        "publishedDate": "2026-10-23",
+        "eventDate": null,
+        "kind": "dated-stable-comment",
+        "summary": "スタミナと力強さが持ち味、陣営は道悪を歓迎。",
+        "assessment": "陣営の適性見立てとして重のラップ・距離素点を各1だけ緩和。道悪3000mの実証ではなく、折り合いへの留保は維持。",
+        "source": "https://umanity.jp/racedata/race_newsdet.php?nid=11880604",
+        "verification": "公開取材報道",
+        "eventDateNote": "記事公表日を確認。取材・調整の実施日を10/23と断定しない。"
+      },
       "jockey": "岩田望来",
       "trainer": "友道康夫",
       "status": "confirmed",
@@ -2741,6 +2772,17 @@
     {
       "name": "キンググローリー",
       "horseId": "2023100021",
+      "conditionReview": {
+        "no": 13,
+        "publishedDate": "2026-10-23",
+        "eventDate": null,
+        "kind": "dated-stable-comment",
+        "summary": "陣営は距離延長と京都3000mに期待。",
+        "assessment": "状態78を維持。距離期待は既存の血統・距離評価内で扱い、未経験の3000mを確証へ置き換えない。",
+        "source": "https://umanity.jp/racedata/race_newsdet.php?nid=11880604",
+        "verification": "公開取材報道",
+        "eventDateNote": "記事公表日を確認。取材・調整の実施日を10/23と断定しない。"
+      },
       "jockey": "丹内祐次",
       "trainer": "古賀慎明",
       "status": "confirmed",
@@ -3363,6 +3405,16 @@
     {
       "name": "コンジェスタス",
       "horseId": "2023106963",
+      "conditionReview": {
+        "no": 2,
+        "publishedDate": "2026-10-23",
+        "eventDate": "2026-10-23",
+        "kind": "friday-condition-review",
+        "summary": "金曜坂路で力強い動き。体の厚みが増したとの報告。",
+        "assessment": "状態90を維持。調教後534kgは成長の説明と整合するが、当日体重でも適距離の証明でもなく、増量だけでは加減点しない。",
+        "source": "https://news.netkeiba.com/?no=346466&pid=news_view&rf=kmatome",
+        "verification": "公開取材報道"
+      },
       "jockey": "西村淳也",
       "trainer": "高野友和",
       "status": "confirmed",
@@ -3864,6 +3916,17 @@
     {
       "name": "ゴーイントゥスカイ",
       "horseId": "2023105378",
+      "conditionReview": {
+        "no": 9,
+        "publishedDate": "2026-10-23",
+        "eventDate": null,
+        "kind": "dated-stable-comment",
+        "summary": "好状態で落ち着きもあるとの陣営見解。",
+        "assessment": "10/22木曜最終追いを最新の追い切りとして保持し状態90を維持。右回りのもたれ改善は未確定で別条件に分離。",
+        "source": "https://umanity.jp/racedata/race_newsdet.php?nid=11880604",
+        "verification": "公開取材報道",
+        "eventDateNote": "記事公表日を確認。取材・調整の実施日を10/23と断定しない。"
+      },
       "jockey": "武豊",
       "trainer": "上原佑紀",
       "status": "confirmed",
@@ -4406,6 +4469,16 @@
     {
       "name": "サノノグレーター",
       "horseId": "2023100724",
+      "conditionReview": {
+        "no": 12,
+        "publishedDate": "2026-10-23",
+        "eventDate": "2026-10-23",
+        "kind": "friday-condition-review",
+        "summary": "金曜坂路2本で元気。輸送を見据えた調整。",
+        "assessment": "状態87を維持。過去の不良で滑ったとの説明は既存留保を支えるが、今回の重で再現すると決めつけず、新たな二重減点もしない。",
+        "source": "https://umanity.jp/racedata/race_newsdet.php?nid=11880616",
+        "verification": "公開取材報道"
+      },
       "jockey": "田辺裕信",
       "trainer": "尾形和幸",
       "status": "confirmed",
@@ -4988,6 +5061,16 @@
     {
       "name": "ジャスティンシカゴ",
       "horseId": "2023106924",
+      "conditionReview": {
+        "no": 5,
+        "publishedDate": "2026-10-23",
+        "eventDate": "2026-10-23",
+        "kind": "friday-condition-review",
+        "summary": "金曜は角馬場。元気があり自分のリズムを重視。",
+        "assessment": "状態90を維持。好調の再確認として扱い、早仕掛けへの追従を前提にしない。既存の道悪プラスは据え置き。",
+        "source": "https://umanity.jp/racedata/race_newsdet.php?nid=11880616",
+        "verification": "公開取材報道"
+      },
       "jockey": "原優介",
       "trainer": "宮田敬介",
       "status": "confirmed",
@@ -5522,6 +5605,17 @@
     {
       "name": "ショウナンガルフ",
       "horseId": "2023105332",
+      "conditionReview": {
+        "no": 4,
+        "publishedDate": "2026-10-23",
+        "eventDate": null,
+        "kind": "dated-stable-comment",
+        "summary": "折り合い面の心配は小さいとの陣営見解。",
+        "assessment": "状態56と既存の時計資料を維持。談話の公表日と最終追いの実施日を分け、内容の独立裏付けが増えたとは扱わない。",
+        "source": "https://umanity.jp/racedata/race_newsdet.php?nid=11880604",
+        "verification": "公開取材報道",
+        "eventDateNote": "記事公表日を確認。取材・調整の実施日を10/23と断定しない。"
+      },
       "jockey": "田山旺佑",
       "trainer": "須貝尚介",
       "status": "confirmed",
@@ -6056,6 +6150,17 @@
     {
       "name": "ショウナンハヤナミ",
       "horseId": "2023103828",
+      "conditionReview": {
+        "no": 16,
+        "publishedDate": "2026-10-23",
+        "eventDate": null,
+        "kind": "dated-stable-comment",
+        "summary": "前走の休み明けを踏まえ距離対応に期待との陣営談。",
+        "assessment": "状態88を維持。休養理由は既知情報で、現在の健康状態を推測で診断しない。",
+        "source": "https://umanity.jp/racedata/race_newsdet.php?nid=11880604",
+        "verification": "公開取材報道",
+        "eventDateNote": "記事公表日を確認。取材・調整の実施日を10/23と断定しない。"
+      },
       "jockey": "池添謙一",
       "trainer": "渡辺薫彦",
       "status": "confirmed",
@@ -6543,6 +6648,16 @@
     {
       "name": "シートゥサミット",
       "horseId": "2023101200",
+      "conditionReview": {
+        "no": 15,
+        "publishedDate": "2026-10-23",
+        "eventDate": "2026-10-23",
+        "kind": "friday-condition-review",
+        "summary": "金曜坂路は軽めで活気を維持との公開報道。",
+        "assessment": "状態90を維持。10/17の実質最終と10/21の軽め調整を保持し、金曜の軽い時計を新しい最終追いに差し替えない。",
+        "source": "https://news.livedoor.com/topics/detail/32637726/",
+        "verification": "公開記事要旨の範囲"
+      },
       "jockey": "酒井学",
       "trainer": "吉岡辰弥",
       "status": "confirmed",
@@ -7108,6 +7223,17 @@
     {
       "name": "ダノンヒストリー",
       "horseId": "2023107005",
+      "conditionReview": {
+        "no": 10,
+        "publishedDate": "2026-10-23",
+        "eventDate": null,
+        "kind": "dated-stable-comment",
+        "summary": "大きなストライドとコースへの期待を示す陣営談。",
+        "assessment": "状態86を維持。大きな歩幅だけで道悪や3000m適性を新たに加点しない。",
+        "source": "https://umanity.jp/racedata/race_newsdet.php?nid=11880604",
+        "verification": "公開取材報道",
+        "eventDateNote": "記事公表日を確認。取材・調整の実施日を10/23と断定しない。"
+      },
       "jockey": "C.ルメール",
       "trainer": "堀宣行",
       "status": "confirmed",
@@ -7606,6 +7732,17 @@
     {
       "name": "チャリングクロス",
       "horseId": "2023107389",
+      "conditionReview": {
+        "no": 17,
+        "publishedDate": "2026-10-23",
+        "eventDate": null,
+        "kind": "dated-stable-comment",
+        "summary": "心肺面の負荷を意識し、集中して走ることが課題。",
+        "assessment": "状態84を維持。既存の調教負荷を再加点せず、距離延長と実戦での集中力を別の不確実性として保持。",
+        "source": "https://umanity.jp/racedata/race_newsdet.php?nid=11880604",
+        "verification": "公開取材報道",
+        "eventDateNote": "記事公表日を確認。取材・調整の実施日を10/23と断定しない。"
+      },
       "jockey": "石川裕紀人",
       "trainer": "奥村武",
       "status": "confirmed",
@@ -8148,6 +8285,17 @@
     {
       "name": "ナリタエスペランサ",
       "horseId": "2023105046",
+      "conditionReview": {
+        "no": 18,
+        "publishedDate": "2026-10-23",
+        "eventDate": null,
+        "kind": "dated-stable-comment",
+        "summary": "前走より良化し、仕上がりを高めたいとの陣営談。",
+        "assessment": "状態78を維持。前版で反映済みの良化確認にとどめ、追い切りの再報道による二重加点を避ける。",
+        "source": "https://umanity.jp/racedata/race_newsdet.php?nid=11880604",
+        "verification": "公開取材報道",
+        "eventDateNote": "記事公表日を確認。取材・調整の実施日を10/23と断定しない。"
+      },
       "jockey": "北村友一",
       "trainer": "福永祐一",
       "status": "confirmed",
@@ -8702,6 +8850,16 @@
     {
       "name": "バステール",
       "horseId": "2023107247",
+      "conditionReview": {
+        "no": 6,
+        "publishedDate": "2026-10-23",
+        "eventDate": "2026-10-23",
+        "kind": "friday-condition-review",
+        "summary": "金曜は角馬場・CWと駐立確認。状態に問題なし。",
+        "assessment": "状態76を維持。調教後464kgは仕上がりの参考。折り合い・実戦バランス・過去の不良での不振が解消したとは断定しない。",
+        "source": "https://dir.netkeiba.com/keiba/news/news_preview.html?no=346451&rf=kssp",
+        "verification": "公開取材報道"
+      },
       "jockey": "川田将雅",
       "trainer": "斉藤崇史",
       "status": "confirmed",
@@ -9233,6 +9391,16 @@
     {
       "name": "マジョレルブルー",
       "horseId": "2023103531",
+      "conditionReview": {
+        "no": 14,
+        "publishedDate": "2026-10-23",
+        "eventDate": "2026-10-23",
+        "kind": "friday-condition-review",
+        "summary": "金曜は軽いCW。落ち着いているが道悪悪化は懸念。",
+        "assessment": "状態88は維持。良が理想という陣営見解に限り、重のラップ・距離素点を各2下げる裁量仮説。調教悪化とは扱わない。",
+        "source": "https://news.livedoor.com/article/detail/32637411/",
+        "verification": "公開取材報道"
+      },
       "jockey": "戸崎圭太",
       "trainer": "友道康夫",
       "status": "confirmed",
@@ -10267,6 +10435,16 @@
     {
       "name": "ラージアンサンブル",
       "horseId": "2023105560",
+      "conditionReview": {
+        "no": 7,
+        "publishedDate": "2026-10-23",
+        "eventDate": "2026-10-23",
+        "kind": "friday-condition-review",
+        "summary": "金曜坂路では制御できており、陣営は渋化を歓迎。",
+        "assessment": "状態88を維持。談話を弱い補助根拠として、重のラップ・距離素点を各1だけ上げる。重3000m実績とは区別。",
+        "source": "https://umanity.jp/racedata/race_newsdet.php?nid=11880616",
+        "verification": "公開取材報道"
+      },
       "jockey": "坂井瑠星",
       "trainer": "武井亮",
       "status": "confirmed",
@@ -10808,6 +10986,16 @@
     {
       "name": "ロブチェン",
       "horseId": "2023107089",
+      "conditionReview": {
+        "no": 8,
+        "publishedDate": "2026-10-23",
+        "eventDate": "2026-10-23",
+        "kind": "friday-condition-review",
+        "summary": "金曜坂路でも落ち着きと体重を維持、枠も好感。",
+        "assessment": "状態94を維持し好調を二重加点しない。良馬場を望む談話はあるが本人の重勝ちは消さず、重3000mへの外挿だけ留保。",
+        "source": "https://news.netkeiba.com/?no=346450&pid=news_view",
+        "verification": "公開取材報道"
+      },
       "jockey": "松山弘平",
       "trainer": "杉山晴紀",
       "status": "confirmed",
@@ -11368,7 +11556,7 @@
       ]
     ]
   },
-  "sourceStatus": "出走馬・騎手は想定。枠順・最終調教・当日馬場・実オッズは未確定。",
+  "sourceStatus": "10/22確定の18頭・馬番・枠順・騎手と最終調整・JRA調教後体重を継承し、10/23公表の談話・確認できた金曜調整を追加。全戦績・5代血統は10/18取得分。日曜当日の馬場・体重・パドック・実オッズは未取得。",
   "recordCount": 143,
   "actualStarts": 142,
   "cancellations": 1,
