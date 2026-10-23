@@ -302,7 +302,7 @@ import {jockeyCap} from './core/jockey-caps.js?v=cap-v1';
  const {createJRAFurlongPosts}=await import("./assets/jra-furlong-posts.js?v=geo-v6");
  const furlongPosts=createJRAFurlongPosts({THREE,scene,offsetPoint,distance,half});
  // Cinematic director replaces manual angle selection for every race.
- const {createRaceCinematics}=await import("./assets/race-cinematics.js?v=pack-v1-announcer-transparent-v34-camera-v28");
+ const {createRaceCinematics}=await import("./assets/race-cinematics.js?v=retro-flow-v1-camera-v28");
  const cinematics=createRaceCinematics({THREE,scene,stage,models,config,capFor,path,route,routeLength});
  const cameraBlockers=[];scene.traverse(o=>{if(o.isMesh&&o.userData.cameraOccluder)cameraBlockers.push(o)});
  const visibilityRay=new THREE.Raycaster();
@@ -311,7 +311,6 @@ import {jockeyCap} from './core/jockey-caps.js?v=cap-v1';
  stage.style.display='block';svg.classList.add('svg-hidden');
  status.textContent='3D RACE · '+models.length+'頭';
  document.getElementById('horse-model-version').textContent='EQUINE v19 · RACING SPRINT';
- const liveTitle=document.querySelector('.live-head strong');if(liveTitle)liveTitle.textContent+=' · v19';
  window.KYOTO_RENDER_STATUS={ready:true,model:'photo-thoroughbred-v24',gait:'racing-sprint-v19',venue:venueReady?'full':'fallback',
   horses:models.length,camera:'mobile-first-fixed-direction-five-cut-dolly-v19',courseView:config.courseView,
   cinematic:true,saddleclothNames:true,goalBoard:!!goalBoard,gateDisappears:true,

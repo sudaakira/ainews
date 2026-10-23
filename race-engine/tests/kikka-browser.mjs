@@ -2,6 +2,8 @@
 import assert from 'node:assert/strict';
 import {resolve,extname} from 'node:path';
 import {mkdirSync} from 'node:fs';
+import {assertRaceUI,assertSettingsContrast} from './race-ui-assertions.mjs';
+import {verifyCompactRaceUI} from './retro-ui-browser.mjs';
 const {chromium}=await import(process.env.PLAYWRIGHT_ENTRY||process.env.CODEX_PRIMARY_RUNTIME_NODE_MODULES+'/playwright/index.mjs');
 const browser=await chromium.launch({headless:true,args:['--use-gl=angle','--use-angle=swiftshader','--enable-webgl','--enable-unsafe-swiftshader','--disable-dev-shm-usage']});
 const root=process.env.RACE_LOCAL_ROOT;
@@ -31,15 +33,17 @@ try{
   assert.equal(await page.locator('#live-rate').inputValue(),'4');
   assert.equal(await page.locator('#ground-mode').inputValue(),'soft');
   assert.equal(await page.locator('#speed').inputValue(),'0');
-  assert.ok((await page.locator('.live-note').innerText()).includes('重馬場想定'));
+  assert.ok((await page.locator('.live-note').innerText()).includes('馬場は選択条件'));
+  assert.ok((await page.locator('.live-note').getAttribute('title')).includes('重馬場想定'));
   assert.equal(await page.locator('#bars .bar').first().locator('.val small').innerText(),'86.9点');
-  assert.ok((await page.locator('header').innerText()).includes('2026-10-23'));
+  assert.ok((await page.locator('header').textContent()).includes('2026-10-23'));
   assert.ok((await page.locator('#track-observation').textContent()).includes('京都芝は良'));
   assert.equal(await page.locator('#race-scenario option').count(),15);
   const reviews=await page.evaluate(()=>window.RACE_CONFIG.horses.map(h=>h.conditionReview.publishedDate));
   assert.ok(reviews.every(d=>d==='2026-10-23'));
   assert.equal(await page.locator('#horses .suitability').count(),18);
   assert.equal(await page.locator('.tracking-number').count(),18);
+  await assertRaceUI(page,{field:18,finished:false});
   assert.equal(await page.locator('#race-front-labels').count(),0);
   // Regression: the supplied FRONT-FACING pixel announcer must replace the
   // old blue-suit vector portrait in the actual rendered browser DOM.
@@ -60,14 +64,14 @@ try{
    width:portraitAudit.width,height:portraitAudit.height,
    screenshot:'/tmp/kikka-mobile-shots/announcer-'+vp.width+'.png'}));
   if(vp.width<700){
-   for(const id of ['#live-play','#live-pause','#live-reset','#live-rate','#race']){
+   for(const id of ['#live-play','#live-pause','#live-reset','#live-rate','.race-tracking','#race-commentary-panel']){
     const box=await page.locator(id).boundingBox();assert.ok(box&&box.x>=-1&&box.x+box.width<=vp.width+1&&box.y+box.height<=vp.height+2,'mobile first viewport '+id);
    }
   }
   const seek=async p=>{
    await page.locator('#live-scrub').evaluate((e,v)=>{e.value=String(v);e.dispatchEvent(new Event('input',{bubbles:true}))},Math.round(p*1000));
    await page.waitForFunction(p=>Math.abs((window.RACE_CINEMATIC_DEBUG?.progress??-1)-p)<.002,p,{timeout:15000});
-   await page.waitForFunction(()=>window.RACE_SCENE_AUDIT?.cameraTrackingError<.2,null,{timeout:15000});
+   await page.waitForFunction(()=>window.RACE_SCENE_AUDIT?.cameraTrackingError<.2,null,{timeout:15000}).catch(async error=>{console.error('KIKKA_SEEK',JSON.stringify({errors,debug:await page.evaluate(()=>({shot:window.RACE_CINEMATIC_DEBUG?.shot,progress:window.RACE_CINEMATIC_DEBUG?.progress,tracking:window.RACE_SCENE_AUDIT?.cameraTrackingError}))}));throw error});
   };
   for(const [p,id] of [[.04,'start'],[.18,'first-corner'],[.369,'first-corner'],[.64,'backstretch'],[.79,'fourth-turn'],[.82,'fourth-turn'],[.85,'fourth-turn'],[.864,'fourth-turn'],[.91,'finish'],[.999,'finish']]){
    await seek(p);const scene=await page.evaluate(()=>window.RACE_SCENE_AUDIT);
@@ -81,6 +85,7 @@ try{
    }
    assert.ok(scene.leadVisible,'leader visible '+vp.width+' '+p+' '+JSON.stringify({x:scene.leadScreenX,y:scene.leadScreenY}));
    assert.ok(scene.cameraOuterRailClearance>=11.9,'camera outside rail '+p);
+   await assertRaceUI(page,{field:18,finished:false});
    if(p===.369){assert.equal(scene.goalBoardVisible,true);assert.equal(await page.locator('.cinema-finish-visible').count(),0,'first goal passage is not the finish');}
    if(p>=.91){assert.equal(scene.gateVisible,false);assert.equal(scene.goalBoardVisible,true);}
    if([.18,.82,.999].includes(p))await page.screenshot({path:'/tmp/kikka-mobile-shots/kikka-'+vp.width+'-'+String(p).replace('.','-')+'.png'});
@@ -115,6 +120,8 @@ try{
    allFinished:window.RACE_CONFIG.horses.every(h=>window.KYOTO_RACE.horseProgress(h.no,window.KYOTO_RACE.LIVE.clock)>=1)}));
   assert.deepEqual(skipped.rank,beforeSkip);assert.equal(skipped.playing,false);assert.ok(skipped.clock>=skipped.duration);
   assert.equal(skipped.allFinished,true);
+  await page.evaluate(()=>scrollTo({top:0,left:0,behavior:'instant'}));
+  await assertRaceUI(page,{field:18,finished:true});
   for(const no of skipped.rank.slice(0,3))assert.ok((await page.locator('#race').innerText()).includes(await page.evaluate(n=>window.RACE_CONFIG.horses[n-1].name,no)));
   await page.waitForFunction(()=>document.getElementById('race-speed-label').textContent==='即ゴール');
   assert.ok(await page.evaluate(()=>Object.values(window.RACE_SCENE_AUDIT.cameraRenderedPosition).every(Number.isFinite)));
@@ -132,8 +139,11 @@ try{
   assert.deepEqual(await page.evaluate(()=>window.KYOTO_RACE.LIVE.rank),runningRank);
   assert.equal(await page.evaluate(()=>window.KYOTO_RACE.LIVE.playing),false);
   await page.screenshot({path:'/tmp/kikka-mobile-shots/kikka-'+vp.width+'-instant.png'});
+  const contrast=await assertSettingsContrast(page);
+  console.log('KIKKA_SETTINGS_CONTRAST',JSON.stringify({width:vp.width,...contrast}));
   assert.deepEqual(errors,[]);
   console.log('KIKKA_BROWSER',JSON.stringify({width:vp.width,expected:final.expected,clock:final.clock,errors}));
   await page.close();
  }
+ await verifyCompactRaceUI({browser,baseURL:base,root});
 }finally{await browser.close()}

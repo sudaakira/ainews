@@ -216,27 +216,33 @@ assert.match(render,/config.courseView==='tokyo-2000'/);
 
 // Mobile-first presentation is intentionally a read-only shell around the
 // SAME predictor. No duplicated Monte Carlo or 14-factor scoring in UI assets.
-const premiumCSS=read('assets/premium-mobile.css');
+const premiumCSS=read('assets/race-cinematics.css');
 const premiumJS=read('assets/premium-mobile.js');
-assert.match(html,/assets\/premium-mobile\.css\?v=ui-v1/);
-assert.match(html,/import\('\.\/assets\/premium-mobile\.js\?v=cinema-v1'\)/);
+assert.doesNotMatch(html,/href="\.\/assets\/premium-mobile\.css/,'do not stack the retired dark skin beneath the current one');
+assert.match(html,/import\('\.\/assets\/premium-mobile\.js\?v=retro-flow-v1'\)/);
 assert.doesNotThrow(()=>new Function(premiumJS),'premium mobile UI code must parse');
 assert.match(premiumJS,/premium-immersive/);
 assert.doesNotMatch(premiumJS,/cameraOrder/,'cinematic version removes manual viewpoint selection');
-assert.match(premiumJS,/MutationObserver\(updatePreview\)/);
+assert.doesNotMatch(premiumJS,/premium-hero-summary|MutationObserver\(updatePreview\)/,'no duplicate marketing/leader widgets');
 assert.doesNotMatch(premiumJS,/SIM\.simulate|LOOP\.evaluate|SIM\.runRace/,'presentation cannot rerun model');
 assert.match(app,/class="cap-number"/);
 assert.match(app,/class="horse-label"/);
 assert.match(app,/class="place-frame"/);
-assert.match(premiumCSS,/@media\(max-width:680px\)/);
+assert.match(premiumCSS,/@media\(max-width:700px\)/);
 assert.match(premiumCSS,/env\(safe-area-inset-bottom/);
 assert.match(premiumCSS,/prefers-reduced-motion/);
 assert.match(premiumCSS,/#three-stage/);
-assert.match(premiumCSS,/premium-hero-summary/);
+assert.match(premiumCSS,/\.race-observation/);
 assert.match(premiumCSS,/premium-nav/);
 assert.match(premiumCSS,/premium-focus/);
 assert.match(premiumCSS,/\.bar:first-child \.fill/);
-assert.match(premiumCSS,/--ui-gold/);
+assert.match(premiumCSS,/--race-gold/);
+assert.match(html,/id="race-observation"/);
+assert.match(app,/createRaceHUD/);
+const hudJS=read('assets/race-hud.js');
+assert.doesNotMatch(hudJS,/SIM\.simulate|LOOP\.evaluate|runRace\(|Math\.random|horseProgress\s*=/,'HUD is read-only');
+assert.match(hudJS,/slot\.replaceChildren\(tracker,panel\)/,'HUD is outside canvas');
+assert.match(hudJS,/field\.append\(markers\.get\(h\.no\)\)/,'same running order, no reversed tracker');
 
 // Meaningful playback contracts: five JRA cuts, outside-rail positioning and continuous run-out.
 const cinemaJS=read('assets/race-cinematics.js'),cinemaCSS=read('assets/race-cinematics.css');
@@ -429,7 +435,7 @@ assert.equal(playbackRate(16,102,120),4);
 assert.equal(playbackRate(16,90,120),16);
 assert.equal(playbackRate(16,120,120),2);
 assert.equal(playbackRate(1,121,120),1);
-for(const name of ['assets/race-cinematics.js','assets/race-shotlist.js','assets/race-playback.js','assets/chibi-gallop.js']){
+for(const name of ['assets/race-cinematics.js','assets/race-hud.js','assets/race-shotlist.js','assets/race-playback.js','assets/chibi-gallop.js']){
  const source=read(name).replace(/^import .*?;$/gm,'').replace(/export (function|const)/g,'$1');
  assert.doesNotThrow(()=>new Function(source),name+' syntax');
 }
@@ -445,11 +451,11 @@ assert.match(render,/goalRig\.rotation\.y=Math\.atan2\(goalDir\.dx,goalDir\.dz\)
 assert.match(cinemaCSS,/prefers-reduced-motion/);
 assert.match(cinemaCSS,/env\(safe-area-inset-bottom/);
 assert.match(cinemaCSS,/height:100dvh/);
-assert.match(cinemaJS,/finishOrder\.slice\(0,3\)/);
+assert.match(app,/raceview\(LIVE\.rank,true\)/,'final podium uses canonical sampled finish');
 assert.match(render,/photo-thoroughbred-v24/);
 assert.match(anime,/photo-thoroughbred-v24/);
-assert.ok(html.includes('race-cinematics.css?v=announcer-transparent-v34'),'current cinematic stylesheet is referenced');
-assert.ok(html.includes('renderer.js?v=race-pack-v1-announcer34-camera28'),'current renderer bundle is referenced');
+assert.ok(html.includes('race-cinematics.css?v=retro-flow-v1'),'current unified stylesheet is referenced');
+assert.ok(html.includes('renderer.js?v=retro-flow-v1-camera28'),'current renderer bundle is referenced');
 console.log('Five broadcast cuts, outside rail, fixed far-side finish, continuous run-out and exact rank ✓');
 
 const {kyotoPath,kyotoHeight,KYOTO_INNER,KYOTO_CUTS}=await load('assets/kyoto-course.js');
