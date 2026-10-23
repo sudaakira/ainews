@@ -448,8 +448,8 @@ assert.match(cinemaCSS,/height:100dvh/);
 assert.match(cinemaJS,/finishOrder\.slice\(0,3\)/);
 assert.match(render,/photo-thoroughbred-v24/);
 assert.match(anime,/photo-thoroughbred-v24/);
-assert.match(html,/race-cinematics\\.css\\?v=announcer-pixel-v31/,'current cinematic stylesheet is referenced');
-assert.match(html,/renderer\\.js\\?v=race-pack-v1-announcer32-camera28/,'current renderer bundle is referenced');
+assert.ok(html.includes('race-cinematics.css?v=announcer-pixel-v31'),'current cinematic stylesheet is referenced');
+assert.ok(html.includes('renderer.js?v=race-pack-v1-announcer32-camera28'),'current renderer bundle is referenced');
 console.log('Five broadcast cuts, outside rail, fixed far-side finish, continuous run-out and exact rank ✓');
 
 const {kyotoPath,kyotoHeight,KYOTO_INNER,KYOTO_CUTS}=await load('assets/kyoto-course.js');
