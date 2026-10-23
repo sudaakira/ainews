@@ -14,7 +14,7 @@ export function createRaceCinematics({THREE,scene,stage,models,config,capFor,pat
   '<div class="cinema-finish" id="cinema-finish"><small>仮想レース結果</small><div class="cinema-podium" id="cinema-podium"></div></div>'+
   '<div id="race-arrival" aria-live="polite"></div>'+
   '<div class="race-tracking"><div class="tracking-meta"><span id="tracking-caption">スタート待機</span><span>← 先頭</span></div><div id="race-tracking-field"></div></div>';
- ui.insertAdjacentHTML('beforeend','<div id="race-commentary-panel"><div class="race-announcer">'+ANNOUNCER_SVG+'</div><div class="race-speech"><div class="race-speech-header"><span class="race-commentary-channel"><i></i>実況中継</span><strong id="race-commentary-title">実況席</strong></div><p id="race-commentary-text"></p></div></div>');
+ ui.insertAdjacentHTML('beforeend','<div id="race-commentary-panel"><div class="race-announcer">'+ANNOUNCER_SVG+'</div><div class="race-speech"><p id="race-commentary-text"></p></div></div>');
  stage.append(ui);
  const speech=ui.querySelector('#race-commentary-text'),speechTitle=ui.querySelector('#race-commentary-title'),speechPanel=ui.querySelector('#race-commentary-panel');
  let spokenKey='',speechAt=-Infinity,previousClock=0;
