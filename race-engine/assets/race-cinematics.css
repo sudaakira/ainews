@@ -144,7 +144,7 @@ body.premium-immersive .hero-race .live-note{display:block!important}
 .tracking-number.winner-number{box-shadow:0 0 0 3px #ffdc69;transform:translateY(-2px)}
 #race-commentary-panel{position:absolute;bottom:0;left:0;right:0;height:96px;display:flex;align-items:center;gap:14px;padding:3px 20px 4px 12px;background:linear-gradient(110deg,#122f35fa,#214d40fc);border-top:2px solid #d2b974;box-shadow:inset 0 1px #fff4c820;color:#203c33;box-sizing:border-box}
 .race-announcer{width:76px;height:86px;flex-shrink:0;align-self:center;overflow:hidden;border:1px solid #c7ad6c;border-radius:6px 6px 3px 3px;background:#193d3c;box-shadow:0 2px 5px #081c2240;box-sizing:border-box}
-.race-announcer svg{width:100%;height:100%;display:block}
+.race-announcer svg,.race-announcer img{width:100%;height:100%;display:block}.race-announcer img{object-fit:contain;image-rendering:pixelated;background:#000}
 .announcer-mouth-speaking{display:none}
 .race-speech{position:relative;flex:1;max-width:1000px;min-width:0;min-height:76px;padding:7px 14px 8px;background:#fff9e9;border:1px solid #d8c184;border-radius:7px;box-shadow:0 2px 0 #0b28293b,inset 0 1px #fff;box-sizing:border-box}
 .race-speech:before{content:"";position:absolute;left:-6px;top:29px;width:10px;height:10px;transform:rotate(45deg);background:#fff9e9;border-left:1px solid #d8c184;border-bottom:1px solid #d8c184}
