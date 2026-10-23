@@ -24,13 +24,17 @@ for(const h of c.horses)assert.equal(createFactors(c).frame(h),h.frame);
 assert.equal(loop.FEATURES.reduce((s,f)=>s+f.weight,0),100);
 assert.equal(loop.FEATURES.find(x=>x.id==='draw').weight,1);
 assert.equal(c.defaultVol,3);assert.equal(c.defaultPlaybackRate,4);
-assert.ok(c.asOf.startsWith('2026-10-22'));assert.equal(c.seed,20261022);
-assert.equal(c.horses.filter(h=>h.latestReviewKind==='final-workout').length,18);
+assert.ok(c.asOf.startsWith('2026-10-23'));assert.equal(c.seed,20261023);
+assert.equal(c.horses.filter(h=>['friday-condition-review','dated-stable-comment'].includes(h.latestReviewKind)).length,18);
+assert.equal(c.trackObservation.turf,'良');assert.equal(c.trackObservation.cushion.value,10.8);
+assert.equal(c.trackObservation.asOf,'2026-10-23T12:00:00+09:00');
+assert.deepEqual([c.trackObservation.water.goal,c.trackObservation.water.corner4],[6,7.8]);
+assert.equal(c.trackObservation.appliedToDefaultGround,false,'observed Friday good must not replace assumed Sunday soft');
 assert.equal(c.defaultGround,'soft');assert.equal(c.defaultSpeed,0);
-assert.deepEqual(c.scenarios[0].options,{pace:0,speed:0,ground:'soft',bias:'neutral',vol:5});
-assert.equal(c.scenarios.length,14);
+assert.deepEqual(c.scenarios[0].options,{pace:0,speed:0,ground:'soft',bias:'neutral',vol:3});
+assert.equal(c.scenarios.length,15);
 assert.ok(c.scenarios.some(s=>s.options.ground==='heavy'),'distinct 不良 case');
-const wet=JSON.parse(read('data/kikka-2026-wet-20261022.json'));assert.equal(wet.rows.length,18);
+const wet=JSON.parse(read('data/kikka-2026-wet-20261023.json'));assert.equal(wet.rows.length,18);
 assert.equal(wet.rows.filter(x=>x.heavyStarts>0).length,1);
 assert.equal(wet.rows.find(x=>x.name==='ロブチェン').heavyStarts,1);
 assert.equal(wet.rows.find(x=>x.name==='ゴーイントゥスカイ').softAdjustment.blood,2);
@@ -38,10 +42,17 @@ const go=c.horses.find(h=>h.name==='ゴーイントゥスカイ');
 assert.equal(c.conditionResponses[go.no].ground.good,undefined);
 assert.equal(go.workout.date,'2026-10-22','Thursday final, not Wednesday');
 for(const h of c.horses.filter(h=>h!==go))assert.equal(h.workout.date,'2026-10-21');
-const audit=JSON.parse(read('data/kikka-2026-update-20261022.json'));
+const audit=JSON.parse(read('data/kikka-2026-update-20261023.json'));
 const evidence=JSON.parse(read('data/kikka-2026-evidence.json'));
 assert.equal(audit.rows.length,18);assert.equal(audit.asOf,c.asOf);
+assert.equal(audit.drawChanged,false);
+assert.deepEqual(audit.savedBaseVol,{before:5,after:3});
+assert.deepEqual(audit.rows.filter(x=>Object.keys(x.changes).length).map(x=>x.no),[1,7,14]);
+const priorLoop=createRegression(audit.previousModel,createFactors(audit.previousModel));
+const neutral=c.scenarios.find(x=>x.id==='friday-wet-neutral').options;
 assert.equal(evidence.recordSnapshotAsOf,'2026-10-18T16:01:04+09:00');
+assert.equal(evidence.asOf,c.asOf);
+assert.ok(evidence.sourceStatus.includes('10/23'));
 assert.equal(evidence.horses.filter(h=>h.status==='confirmed').length,18);
 assert.equal(evidence.horses.filter(h=>h.status==='excluded').length,2);
 for(const h of c.horses){
@@ -50,13 +61,26 @@ for(const h of c.horses){
  assert.equal(evidence.horses[h.evidenceIndex].horseId,h.horseId,'evidence index remains identity based');
  assert.equal(evidence.horses[h.evidenceIndex].no,h.no);
  assert.deepEqual(evidence.horses[h.evidenceIndex].workout,h.workout);
+ assert.deepEqual(evidence.horses[h.evidenceIndex].conditionReview,h.conditionReview);
+ assert.deepEqual(h.workout,old.workout,'Friday canter must not overwrite final workout');
+ assert.deepEqual(h.trainingWeight,old.trainingWeight,'Oct22 training weights retained');
+ assert.equal(h.trainingScore,old.trainingScore,'no repeated good-news training boost');
+ assert.equal(h.conditionReview.publishedDate,'2026-10-23');
+ if(h.latestReviewKind==='dated-stable-comment')assert.equal(h.conditionReview.eventDate,null,'publication date is not event date');
  assert.equal(h.trainingWeight.source,'https://www.jra.go.jp/news/202610/102205.html');
  for(const [key,value]of Object.entries(audit.previousModel.featureScores[old.no])){
-  if(!['training','draw'].includes(key))assert.equal(c.featureScores[h.no][key],value,h.name+' feature identity '+key);
+  assert.equal(c.featureScores[h.no][key],value,h.name+' feature identity '+key);
  }
  const oldResponse=structuredClone(audit.previousModel.conditionResponses[old.no]),newResponse=structuredClone(c.conditionResponses[h.no]);
- delete oldResponse.variants.unknownTrainingGood;delete newResponse.variants.unknownTrainingGood;
+ for(const [key,value]of Object.entries(a.changes)){
+  assert.ok(['soft.lap','soft.distance'].includes(key));
+  const part=key.split('.')[1];assert.equal(oldResponse.ground.soft[part],value.before);
+  oldResponse.ground.soft[part]=value.after;
+ }
+ if(Object.keys(a.changes).length)oldResponse.variants.fridayWetNeutral=Object.fromEntries(Object.entries(a.changes).map(([k,v])=>[k.split('.')[1],v.before-v.after]));
  assert.deepEqual(oldResponse,newResponse,h.name+' condition identity');
+ assert.equal(loop.evaluate(h,neutral).rating,priorLoop.evaluate(old,c.scenarios[0].options).rating,'testimony-off exactly restores prior heavy rating');
+ assert.deepEqual(wet.rows.find(w=>w.no===h.no).softAdjustment,c.conditionResponses[h.no].ground.soft);
  assert.ok(Math.abs(c.featureScores[h.no].draw-50)<=15);
  assert.equal(c.featureScores[h.no].training,h.trainingScore);
 }
@@ -69,9 +93,26 @@ assert.equal(c.horses[6].trainingWeight.kg,481,'JRA, not club separate measureme
 assert.equal(c.horses.find(h=>h.name==='チャリングクロス').j,'石川裕紀人');
 assert.equal(c.horses.filter(h=>h.suitability.body===null).length,3);
 assert.equal(c.horses.filter(h=>h.suitability.bodyEra.startsWith('5月')).length,2);
-const resultFile=JSON.parse(read('results/kikka-2026-20261022.json'));
-assert.equal(resultFile.totals.scenarioDraws,700000);
-assert.equal(resultFile.comparison.find(h=>h.name==='エムズビギン').previousRating,76.1);
+const resultFile=JSON.parse(read('results/kikka-2026-20261023.json'));
+const priorResult=JSON.parse(read('results/kikka-2026-20261022.json'));
+assert.equal(resultFile.totals.scenarioDraws,750000);
+assert.equal(resultFile.calibrated,false);
+assert.equal(resultFile.totals.distinctDraws,1150000);
+assert.deepEqual(resultFile.dispersion.map(x=>x.vol),[3,5,8,10,14]);
+for(const x of resultFile.comparison){
+ const p=priorResult.scenarios[0].result.find(h=>h.name===x.name);
+ assert.equal(x.previousRating,p.rating);assert.equal(x.previousSavedTop3Pct,p.p3);
+ assert.equal(x.previousSavedVol,5);assert.equal(x.drawDelta,0);
+ assert.equal(x.updatedUndrawnSameSeedPct,x.updatedTop3SameSeedPct);
+}
+for(const s of resultFile.scenarios){
+ assert.ok(Math.abs(s.result.reduce((n,h)=>n+h.win,0)-100)<1e-8);
+ assert.ok(Math.abs(s.result.reduce((n,h)=>n+h.p3,0)-300)<1e-8);
+}
+assert.equal(resultFile.tickets.actualOdds,null);assert.equal(resultFile.tickets.expectedReturn,null);
+const report=read('reports/kikka-2026-20261023.html');
+assert.ok(report.includes('15条件'));assert.ok(report.includes('金曜の実測'));
+assert.equal((report.match(/<h3>/g)||[]).length,18);
 let meters=0,previous=path(0),peaks=0;
 for(let i=1;i<=12000;i++){
  const p=i/12000,q=path(p);meters+=Math.hypot(q.x-previous.x,q.z-previous.z);previous=q;

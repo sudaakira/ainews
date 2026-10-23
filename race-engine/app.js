@@ -43,6 +43,10 @@ if(config.evidenceUrl){
  if(liveNote&&config.assumptionLabel)liveNote.textContent=config.assumptionLabel+'。再生時計3分03秒5は映像用で、予測タイムではありません。';
  if(docLinks){
   if(config.updateSummary)docLinks.insertAdjacentHTML('beforeend','<p style="font-weight:700">'+config.updateSummary+'</p>');
+  if(config.trackObservation){
+   const t=config.trackObservation;
+   docLinks.insertAdjacentHTML('beforeend','<p id="track-observation" class="small"><b>観測と想定を区別：</b>'+t.asOf.replace('T',' ').replace('+09:00',' JST')+'の京都芝は'+t.turf+'・'+t.course+'コース。クッション値'+t.cushion.value+'、芝含水率はゴール前'+t.water.goal+'%／4角'+t.water.corner4+'%（数値は10:30測定）。初期条件の「重」は依頼上の仮定で、この金曜観測を日曜の値としては使用しません。 <a href="'+t.source+'" target="_blank" rel="noopener">JRA馬場発表</a> ／ <a href="'+t.numericSource+'" target="_blank" rel="noopener">発表数値</a></p>');
+  }
   docLinks.insertAdjacentHTML('beforeend','<p><a href="'+config.reportUrl+'" target="_blank">全頭の予想・配点・シナリオ結果</a> ／ <a href="'+config.evidenceUrl+'" target="_blank">全21頭の戦績・5代血統データ</a></p>');
   if(config.reserves?.length)docLinks.insertAdjacentHTML('beforeend','<p>'+(config.reservesLabel||'除外対象（現時点）')+'：'+config.reserves.map(h=>h.name).join('、')+'</p>');
  }
@@ -65,6 +69,7 @@ if(config.evidenceUrl){
     const item=document.createElement('details'),title=document.createElement('summary');
     title.textContent=h.name+' ／ '+({expected:'出走想定',confirmed:'出走確定',withdrawn:'回避',reserve:'除外対象',excluded:'除外（非抽選）'}[h.status]);item.append(title);
     const note=document.createElement('p');note.textContent=h.bloodInterpretation;item.append(note);
+    if(h.conditionReview){const r=h.conditionReview,p=document.createElement('p'),a=document.createElement('a');p.textContent=r.publishedDate+'公表：'+r.summary+' '+r.assessment+' '+(r.eventDateNote||'');a.href=r.source;a.target='_blank';a.rel='noopener';a.textContent=' 出典';p.append(a);item.append(p);}
     const j=h.jockeyCourseStats,stats=document.createElement('p');
     stats.textContent=h.jockey+'：京都芝3000m '+(j?j.races+'騎乗・複勝率'+j.place_rate+'%・複勝回収率'+j.place_payback+'%':'集計資料に掲載なし・中立')+'。'+h.statsScope;item.append(stats);
     item.append(table(['日付','開催','競走','着順','距離・馬場','時計','位置取り','前後区間','上がり','斤量'],h.records.map(r=>[r.date,r.venue,r.race,r.finish,r.distance+' '+r.ground,r.time,r.corners,r.paceFirstLast3f,r.last3f,r.weight])));

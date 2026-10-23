@@ -27,9 +27,9 @@ const scenarios=config.scenarios.map(s=>{
 });
 const base=scenarios[0];
 assert.deepEqual(sim.simulate({...base.options,weights:loop.DEFAULTS},count,seed).sort((a,b)=>b.rating-a.rating||a.no-b.no),base.result);
-const dispersion=[5,10,14].map(vol=>({vol,result:sim.simulate({...base.options,vol,weights:loop.DEFAULTS},count,seed)}));
+const dispersion=[3,5,8,10,14].map(vol=>({vol,result:sim.simulate({...base.options,vol,weights:loop.DEFAULTS},count,seed)}));
 // Common random numbers, same seed and n: only assumptions change.
-const totals={scenarioDraws:scenarios.length*count,dispersionDraws:dispersion.length*count,distinctDraws:scenarios.length*count+2*count,reproducibilityExtraDraws:count};
+const totals={scenarioDraws:scenarios.length*count,dispersionDraws:dispersion.length*count,distinctDraws:scenarios.length*count+dispersion.filter(s=>s.vol!==base.options.vol&&!(s.vol===8&&scenarios.some(x=>x.id==='soft-uncertain'))).length*count,reproducibilityExtraDraws:count};
 const independentSeeds=[seed+1,seed+2].map(seed=>({seed,result:sim.simulate({...base.options,weights:loop.DEFAULTS},count,seed)}));
 totals.seedValidationDraws=independentSeeds.length*count;
 totals.distinctDraws+=totals.seedValidationDraws;
@@ -67,7 +67,7 @@ function comparisonConfig(neutralDraw=false){
   mapped[key]=Object.fromEntries(identityOrder.map(h=>{
    const actual=config.horses.find(x=>x.horseId===h.horseId);
    const value=structuredClone(config[key][actual.no]);
-   if(key==='featureScores'&&neutralDraw)value.draw=50;
+   if(key==='featureScores'&&neutralDraw&&audit.drawChanged!==false)value.draw=50;
    return [h.no,value];
   }));
  }
@@ -77,19 +77,21 @@ const matchedRun=c=>{
  const l=createRegression(c,createFactors(c));
  return createSimulator(c,l).simulate({...base.options,weights:l.DEFAULTS},count,previous.seed);
 };
+const priorFrozen=priorSim.simulate({...previous.scenarios[0].options,weights:priorLoop.DEFAULTS},previous.count,previous.seed);
+assert.deepEqual(priorFrozen.slice().sort((a,b)=>b.rating-a.rating||a.no-b.no),previous.scenarios[0].result,'frozen prior model and saved dispersion exactly reproduced');
 const priorMatched=priorSim.simulate({...base.options,weights:priorLoop.DEFAULTS},count,previous.seed);
-assert.deepEqual(priorMatched.slice().sort((a,b)=>b.rating-a.rating||a.no-b.no),previous.scenarios[0].result,'frozen prior model exactly reproduced');
+totals.priorFrozenValidationDraws=previous.count;totals.distinctDraws+=previous.count;
 const updatedUndrawn=matchedRun(comparisonConfig(true));
 const matched=matchedRun(comparisonConfig(false));
-totals.matchedComparisonDraws=3*count;totals.distinctDraws+=3*count;
+totals.matchedComparisonDraws=3*count;totals.distinctDraws+=(audit.drawChanged===false?2:3)*count;
 const comparison=base.result.map(h=>{
  const old=priorMatched.find(x=>x.name===h.name),undrawn=updatedUndrawn.find(x=>x.name===h.name),same=matched.find(x=>x.name===h.name),round=x=>Math.round(x*10)/10;
- return {no:h.no,name:h.name,previousRating:old.rating,updatedUndrawnRating:undrawn.rating,rating:h.rating,delta:round(h.rating-old.rating),informationDelta:round(undrawn.rating-old.rating),drawDelta:round(h.rating-undrawn.rating),previousTop3Pct:old.p3,updatedUndrawnSameSeedPct:undrawn.p3,updatedTop3SameSeedPct:same.p3,updatedTop3DefaultPct:h.p3};
+ return {no:h.no,name:h.name,previousRating:old.rating,updatedUndrawnRating:undrawn.rating,rating:h.rating,delta:round(h.rating-old.rating),informationDelta:round(undrawn.rating-old.rating),drawDelta:round(h.rating-undrawn.rating),previousSavedVol:previous.scenarios[0].options.vol,previousSavedTop3Pct:priorFrozen.find(x=>x.name===h.name).p3,previousTop3Pct:old.p3,updatedUndrawnSameSeedPct:undrawn.p3,updatedTop3SameSeedPct:same.p3,updatedTop3DefaultPct:h.p3};
 });
 const pairs=[];
 {const r=sim.random(seed),scores=config.horses.map(h=>loop.evaluate(h,base.options).rating),counts=new Map();for(let i=0;i<count;i++){const order=sim.runRace(r,base.options,scores);for(let a=0;a<3;a++)for(let b=a+1;b<3;b++){const key=[order[a],order[b]].sort((a,b)=>a-b).join('-');const row=counts.get(key)||{wide:0,quinella:0};row.wide++;if(a===0&&b===1)row.quinella++;counts.set(key,row);}}for(const [key,n]of counts){const ids=key.split('-').map(Number);pairs.push({horses:ids.map(no=>config.horses[no-1].name),widePct:n.wide/count*100,quinellaPct:n.quinella/count*100});}pairs.sort((a,b)=>b.widePct-a.widePct);assert.ok(Math.abs(pairs.reduce((s,p)=>s+p.widePct,0)-300)<1e-8);assert.ok(Math.abs(pairs.reduce((s,p)=>s+p.quinellaPct,0)-100)<1e-8);}
 totals.pairExtraDraws=count;
-const output={race:config.id,asOf:config.asOf,count,seed,totals,calibrated:false,method:'Subjective evidence-weighted score + independent Gaussian ranking noise. 3D animates a sampled ranking; no physical race interactions are modeled.',scenarios,dispersion,independentSeeds,comparison,pairs,tickets:{trioOnePoint:trioTickets,trioSixPoints:tickets,onePointModelHitPct:ticketHitRate(trioTickets),sixPointModelHitPct:ticketHitRate(tickets),actualOdds:null,expectedReturn:null}};
+const output={race:config.id,asOf:config.asOf,count,seed,totals,calibrated:false,method:'Subjective evidence-weighted score + independent Gaussian ranking noise. Collision-aware pack-v1 plans visual paths for the sampled ranking; it does not estimate rank probabilities from physical interactions, congestion or energy expenditure.',scenarios,dispersion,independentSeeds,comparison,pairs,tickets:{trioOnePoint:trioTickets,trioSixPoints:tickets,onePointModelHitPct:ticketHitRate(trioTickets),sixPointModelHitPct:ticketHitRate(tickets),actualOdds:null,expectedReturn:null}};
 mkdirSync(resolve(root,'results'),{recursive:true});
 writeFileSync(resolve(root,'results/kikka-2026-'+stamp+'.json'),JSON.stringify(output,null,2)+'\n');
 const rows=[['scenario','horse_no','horse','rating','win_pct_model','top3_pct_model']];
