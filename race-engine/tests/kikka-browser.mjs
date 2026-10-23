@@ -37,6 +37,24 @@ try{
   assert.equal(await page.locator('#horses .suitability').count(),18);
   assert.equal(await page.locator('.tracking-number').count(),18);
   assert.equal(await page.locator('#race-front-labels').count(),0);
+  // Regression: the supplied FRONT-FACING pixel announcer must replace the
+  // old blue-suit vector portrait in the actual rendered browser DOM.
+  const portrait=page.locator('#race-commentary-panel .race-announcer img.announcer-portrait');
+  assert.equal(await portrait.count(),1,'original pixel announcer image must be mounted');
+  const portraitAudit=await portrait.evaluate(img=>({
+   loaded:img.complete&&img.naturalWidth>0,
+   width:img.naturalWidth,height:img.naturalHeight,
+   src:img.getAttribute('src')||'',
+   pixelated:getComputedStyle(img).imageRendering
+  }));
+  assert.ok(portraitAudit.loaded,'pixel announcer image decoded successfully');
+  assert.ok(portraitAudit.src.startsWith('data:image/webp;base64,UklGR'),
+   'announcer must be supplied original WebP, not old vector art');
+  assert.equal(portraitAudit.pixelated,'pixelated');
+  await page.locator('#race-commentary-panel').screenshot({path:'/tmp/kikka-mobile-shots/announcer-'+vp.width+'.png'});
+  console.log('ANNOUNCER_PIXEL_PROOF',JSON.stringify({viewport:vp.width,
+   width:portraitAudit.width,height:portraitAudit.height,
+   screenshot:'/tmp/kikka-mobile-shots/announcer-'+vp.width+'.png'}));
   if(vp.width<700){
    for(const id of ['#live-play','#live-pause','#live-reset','#live-rate','#race']){
     const box=await page.locator(id).boundingBox();assert.ok(box&&box.x>=-1&&box.x+box.width<=vp.width+1&&box.y+box.height<=vp.height+2,'mobile first viewport '+id);
