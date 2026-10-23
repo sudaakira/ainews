@@ -140,14 +140,14 @@ header p:last-child{font-size:12px;opacity:.8}
 .horse-score-table{min-width:260px;margin:10px 0}
 .horse-score-table td:first-child{white-space:normal}
 @media(max-width:590px){.weight-controls{grid-template-columns:1fr}}
-</style><link rel="stylesheet" href="./assets/premium-mobile.css?v=ui-v1"><link rel="stylesheet" href="./assets/race-cinematics.css?v=announcer-transparent-v34"></head><body>
+</style><link rel="stylesheet" href="./assets/race-cinematics.css?v=retro-flow-v1"></head><body>
 <header><p>レース設定を読み込み中</p><h1>🏇 共通レースシミュレーター</h1><p>14項目の条件回帰ループ予想</p></header><div class="wrap"><div class="hero-race"><section class="card"><h2>レースシミュレーション</h2>
 <div class="live-sim" id="live-sim">
  <div class="live-head"><strong>3D RACE · 🐎 自然ギャロップ v16</strong><span class="live-status" id="live-status">スタート待機</span></div>
+ <div class="live-readout" aria-label="レース情報"><span id="race-surface-mode"></span><div class="race-distance"><strong id="race-meters">1400</strong><span id="race-meters-label">m</span><small id="race-speed-label">4×</small></div><span class="broadcast-clock" id="broadcast-clock" aria-label="仮想レースの再生時計">0:00.0</span></div>
  <div class="live-stats"><div class="live-stat"><span>レース経過（仮想）</span><b id="live-clock">00:00</b></div><div class="live-stat"><span>残り距離</span><b id="live-distance">1400m</b></div><div class="live-stat"><span>現在の区間</span><b id="live-section">発走前</b></div></div>
  <details class="camera-more"><summary>📷 カメラ視点を変更</summary><div class="camera-controls" id="camera-controls" style="display:none"><button data-camera="wide">🏟️ コース全景</button><button data-camera="gate">🚦 ゲートを見る</button><button data-camera="follow" class="cam-active">🎥 外ラチ側・追走</button><button data-camera="horse">🐴 アニメ馬アップ</button><button data-camera="finish">🏁 ゴール前</button><button data-camera="2d">2D模式図</button><span id="three-status">3Dモデル読み込み中…</span></div></details><div class="live-screen">
  <div id="three-stage" style="display:none"><div class="track-broadcast"><b>京都 11R · 🐎 v16</b><span>スワンステークス GII｜芝1400m（外）</span></div><div class="track-broadcast-bottom">🏇 RACE SIMULATOR <span id="horse-model-version">MODEL LOADING</span></div>
- <div class="broadcast-clock" id="broadcast-clock">0:00.0</div>
  <div class="broadcast-course"><svg viewBox="0 0 210 78" aria-label="コース進行図"><rect x="5" y="6" width="200" height="66" rx="33" fill="#296e50" stroke="#d8efc9" stroke-width="4"/><rect x="17" y="17" width="176" height="44" rx="22" fill="#43875b" stroke="#9bdb6b" stroke-width="6"/><circle id="broadcast-dot" cx="23" cy="39" r="6" fill="#ffda57" stroke="#fff" stroke-width="2"/></svg><span id="broadcast-distance">残り 1400m</span></div>
  <div class="broadcast-commentary"><span class="broadcast-mic">🎙️</span><div><strong id="broadcast-leader">スタート前</strong><span id="broadcast-comment">レース発走前</span></div></div></div>
  <svg id="kyoto-map" viewBox="0 0 860 555" role="img" aria-label="競走馬の汎用コース模式図">
@@ -176,9 +176,10 @@ header p:last-child{font-size:12px;opacity:.8}
   <text class="marker" x="525" y="483">← ゴールへ</text>
   <g id="kyoto-horses"></g>
  </svg></div>
+ <div id="race-observation" class="race-observation"></div>
  <input type="range" min="0" max="1000" value="0" id="live-scrub" aria-label="レースの再生位置"/>
- <div id="race-engine-build" style="font:600 11px sans-serif;color:#dceee6;margin:4px 0">3D中継 v26｜iPhone標準・先頭馬に遅れない外ラチ追走</div><div class="live-buttons"><button id="live-play">▶ スタート</button><button id="live-pause" style="background:#4c646b">⏸ 一時停止</button><button id="live-reset" style="background:#4c646b">↺ 新しいレース</button><select id="live-rate" aria-label="再生速度"><option value="1">1倍速</option><option value="2">2倍速</option><option value="4" selected>4倍速</option><option value="8">8倍速</option><option value="16">16倍速</option><option value="instant">即ゴール</option></select></div>
- <div class="result-head"><strong>🏆 レース順位 TOP 3</strong><span id="result-state">スタート待機</span></div>
+ <div class="live-buttons"><button id="live-play">スタート</button><button id="live-pause">一時停止</button><button id="live-reset">新レース</button><select id="live-rate" aria-label="再生速度"><option value="1">1倍速</option><option value="2">2倍速</option><option value="4" selected>4倍速</option><option value="8">8倍速</option><option value="16">16倍速</option><option value="instant">即ゴール</option></select></div>
+ <div class="result-head"><strong>仮想レース結果</strong><span id="result-state">スタート待機</span></div>
  <div id="race" class="top3-results" aria-live="off"></div>
  <div class="live-leaders" id="live-leaders" style="margin-top:10px"></div>
  <p class="live-note">※仮想レースです。着順・時計は実際の結果ではありません。</p>
@@ -211,9 +212,9 @@ try {
  window.SWAN_FACTORS=createFactors(config);
  window.SWAN_LOOP=createRegression(config,window.SWAN_FACTORS);
  window.RACE_SIM=createSimulator(config,window.SWAN_LOOP);
- await import('./app.js?v=race-pack-v1-20261023heavy');
- await import('./renderer.js?v=race-pack-v1-announcer34-camera28');
- await import('./assets/premium-mobile.js?v=cinema-v1');
+ await import('./app.js?v=retro-flow-v1');
+ await import('./renderer.js?v=retro-flow-v1-camera28');
+ await import('./assets/premium-mobile.js?v=retro-flow-v1');
 } catch(e){
  console.error('Race engine initialization failed',e);
  const errorBox=document.getElementById('bootstrap-error');

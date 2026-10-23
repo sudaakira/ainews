@@ -1,6 +1,7 @@
 import {kyotoOuterMapPath,kyotoOuterPath} from './assets/kyoto-outer-3000.js?v=pack-v1-smooth';
 import {kyotoMapPath,kyotoPath} from './assets/kyoto-course.js?v=pack-v1-smooth';
 import {createRacePack,createReplayProgress} from './assets/race-pack.js?v=pack-v1';
+import {createRaceHUD} from './assets/race-hud.js?v=retro-flow-v1';
 /* Race-engine shared UI application. Loaded after per-race configuration. */
 import {jockeyCap,JRA_JOCKEY_CAPS} from './core/jockey-caps.js?v=cap-v1';
 import {FINISH_GAP,playbackEnd,playbackRate,finishCrossings} from './assets/race-playback.js?v=kyoto-v11-1';
@@ -12,12 +13,13 @@ if(!config||!FACTOR||!LOOP||!SIM)throw Error('Race configuration has not loaded'
 const HS=config.horses,FIELD=HS.length,CENTER=(FIELD+1)/2;
 const capFor=h=>jockeyCap(h,config,horse=>FACTOR.frame(horse));
 const distance=Number(config.distance),duration=Number(config.duration)||80;
+const raceHUD=createRaceHUD({config,capFor});
 // Race-local text, warnings, metadata and limits (not a Kyoto-only UI).
 document.title=config.name+' '+config.date+'｜共通レースシミュレーター';
 const head=document.querySelector('header');
 if(head){head.innerHTML='<p>'+config.venue+' '+config.raceNumber+'R / '+config.date+' / '+config.surface+config.distance+'m '+(config.course||'')+'</p><h1>🏇 '+config.name+' レース予想</h1><p>'+FIELD+'頭・条件回帰ループ3Dシミュレーション'+(config.finalRunnersConfirmed?' ／ 出走馬・騎手確定':'')+(config.provisionalDraw?' ／ 仮番号・枠順未確定':'')+'</p>'+(config.asOf?'<p style="color:#e1f5b4;font-weight:700">📅 データ更新：'+config.asOf.replace('T',' ').replace('+09:00',' JST')+'</p>':'')+(config.demo?'<p style="color:#aa2d2d;font-weight:800">⚠ 架空の動作確認データ。実在の競馬予想ではありません。</p>':'');}
 const hero=document.querySelector('.hero-race h2');if(hero)hero.textContent='🏇 '+config.venue+'｜'+FIELD+'頭レースシミュレーター';
-const liveHead=document.querySelector('.live-head strong');if(liveHead)liveHead.textContent='🏇 '+config.venue+' '+config.surface+config.distance+'m｜3Dレース';
+const liveHead=document.querySelector('.live-head strong');if(liveHead)liveHead.textContent=config.venue+' '+config.raceNumber+'R　'+config.name;
 const mainHeading=document.querySelector('main section.card h2');if(mainHeading)mainHeading.innerHTML='全'+FIELD+'頭の3着以内率｜<span id="count">—</span>';
 const broadcast=document.querySelector('.track-broadcast');if(broadcast)broadcast.innerHTML='<b>'+config.venue+' '+config.raceNumber+'R</b><span>'+config.name+'｜'+config.surface+config.distance+'m '+(config.course||'')+'</span>';
 const venueTag=document.querySelector('.track-broadcast-bottom');if(venueTag)venueTag.firstChild.textContent='🏇 '+config.venue+' ';
@@ -161,13 +163,13 @@ function raceview(v,final=false){
  const key=(final?'F':'L')+v.slice(0,6).join('-');
  if(raceview.lastKey===key)return;
  raceview.lastKey=key;
- const labels=['🥇','🥈','🥉'];
  el('result-state').textContent=final?'🏁 確定着順':'● 走行中・暫定順位';
  el('race').classList.toggle('finished',final);
+ el('live-sim').classList.toggle('race-finished',final);
  el('race').innerHTML=v.slice(0,3).map((no,k)=>{
    const h=HS[no-1],cap=capFor(h);
    const capStyle='background:'+cap.hex+';color:'+cap.text+';border-color:'+cap.outline;
-   return '<div class="place-card place-'+(k+1)+'"><div class="place-rank">'+labels[k]+' '+(k+1)+'着</div>'+
+   return '<div class="place-card place-'+(k+1)+'"><div class="place-rank">'+(k+1)+'着</div>'+
     '<div class="place-number">'+(config.provisionalDraw?'仮'+no:no)+'</div><div class="place-name">'+h.name+'</div>'+
     '<div class="place-jockey"><span class="place-frame" style="'+capStyle+'">'+(cap.frame?cap.frame+'枠':'枠未定')+'</span> '+h.j+' 騎手</div></div>';
  }).join('');
@@ -264,7 +266,7 @@ const replayIndicator=document.createElement('small');
 replayIndicator.id='race-replay-id';
 replayIndicator.style.cssText='display:block;color:#e4eddd;font:600 11px/1.5 sans-serif;margin:4px 0 7px;';
 replayIndicator.title='この再現番号を含むURLなら、同じ展開と先頭馬を再生できます';
-(document.querySelector('.live-buttons')||el('live-status').parentElement)
+(docLinks||el('live-status').parentElement)
  .insertAdjacentElement('afterend',replayIndicator);
 const NS='http://www.w3.org/2000/svg';
 const route=el('kyoto-route'), group=el('kyoto-horses');
@@ -348,6 +350,7 @@ function sampleLiveRace(){
   path:packPath,direction:config.direction,ground:s.ground,seed,width:isKyotoOuter3000||isKyotoInner?27:25.6});
  LIVE.clock=useStartFrame?LIVE.duration*initialPosition/1000:0;
  LIVE.visualTime=0;LIVE.ready=true;LIVE.playing=false;LIVE.last=0;LIVE.playbackAtFinish=false;LIVE.instantFinished=false;
+ el('live-sim').classList.remove('race-finished');
  shareRaceFrame(useStartFrame?initialPosition:null);
  replayIndicator.textContent='🎥 再現ID '+seed+' ｜ URLで同じ展開を再現（設定変更・新しいレースは別展開）';
  el('live-status').textContent='スタート待機';raceview.lastKey='';el('result-state').textContent='スタート待機';el('race').classList.remove('finished');el('race').innerHTML=['🥇','🥈','🥉'].map((medal,i)=>'<div class="place-card place-'+(i+1)+'"><div class="place-rank">'+medal+' '+(i+1)+'着</div><div class="place-number">—</div><div class="place-name">レース待機中</div></div>').join('');drawLive();
@@ -376,6 +379,8 @@ function drawLive(){
  });
  el('live-leaders').innerHTML=progress===0?'':order.slice(3,6).map((h,i)=>'<span>'+(i+4)+'位 <b>'+h.no+' '+HS[h.no-1].name+'</b></span>').join('');
  const crossed=finishCrossings(LIVE.rank,LIVE.clock,LIVE.duration);
+ raceHUD.update({clock:LIVE.clock,progress,order,crossed,rate:el('live-rate').value});
+ el('broadcast-clock').textContent=Math.floor(LIVE.clock/60)+':'+(LIVE.clock%60).toFixed(1).padStart(4,'0');
  if(progress>0)raceview(order.map(x=>x.no),crossed.length>=3);
  if(progress>=1){
   if(LIVE.playing)LIVE.playbackAtFinish=true;

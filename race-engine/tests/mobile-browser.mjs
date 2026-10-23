@@ -2,6 +2,7 @@
 import assert from 'node:assert/strict';
 import {mkdirSync} from 'node:fs';
 import {resolve,extname} from 'node:path';
+import {assertRaceUI} from './race-ui-assertions.mjs';
 async function serveLocal(page){
  if(!process.env.RACE_LOCAL_ROOT)return;
  await page.route('http://race.local/**',async route=>{
@@ -50,6 +51,7 @@ try{
   assert.equal(await page.locator('#kyoto-map').isVisible(),false);
   assert.equal(await page.locator('#race-commentary-panel').isVisible(),true);
   assert.equal(await page.locator('.tracking-number').count(),17);
+  await assertRaceUI(page,{field:17,finished:false});
   assert.equal(await page.locator('#race-front-labels').count(),0,'no horse-name arrows on any viewport');
   const canvas=await page.locator('#three-stage canvas').boundingBox();
   assert.ok(canvas.width>200&&canvas.height>200);
@@ -62,7 +64,7 @@ try{
     'whole gate must fill substantial screen width: '+JSON.stringify(gateCheck));
   }
   if(vp.width<700){
-   for(const id of ['#live-play','#live-pause','#live-reset','#live-rate','#race']){
+   for(const id of ['#live-play','#live-pause','#live-reset','#live-rate','.race-tracking','#race-commentary-panel']){
     const box=await page.locator(id).boundingBox();
     assert.ok(box&&box.x>=-1&&box.x+box.width<=vp.width+1&&box.y+box.height<=vp.height+2,'fits first viewport: '+id+' '+JSON.stringify(box));
    }
@@ -146,6 +148,7 @@ try{
     assert.ok((await page.locator('#race-commentary-text').textContent()).length>10);
     const visibleOrder=await page.locator('.tracking-number').allTextContents();
     assert.equal(Number(visibleOrder[0]),state.director.pose.subjects[0]);
+    await assertRaceUI(page,{field:17,finished:false});
     await page.screenshot({path:'/tmp/race-mobile-shots/shuka-'+vp.width+'-'+id+'.png'});
    }
    // The former 4C clipping happened AFTER the ordinary .77 still. Inspect
@@ -221,7 +224,8 @@ try{
    assert.ok(limbFrames.filter(x=>x.hind>.12).length>=8,'3D hind hooves must not synchronize');
    assert.ok(limbFrames.filter(x=>x.front>.12||x.hind>.12).length>=16,
     '3D fore/hind pairs should not look synchronized');
-   assert.equal((await page.locator('.live-head').textContent()).includes('v19'),true);
+   assert.equal((await page.locator('.live-head').textContent()).includes('v19'),false,'hide internal build tags, not the racing model');
+   assert.equal((await page.evaluate(()=>window.KYOTO_RENDER_STATUS.gait)),'racing-sprint-v19');
    assert.equal(await page.locator('#race-front-labels').count(),0,'moving race has no horse-name arrows');
    await page.screenshot({path:'/tmp/race-mobile-shots/shuka-'+vp.width+'-sprint-v19.png'});
    // Observe real playback across the winner's line: translation AND gait continue.
@@ -237,13 +241,14 @@ try{
     const b=after.scene.positions[i];assert.ok(Math.hypot(b.x-a.x,b.z-a.z)>.1,'horse '+(i+1)+' moves through the line');
    });
    assert.equal(after.scene.shot,'finish','no sixth camera cut after result');
-   await page.waitForFunction(()=>document.querySelectorAll('.cinema-podium-row').length===3,null,{timeout:12000});
+   await page.waitForFunction(()=>document.querySelector('#race').classList.contains('finished'),null,{timeout:12000});
    const expected=await page.evaluate(()=>window.KYOTO_RACE.LIVE.rank.slice(0,3).map(String));
-   assert.deepEqual(await page.locator('.cinema-result-cap').allTextContents(),expected);
+   assert.equal(await page.locator('.cinema-finish').count(),0,'no duplicate podium over the track');
    assert.deepEqual(await page.locator('#race .place-number').allTextContents(),expected);
    await page.screenshot({path:'/tmp/race-mobile-shots/shuka-'+vp.width+'-runout.png'});
    // User pause is still respected after the goal; resuming never samples a new rank.
    await page.locator('#live-pause').click();
+   await assertRaceUI(page,{field:17,finished:true});
    const paused=await page.evaluate(()=>({clock:window.KYOTO_RACE.LIVE.clock,visual:window.KYOTO_RACE.LIVE.visualTime,rank:window.KYOTO_RACE.LIVE.rank.join(',')}));
    await page.waitForTimeout(300);
    assert.deepEqual(await page.evaluate(()=>({clock:window.KYOTO_RACE.LIVE.clock,visual:window.KYOTO_RACE.LIVE.visualTime,rank:window.KYOTO_RACE.LIVE.rank.join(',')})),paused);
@@ -252,7 +257,7 @@ try{
    assert.equal(await page.evaluate(()=>window.KYOTO_RACE.LIVE.rank.join(',')),paused.rank);
    await page.locator('#live-reset').click();
    await page.waitForFunction(()=>window.RACE_SCENE_AUDIT?.gateVisible&&window.RACE_CINEMATIC_DEBUG?.shot==='start',null,{timeout:10000});
-   assert.equal(await page.locator('.cinema-podium-row').count(),0);
+   assert.equal(await page.locator('#race').isVisible(),false,'hide result card until the next finish');
    console.log('PASS five cuts, far-side board, all-horse continuous run-out, pause/resume/reset',vp);
   }else{
    await seek(999);
