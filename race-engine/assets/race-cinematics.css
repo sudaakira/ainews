@@ -191,3 +191,11 @@ body.premium-immersive .hero-race .live-note{display:block!important}
 .race-speech:before{display:none}
 #race-commentary-text{color:#f5f5f2;margin:0;text-shadow:0 1px 2px #000}
 .race-commentary-channel,.race-speech-header,#race-commentary-title{display:none!important}
+
+/* v34: transparent full-height front-facing announcer, no crop or frame. */
+#race-commentary-panel{height:clamp(100px,17vh,180px);padding:0 12px 0 0;gap:8px;align-items:stretch}
+.race-announcer,#race-commentary-panel[data-tone=winner] .race-announcer{height:100%;width:auto;aspect-ratio:77/88;flex:0 0 auto;align-self:stretch;overflow:visible;background:transparent}
+.race-announcer img{width:100%;height:100%;object-fit:contain;object-position:center bottom;background:transparent}
+.race-speech{display:flex;align-items:center;min-height:0}
+#race-commentary-text{font-size:clamp(13px,1.9vw,20px);line-height:1.45}
+@media(max-width:700px){#race-commentary-panel{height:clamp(96px,16vh,150px);padding:0 8px 0 0;gap:5px}.race-announcer{height:100%;width:auto;aspect-ratio:77/88}#race-commentary-text{font-size:clamp(12px,3.2vw,17px)}}
