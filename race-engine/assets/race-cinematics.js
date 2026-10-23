@@ -1,4 +1,4 @@
-import {raceCommentary,ANNOUNCER_SVG} from './race-commentary.js?v=announcer-pixel-v31';
+import {raceCommentary,ANNOUNCER_SVG} from './race-commentary.js?v=announcer-transparent-v34';
 /** Clean cel-racing broadcast. All positions and results are read from the shared engine. */
 import {chooseRaceShot,courseShotCuts,raceCameraPose,followLockedCameraPose} from './race-shotlist.js?v=pack-v1-camera-v28';
 import {finishCrossings,playbackRate} from './race-playback.js?v=kyoto-v11-1';
