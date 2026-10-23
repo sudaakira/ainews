@@ -16,7 +16,7 @@ export function createRaceCinematics({THREE,scene,stage,models,config,capFor,pat
   '<div class="race-tracking"><div class="tracking-meta"><span id="tracking-caption">スタート待機</span><span>← 先頭</span></div><div id="race-tracking-field"></div></div>';
  ui.insertAdjacentHTML('beforeend','<div id="race-commentary-panel"><div class="race-announcer">'+ANNOUNCER_SVG+'</div><div class="race-speech"><p id="race-commentary-text"></p></div></div>');
  stage.append(ui);
- const speech=ui.querySelector('#race-commentary-text'),speechTitle=ui.querySelector('#race-commentary-title'),speechPanel=ui.querySelector('#race-commentary-panel');
+ const speech=ui.querySelector('#race-commentary-text'),speechPanel=ui.querySelector('#race-commentary-panel');
  let spokenKey='',speechAt=-Infinity,previousClock=0;
  const phaseTitle=ui.querySelector('#cinema-phase-title'),kicker=ui.querySelector('.cinema-phase-kicker');
  const subtitle=ui.querySelector('#cinema-phase-sub'),meters=ui.querySelector('#race-meters');
@@ -100,7 +100,7 @@ export function createRaceCinematics({THREE,scene,stage,models,config,capFor,pat
   // Hold each caption long enough to read, even at 16x. Finish/seek supersedes it.
   const now=performance.now(),seeked=Math.abs(clock-previousClock)>3||clock<previousClock;
   if(call.key!==spokenKey&&(now-speechAt>2100||call.tone==='winner'||seeked||clock===0)){
-   speech.textContent=call.text;speechTitle.textContent=call.title;speechPanel.dataset.tone=call.tone;
+   speech.textContent=call.text;speechPanel.dataset.tone=call.tone;
    spokenKey=call.key;speechAt=now;
   }
   previousClock=clock;
