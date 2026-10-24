@@ -1,0 +1,37 @@
+import {readFileSync} from 'node:fs';
+const read=p=>readFileSync(p,'utf8'),root='race-engine/';
+const old=read(root+'races/kikka-20261023.js');
+const c=JSON.parse(old.slice(old.indexOf('{'),old.lastIndexOf('}')+1));
+const base=structuredClone(c),rows=[];
+c.asOf='2026-10-24';c.previousStamp='20261023';
+c.notes='10/24更新。添付の過去10年資料を弱いローテ・枠補正として反映。今日の京都8R・10Rの芝は稍重。明日の重想定を基準に稍重・不良・前有利を比較。全18頭の確定枠・最終追い・調教後体重は継承。人気は能力点に不使用。当日体重・取消・馬場は発走前に再確認。';
+c.assumptionLabel='重馬場想定（10/24京都芝8R・10Rは稍重）';
+c.informationNote=c.notes;c.updateSummary=c.notes;c.horseEvidenceNote='最終追いは10/21・10/22、全18頭状態レビューは10/23の確認済資料を継承。10/24の輸送・状態報道を追記。';
+c.dataVersion='kikka-20261024-image-track';c.reportUrl='./reports/kikka-2026-20261024.html';c.updateAuditUrl='./data/kikka-2026-update-20261024.json';
+c.trackObservation={asOf:'2026-10-24',turf:'稍重',course:'A',cushion:null,water:null,appliedToDefaultGround:false,source:'https://sports.yahoo.co.jp/keiba/race/result/2608040808',corroboration:'https://sports.yahoo.co.jp/keiba/race/result/2608040810',note:'8R13:45と10R14:50の芝競走時点。ダート不良を芝に転用しない。JRA馬場ページの取得本文は10/23正午欄が残るため今日のクッション値・含水率は未確定。8Rは逃げ切りだが、1800mの少頭数1レースから3000mの内有利を断定しない。'};
+c.sources['10/24京都芝8R結果']=c.trackObservation.source;c.sources['10/24京都芝10R結果']=c.trackObservation.corroboration;
+c.sources['10/24関東馬輸送']='https://tospo-keiba.jp/breaking_news/77004';
+c.sources['10/24ジャスティンシカゴ状態留保']='https://umanity.jp/racedata/race_newsdet.php?nid=11880637';
+for(const h of c.horses){
+ const first=h.history.split(' ／ ')[0],m=first.match(/(\d+)着/),place=m?Number(m[1]):null;
+ const trial=/神戸新聞杯|セントライト記念/.test(first);
+ const delta=trial&&place!==null?(place<=3?1:-1):0;
+ const rotation=c.featureScores[h.no].rotation,draw=c.featureScores[h.no].draw;
+ c.featureScores[h.no].rotation+=delta;
+ if(h.frame===1)c.featureScores[h.no].draw-=2;
+ const diff={rotation:{before:rotation,after:c.featureScores[h.no].rotation},draw:{before:draw,after:c.featureScores[h.no].draw}};
+ rows.push({no:h.no,horseId:h.horseId,name:h.name,reviewedAt:c.asOf,previousRace:first,previousPlace:place,trial,changes:diff});
+ h.historicalReview='10/24添付資料：前走3着以内・TR組をローテ素点±1、1枠不振を枠素点−2だけ補助反映。既存の実績点と重なるため大幅加点しない。人気・所属・脚質は加点せず、キャリア全数の未再取得を明示。';
+ c.conditionResponses[h.no].variants.imageTrendOff={rotation:-delta,draw:h.frame===1?2:0};
+}
+const five=c.horses.find(h=>h.no===5);
+five.latest+=' 10/24公表：前走後の反動から回復途上との鞍上談話と、長距離では余裕ある仕上げを肯定する見方が併存。好気配報道だけで状態点を重ねて加点しない。';
+c.conditionResponses[5].variants.saturdayFitnessRisk={training:-3};
+c.scenarios.push({id:'image-trend-off',label:'添付傾向補正を無効化',options:{...c.scenarios[0].options,variant:'imageTrendOff'}},{id:'saturday-fitness-risk',label:'⑤状態回復に慎重',options:{...c.scenarios[0].options,variant:'saturdayFitnessRisk'}});
+const audit={asOf:c.asOf,previousStamp:c.previousStamp,drawChanged:false,subjective:true,method:'画像の関連を因果とせず、ローテ素点±1・1枠素点−2に縮小。今日の稍重と明日の重想定を区別。人気は入力しない。キャリア・所属・脚質集計は交絡と既存入力の重複を考慮し追加点ゼロ。',image:{filename:'IMG_3160.jpeg',period:'2016–2025（2021・2022阪神を含む）',limitations:'京都限定・重馬場限定ではない。脚質は結果分類の可能性があり事前脚質との一致を保証しない。',readableTrends:['前走3着以内','TR組中心','9戦以上苦戦','1枠不振','関東馬5連勝中'],careerApplied:false,popularityApplied:false},trackObservation:c.trackObservation,previousModel:base,rows};
+const html='<!doctype html><html lang="ja"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>菊花賞10/24更新</title><style>body{max-width:950px;margin:24px auto;padding:16px;font:16px/1.8 sans-serif;color:#17243b;background:#fffef8}a{color:#164e83}</style><h1>菊花賞・10/24更新</h1><p>'+c.notes+'</p><p>'+c.trackObservation.note+'</p><h2>画像の扱い</h2><p>'+audit.method+' '+audit.image.limitations+'</p><p>17条件を各50,000回実行。表示率は未校正モデル内の出現率で実際の的中確率ではありません。3D馬群は抽選着順を可視化します。</p><p><a href="../results/kikka-2026-20261024.json">再現可能な試算結果</a> / <a href="../?race=kikka-2026">3Dを開く</a></p>'+c.horses.map(h=>'<h3>'+h.no+' '+h.name+'</h3><p>'+h.latest+'</p><p>'+h.historicalReview+'</p>').join('')+'<h2>出典</h2>'+Object.entries(c.sources).slice(-4).map(([k,u])=>'<p><a href="'+u+'">'+k+'</a></p>').join('')+'</html>\n';
+const additions={'races/kikka-20261023.js':old,'data/kikka-2026-update-20261024.json':JSON.stringify(audit,null,2)+'\n','reports/kikka-2026-20261024.html':html};
+let patch='*** Begin Patch\n';
+for(const [p,s]of Object.entries(additions))patch+='*** Add File: '+root+p+'\n'+s.trimEnd().split('\n').map(x=>'+'+x).join('\n')+'\n';
+patch+='*** Update File: '+root+'races/kikka-2026.js\n@@\n'+read(root+'races/kikka-2026.js').trimEnd().split('\n').map(x=>'-'+x).join('\n')+'\n'+('/** October 24 image and observed turf review. */\nexport default '+JSON.stringify(c,null,2)+';').split('\n').map(x=>'+'+x).join('\n')+'\n';
+patch+='*** End Patch';process.stdout.write(JSON.stringify(patch));

@@ -6,9 +6,22 @@ const read=p=>readFileSync(resolve(root,p),'utf8');
 const moduleURL=p=>'data:text/javascript;base64,'+Buffer.from(read(p).replace(/from ['"](\.[^'"]+)['"]/g,(_,spec)=>"from '"+moduleURL(relative(root,resolve(root,dirname(p),spec.split('?')[0])))+"'")).toString('base64');
 const load=p=>import(moduleURL(p));
 const [{default:c},{createFactors},{createRegression},{createSimulator},{KYOTO_OUTER_3000:course,kyotoOuterPath:path,kyotoOuterHeight:height},{courseShotCuts,chooseRaceShot,raceCameraPose,followLockedCameraPose}]=await Promise.all([
- load('races/kikka-2026.js'),load('core/factors.js'),load('core/regression.js'),load('core/simulator.js'),load('assets/kyoto-outer-3000.js'),load('assets/race-shotlist.js')
+ load('races/kikka-20261023.js'),load('core/factors.js'),load('core/regression.js'),load('core/simulator.js'),load('assets/kyoto-outer-3000.js'),load('assets/race-shotlist.js')
 ]);
 assert.equal(c.horses.length,18);assert.equal(c.provisionalDraw,false);
+// Preserve the prior snapshot checks below and verify the active Oct24 update.
+const {default:active}=await load('races/kikka-2026.js');
+assert.equal(active.asOf,'2026-10-24');
+assert.equal(active.trackObservation.turf,'稍重');
+assert.equal(active.trackObservation.cushion,null);
+assert.equal(active.defaultGround,'soft');
+assert.equal(active.scenarios.length,17);
+const activeLoop=createRegression(active,createFactors(active));
+for(const h of active.horses){
+ const prior=c.horses.find(x=>x.horseId===h.horseId);
+ assert.deepEqual(h.workout,prior.workout);assert.deepEqual(h.trainingWeight,prior.trainingWeight);
+ assert.equal(activeLoop.evaluate(h,{...active.scenarios[0].options,variant:'imageTrendOff'}).rating,createRegression(c,createFactors(c)).evaluate(prior,c.scenarios[0].options).rating);
+}
 assert.equal(c.drawConfirmed,true);assert.equal(c.finalRunnersConfirmed,true);
 const names=['エムズビギン','コンジェスタス','アウダーシア','ショウナンガルフ','ジャスティンシカゴ','バステール','ラージアンサンブル','ロブチェン','ゴーイントゥスカイ','ダノンヒストリー','アスクエジンバラ','サノノグレーター','キンググローリー','マジョレルブルー','シートゥサミット','ショウナンハヤナミ','チャリングクロス','ナリタエスペランサ'];
 const frames=[1,1,2,2,3,3,4,4,5,5,6,6,7,7,7,8,8,8];
