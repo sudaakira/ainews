@@ -36,9 +36,9 @@ try{
   assert.ok((await page.locator('.live-note').innerText()).includes('馬場は選択条件'));
   assert.ok((await page.locator('.live-note').getAttribute('title')).includes('重馬場想定'));
   assert.equal(await page.locator('#bars .bar').first().locator('.val small').innerText(),'86.9点');
-  assert.ok((await page.locator('header').textContent()).includes('2026-10-23'));
-  assert.ok((await page.locator('#track-observation').textContent()).includes('京都芝は良'));
-  assert.equal(await page.locator('#race-scenario option').count(),15);
+  assert.ok((await page.locator('header').textContent()).includes('2026-10-24'));
+  assert.ok((await page.locator('#track-observation').textContent()).includes('京都芝は稍重'));
+  assert.equal(await page.locator('#race-scenario option').count(),17);
   const reviews=await page.evaluate(()=>window.RACE_CONFIG.horses.map(h=>h.conditionReview.publishedDate));
   assert.ok(reviews.every(d=>d==='2026-10-23'));
   assert.equal(await page.locator('#horses .suitability').count(),18);

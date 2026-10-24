@@ -1,4 +1,4 @@
-/** October 23 condition review; Friday observed good, Sunday assumed 重 (soft). */
+/** October 24 image and observed turf review. */
 export default {
   "schemaVersion": 1,
   "id": "kikka-2026",
@@ -20,7 +20,7 @@ export default {
   },
   "duration": 183.5,
   "demo": false,
-  "asOf": "2026-10-23",
+  "asOf": "2026-10-24",
   "seed": 20261023,
   "provisionalDraw": false,
   "drawConfirmed": true,
@@ -31,7 +31,7 @@ export default {
   "defaultPlaybackRate": 4,
   "defaultSimulations": 50000,
   "defaultBias": "neutral",
-  "notes": "10/23公表の全18頭の談話・金曜調整を確認。10/22確定の馬番・騎手・調教後体重は継承。金曜正午の京都芝は良だが、依頼上の重馬場想定を初期値とする。状態点は全頭据え置き、道悪談話による小幅修正3頭は無効化条件も用意。4倍速・ばらつき3・即ゴール・pack-v1・ピクセル実況を維持。当日体重・パドック・実オッズ未反映。率は未校正モデル内出現率。",
+  "notes": "10/24更新。添付の過去10年資料を弱いローテ・枠補正として反映。今日の京都8R・10Rの芝は稍重。明日の重想定を基準に稍重・不良・前有利を比較。全18頭の確定枠・最終追い・調教後体重は継承。人気は能力点に不使用。当日体重・取消・馬場は発走前に再確認。",
   "horses": [
     {
       "no": 1,
@@ -100,7 +100,8 @@ export default {
         "source": "https://umanity.jp/racedata/race_newsdet.php?nid=11880604",
         "verification": "公開取材報道",
         "eventDateNote": "記事公表日を確認。取材・調整の実施日を10/23と断定しない。"
-      }
+      },
+      "historicalReview": "10/24添付資料：前走3着以内・TR組をローテ素点±1、1枠不振を枠素点−2だけ補助反映。既存の実績点と重なるため大幅加点しない。人気・所属・脚質は加点せず、キャリア全数の未再取得を明示。"
     },
     {
       "no": 2,
@@ -167,7 +168,8 @@ export default {
         "assessment": "状態90を維持。調教後534kgは成長の説明と整合するが、当日体重でも適距離の証明でもなく、増量だけでは加減点しない。",
         "source": "https://news.netkeiba.com/?no=346466&pid=news_view&rf=kmatome",
         "verification": "公開取材報道"
-      }
+      },
+      "historicalReview": "10/24添付資料：前走3着以内・TR組をローテ素点±1、1枠不振を枠素点−2だけ補助反映。既存の実績点と重なるため大幅加点しない。人気・所属・脚質は加点せず、キャリア全数の未再取得を明示。"
     },
     {
       "no": 3,
@@ -234,7 +236,8 @@ export default {
         "assessment": "状態88を維持。初の関西輸送後の体重・落ち着きは当日再確認。道悪実績を追加した扱いにはしない。",
         "source": "https://umanity.jp/racedata/race_newsdet.php?nid=11880616",
         "verification": "公開取材報道"
-      }
+      },
+      "historicalReview": "10/24添付資料：前走3着以内・TR組をローテ素点±1、1枠不振を枠素点−2だけ補助反映。既存の実績点と重なるため大幅加点しない。人気・所属・脚質は加点せず、キャリア全数の未再取得を明示。"
     },
     {
       "no": 4,
@@ -300,7 +303,8 @@ export default {
         "source": "https://umanity.jp/racedata/race_newsdet.php?nid=11880604",
         "verification": "公開取材報道",
         "eventDateNote": "記事公表日を確認。取材・調整の実施日を10/23と断定しない。"
-      }
+      },
+      "historicalReview": "10/24添付資料：前走3着以内・TR組をローテ素点±1、1枠不振を枠素点−2だけ補助反映。既存の実績点と重なるため大幅加点しない。人気・所属・脚質は加点せず、キャリア全数の未再取得を明示。"
     },
     {
       "no": 5,
@@ -331,7 +335,7 @@ export default {
       },
       "horseId": "2023106924",
       "evidenceIndex": 9,
-      "latest": "10/23確認：金曜は角馬場。元気があり自分のリズムを重視。 状態90を維持。好調の再確認として扱い、早仕掛けへの追従を前提にしない。既存の道悪プラスは据え置き。 最終追いは2026-10-21の資料を保持。",
+      "latest": "10/23確認：金曜は角馬場。元気があり自分のリズムを重視。 状態90を維持。好調の再確認として扱い、早仕掛けへの追従を前提にしない。既存の道悪プラスは据え置き。 最終追いは2026-10-21の資料を保持。 10/24公表：前走後の反動から回復途上との鞍上談話と、長距離では余裕ある仕上げを肯定する見方が併存。好気配報道だけで状態点を重ねて加点しない。",
       "suitability": {
         "blood": 88,
         "body": 79,
@@ -367,7 +371,8 @@ export default {
         "assessment": "状態90を維持。好調の再確認として扱い、早仕掛けへの追従を前提にしない。既存の道悪プラスは据え置き。",
         "source": "https://umanity.jp/racedata/race_newsdet.php?nid=11880616",
         "verification": "公開取材報道"
-      }
+      },
+      "historicalReview": "10/24添付資料：前走3着以内・TR組をローテ素点±1、1枠不振を枠素点−2だけ補助反映。既存の実績点と重なるため大幅加点しない。人気・所属・脚質は加点せず、キャリア全数の未再取得を明示。"
     },
     {
       "no": 6,
@@ -434,7 +439,8 @@ export default {
         "assessment": "状態76を維持。調教後464kgは仕上がりの参考。折り合い・実戦バランス・過去の不良での不振が解消したとは断定しない。",
         "source": "https://dir.netkeiba.com/keiba/news/news_preview.html?no=346451&rf=kssp",
         "verification": "公開取材報道"
-      }
+      },
+      "historicalReview": "10/24添付資料：前走3着以内・TR組をローテ素点±1、1枠不振を枠素点−2だけ補助反映。既存の実績点と重なるため大幅加点しない。人気・所属・脚質は加点せず、キャリア全数の未再取得を明示。"
     },
     {
       "no": 7,
@@ -501,7 +507,8 @@ export default {
         "assessment": "状態88を維持。談話を弱い補助根拠として、重のラップ・距離素点を各1だけ上げる。重3000m実績とは区別。",
         "source": "https://umanity.jp/racedata/race_newsdet.php?nid=11880616",
         "verification": "公開取材報道"
-      }
+      },
+      "historicalReview": "10/24添付資料：前走3着以内・TR組をローテ素点±1、1枠不振を枠素点−2だけ補助反映。既存の実績点と重なるため大幅加点しない。人気・所属・脚質は加点せず、キャリア全数の未再取得を明示。"
     },
     {
       "no": 8,
@@ -568,7 +575,8 @@ export default {
         "assessment": "状態94を維持し好調を二重加点しない。良馬場を望む談話はあるが本人の重勝ちは消さず、重3000mへの外挿だけ留保。",
         "source": "https://news.netkeiba.com/?no=346450&pid=news_view",
         "verification": "公開取材報道"
-      }
+      },
+      "historicalReview": "10/24添付資料：前走3着以内・TR組をローテ素点±1、1枠不振を枠素点−2だけ補助反映。既存の実績点と重なるため大幅加点しない。人気・所属・脚質は加点せず、キャリア全数の未再取得を明示。"
     },
     {
       "no": 9,
@@ -636,7 +644,8 @@ export default {
         "source": "https://umanity.jp/racedata/race_newsdet.php?nid=11880604",
         "verification": "公開取材報道",
         "eventDateNote": "記事公表日を確認。取材・調整の実施日を10/23と断定しない。"
-      }
+      },
+      "historicalReview": "10/24添付資料：前走3着以内・TR組をローテ素点±1、1枠不振を枠素点−2だけ補助反映。既存の実績点と重なるため大幅加点しない。人気・所属・脚質は加点せず、キャリア全数の未再取得を明示。"
     },
     {
       "no": 10,
@@ -702,7 +711,8 @@ export default {
         "source": "https://umanity.jp/racedata/race_newsdet.php?nid=11880604",
         "verification": "公開取材報道",
         "eventDateNote": "記事公表日を確認。取材・調整の実施日を10/23と断定しない。"
-      }
+      },
+      "historicalReview": "10/24添付資料：前走3着以内・TR組をローテ素点±1、1枠不振を枠素点−2だけ補助反映。既存の実績点と重なるため大幅加点しない。人気・所属・脚質は加点せず、キャリア全数の未再取得を明示。"
     },
     {
       "no": 11,
@@ -769,7 +779,8 @@ export default {
         "assessment": "状態94を維持。雨への前向きな談話も確認したが、距離の裏付けや重3000m実績の追加とは扱わない。",
         "source": "https://news.livedoor.com/article/detail/32640467/",
         "verification": "公開取材報道"
-      }
+      },
+      "historicalReview": "10/24添付資料：前走3着以内・TR組をローテ素点±1、1枠不振を枠素点−2だけ補助反映。既存の実績点と重なるため大幅加点しない。人気・所属・脚質は加点せず、キャリア全数の未再取得を明示。"
     },
     {
       "no": 12,
@@ -836,7 +847,8 @@ export default {
         "assessment": "状態87を維持。過去の不良で滑ったとの説明は既存留保を支えるが、今回の重で再現すると決めつけず、新たな二重減点もしない。",
         "source": "https://umanity.jp/racedata/race_newsdet.php?nid=11880616",
         "verification": "公開取材報道"
-      }
+      },
+      "historicalReview": "10/24添付資料：前走3着以内・TR組をローテ素点±1、1枠不振を枠素点−2だけ補助反映。既存の実績点と重なるため大幅加点しない。人気・所属・脚質は加点せず、キャリア全数の未再取得を明示。"
     },
     {
       "no": 13,
@@ -902,7 +914,8 @@ export default {
         "source": "https://umanity.jp/racedata/race_newsdet.php?nid=11880604",
         "verification": "公開取材報道",
         "eventDateNote": "記事公表日を確認。取材・調整の実施日を10/23と断定しない。"
-      }
+      },
+      "historicalReview": "10/24添付資料：前走3着以内・TR組をローテ素点±1、1枠不振を枠素点−2だけ補助反映。既存の実績点と重なるため大幅加点しない。人気・所属・脚質は加点せず、キャリア全数の未再取得を明示。"
     },
     {
       "no": 14,
@@ -967,7 +980,8 @@ export default {
         "assessment": "状態88は維持。良が理想という陣営見解に限り、重のラップ・距離素点を各2下げる裁量仮説。調教悪化とは扱わない。",
         "source": "https://news.livedoor.com/article/detail/32637411/",
         "verification": "公開取材報道"
-      }
+      },
+      "historicalReview": "10/24添付資料：前走3着以内・TR組をローテ素点±1、1枠不振を枠素点−2だけ補助反映。既存の実績点と重なるため大幅加点しない。人気・所属・脚質は加点せず、キャリア全数の未再取得を明示。"
     },
     {
       "no": 15,
@@ -1034,7 +1048,8 @@ export default {
         "assessment": "状態90を維持。10/17の実質最終と10/21の軽め調整を保持し、金曜の軽い時計を新しい最終追いに差し替えない。",
         "source": "https://news.livedoor.com/topics/detail/32637726/",
         "verification": "公開記事要旨の範囲"
-      }
+      },
+      "historicalReview": "10/24添付資料：前走3着以内・TR組をローテ素点±1、1枠不振を枠素点−2だけ補助反映。既存の実績点と重なるため大幅加点しない。人気・所属・脚質は加点せず、キャリア全数の未再取得を明示。"
     },
     {
       "no": 16,
@@ -1102,7 +1117,8 @@ export default {
         "source": "https://umanity.jp/racedata/race_newsdet.php?nid=11880604",
         "verification": "公開取材報道",
         "eventDateNote": "記事公表日を確認。取材・調整の実施日を10/23と断定しない。"
-      }
+      },
+      "historicalReview": "10/24添付資料：前走3着以内・TR組をローテ素点±1、1枠不振を枠素点−2だけ補助反映。既存の実績点と重なるため大幅加点しない。人気・所属・脚質は加点せず、キャリア全数の未再取得を明示。"
     },
     {
       "no": 17,
@@ -1168,7 +1184,8 @@ export default {
         "source": "https://umanity.jp/racedata/race_newsdet.php?nid=11880604",
         "verification": "公開取材報道",
         "eventDateNote": "記事公表日を確認。取材・調整の実施日を10/23と断定しない。"
-      }
+      },
+      "historicalReview": "10/24添付資料：前走3着以内・TR組をローテ素点±1、1枠不振を枠素点−2だけ補助反映。既存の実績点と重なるため大幅加点しない。人気・所属・脚質は加点せず、キャリア全数の未再取得を明示。"
     },
     {
       "no": 18,
@@ -1234,7 +1251,8 @@ export default {
         "source": "https://umanity.jp/racedata/race_newsdet.php?nid=11880604",
         "verification": "公開取材報道",
         "eventDateNote": "記事公表日を確認。取材・調整の実施日を10/23と断定しない。"
-      }
+      },
+      "historicalReview": "10/24添付資料：前走3着以内・TR組をローテ素点±1、1枠不振を枠素点−2だけ補助反映。既存の実績点と重なるため大幅加点しない。人気・所属・脚質は加点せず、キャリア全数の未再取得を明示。"
     }
   ],
   "featureDefinitions": {
@@ -1333,8 +1351,8 @@ export default {
       "distance": 92,
       "pace": 72,
       "stable": 49.8,
-      "rotation": 82,
-      "draw": 58,
+      "rotation": 81,
+      "draw": 56,
       "sex": 50,
       "load": 50
     },
@@ -1347,8 +1365,8 @@ export default {
       "distance": 88,
       "pace": 77,
       "stable": 50,
-      "rotation": 82,
-      "draw": 62,
+      "rotation": 81,
+      "draw": 60,
       "sex": 50,
       "load": 50
     },
@@ -1361,7 +1379,7 @@ export default {
       "distance": 86,
       "pace": 75,
       "stable": 50.8,
-      "rotation": 82,
+      "rotation": 83,
       "draw": 59,
       "sex": 50,
       "load": 50
@@ -1389,7 +1407,7 @@ export default {
       "distance": 83,
       "pace": 86,
       "stable": 50,
-      "rotation": 82,
+      "rotation": 83,
       "draw": 60,
       "sex": 50,
       "load": 50
@@ -1403,7 +1421,7 @@ export default {
       "distance": 88,
       "pace": 66,
       "stable": 49.7,
-      "rotation": 82,
+      "rotation": 81,
       "draw": 58,
       "sex": 50,
       "load": 50
@@ -1417,7 +1435,7 @@ export default {
       "distance": 84,
       "pace": 82,
       "stable": 50.8,
-      "rotation": 82,
+      "rotation": 81,
       "draw": 56,
       "sex": 50,
       "load": 50
@@ -1431,7 +1449,7 @@ export default {
       "distance": 90,
       "pace": 82,
       "stable": 48.8,
-      "rotation": 82,
+      "rotation": 83,
       "draw": 58,
       "sex": 50,
       "load": 50
@@ -1445,7 +1463,7 @@ export default {
       "distance": 87,
       "pace": 70,
       "stable": 50.5,
-      "rotation": 82,
+      "rotation": 81,
       "draw": 55,
       "sex": 50,
       "load": 50
@@ -1473,7 +1491,7 @@ export default {
       "distance": 82,
       "pace": 85,
       "stable": 50,
-      "rotation": 82,
+      "rotation": 81,
       "draw": 52,
       "sex": 50,
       "load": 50
@@ -1487,7 +1505,7 @@ export default {
       "distance": 71,
       "pace": 67,
       "stable": 50,
-      "rotation": 82,
+      "rotation": 81,
       "draw": 50,
       "sex": 50,
       "load": 50
@@ -1529,7 +1547,7 @@ export default {
       "distance": 79,
       "pace": 78,
       "stable": 50,
-      "rotation": 82,
+      "rotation": 83,
       "draw": 40,
       "sex": 50,
       "load": 50
@@ -1543,7 +1561,7 @@ export default {
       "distance": 80,
       "pace": 73,
       "stable": 50,
-      "rotation": 82,
+      "rotation": 81,
       "draw": 38,
       "sex": 50,
       "load": 50
@@ -1615,6 +1633,10 @@ export default {
         "fridayWetNeutral": {
           "lap": -1,
           "distance": -1
+        },
+        "imageTrendOff": {
+          "rotation": 1,
+          "draw": 2
         }
       }
     },
@@ -1643,7 +1665,12 @@ export default {
           "blood": 1
         }
       },
-      "variants": {}
+      "variants": {
+        "imageTrendOff": {
+          "rotation": 1,
+          "draw": 2
+        }
+      }
     },
     "3": {
       "pace": {
@@ -1670,7 +1697,12 @@ export default {
           "blood": 1
         }
       },
-      "variants": {}
+      "variants": {
+        "imageTrendOff": {
+          "rotation": -1,
+          "draw": 0
+        }
+      }
     },
     "4": {
       "pace": {
@@ -1697,7 +1729,12 @@ export default {
           "blood": 1
         }
       },
-      "variants": {}
+      "variants": {
+        "imageTrendOff": {
+          "rotation": 0,
+          "draw": 0
+        }
+      }
     },
     "5": {
       "pace": {
@@ -1724,7 +1761,15 @@ export default {
           "blood": 2
         }
       },
-      "variants": {}
+      "variants": {
+        "imageTrendOff": {
+          "rotation": -1,
+          "draw": 0
+        },
+        "saturdayFitnessRisk": {
+          "training": -3
+        }
+      }
     },
     "6": {
       "pace": {
@@ -1761,6 +1806,10 @@ export default {
         "balancePersists": {
           "training": -15,
           "course": -5
+        },
+        "imageTrendOff": {
+          "rotation": 1,
+          "draw": 0
         }
       }
     },
@@ -1793,6 +1842,10 @@ export default {
         "fridayWetNeutral": {
           "lap": -1,
           "distance": -1
+        },
+        "imageTrendOff": {
+          "rotation": 1,
+          "draw": 0
         }
       }
     },
@@ -1821,7 +1874,12 @@ export default {
           "blood": 2
         }
       },
-      "variants": {}
+      "variants": {
+        "imageTrendOff": {
+          "rotation": -1,
+          "draw": 0
+        }
+      }
     },
     "9": {
       "pace": {
@@ -1858,6 +1916,10 @@ export default {
           "course": -10,
           "lap": -6,
           "pace": -10
+        },
+        "imageTrendOff": {
+          "rotation": 1,
+          "draw": 0
         }
       }
     },
@@ -1887,7 +1949,12 @@ export default {
           "blood": 1
         }
       },
-      "variants": {}
+      "variants": {
+        "imageTrendOff": {
+          "rotation": 0,
+          "draw": 0
+        }
+      }
     },
     "11": {
       "pace": {
@@ -1914,7 +1981,12 @@ export default {
           "blood": 1
         }
       },
-      "variants": {}
+      "variants": {
+        "imageTrendOff": {
+          "rotation": 1,
+          "draw": 0
+        }
+      }
     },
     "12": {
       "pace": {
@@ -1941,7 +2013,12 @@ export default {
           "blood": 0
         }
       },
-      "variants": {}
+      "variants": {
+        "imageTrendOff": {
+          "rotation": 1,
+          "draw": 0
+        }
+      }
     },
     "13": {
       "pace": {
@@ -1971,6 +2048,10 @@ export default {
       "variants": {
         "unknownTrainingGood": {
           "training": 6
+        },
+        "imageTrendOff": {
+          "rotation": 0,
+          "draw": 0
         }
       }
     },
@@ -2003,6 +2084,10 @@ export default {
         "fridayWetNeutral": {
           "lap": 2,
           "distance": 2
+        },
+        "imageTrendOff": {
+          "rotation": 0,
+          "draw": 0
         }
       }
     },
@@ -2032,7 +2117,12 @@ export default {
           "blood": 1
         }
       },
-      "variants": {}
+      "variants": {
+        "imageTrendOff": {
+          "rotation": -1,
+          "draw": 0
+        }
+      }
     },
     "16": {
       "pace": {
@@ -2059,7 +2149,12 @@ export default {
           "blood": 1
         }
       },
-      "variants": {}
+      "variants": {
+        "imageTrendOff": {
+          "rotation": 1,
+          "draw": 0
+        }
+      }
     },
     "17": {
       "pace": {
@@ -2086,7 +2181,12 @@ export default {
           "blood": 1
         }
       },
-      "variants": {}
+      "variants": {
+        "imageTrendOff": {
+          "rotation": 0,
+          "draw": 0
+        }
+      }
     },
     "18": {
       "pace": {
@@ -2116,6 +2216,10 @@ export default {
       "variants": {
         "unknownTrainingGood": {
           "training": 6
+        },
+        "imageTrendOff": {
+          "rotation": 0,
+          "draw": 0
         }
       }
     }
@@ -2290,6 +2394,30 @@ export default {
         "bias": "neutral",
         "vol": 3,
         "variant": "fridayWetNeutral"
+      }
+    },
+    {
+      "id": "image-trend-off",
+      "label": "添付傾向補正を無効化",
+      "options": {
+        "pace": 0,
+        "speed": 0,
+        "ground": "soft",
+        "bias": "neutral",
+        "vol": 3,
+        "variant": "imageTrendOff"
+      }
+    },
+    {
+      "id": "saturday-fitness-risk",
+      "label": "⑤状態回復に慎重",
+      "options": {
+        "pace": 0,
+        "speed": 0,
+        "ground": "soft",
+        "bias": "neutral",
+        "vol": 3,
+        "variant": "saturdayFitnessRisk"
       }
     }
   ],
@@ -2466,41 +2594,35 @@ export default {
     "10/23バステール": "https://dir.netkeiba.com/keiba/news/news_preview.html?no=346451&rf=kssp",
     "10/23マジョレルブルー道悪留保": "https://news.livedoor.com/article/detail/32637411/",
     "10/23アスクエジンバラ": "https://news.livedoor.com/article/detail/32640467/",
-    "10/23シートゥサミット公開要旨": "https://news.livedoor.com/topics/detail/32637726/"
+    "10/23シートゥサミット公開要旨": "https://news.livedoor.com/topics/detail/32637726/",
+    "10/24京都芝8R結果": "https://sports.yahoo.co.jp/keiba/race/result/2608040808",
+    "10/24京都芝10R結果": "https://sports.yahoo.co.jp/keiba/race/result/2608040810",
+    "10/24関東馬輸送": "https://tospo-keiba.jp/breaking_news/77004",
+    "10/24ジャスティンシカゴ状態留保": "https://umanity.jp/racedata/race_newsdet.php?nid=11880637"
   },
   "evidenceUrl": "./data/kikka-2026-evidence.json?v=20261023heavy",
-  "reportUrl": "./reports/kikka-2026-20261023.html",
-  "dataVersion": "kikka-20261023-friday-heavy",
-  "updateSummary": "10/23重馬場想定版。全18頭の最新談話・金曜調整とJRA馬場発表を照合。15条件×50,000回。再生4倍速。初期設定と保存試算のばらつき3（高不確実性条件は8）。",
+  "reportUrl": "./reports/kikka-2026-20261024.html",
+  "dataVersion": "kikka-20261024-image-track",
+  "updateSummary": "10/24更新。添付の過去10年資料を弱いローテ・枠補正として反映。今日の京都8R・10Rの芝は稍重。明日の重想定を基準に稍重・不良・前有利を比較。全18頭の確定枠・最終追い・調教後体重は継承。人気は能力点に不使用。当日体重・取消・馬場は発走前に再確認。",
   "suitabilityUrl": "./data/kikka-2026-suitability-20261019.json",
-  "updateAuditUrl": "./data/kikka-2026-update-20261023.json",
-  "previousStamp": "20261022",
+  "updateAuditUrl": "./data/kikka-2026-update-20261024.json",
+  "previousStamp": "20261023",
   "wetEvidenceUrl": "./data/kikka-2026-wet-20261023.json",
   "defaultGround": "soft",
   "defaultSpeed": 0,
-  "assumptionLabel": "重馬場想定（10/23正午の京都芝発表は良）",
-  "informationNote": "10/23の談話・金曜調整を照合。10/22確定18頭・枠順・騎手・調教後体重を継承。金曜実測は良、重は依頼上の想定。当日馬場・体重・実オッズ未反映。",
+  "assumptionLabel": "重馬場想定（10/24京都芝8R・10Rは稍重）",
+  "informationNote": "10/24更新。添付の過去10年資料を弱いローテ・枠補正として反映。今日の京都8R・10Rの芝は稍重。明日の重想定を基準に稍重・不良・前有利を比較。全18頭の確定枠・最終追い・調教後体重は継承。人気は能力点に不使用。当日体重・取消・馬場は発走前に再確認。",
   "reservesLabel": "非出走（収得賞金順で除外・非抽選）",
-  "horseEvidenceNote": "10/23公表の状態・道悪談話を更新。最終追いは10/21（ゴーイントゥスカイ10/22）。全戦績・5代血統は10/18取得分を継承。採点は未校正です。",
+  "horseEvidenceNote": "最終追いは10/21・10/22、全18頭状態レビューは10/23の確認済資料を継承。10/24の輸送・状態報道を追記。",
   "trackObservation": {
-    "asOf": "2026-10-23T12:00:00+09:00",
-    "weather": "晴",
-    "turf": "良",
-    "dirt": "良",
+    "asOf": "2026-10-24",
+    "turf": "稍重",
     "course": "A",
-    "cushion": {
-      "value": 10.8,
-      "measuredAt": "2026-10-23T10:30:00+09:00"
-    },
-    "water": {
-      "goal": 6,
-      "corner4": 7.8,
-      "measuredAt": "2026-10-23T10:30:00+09:00"
-    },
-    "condition": "全周の内柵沿いに軽微な傷み",
-    "source": "https://www.jra.go.jp/keiba/baba/index2.html",
-    "numericSource": "https://www.radionikkei.jp/keiba_article/news/post_38863.html",
+    "cushion": null,
+    "water": null,
     "appliedToDefaultGround": false,
-    "note": "金曜の観測値。日曜の重を示す数値ではなく、雨量・日曜予報値はモデル未入力。"
+    "source": "https://sports.yahoo.co.jp/keiba/race/result/2608040808",
+    "corroboration": "https://sports.yahoo.co.jp/keiba/race/result/2608040810",
+    "note": "8R13:45と10R14:50の芝競走時点。ダート不良を芝に転用しない。JRA馬場ページの取得本文は10/23正午欄が残るため今日のクッション値・含水率は未確定。8Rは逃げ切りだが、1800mの少頭数1レースから3000mの内有利を断定しない。"
   }
 };

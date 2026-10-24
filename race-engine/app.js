@@ -47,7 +47,8 @@ if(config.evidenceUrl){
   if(config.updateSummary)docLinks.insertAdjacentHTML('beforeend','<p style="font-weight:700">'+config.updateSummary+'</p>');
   if(config.trackObservation){
    const t=config.trackObservation;
-   docLinks.insertAdjacentHTML('beforeend','<p id="track-observation" class="small"><b>観測と想定を区別：</b>'+t.asOf.replace('T',' ').replace('+09:00',' JST')+'の京都芝は'+t.turf+'・'+t.course+'コース。クッション値'+t.cushion.value+'、芝含水率はゴール前'+t.water.goal+'%／4角'+t.water.corner4+'%（数値は10:30測定）。初期条件の「重」は依頼上の仮定で、この金曜観測を日曜の値としては使用しません。 <a href="'+t.source+'" target="_blank" rel="noopener">JRA馬場発表</a> ／ <a href="'+t.numericSource+'" target="_blank" rel="noopener">発表数値</a></p>');
+   const numbers=t.cushion&&t.water?'クッション値'+t.cushion.value+'、芝含水率はゴール前'+t.water.goal+'%／4角'+t.water.corner4+'%。':'当日のクッション値・含水率は未確認。';
+   docLinks.insertAdjacentHTML('beforeend','<p id="track-observation" class="small"><b>観測と想定を区別：</b>'+t.asOf.replace('T',' ').replace('+09:00',' JST')+'の京都芝は'+t.turf+'・'+t.course+'コース。'+numbers+' '+(t.note||'観測時点とレース当日の想定は異なります。')+' <a href="'+t.source+'" target="_blank" rel="noopener">馬場の確認資料</a></p>');
   }
   docLinks.insertAdjacentHTML('beforeend','<p><a href="'+config.reportUrl+'" target="_blank">全頭の予想・配点・シナリオ結果</a> ／ <a href="'+config.evidenceUrl+'" target="_blank">全21頭の戦績・5代血統データ</a></p>');
   if(config.reserves?.length)docLinks.insertAdjacentHTML('beforeend','<p>'+(config.reservesLabel||'除外対象（現時点）')+'：'+config.reserves.map(h=>h.name).join('、')+'</p>');
