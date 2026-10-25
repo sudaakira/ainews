@@ -75,7 +75,7 @@ try{
   };
   if(vp.width===390||vp.width===1280){
    const cuts=await page.evaluate(()=>window.RACE_CINEMATIC_DEBUG.cuts);
-   await page.screenshot({path:'/tmp/race-mobile-shots/shuka-'+vp.width+'-gate.png'});
+   await page.screenshot({timeout:process.env.CI?90000:30000,path:'/tmp/race-mobile-shots/shuka-'+vp.width+'-gate.png'});
    const openingAudit=await page.evaluate(()=>({audit:window.RACE_CAMERA_AUDIT,pose:window.RACE_CINEMATIC_DEBUG?.pose,gate:window.RACE_SCENE_AUDIT?.gateScreenX}));
    console.log('OPENING_CAMERA_CHECK',JSON.stringify({vp,opening:openingAudit.audit,gate:openingAudit.gate,poseMode:openingAudit.pose?.mode}));
    assert.ok(openingAudit.audit?.opening>=openingAudit.audit?.total-2,
@@ -149,7 +149,7 @@ try{
     const visibleOrder=await page.locator('.tracking-number').allTextContents();
     assert.equal(Number(visibleOrder[0]),state.director.pose.subjects[0]);
     await assertRaceUI(page,{field:17,finished:false});
-    await page.screenshot({path:'/tmp/race-mobile-shots/shuka-'+vp.width+'-'+id+'.png'});
+    await page.screenshot({timeout:process.env.CI?90000:30000,path:'/tmp/race-mobile-shots/shuka-'+vp.width+'-'+id+'.png'});
    }
    // The former 4C clipping happened AFTER the ordinary .77 still. Inspect
    // actual WebGL projection near the exit as well, on portrait and desktop.
@@ -160,7 +160,7 @@ try{
     assert.ok(a.leadVisible&&a.leadNoseScreenX>.30&&a.leadNoseScreenX<.70,
      '4C exit must not crop the actual lead horse: '+JSON.stringify({width:vp.width,value,x:a.leadNoseScreenX}));
     console.log('FOURTH_TURN_EXIT',JSON.stringify({width:vp.width,value,x:a.leadNoseScreenX}));
-    await page.screenshot({path:'/tmp/race-mobile-shots/shuka-'+vp.width+'-fourth-turn-'+value+'.png'});
+    await page.screenshot({timeout:process.env.CI?90000:30000,path:'/tmp/race-mobile-shots/shuka-'+vp.width+'-fourth-turn-'+value+'.png'});
    }
    // Verify MOVING 8x video, not just five static stills. On iPhone the
    // broadcast camera should move with the pack without turning or zooming.
@@ -227,7 +227,7 @@ try{
    assert.equal((await page.locator('.live-head').textContent()).includes('v19'),false,'hide internal build tags, not the racing model');
    assert.equal((await page.evaluate(()=>window.KYOTO_RENDER_STATUS.gait)),'racing-sprint-v19');
    assert.equal(await page.locator('#race-front-labels').count(),0,'moving race has no horse-name arrows');
-   await page.screenshot({path:'/tmp/race-mobile-shots/shuka-'+vp.width+'-sprint-v19.png'});
+   await page.screenshot({timeout:process.env.CI?90000:30000,path:'/tmp/race-mobile-shots/shuka-'+vp.width+'-sprint-v19.png'});
    // Observe real playback across the winner's line: translation AND gait continue.
    await seek(980);await page.locator('#live-play').click();
    await page.waitForFunction(()=>window.RACE_SCENE_AUDIT?.runOut===true,null,{timeout:runoutDeadline});
@@ -245,7 +245,7 @@ try{
    const expected=await page.evaluate(()=>window.KYOTO_RACE.LIVE.rank.slice(0,3).map(String));
    assert.equal(await page.locator('.cinema-finish').count(),0,'no duplicate podium over the track');
    assert.deepEqual(await page.locator('#race .place-number').allTextContents(),expected);
-   await page.screenshot({path:'/tmp/race-mobile-shots/shuka-'+vp.width+'-runout.png'});
+   await page.screenshot({timeout:process.env.CI?90000:30000,path:'/tmp/race-mobile-shots/shuka-'+vp.width+'-runout.png'});
    // User pause is still respected after the goal; resuming never samples a new rank.
    await page.locator('#live-pause').click();
    await assertRaceUI(page,{field:17,finished:true});
@@ -262,7 +262,7 @@ try{
   }else{
    await seek(999);
    await page.waitForFunction(()=>window.RACE_SCENE_AUDIT?.goalInFrame,null,{timeout:10000});
-   await page.screenshot({path:'/tmp/race-mobile-shots/shuka-'+vp.width+'-finish.png'});
+   await page.screenshot({timeout:process.env.CI?90000:30000,path:'/tmp/race-mobile-shots/shuka-'+vp.width+'-finish.png'});
   }
   assert.deepEqual(errors,[],'no JavaScript errors');
   console.log('PASS mobile/desktop WebGL and viewport controls',vp);
@@ -305,7 +305,7 @@ try{
   // between baked samples while joints slerp, so allow at most 2mm there.
   if(baseline.length)limbs.forEach((b,i)=>assert.ok(Math.abs(b.length-baseline[0][i].length)<(b.name.startsWith('HoofLink')?.002:.0001),'limb bones do not stretch '+JSON.stringify({lead,phase,b,baseline:baseline[0][i]})));
   baseline.push(limbs);
-  await lab.screenshot({path:'/tmp/race-mobile-shots/sprint-v19-'+lead+'-'+view+'-'+phase+'.png'});
+  await lab.screenshot({timeout:process.env.CI?90000:30000,path:'/tmp/race-mobile-shots/sprint-v19-'+lead+'-'+view+'-'+phase+'.png'});
  }
  assert.deepEqual(labErrors,[],'gait lab emits no WebGL script error');
  await lab.close();

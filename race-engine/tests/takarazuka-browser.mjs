@@ -23,7 +23,7 @@ try{
   assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth),false,'no horizontal page overflow');
   const play=await page.locator('#live-play').boundingBox(),leader=await page.locator('#leaders').boundingBox();
   assert.ok(play.y+play.height<844,'play fits on iPhone');assert.ok(leader.x>=0&&leader.x+leader.width<=width);
-  await page.screenshot({path:shots+'/takarazuka-'+width+'-start.png'});
+  await page.screenshot({timeout:process.env.CI?90000:30000,path:shots+'/takarazuka-'+width+'-start.png'});
   for(const [t,shot] of [[32,'first-corner'],[70,'backstretch'],[100,'fourth-turn'],[119,'finish']]){
    await page.evaluate(t=>window.TAKARAZUKA_REPLAY.seek(t),t);
    await page.waitForFunction(t=>Math.abs(window.RACE_SCENE_AUDIT?.clock-t)<.01,t);
@@ -33,7 +33,7 @@ try{
    console.log('CAMERA',width,t,scene.leadVisible,scene.leadersOccluded,scene.goalInFrame,scene.leadScreenHeight);
    assert.equal(scene.leadVisible,true,'leader in frame '+width+' at '+t);
    if(t===100)assert.ok(scene.leadScreenHeight>.065,'4C is a close view, not distant horses on the horizon');
-   if(width===390||t===119)await page.screenshot({path:shots+'/takarazuka-'+width+'-'+shot+'.png'});
+   if(width===390||t===119)await page.screenshot({timeout:process.env.CI?90000:30000,path:shots+'/takarazuka-'+width+'-'+shot+'.png'});
   }
   await page.locator('#live-play').click();await page.waitForFunction(()=>window.KYOTO_RACE.LIVE.clock>119.4,null,{timeout:12000});
   await page.locator('#live-pause').click();const paused=await page.evaluate(()=>window.KYOTO_RACE.LIVE.clock);
@@ -41,7 +41,7 @@ try{
   await page.locator('#live-finish').click();await page.waitForFunction(()=>!document.getElementById('race').hidden);
   assert.deepEqual(await page.locator('.place-number').allTextContents(),['16','5','1']);
   await page.waitForFunction(()=>window.RACE_SCENE_AUDIT?.clock>132);
-  await page.screenshot({path:shots+'/takarazuka-'+width+'-goal.png'});
+  await page.screenshot({timeout:process.env.CI?90000:30000,path:shots+'/takarazuka-'+width+'-goal.png'});
   await page.locator('#live-reset').click();await page.waitForFunction(()=>window.RACE_SCENE_AUDIT?.gateVisible&&window.KYOTO_RACE.LIVE.clock===0);
   assert.deepEqual(await page.evaluate(()=>window.KYOTO_RACE.LIVE.rank.slice(0,3)),[16,5,1]);assert.equal(await page.locator('#race').isVisible(),false);
   assert.deepEqual(errors,[],'no JavaScript errors');await page.close();

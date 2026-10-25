@@ -59,7 +59,7 @@ try{
   assert.ok(portraitAudit.src.startsWith('data:image/webp;base64,UklGR'),
    'announcer must be supplied original WebP, not old vector art');
   assert.equal(portraitAudit.pixelated,'pixelated');
-  await page.locator('#race-commentary-panel').screenshot({path:'/tmp/kikka-mobile-shots/announcer-'+vp.width+'.png'});
+  await page.locator('#race-commentary-panel').screenshot({timeout:process.env.CI?90000:30000,path:'/tmp/kikka-mobile-shots/announcer-'+vp.width+'.png'});
   console.log('ANNOUNCER_PIXEL_PROOF',JSON.stringify({viewport:vp.width,
    width:portraitAudit.width,height:portraitAudit.height,
    screenshot:'/tmp/kikka-mobile-shots/announcer-'+vp.width+'.png'}));
@@ -88,7 +88,7 @@ try{
    await assertRaceUI(page,{field:18,finished:false});
    if(p===.369){assert.equal(scene.goalBoardVisible,true);assert.equal(await page.locator('.cinema-finish-visible').count(),0,'first goal passage is not the finish');}
    if(p>=.91){assert.equal(scene.gateVisible,false);assert.equal(scene.goalBoardVisible,true);}
-   if([.18,.82,.999].includes(p))await page.screenshot({path:'/tmp/kikka-mobile-shots/kikka-'+vp.width+'-'+String(p).replace('.','-')+'.png'});
+   if([.18,.82,.999].includes(p))await page.screenshot({timeout:process.env.CI?90000:30000,path:'/tmp/kikka-mobile-shots/kikka-'+vp.width+'-'+String(p).replace('.','-')+'.png'});
    console.log('KIKKA_FRAME',JSON.stringify({width:vp.width,p,shot:id,leader:scene.leadVisible,x:scene.leadScreenX,rail:scene.cameraOuterRailClearance}));
   }
   // All rankings change together when a visible conditional hypothesis is chosen.
@@ -138,7 +138,7 @@ try{
   await page.locator('#live-rate').selectOption('instant');
   assert.deepEqual(await page.evaluate(()=>window.KYOTO_RACE.LIVE.rank),runningRank);
   assert.equal(await page.evaluate(()=>window.KYOTO_RACE.LIVE.playing),false);
-  await page.screenshot({path:'/tmp/kikka-mobile-shots/kikka-'+vp.width+'-instant.png'});
+  await page.screenshot({timeout:process.env.CI?90000:30000,path:'/tmp/kikka-mobile-shots/kikka-'+vp.width+'-instant.png'});
   const contrast=await assertSettingsContrast(page);
   console.log('KIKKA_SETTINGS_CONTRAST',JSON.stringify({width:vp.width,...contrast}));
   assert.deepEqual(errors,[]);
