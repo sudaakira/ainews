@@ -1,27 +1,37 @@
 <!doctype html>
-<html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>宝塚記念2026｜公式通過順位・3D再現検証</title>
-<style>body{margin:0;background:#0c1924;color:#f4f7fa;font:14px system-ui,sans-serif}main{max-width:1000px;margin:auto;padding:12px}h1{font-size:21px}.notice{padding:10px;background:#403218;border-left:4px solid #f5be48;border-radius:4px}canvas{width:100%;background:#123d30;border:1px solid #608875;border-radius:8px;display:block}button,select,input{accent-color:#eeb64a}button,select{padding:10px;background:#244a60;color:white;border:1px solid #698da0;border-radius:7px}button{cursor:pointer}.controls{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:12px 0}.controls input{flex:1;min-width:110px}.leader{display:flex;gap:6px;flex-wrap:wrap}.leader span{background:#233b51;border-radius:5px;padding:5px}.small{color:#bdd0d8;font-size:12px}a{color:#90d6ff}</style></head><body><main>
-<h1>🏇 宝塚記念2026｜走行位置・検証プレーヤー</h1>
-<p class="notice"><b>実GPSトラッキングではありません。</b> JRA公式のコーナー通過順位を固定点として、途中の位置・馬間距離・内外を補間した模式再現です。実測位置と推定位置を混同しないための暫定ビューアーです。</p>
-<canvas id="stage" width="1000" height="540" aria-label="レース位置の模式再現"></canvas>
-<div class="controls"><button id="play">▶ 再生</button><button id="reset">↺ 最初</button><select id="speed"><option value="1">1倍</option><option value="4" selected>4倍</option><option value="8">8倍</option></select><input id="seek" type="range" min="0" max="132.1" step=".1" value="0"><b id="clock">0.0秒</b></div>
-<div id="leaders" class="leader"></div><p class="small">通過順位：1角・2角・3角・4角。ゴールは公式着順（⑯→⑤→①→⑨→⑧）。各馬の正確なGPS座標、進路変更、実際の馬間距離は未取得。</p>
-<p class="small"><a href="https://www.jra.go.jp/datafile/seiseki/g1/takara/result/takara2026.html">JRA公式結果</a> ／ <a href="./">共通3Dエンジン</a></p></main>
-<script type="module">
-const source=await fetch('./data/takarazuka-2026-official-checkpoints.json').then(r=>r.json());
-const canvas=document.querySelector('#stage'),ctx=canvas.getContext('2d'),seek=document.querySelector('#seek'),clock=document.querySelector('#clock'),leaders=document.querySelector('#leaders');
-const final=[16,5,1,9,8,12,2,3,7,10,17,4,18,6,13,11,14,15];
-const flatten=groups=>groups.flatMap(g=>g);
-const checkpoints=[{t:0,order:Array.from({length:18},(_,i)=>i+1)},{t:26,order:flatten(source.cornerGroups[1])},{t:40,order:flatten(source.cornerGroups[2])},{t:88,order:flatten(source.cornerGroups[3])},{t:108,order:flatten(source.cornerGroups[4])},{t:132.1,order:final}];
-const colors=['#ffffff','#111111','#ed3c45','#278cf0','#f5d52b','#2dbb55','#f89c31','#ef8cbe'];
-let time=0,playing=false,last=0;
-function rankAt(no,t){let i=0;while(i<checkpoints.length-2&&t>checkpoints[i+1].t)i++;const a=checkpoints[i],b=checkpoints[i+1],f=Math.max(0,Math.min(1,(t-a.t)/(b.t-a.t)));return a.order.indexOf(no)*(1-f)+b.order.indexOf(no)*f;}
-function draw(){const w=canvas.width,h=canvas.height;ctx.clearRect(0,0,w,h);ctx.fillStyle='#15543b';ctx.fillRect(0,0,w,h);ctx.lineWidth=58;ctx.strokeStyle='#a98961';ctx.beginPath();ctx.ellipse(500,265,395,176,0,0,Math.PI*2);ctx.stroke();ctx.lineWidth=2;ctx.strokeStyle='#fff';ctx.beginPath();ctx.ellipse(500,265,365,147,0,0,Math.PI*2);ctx.stroke();ctx.beginPath();ctx.ellipse(500,265,425,205,0,0,Math.PI*2);ctx.stroke();ctx.fillStyle='white';ctx.font='bold 21px system-ui';ctx.fillText('阪神 芝2200m｜模式トラック',22,33);ctx.font='15px system-ui';ctx.fillText('実測GPSなし / 順位間補間',22,59);
-const positions=Array.from({length:18},(_,i)=>({no:i+1,rank:rankAt(i+1,time)})).sort((a,b)=>a.rank-b.rank);
-for(const p of positions.slice().reverse()){const progress=Math.max(0,Math.min(1,time/132.1));const angle=-Math.PI/2+progress*Math.PI*2*1.1-p.rank*.013;const rx=365+(p.rank%3)*8,ry=147+(p.rank%3)*7;const x=500+rx*Math.cos(angle),y=265+ry*Math.sin(angle);ctx.beginPath();ctx.arc(x,y,13,0,Math.PI*2);ctx.fillStyle=colors[Math.floor((p.no-1)/2)];ctx.fill();ctx.lineWidth=2;ctx.strokeStyle='#fff';ctx.stroke();ctx.fillStyle=[2,4].includes(Math.floor((p.no-1)/2))?'#fff':'#101d25';ctx.font='bold 14px system-ui';ctx.textAlign='center';ctx.fillText(p.no,x,y+5);}
-ctx.textAlign='left';leaders.innerHTML=positions.map((p,i)=>'<span>'+(i+1)+'位 '+p.no+'番</span>').join('');clock.textContent=time.toFixed(1)+'秒';seek.value=time;}
-function tick(ms){if(playing){if(last)time=Math.min(132.1,time+(ms-last)/1000*Number(document.querySelector('#speed').value));if(time>=132.1){playing=false;document.querySelector('#play').textContent='▶ 再生';}}last=ms;draw();requestAnimationFrame(tick);}
-document.querySelector('#play').onclick=()=>{playing=!playing;last=0;document.querySelector('#play').textContent=playing?'⏸ 停止':'▶ 再生';};
-document.querySelector('#reset').onclick=()=>{time=0;playing=false;last=0;document.querySelector('#play').textContent='▶ 再生';};
-seek.oninput=()=>{time=Number(seek.value);last=0;};requestAnimationFrame(tick);
-</script></body></html>
+<html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#123e30"><title>宝塚記念2026｜3Dレースリプレイ</title>
+<link rel="stylesheet" href="./assets/tracking-replay.css?v=takarazuka-3d-v1"></head>
+<body><main class="replay">
+<header><a href="./" aria-label="共通3Dエンジンへ">RACE REPLAY</a><h1>宝塚記念 <span>2026</span></h1><p>6月14日・阪神11R　芝2200m／Bコース・重</p></header>
+<div class="source-strip"><strong>映像からの位置推定</strong><span>JRAの元GPS座標ではありません</span></div>
+<section class="race-player" aria-label="宝塚記念の3D再生">
+ <div class="readout"><span id="live-status" role="status">3Dを読み込み中…</span><strong id="live-clock">0:00.0</strong><span id="live-distance">残り2200m</span></div>
+ <div class="live-screen">
+  <div id="three-stage" style="display:none">
+   <div class="broadcast-course" aria-hidden="true"><svg viewBox="0 0 210 78"><rect x="6" y="9" width="196" height="60" rx="30" fill="#236b48" stroke="#c6e1b4" stroke-width="3"/><circle id="broadcast-dot" cx="23" cy="39" r="5" fill="#ffe582"/></svg><span id="broadcast-distance">残り2200m</span></div>
+   <span id="broadcast-clock" class="model-clock" aria-hidden="true">0:00.0</span>
+   <span id="horse-model-version" hidden></span><span id="broadcast-leader" hidden></span><span id="broadcast-comment" hidden></span>
+  </div>
+  <svg id="kyoto-map" viewBox="0 0 860 555" aria-hidden="true"><path id="kyoto-route" fill="none"/></svg>
+  <div id="replay-loading" role="status">18頭の3Dモデルを読み込んでいます</div>
+ </div>
+ <div class="field-head"><strong>隊列</strong><span>左が先頭</span><span id="source-state">位置データを読み込み中</span></div>
+ <div id="leaders" class="leaders" aria-label="現在の隊列、左が先頭"></div>
+ <p id="race-commentary" aria-live="off">スタート待機中</p>
+ <div class="transport"><button id="live-play" disabled>▶ 再生</button><button id="live-pause" disabled>Ⅱ 停止</button><button id="live-reset" disabled>↺ 最初</button><button id="live-finish" disabled>ゴールへ</button><label class="speed-label"><span class="sr-only">再生速度</span><select id="live-rate" aria-label="再生速度"><option value="1">1倍</option><option value="2">2倍</option><option value="4" selected>4倍</option><option value="8">8倍</option><option value="16">16倍</option></select></label></div>
+ <label for="live-scrub" class="seek-label"><span>スタート</span><span id="seek-label">0:00.0 / 2:18.3</span><span>ゴール</span></label>
+ <input id="live-scrub" type="range" min="0" max="138.3" step="0.1" value="0" aria-label="レースの再生位置">
+ <div id="camera-controls" hidden></div><span id="three-status" class="sr-only">3D読み込み中</span>
+ <p id="replay-error" role="alert" hidden></p>
+ <div id="race" class="result" hidden aria-label="公式上位3頭"></div>
+</section>
+<p class="method-note">読めた馬番マーカーの間を補間して再生します。内外の位置・馬間距離・コース形状には推定が含まれます。</p>
+<details class="data-details"><summary>公式結果・取得データ・再現方法</summary>
+ <p id="data-summary"></p><p>馬番マーカーの画面座標を保存し、向きの反転を補正して距離へ換算しています。縮尺とコース形状は復元値です。マーカーが重なる区間、表示されない発走直後、ゴール後の動きは補間・仮定を含みます。</p>
+ <p>15番マイユニバースは公式結果が競走中止です。最後に読み取れた位置より後は表示から外します。中止した正確な地点・時刻を示すものではありません。</p>
+ <p>着順と走破時計はJRAの公式結果に固定しています。同タイム馬の描画上の着差は公表時計の丸め幅内で調整した概略です。阪神Bコースの一周1713.2m・直線359.1m・高低差1.9mに基づく復元コースです。</p>
+ <div class="table-wrap"><table><thead><tr><th>着順</th><th>馬番</th><th>馬名</th><th>騎手</th><th>時計</th></tr></thead><tbody id="official-results"></tbody></table></div>
+ <p class="source-links"><a href="https://www.jra.go.jp/datafile/seiseki/g1/takara/result/takara2026.html" target="_blank" rel="noopener">JRA公式結果・元映像</a><a href="https://www.jra.go.jp/keiba/baba/overview/2026_3_hanshin.html" target="_blank" rel="noopener">当日の使用コース</a><a href="./data/takarazuka-2026-tracking.json" download>位置データJSON</a><a href="./docs/takarazuka-tracking.md">取得方法と検証</a></p>
+</details></main>
+<script type="module" src="./takarazuka-replay.js?v=takarazuka-3d-v1"></script></body></html>

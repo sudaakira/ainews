@@ -26,6 +26,7 @@ jobs:
           node race-engine/tests/smoke.mjs
           node race-engine/tests/kikka-2026.mjs
           node race-engine/tests/race-pack.mjs
+          node race-engine/tests/takarazuka-2026.mjs
       - name: Prepare static site
         run: |
           mkdir -p _site/swan-2026 _site/race-engine
@@ -49,12 +50,21 @@ jobs:
           trap 'kill $server_pid || true' EXIT
           PLAYWRIGHT_ENTRY=/tmp/race-playwright/node_modules/playwright/index.mjs node race-engine/tests/mobile-browser.mjs
           PLAYWRIGHT_ENTRY=/tmp/race-playwright/node_modules/playwright/index.mjs node race-engine/tests/kikka-browser.mjs
+          PLAYWRIGHT_ENTRY=/tmp/race-playwright/node_modules/playwright/index.mjs node race-engine/tests/takarazuka-browser.mjs
       - name: Save real-browser 16x screenshots for visual review
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: shuka-cinematic-16x-mobile
           path: /tmp/race-mobile-shots/*.png
+          if-no-files-found: ignore
+          retention-days: 7
+      - name: Save Takarazuka 3D mobile screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: takarazuka-2026-3d
+          path: /tmp/takarazuka-3d-shots/*.png
           if-no-files-found: ignore
           retention-days: 7
       - uses: actions/configure-pages@v5

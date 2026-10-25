@@ -1,5 +1,6 @@
 import {kyotoOuterPath,kyotoOuterHeight,KYOTO_OUTER_3000} from './assets/kyoto-outer-3000.js?v=pack-v1-smooth';
 import {kyotoPath,kyotoHeight,KYOTO_INNER,kyotoOuterCourseOffset} from './assets/kyoto-course.js?v=pack-v1-smooth';
+import {hanshinPath,hanshinHeight,HANSHIN_INNER_B} from './assets/hanshin-course.js?v=takarazuka-3d-v1';
 
 /* True WebGL 3D horses and racecourse. CDN failure retains the self-contained SVG view. */
 import {jockeyCap} from './core/jockey-caps.js?v=cap-v1';
@@ -26,8 +27,10 @@ import {jockeyCap} from './core/jockey-caps.js?v=cap-v1';
  const {HS,LIVE,route,routeLength,horseProgress,horseState,config}=api;const CENTER=(HS.length+1)/2;const distance=config.distance;
  const outer3000=config.courseView==='kyoto-3000-outer';
  const metricKyoto=outer3000||(config.venue==='京都'&&distance===2000&&config.surface==='芝');
- const courseProfile=outer3000?KYOTO_OUTER_3000:KYOTO_INNER;
- const metricPath=outer3000?kyotoOuterPath:kyotoPath,metricHeight=outer3000?kyotoOuterHeight:kyotoHeight;
+ const metricHanshin=config.courseView==='hanshin-2200-inner-b';
+ const metricTrack=metricKyoto||metricHanshin;
+ const courseProfile=metricHanshin?HANSHIN_INNER_B:outer3000?KYOTO_OUTER_3000:KYOTO_INNER;
+ const metricPath=metricHanshin?hanshinPath:outer3000?kyotoOuterPath:kyotoPath,metricHeight=metricHanshin?hanshinHeight:outer3000?kyotoOuterHeight:kyotoHeight;
  const capFor=h=>jockeyCap(h,config,horse=>window.SWAN_FACTORS.frame(horse));
  const scene=new THREE.Scene();scene.background=new THREE.Color(0x9dd8f0);scene.fog=new THREE.FogExp2(0xc5e7ef,.00055);
  const camera=new THREE.PerspectiveCamera(50,1,.1,2200);
@@ -108,7 +111,7 @@ import {jockeyCap} from './core/jockey-caps.js?v=cap-v1';
   return 4.3*(u*u*(3-2*u));
  }
  function path(t){
-  if(metricKyoto)return metricPath(t);
+  if(metricTrack)return metricPath(t);
   const normalized=Math.max(0,Math.min(1,t));
   const sign=config.direction==='左'?-1:1;
   const d=(sign===-1?1-normalized:normalized)*routeLength;
@@ -118,13 +121,24 @@ import {jockeyCap} from './core/jockey-caps.js?v=cap-v1';
   const runOut=Math.max(0,t-1)*routeLength*W;
   return {x:(p.x-430)*W+dx/l*runOut,z:(p.y-277)*W+dz/l*runOut,dx:dx/l,dz:dz/l,y:heightAt(normalized)};
  }
- const count=800,half=metricKyoto?13.5:12.8,trackEnd=metricKyoto?courseProfile.lap/distance:1.22;
+ const count=800,half=metricHanshin?courseProfile.width/2:metricKyoto?13.5:12.8,trackEnd=metricHanshin?1:metricKyoto?courseProfile.lap/distance:1.22;
+ const trackBegin=metricHanshin?courseProfile.startBeforeGoal/distance:0;
+ const trackAt=u=>trackBegin+u*(trackEnd-trackBegin);
  function offsetPoint(t,lane,yOffset=0){let p=path(t);return new THREE.Vector3(p.x-p.dz*lane,p.y+yOffset,p.z+p.dx*lane)}
  const verts=[],norm=[],uv=[],idx=[];
- for(let i=0;i<=count;i++){let t=i/count*trackEnd;for(let side of [-1,1]){let p=offsetPoint(t,side*half,.015);verts.push(p.x,p.y,p.z);uv.push(side===-1?0:1,t*20)}}
+ for(let i=0;i<=count;i++){let t=trackAt(i/count);for(let side of [-1,1]){let p=offsetPoint(t,side*half,.015);verts.push(p.x,p.y,p.z);uv.push(side===-1?0:1,t*20)}}
  for(let i=0;i<count;i++){let k=i*2;idx.push(k,k+1,k+2,k+1,k+3,k+2)}
  let geo=new THREE.BufferGeometry();geo.setAttribute('position',new THREE.Float32BufferAttribute(verts,3));geo.setAttribute('uv',new THREE.Float32BufferAttribute(uv,2));geo.setIndex(idx);geo.computeVertexNormals();
  const track=new THREE.Mesh(geo,turfAlt);track.material.side=THREE.DoubleSide;scene.add(track);
+ if(metricHanshin){
+  // The 2200m starting spur joins the home straight at the inner 4C exit.
+  const end=(courseProfile.startBeforeGoal-courseProfile.straight)/distance;
+  const v=[],ix=[];
+  for(let i=0;i<=80;i++)for(const side of [-1,1]){const q=offsetPoint(i/80*end,side*half,.016);v.push(q.x,q.y,q.z)}
+  for(let i=0;i<80;i++){const k=i*2;ix.push(k,k+1,k+2,k+1,k+3,k+2)}
+  const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.Float32BufferAttribute(v,3));g.setIndex(ix);g.computeVertexNormals();
+  scene.add(new THREE.Mesh(g,new THREE.MeshStandardMaterial({color:0x65a848,roughness:.98,side:THREE.DoubleSide})));
+ }
  // Kyoto's inner/outer split, infield dirt circuit and backstretch chute.
  // The hill is a graded surface, not a floating strip over a flat lawn.
  if(metricKyoto){
@@ -162,7 +176,7 @@ import {jockeyCap} from './core/jockey-caps.js?v=cap-v1';
  let bladeSeed=8675309;
  const bladeRand=()=>{bladeSeed=(Math.imul(bladeSeed,1664525)+1013904223)>>>0;return bladeSeed/4294967296};
  for(let i=0;i<bladeCount;i++){
-  const t=(i+bladeRand())/bladeCount,lane=(bladeRand()-.5)*24.4;
+  const t=trackAt((i+bladeRand())/bladeCount),lane=(bladeRand()-.5)*(half*2-1.2);
   const q=offsetPoint(t,lane,.06);
   dummyBlade.position.copy(q);dummyBlade.rotation.set(0,bladeRand()*Math.PI*2,0);
   const scale=.45+bladeRand()*.65;dummyBlade.scale.set(scale,scale,scale);dummyBlade.updateMatrix();
@@ -172,9 +186,9 @@ import {jockeyCap} from './core/jockey-caps.js?v=cap-v1';
  blades.instanceMatrix.needsUpdate=true;scene.add(blades);
  function tube(points,r,color){let curve=new THREE.CatmullRomCurve3(points);let mesh=new THREE.Mesh(new THREE.TubeGeometry(curve,Math.max(16,points.length*2),r,5,false),color);scene.add(mesh);return mesh}
  for(let lane of [-half-.8,half+.8]){
-  let pts=[];for(let i=0;i<=count;i++)pts.push(offsetPoint(i/count*trackEnd,lane,.75));
+  let pts=[];for(let i=0;i<=count;i++)pts.push(offsetPoint(trackAt(i/count),lane,.75));
   tube(pts,.10,white);
-  for(let i=0;i<=count;i+=9){let p=offsetPoint(i/count*trackEnd,lane,.1);let post=new THREE.Mesh(new THREE.CylinderGeometry(.065,.075,.8,6),darkRail);post.position.copy(p).add(new THREE.Vector3(0,.33,0));scene.add(post)}
+  for(let i=0;i<=count;i+=9){let p=offsetPoint(trackAt(i/count),lane,.1);let post=new THREE.Mesh(new THREE.CylinderGeometry(.065,.075,.8,6),darkRail);post.position.copy(p).add(new THREE.Vector3(0,.33,0));scene.add(post)}
  }
  for(let lane of []){
   let pts=[];for(let i=0;i<=count;i++)pts.push(offsetPoint(i/count,lane,.035));
@@ -266,6 +280,19 @@ import {jockeyCap} from './core/jockey-caps.js?v=cap-v1';
   const {createKyotoGoalBoard}=await import('./assets/kyoto-goal-board.js?v=kyoto-v11-1');
   goalBoard=createKyotoGoalBoard({THREE,scene,offsetPoint,path,half});
   goalRig=goalBoard.root;goalRig.scale.setScalar(.58);
+ }else if(metricHanshin){
+  // A deliberately schematic Hanshin finish pole, distinct from Kyoto's arches.
+  goalRig=new THREE.Group();goalRig.position.copy(offsetPoint(1,half+2,0));
+  const q=path(1);goalRig.rotation.y=Math.atan2(q.dx,q.dz)+Math.PI/2;scene.add(goalRig);
+  const whitePole=mat(0xf6f6ed),bluePole=mat(0x155268);
+  beam(goalRig,0,4,0,.36,8,.36,whitePole);beam(goalRig,0,2.2,0,.48,.24,.48,bluePole);
+  const c=document.createElement('canvas');c.width=256;c.height=512;const g=c.getContext('2d');
+  g.fillStyle='#f7f6ee';g.fillRect(0,0,256,512);g.fillStyle='#145268';g.textAlign='center';g.font='bold 80px sans-serif';g.fillText('阪',128,180);g.fillText('神',128,285);g.font='bold 29px sans-serif';g.fillText('HANSHIN',128,420);
+  const tex=new THREE.CanvasTexture(c);tex.colorSpace=THREE.SRGBColorSpace;
+  const plate=new THREE.Mesh(new THREE.PlaneGeometry(1.55,3.1),new THREE.MeshBasicMaterial({map:tex,side:THREE.DoubleSide}));plate.position.set(0,5.6,.23);goalRig.add(plate);
+  goalBoard={root:goalRig};
+  const finish=new THREE.Mesh(new THREE.PlaneGeometry(half*2,.25),new THREE.MeshBasicMaterial({color:0xf5f7ee,side:THREE.DoubleSide}));
+  finish.rotation.x=-Math.PI/2;finish.rotation.z=Math.atan2(q.dz,q.dx)+Math.PI/2;finish.position.copy(end);finish.position.y+=.03;scene.add(finish);
  }else{
   // Kyoto-inspired freestanding finish monument on the infield side, not a banner over the track.
   goalRig=new THREE.Group();
@@ -302,7 +329,7 @@ import {jockeyCap} from './core/jockey-caps.js?v=cap-v1';
  const {createJRAFurlongPosts}=await import("./assets/jra-furlong-posts.js?v=geo-v6");
  const furlongPosts=createJRAFurlongPosts({THREE,scene,offsetPoint,distance,half});
  // Cinematic director replaces manual angle selection for every race.
- const {createRaceCinematics}=await import("./assets/race-cinematics.js?v=retro-flow-v1-camera-v28");
+ const {createRaceCinematics}=await import("./assets/race-cinematics.js?v=retro-flow-v1-camera-v29-takarazuka");
  const cinematics=createRaceCinematics({THREE,scene,stage,models,config,capFor,path,route,routeLength});
  const cameraBlockers=[];scene.traverse(o=>{if(o.isMesh&&o.userData.cameraOccluder)cameraBlockers.push(o)});
  const visibilityRay=new THREE.Raycaster();
@@ -333,7 +360,7 @@ import {jockeyCap} from './core/jockey-caps.js?v=cap-v1';
   if(now-lastHud>180){
    lastHud=now;
    const raceProgress=Math.min(1,Math.max(0,clock/LIVE.duration));
-   const remaining=Math.max(0,Math.round(distance*(1-raceProgress)/10)*10);
+   const remaining=Math.max(0,Math.round(distance*(1-(config.replay?order[0].p:raceProgress))/10)*10);
    const raceClock=Math.min(clock,LIVE.duration);
    document.getElementById('broadcast-clock').textContent=Math.floor(raceClock/60)+':'+(raceClock%60).toFixed(1).padStart(4,'0');
    document.getElementById('broadcast-distance').textContent=remaining?'残り '+remaining+'m':'ゴール通過';
@@ -359,9 +386,10 @@ import {jockeyCap} from './core/jockey-caps.js?v=cap-v1';
     d.y+.015,
     (d.z+d.dx*lane)*(1-staging)+gateZ*staging
    );
+   m.root.visible=motion.visible!==false;
    m.root.scale.setScalar(1);
    m.root.rotation.y=Math.atan2(motion.dx,motion.dz);
-   if(metricKyoto){const slope=(metricHeight(p+.0005)-metricHeight(p-.0005))/(distance*.001);m.root.rotation.x=-Math.atan(slope);}
+   if(metricTrack){const slope=(metricHeight(p+.0005)-metricHeight(p-.0005))/(distance*.001);m.root.rotation.x=-Math.atan(slope);}
    // Articulated four-leg gallop, driven by smooth screen time.
    // The same playback clock drives limbs before and after the finish.
    const visualTime=LIVE.visualTime;
@@ -442,6 +470,8 @@ import {jockeyCap} from './core/jockey-caps.js?v=cap-v1';
   const farthestHorse=Math.max(...models.map(m=>m.root.position.clone().sub(camera.position).dot(sight)));
   const leaderVisual=models[order[0].no-1].root.localToWorld(new THREE.Vector3(0,1.85,0)).project(camera);
    const leaderNose=models[order[0].no-1].root.localToWorld(new THREE.Vector3(0,2.05,1.75)).project(camera);
+   const leaderHoof=models[order[0].no-1].root.localToWorld(new THREE.Vector3(0,0,0)).project(camera);
+   const leaderTop=models[order[0].no-1].root.localToWorld(new THREE.Vector3(0,2.7,0)).project(camera);
    const gateCenter=gateRoot.position.clone().add(new THREE.Vector3(0,2.15,0)).project(camera);
    const gateEdges=[];
    if(gateRoot.visible){
@@ -459,6 +489,7 @@ import {jockeyCap} from './core/jockey-caps.js?v=cap-v1';
     gateScreenX:(gateCenter.x+1)/2,
     leadScreenX:(leaderVisual.x+1)/2,leadScreenY:(1-leaderVisual.y)/2,
     leadNoseScreenX:(leaderNose.x+1)/2,leadNoseScreenY:(1-leaderNose.y)/2,
+    leadScreenHeight:Math.abs(leaderTop.y-leaderHoof.y)/2,
     leadVisible:leaderVisual.z>-1&&leaderVisual.z<1&&Math.abs(leaderVisual.x)<1&&Math.abs(leaderVisual.y)<1,
     gateVisible:gateRoot.visible,
    goalBoardVisible:!!goalRig?.visible,goalInFrame,goalScreen,leadersOccluded,
@@ -467,7 +498,7 @@ import {jockeyCap} from './core/jockey-caps.js?v=cap-v1';
    positions:models.map(m=>({x:m.root.position.x,y:m.root.position.y,z:m.root.position.z})),
    packVersion:api.pack.version,
    packStates:order.map(h=>({no:h.no,p:h.p,lane:h.lane,x:h.x,z:h.z,dx:h.dx,dz:h.dz,speed:h.speed})),
-   course:metricKyoto?courseProfile:null,
+   course:metricTrack?courseProfile:null,
    cameraForwardDot:(camera.position.x-smoothLook.x)*path(1).dx+(camera.position.z-smoothLook.z)*path(1).dz,
    goalDepth,goalBehindHorses:goalDepth!==null&&goalDepth>farthestHorse,
    gallopPhase:models[0].gallopAudit?.phase,gallopLead:models[0].gallopAudit?.lead,gallopFlight:models[0].gallopAudit?.flight,gallopHoofs:models[0].gallopAudit?.hoofs,

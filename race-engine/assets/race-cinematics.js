@@ -1,5 +1,5 @@
 /** Clean cel-racing broadcast. All positions and results are read from the shared engine. */
-import {chooseRaceShot,courseShotCuts,raceCameraPose,followLockedCameraPose} from './race-shotlist.js?v=pack-v1-camera-v28';
+import {chooseRaceShot,courseShotCuts,raceCameraPose,followLockedCameraPose} from './race-shotlist.js?v=pack-v1-camera-v29-takarazuka';
 import {finishCrossings} from './race-playback.js?v=kyoto-v11-1';
 
 export function createRaceCinematics({THREE,scene,stage,models,config,capFor,path,route,routeLength}){
@@ -13,7 +13,7 @@ export function createRaceCinematics({THREE,scene,stage,models,config,capFor,pat
  // Original simplified course furniture, soft colored grandstand and hedge rows.
  // Geometry belongs to this app; no game assets or logos are embedded.
  if(config.courseView!=='kyoto-1400-outer'){
-  const stadium=new THREE.Group();stadium.position.set(-35,0,config.venue==='京都'&&[2000,3000].includes(config.distance)?path(1).z+105:150);scene.add(stadium);
+  const stadium=new THREE.Group();stadium.position.set(-35,0,(config.venue==='京都'&&[2000,3000].includes(config.distance))||config.courseView==='hanshin-2200-inner-b'?path(1).z+105:150);scene.add(stadium);
   const material=c=>new THREE.MeshToonMaterial({color:c});
   const concrete=material(0xe8eee4),seat=material(0x92b6bb),glass=material(0x59939e),roof=material(0xf8f7e4);
   const box=(w,h,d,m,x,y,z)=>{const mesh=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),m);mesh.position.set(x,y,z);mesh.userData.cameraOccluder=true;stadium.add(mesh);};

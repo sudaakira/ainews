@@ -17,6 +17,7 @@ export function chooseRaceShot(progress,cuts=RACE_SHOT_LIST.map(s=>s.until)){
  return RACE_SHOT_LIST[cuts.findIndex(x=>p<x)]||RACE_SHOT_LIST[4];
 }
 export function courseShotCuts(route,routeLength,config){
+ if(config.courseView==='hanshin-2200-inner-b')return [.17,.44,.71,.835,Infinity];
  if(config.courseView==='kyoto-3000-outer')return [.12,.58,.78,1-403.7/3000,Infinity];
  return config.venue==='京都'&&config.distance===2000&&config.surface==='芝'
    ? [...RACE_SHOT_LIST.map(s=>s.until)]
@@ -245,7 +246,7 @@ export function raceCameraPose({shot,progress,order,path,aspect=1,clock=Infinity
  // follows the curved rail with a LOCKED lens, so centering only the first
  // frame can push the leader off the iPhone edge halfway through the turn.
  // Simulate the actual rail dolly and reserve lead room across the full cut.
- if(shot.id==='fourth-turn'){
+ if(shot.id==='fourth-turn'&&venue!=='阪神'){
   const sampleProgress=distance===3000?[.781,.795,.81,.825,.84,.85,.864]:[.675,.70,.73,.75,.78,.81,.835];
   const screens=[];
   for(const p of sampleProgress){
@@ -298,7 +299,7 @@ export function raceCameraPose({shot,progress,order,path,aspect=1,clock=Infinity
 export function followLockedCameraPose(rig,order,path,{distance=2000,venue='京都',direction='右'}={}){
  const leader=order?.[0];
  if(!leader)return rig.pose;
- if(rig.pose.shotId==='fourth-turn'){
+ if(rig.pose.shotId==='fourth-turn'&&venue!=='阪神'){
   // One stationary low camera at the 4C EXIT, outside the physical rail.
   // Follow the leading five by smoothly aiming at their lead horse and
   // using a tight telephoto lens. Camera position never follows the pack.
