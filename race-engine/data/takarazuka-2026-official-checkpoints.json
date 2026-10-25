@@ -1,0 +1,27 @@
+{
+  "schemaVersion": 1,
+  "raceId": "takarazuka-2026",
+  "status": "official-checkpoints-only",
+  "isGpsTracking": false,
+  "date": "2026-06-14",
+  "venue": "阪神",
+  "surface": "芝",
+  "distanceMeters": 2200,
+  "going": "重",
+  "winnerNumber": 16,
+  "winnerName": "メイショウタバル",
+  "source": "https://www.jra.go.jp/datafile/seiseki/g1/takara/result/takara2026.html",
+  "note": "JRA公式のコーナー通過順位を構造化した検証用データ。馬間距離・左右位置・秒単位GPS座標は含まない。実走トラッキングと誤認して描画しないこと。",
+  "cornerGroups": {
+    "1": [[9],[16],[3,12],[5],[2],[4,10],[7],[15],[1,17,18],[11],[13],[6],[14],[8]],
+    "2": [[9],[16],[3,12],[5],[2],[4,10],[7],[15,18],[1,17],[11,13],[6],[14],[8]],
+    "3": [[9],[16],[12],[5],[3,10],[2],[7,18],[4,17],[1,6],[11,15,13],[8,14]],
+    "4": [[9],[16],[5,12,10],[2],[3,7],[1,17],[4,18,6,13],[11],[8],[14],[15]]
+  },
+  "furlongSeconds": [12.4,11.1,11.9,12.4,12.5,12.0,12.1,12.1,11.8,11.6,12.2],
+  "trackingExtraction": {
+    "status": "pending-source-video-frames",
+    "requiredFields": ["timeSeconds","horseNumber","trackProgressMeters","lateralOffsetMeters","confidence"],
+    "warning": "映像由来の測定値と推定補間値を別フィールドで区別すること"
+  }
+}
