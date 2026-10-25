@@ -38,6 +38,8 @@ try{
   await page.locator('#live-play').click();await page.waitForFunction(()=>window.KYOTO_RACE.LIVE.clock>119.4,null,{timeout:12000});
   await page.locator('#live-pause').click();const paused=await page.evaluate(()=>window.KYOTO_RACE.LIVE.clock);
   await page.waitForTimeout(180);assert.equal(await page.evaluate(()=>window.KYOTO_RACE.LIVE.clock),paused);
+  const extraRenders=await page.evaluate(async()=>{for(let i=0;i<5;i++)await new Promise(requestAnimationFrame);const a=window.RACE_SCENE_AUDIT.renderSerial;for(let i=0;i<5;i++)await new Promise(requestAnimationFrame);return window.RACE_SCENE_AUDIT.renderSerial-a});
+  assert.equal(extraRenders,0,'an unchanged paused scene stops submitting WebGL frames');
   await page.locator('#live-finish').click();await page.waitForFunction(()=>!document.getElementById('race').hidden);
   assert.deepEqual(await page.locator('.place-number').allTextContents(),['16','5','1']);
   await page.waitForFunction(()=>window.RACE_SCENE_AUDIT?.clock>132);

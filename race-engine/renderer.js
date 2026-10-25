@@ -346,6 +346,7 @@ import {jockeyCap} from './core/jockey-caps.js?v=cap-v1';
  function resize(){let w=stage.clientWidth,h=stage.clientHeight;if(!w||!h)return;if(w!==cw||h!==ch){cw=w;ch=h;renderer.setSize(w,h,false);camera.aspect=w/h;camera.updateProjectionMatrix()}}
  const tmp=new THREE.Vector3(),look=new THREE.Vector3(),desired=new THREE.Vector3();
  let first=true,lastFrame=0,frame=0,lastHud=0,lastCamClock=NaN;
+ let lastDrawClock=NaN,lastDrawVisual=NaN,lastDrawW=0,lastDrawH=0,settledFrames=0,renderSerial=0;
  const smoothLook=new THREE.Vector3();
  let smoothFov=50,smoothLensShift=0;
  function animate(now){
@@ -354,6 +355,12 @@ import {jockeyCap} from './core/jockey-caps.js?v=cap-v1';
   resize();if(!LIVE.ready)return;
   const frameDt=lastFrame?Math.min(.12,Math.max(0,(now-lastFrame)/1000)):1/60;lastFrame=now;
   const clock=LIVE.clock;
+  // A paused, unchanged scene needs no further GPU submissions. Besides saving
+  // battery on phones, this lets the compositor capture a settled WebGL frame
+  // on CPU-only CI. Seek, resize, animation time and playback still redraw.
+  const changed=clock!==lastDrawClock||LIVE.visualTime!==lastDrawVisual||cw!==lastDrawW||ch!==lastDrawH;
+  if(changed)settledFrames=0;
+  if(!LIVE.playing&&!changed&&settledFrames>=2)return;
   const visualP=h=>horseProgress(h.no,clock);
   const order=HS.map(h=>horseState(h.no,clock))
    .sort((a,b)=>b.p-a.p || LIVE.rank.indexOf(a.no)-LIVE.rank.indexOf(b.no));
@@ -484,7 +491,7 @@ import {jockeyCap} from './core/jockey-caps.js?v=cap-v1';
        gateEdges.push((p.x+1)/2);
       }
    }
-   window.RACE_SCENE_AUDIT={gateMinScreenX:gateEdges.length?Math.min(...gateEdges):null,
+   window.RACE_SCENE_AUDIT={renderSerial:++renderSerial,gateMinScreenX:gateEdges.length?Math.min(...gateEdges):null,
     gateMaxScreenX:gateEdges.length?Math.max(...gateEdges):null,
     gateScreenX:(gateCenter.x+1)/2,
     leadScreenX:(leaderVisual.x+1)/2,leadScreenY:(1-leaderVisual.y)/2,
@@ -520,6 +527,7 @@ import {jockeyCap} from './core/jockey-caps.js?v=cap-v1';
    cameraRenderedBearing:(()=>{const v=smoothLook.clone().sub(camera.position).normalize();
      return {x:v.x,y:v.y,z:v.z}})()};
   renderer.render(scene,camera);
+  lastDrawClock=clock;lastDrawVisual=LIVE.visualTime;lastDrawW=cw;lastDrawH=ch;settledFrames++;
  }
  animate();
  }catch(err){

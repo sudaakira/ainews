@@ -60,5 +60,5 @@ try{
  document.addEventListener('visibilitychange',()=>{LIVE.last=0});
  window.TAKARAZUKA_REPLAY={seek,replay,snapshot:()=>({clock:LIVE.clock,playing:LIVE.playing,rank:LIVE.rank,states:replay.positions(LIVE.clock)})};
  draw();window.RACE_APP_READY=true;requestAnimationFrame(frame);
- await import('./renderer.js?v=takarazuka-3d-v1');
+ await import('./renderer.js?v=takarazuka-3d-v2');
 }catch(error){console.error(error);fail(error)}
