@@ -26,6 +26,7 @@ jobs:
           node race-engine/tests/smoke.mjs
           node race-engine/tests/kikka-2026.mjs
           node race-engine/tests/race-pack.mjs
+          node race-engine/tests/tenno-2026.mjs
           node race-engine/tests/takarazuka-2026.mjs
       - name: Prepare static site
         run: |
@@ -51,6 +52,7 @@ jobs:
           PLAYWRIGHT_ENTRY=/tmp/race-playwright/node_modules/playwright/index.mjs node race-engine/tests/mobile-browser.mjs
           PLAYWRIGHT_ENTRY=/tmp/race-playwright/node_modules/playwright/index.mjs node race-engine/tests/kikka-browser.mjs
           PLAYWRIGHT_ENTRY=/tmp/race-playwright/node_modules/playwright/index.mjs node race-engine/tests/takarazuka-browser.mjs
+          PLAYWRIGHT_ENTRY=/tmp/race-playwright/node_modules/playwright/index.mjs node race-engine/tests/tenno-browser.mjs
       - name: Save real-browser 16x screenshots for visual review
         if: always()
         uses: actions/upload-artifact@v4
@@ -67,6 +69,14 @@ jobs:
           path: /tmp/takarazuka-3d-shots/*.png
           if-no-files-found: ignore
           retention-days: 7
+      - name: Save Tenno Autumn mobile screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: tenno-2026-mobile
+          path: _site/race-engine/docs/tenno-*
+          if-no-files-found: ignore
+          retention-days: 14
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
         with:

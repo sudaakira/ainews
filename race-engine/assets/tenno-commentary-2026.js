@@ -1,0 +1,26 @@
+/** Deterministic text commentary driven solely by the visible running order.
+ * Never reveals the sampled winner before it crosses the line. */
+export function raceCommentary({clock,progress,order,horses,crossed,distance=2000,venue="京都",surface="芝"}){
+ const byNo=new Map(horses.map(h=>[h.no,h]));
+ const name=no=>byNo.get(no)?.name||String(no);
+ const leader=order[0],second=order[1],third=order[2];
+ const lead=name(leader.no),chaser=second?name(second.no):'',gap=second?(leader.p-second.p)*distance:0;
+ const meters=Math.max(0,Math.ceil((1-progress)*distance/10)*10);
+ if(crossed.length)return {key:'winner-'+crossed[0],tone:'winner',title:'WINNER',text:name(crossed[0])+'、いま1着でゴールイン！'+(crossed.length>1?' 続いて'+name(crossed[1])+'！':' 後続も次々とゴールへ！'),winner:crossed[0]};
+ if(clock<=0)return {key:'ready',tone:'calm',title:'実況席',text:venue+' '+surface+distance+'m。各馬ゲートに収まり、スタートを待ちます。'};
+ if(progress<.025)return {key:'start',tone:'excited',title:'スタート',text:'ゲートが開いた！ 各馬いっせいに飛び出しました！'};
+ if(progress>.94)return {key:'final-'+leader.no+'-'+(gap<1.2),tone:'excited',title:'ゴール目前',text:gap<1.2?lead+'、'+chaser+'！ 並んでいる！ どちらが先か！':lead+'が先頭！ '+chaser+'が追う！ あと'+meters+'m、押し切るか！'};
+ if(venue==='東京'&&distance===2000){
+  if(progress>1-525.9/2000)return {key:'tokyo-straight-'+leader.no+'-'+Math.floor(meters/100),tone:'excited',title:'東京の長い直線',text:(meters<=460&&meters>=300?'東京の坂を駆け上がる！ ':'長い直線、追い比べ！ ')+lead+'が先頭！ '+chaser+'が迫る！ 残り'+meters+'m！'};
+  if(progress>.4745)return {key:'tokyo-turn-'+leader.no,tone:'charge',title:'3・4コーナー',text:'3コーナーから4コーナー！ '+lead+'を先頭に、'+chaser+'が続く。いよいよ長い直線へ！'};
+  if(progress>.225)return {key:'tokyo-back-'+leader.no,tone:'calm',title:'向こう正面',text:'向こう正面、'+lead+'が先頭。'+chaser+'が続き、後続は脚をためています。'};
+  return {key:'tokyo-second-'+leader.no,tone:'calm',title:'2コーナー',text:'2コーナーへ、各馬の位置取り！ '+lead+'が前へ。'+chaser+'が続きます。'};
+ }
+ if(progress>.835)return {key:'straight-'+leader.no+'-'+Math.floor(meters/80),tone:'excited',title:'直線の攻防',text:gap<2?lead+'と'+chaser+'、先頭争い！ '+(third?name(third.no)+'も迫ってきた！':''):lead+'が先頭に立つ！ '+chaser+'が差を詰められるか！ 残り'+meters+'m！'};
+ if(progress>.61)return {key:'downhill-'+leader.no,tone:'charge',title:'坂を下って勝負所',text:'3コーナーの下り！ '+lead+'を先頭に、'+chaser+'が続く。馬群が4コーナーへ向かいます！'};
+ if(progress>.50)return {key:'hill-'+leader.no,tone:'charge',title:'京都の坂・3コーナー',text:'各馬、京都の坂を上って3コーナー！ 先頭は'+lead+'。'+chaser+'が射程に捉えています。'};
+ const length=order.length>1?(leader.p-order.at(-1).p)*distance:0;
+ return {key:'pack-'+leader.no+'-'+Math.floor(progress*10),tone:'calm',title:progress>.29?'向正面の隊列':'1・2コーナー',text:lead+'が先頭、'+chaser+'が続きます。'+(length>35?'縦に長い隊列。後続は脚をためています。':'馬群はひとかたまり。各馬、次の動きに備えます。')};
+}
+/** Original cel-shaded broadcast portrait, kept as crisp editable vector art. */
+export const ANNOUNCER_SVG=`<img class="announcer-portrait" alt="実況アナウンサー" src="data:image/webp;base64,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"/>`;
