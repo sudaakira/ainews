@@ -1,7 +1,8 @@
 /** Japan Cup 2026: PROVISIONAL field as of 2026-11-03 (v2.1 framework projection).
  * NOT the confirmed field. Draw is undecided -> provisionalDraw:true, no per-horse frame.
  * Horse numbers are the framework ranking order, not real gate numbers.
- * To be replaced by the final version on 2026-11-28 after the 11/26 declarations/draw. */
+ * To be replaced by the final version on 2026-11-28 after the 11/26 declarations/draw.
+ * Full prediction document: your_files/japan-cup-2026-v21-prediction.md (recorded in predictions.csv, race_id 20261129TK12). */
 export default {
   "schemaVersion": 1,
   "id": "japan-cup-2026",
