@@ -8,6 +8,7 @@ import {FINISH_GAP,playbackEnd,playbackRate,finishCrossings} from './assets/race
 const config=window.RACE_CONFIG;
 const isKyotoOuter3000=config?.courseView==='kyoto-3000-outer';
 const isKyotoInner=config?.venue==='京都'&&config?.distance===2000&&config?.surface==='芝';
+const isTokyoMetric=config?.courseView==='tokyo-2400'||(config?.venue==='東京'&&config?.surface==='芝');
 const FACTOR=window.SWAN_FACTORS,LOOP=window.SWAN_LOOP,SIM=window.RACE_SIM;
 if(!config||!FACTOR||!LOOP||!SIM)throw Error('Race configuration has not loaded');
 const HS=config.horses,FIELD=HS.length,CENTER=(FIELD+1)/2;
@@ -35,7 +36,7 @@ if(docLinks){
   (entries.length?'<p class="small">'+entries.map(([type,url])=>
     '<a rel="noopener" target="_blank" href="'+url+'">'+type+'の資料</a>').join(' ／ ')+'</p>':'')+
   (config.historicalTrends?'<details style="margin:12px 0;background:#f3f6f6;border:1px solid #b9c9c8;border-radius:8px;padding:10px"><summary><b>📊 添付データ：過去10年の秋華賞・京都開催8回の傾向</b></summary><p class="small">'+(config.drawConfirmed?'確定枠順を京都開催8回の枠別傾向で弱く補正。枠だけで馬の実力を逆転させない。':'枠は確定するまで中立。')+' 京都開催8回の前走4角4番手以内＝0-3-2-50（3着内9.1%）、5番手以下＝8-5-6-65（3着内22.6%）。ローズS勝馬や位置取りだけで消さず、既存の先行力・展開項目内に平滑化した軽微な補正だけを適用。</p><p class="small">脚質：逃げ0-2-0-6／先行2-0-1-23／差し6-4-7-47／追込0-2-0-39。キャリア5・6戦優位などは診断用途。人気は能力に使用せず、未確認4角は中立。</p><p class="small">詳細な数表と修正ログ：GitHubの race-engine/races/shuka-2026.js を参照。2021・2022年阪神代替を枠・脚質から除外。</p></details>':'')+
-  '<p class="small">※着順率は未校正モデル内の出現率。'+(isKyotoOuter3000?'京都外回りの公開寸法に基づく復元モデルです。3000m・2度の坂越えを再現します（測量データではありません）。':isKyotoInner?'京都内回りの公開コース図・寸法・高低差に基づく復元モデルです。':config.courseView==='kyoto-1400-outer'?'':'3Dは汎用模式図で実際の競馬場の高低差・距離形状を再現しません。')+'</p>';
+  '<p class="small">※着順率は未校正モデル内の出現率。'+(isKyotoOuter3000?'京都外回りの公開寸法に基づく復元モデルです。3000m・2度の坂越えを再現します（測量データではありません）。':isKyotoInner?'京都内回りの公開コース図・寸法・高低差に基づく復元モデルです。':isTokyoMetric?'東京競馬場の公開寸法（1周2083.6m・直線525.9m・直線の上り坂・2400mの発走地点）に基づく復元モデルです（測量データではありません）。':config.courseView==='kyoto-1400-outer'?'':'3Dは汎用模式図で実際の競馬場の高低差・距離形状を再現しません。')+'</p>';
 }
 if(docLinks)docLinks.insertAdjacentHTML('beforeend','<details id="pack-model-note"><summary>馬群・走行ラインのモデル（pack-v1）</summary><p class="small">馬番固定レーンではなく、前馬の後ろ・ラチとの余裕・コーナーの距離ロス・進路の空きに応じて走路を計画します。重馬場想定では急な切り返しを抑えます。</p><p class="small">走行ラインは映像用の仮定です。抽選済みの前後位置と着順は維持し、詰まりによる減速や消耗から勝率を再推定するモデルではありません。</p><p><a href="https://github.com/sudaakira/ainews/blob/main/race-engine/docs/pack-dynamics.md" target="_blank" rel="noopener">調査根拠・経路計画・限界と検証</a></p></details>');
 if(config.evidenceUrl){

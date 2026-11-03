@@ -16,7 +16,7 @@ export default {
   "distance": 2400,
   "course": "左回り／想定18頭（出走未確定・2026-11-03時点）",
   "direction": "左",
-  "courseView": "generic",
+  "courseView": "tokyo-2400",
   "duration": 142,
   "demo": false,
   "provisionalDraw": true,

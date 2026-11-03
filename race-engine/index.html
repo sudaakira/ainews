@@ -213,7 +213,9 @@ try {
  window.SWAN_LOOP=createRegression(config,window.SWAN_FACTORS);
  window.RACE_SIM=createSimulator(config,window.SWAN_LOOP);
  await import('./app.js?v=retro-flow-v1-oct24');
- await import('./renderer.js?v=retro-flow-v1-camera28');
+ // v18 is the default engine; ?engine=v17 keeps the previous build reachable.
+ const engineParam=new URLSearchParams(location.search).get('engine');
+ await import(engineParam==='v17'?'./renderer.js?v=retro-flow-v1-camera28':'./renderer-v18.js?v=v18.1');
  await import('./assets/premium-mobile.js?v=retro-flow-v1');
 } catch(e){
  console.error('Race engine initialization failed',e);

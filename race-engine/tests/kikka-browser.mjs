@@ -23,7 +23,7 @@ try{
    console.error('KIKKA_BOOT',await page.evaluate(()=>({status:window.KYOTO_RENDER_STATUS,error:document.getElementById('bootstrap-error')?.textContent})),errors);throw e;
   });
   const initial=await page.evaluate(()=>({status:window.KYOTO_RENDER_STATUS,rank:window.KYOTO_RACE.LIVE.rank,seed:window.KYOTO_RACE.LIVE.replaySeed,scene:window.RACE_SCENE_AUDIT}));
-  assert.equal(initial.status.horses,18);assert.equal(initial.status.model,'photo-thoroughbred-v24');
+  assert.equal(initial.status.horses,18);assert.equal(initial.status.model,'procedural-thoroughbred-v18');
   assert.equal(initial.status.courseView,'kyoto-3000-outer');assert.equal(initial.scene.course.distance,3000);
   assert.equal(initial.seed,20261023);assert.equal(initial.rank.length,18);
   assert.equal(initial.scene.packVersion,'pack-v1');
