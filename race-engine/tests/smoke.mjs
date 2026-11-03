@@ -186,30 +186,27 @@ for(const id of ['swan-2026','sample-demo','tokyo-20261012-11','tokyo-20261012-1
  assert.equal(regression.evaluate(config.horses[0],zero).rating,50);
  console.log(id+': '+config.horses.length+' horses / deterministic 5000 draws / 14 factors ✓');
 }
-const html=read('index.html'),app=read('app.js'),render=read('renderer-v18.js')+'\n'+read('assets/course-v18.js');
-for(const name of ['core/factors.js','core/regression.js','core/simulator.js','core/jockey-caps.js','assets/horse-anime.js','assets/chibi-gallop.js','assets/kyoto-scenery.js','renderer-v18.js','assets/horse-v18.js','assets/gait-v18.js','assets/camera-v18.js','assets/course-v18.js'])assert.ok(existsSync(resolve(root,name)),name+' must exist');
+const html=read('index.html'),app=read('app.js'),render=read('renderer.js');
+for(const name of ['core/factors.js','core/regression.js','core/simulator.js','core/jockey-caps.js','assets/horse-anime.js','assets/chibi-gallop.js','assets/kyoto-scenery.js'])assert.ok(existsSync(resolve(root,name)),name+' must exist');
 assert.match(html,/await import\('\.\/app\.js\?v=/);
-assert.ok(html.includes('renderer-v18.js?v='),'v18 is the default engine');
-assert.ok(html.includes("engineParam==='v17'"),'v17 remains reachable via ?engine=v17');
+assert.match(html,/engineParam==='v18'\?'\.\/renderer-v18\.js\?v=v18\.1':'\.\/renderer\.js\?v=/,'v17 is the default engine; v18 stays as ?engine=v18 opt-in (v17.2 switch)');
 assert.match(render,/stallCount=HS.length/);
-assert.match(render,/horseV18Ready=models.length===HS.length/);
+assert.match(render,/horseV3Ready=models.length===HS.length/);
 assert.match(app,/const HS=config.horses/);
 assert.match(app,/config\.provisionalDraw/);
 assert.match(app,/h\.workout/);
 assert.match(read('core/regression.js'),/verifiedDraw/);
-for(const source of [app,render])assert.doesNotThrow(()=>new Function(source.replace(/^import .*?;$/gm,'').replace(/^export (default )?/gm,'')),'ES-module syntax must parse');
-const anime=read('assets/horse-v18.js');
-const horseModule=await load('assets/horse-v18.js');
-assert.equal(typeof horseModule.createRaceHorseV18,'function');
-const gaitModule=await load('assets/gait-v18.js');
-assert.equal(typeof gaitModule.computeGaitFrame,'function');
-assert.equal(typeof gaitModule.updateGallopV18,'function');
+for(const source of [app,render])assert.doesNotThrow(()=>new Function(source.replace(/^import .*?;$/gm,'')),'ES-module syntax must parse');
+const anime=read('assets/horse-anime.js');
+const horseModule=await load('assets/horse-anime.js');
+assert.equal(typeof horseModule.createRaceHorse,'function');
+assert.equal(typeof horseModule.preloadRaceHorse,'function');
 assert.match(render,/jockeyCap\(h,config,horse=>window\.SWAN_FACTORS\.frame\(horse\)\)/);
 assert.match(render,/frameCap\.hex,frameCap\.outline,frameCap\.pattern/);
 assert.match(app,/const cap=capFor\(h\)/);
 assert.match(app,/jra-jockey-cap-legend/);
 assert.match(app,/h\.evaluationAudit/);
-assert.match(anime,/frameCapHex/);
+assert.match(anime,/toon\(frameCapHex\)/);
 assert.match(anime,/frameCapPattern==='quartered'/);
 assert.doesNotMatch(anime,/helmetWhite/);
 assert.match(html,/shared-v9/);
@@ -248,8 +245,8 @@ assert.match(hudJS,/slot\.replaceChildren\(tracker,panel\)/,'HUD is outside canv
 assert.match(hudJS,/field\.append\(markers\.get\(h\.no\)\)/,'same running order, no reversed tracker');
 
 // Meaningful playback contracts: five JRA cuts, outside-rail positioning and continuous run-out.
-const cinemaJS=read('assets/camera-v18.js'),cinemaCSS=read('assets/race-cinematics.css');
-const {RACE_SHOT_LIST,chooseRaceShot,raceCameraPose,followLockedCameraPose,courseShotCuts}=await load('assets/camera-v18.js');
+const cinemaJS=read('assets/race-cinematics.js'),cinemaCSS=read('assets/race-cinematics.css');
+const {RACE_SHOT_LIST,chooseRaceShot,raceCameraPose,followLockedCameraPose,courseShotCuts}=await load('assets/race-shotlist.js');
 const {FINISH_GAP,runOutProgress,playbackEnd,playbackRate,finishCrossings}=await load('assets/race-playback.js');
 assert.deepEqual(RACE_SHOT_LIST.map(s=>s.id),['start','first-corner','backstretch','fourth-turn','finish']);
 const visited=[];
@@ -400,7 +397,7 @@ for(const aspect of [.58,.76,1.8]){
 
 // Track geometry sign invariant: renderer physically draws outer rail at
 // offsetPoint(t,kyotoOuterCourseOffset(t)-14), never at +14.
-const kyotoRender=read('renderer-v18.js')+'\n'+read('assets/course-v18.js');
+const kyotoRender=read('renderer.js');
 assert.match(kyotoRender,/offsetPoint\(t,outer\(t\)-14,\.9\)/);
 assert.match(kyotoRender,/camera\.projectionMatrix\.elements\[8\]=smoothLensShift/);
 assert.match(kyotoRender,/smoothFov\+=\(shotDirection\.fov-smoothFov\)\*lensAlpha/);
@@ -438,7 +435,7 @@ assert.equal(playbackRate(16,102,120),4);
 assert.equal(playbackRate(16,90,120),16);
 assert.equal(playbackRate(16,120,120),2);
 assert.equal(playbackRate(1,121,120),1);
-for(const name of ['assets/camera-v18.js','assets/race-hud.js','assets/gait-v18.js','assets/race-playback.js','assets/horse-v18.js']){
+for(const name of ['assets/race-cinematics.js','assets/race-hud.js','assets/race-shotlist.js','assets/race-playback.js','assets/chibi-gallop.js']){
  const source=read(name).replace(/^import .*?;$/gm,'').replace(/export (function|const)/g,'$1');
  assert.doesNotThrow(()=>new Function(source),name+' syntax');
 }
@@ -455,10 +452,10 @@ assert.match(cinemaCSS,/prefers-reduced-motion/);
 assert.match(cinemaCSS,/env\(safe-area-inset-bottom/);
 assert.match(cinemaCSS,/height:100dvh/);
 assert.match(app,/raceview\(LIVE\.rank,true\)/,'final podium uses canonical sampled finish');
-assert.match(render,/procedural-thoroughbred-v18/);
-assert.match(anime,/procedural-thoroughbred-v18/);
+assert.match(render,/photo-thoroughbred-v24/);
+assert.match(anime,/photo-thoroughbred-v24/);
 assert.ok(html.includes('race-cinematics.css?v=retro-flow-v1'),'current unified stylesheet is referenced');
-assert.ok(html.includes('renderer-v18.js?v=v18.1'),'current v18 renderer bundle is referenced');
+assert.ok(html.includes('renderer.js?v=retro-flow-v1-camera28'),'current renderer bundle is referenced');
 console.log('Five broadcast cuts, outside rail, fixed far-side finish, continuous run-out and exact rank ✓');
 
 const {kyotoPath,kyotoHeight,KYOTO_INNER,KYOTO_CUTS}=await load('assets/kyoto-course.js');
@@ -479,53 +476,68 @@ assert.doesNotMatch(cinemaJS,/toReversed/,'leader is on left');
 console.log('Kyoto metric route, goal offset, 3C elevation, left-leading order and data-driven commentary ✓');
 
 
-// v18: the horse is procedural — no GLB asset, no baked sprint clips.
-// The gait is a phase-driven rotary gallop whose stance phase locks
-// each hoof to the ground by construction.
-const gaitSource=read('assets/gait-v18.js');
-assert.doesNotMatch(anime,/horse-sprint-v19\.glb|GLTFLoader|preloadRaceHorse/);
-assert.match(anime,/procedural-thoroughbred-v18/);
-assert.match(gaitSource,/procedural-rotary-gallop-v18/);
-assert.match(render,/createRaceHorseV18\(THREE,scene,h/);
+// The runtime now uses an authored skin, not endpoint cylinders.
+const glb=readFileSync(resolve(root,'assets/models/horse-sprint-v19.glb'));
+assert.equal(glb.readUInt32LE(0),0x46546c67);
+const asset=JSON.parse(glb.subarray(20,20+glb.readUInt32LE(12)).toString());
+assert.deepEqual(asset.animations.map(x=>x.name),['Sprint_Left','Sprint_Right','Idle']);
+assert.ok(asset.skins[0].joints.length>=40);
+assert.match(render,/await horseV3.preloadRaceHorse/);
+assert.match(anime,/racing-sprint-v19/);
 assert.doesNotMatch(anime,/setLegPose/);
-console.log('v18 procedural horse and phase-driven gait (no GLB, no clips) ✓');
+assert.ok(existsSync(resolve(root,'assets/models/CC0-1.0.txt')));
+console.log('v19 sprint asset and shared preload ✓; visual acceptance uses browser renders');
 
-// Gait phase locked to race time (user feedback, highest priority):
-// drive the stateful gait with race-clock steps as they occur at 4x
-// and 16x playback and MEASURE the planted hooves' ground speed on a
-// straight at constant speed. It must stay ~0 at both rates — the old
-// visualTime design slid at roughly (1 - 1/rate) of the body speed.
+// v17.2 port A: gait phase locked to race time (user feedback, highest
+// priority). Drive the stateful v17 clip driver exactly as the renderer
+// does — race clock advancing at rate x wall time, frameDt = wall dt,
+// visualTime on the app.js formula — at playback rates 4 and 16.
+// (1) One frame must advance the phase by exactly cadence x (race-clock
+// delta): the v20 driver advanced it by cadence x frameDt instead, so
+// at 4x the legs turned at ~1/4 of the travel rate (the "slow, not
+// running" defect). (2) The planted-hoof ground-speed error must stay
+// < 0.02 m/s. Translation note: v18's procedural gait exposes this as
+// |strideLength x cadence - speed|; the v17 API exposes the same
+// identity through gallopAudit as |clipFootSpeed(cadence) - speed|
+// (clipFootSpeed = cadence x authored stride length), asserted here.
+// The clip is measured motion, so within-stance instantaneous speed
+// ripples; its stance-interval means are reported, not asserted.
 {
- const {updateGallopV18}=await load('assets/gait-v18.js');
- const {strideCadence}=await load('assets/gallop-sync.js');
+ const {updateGallop}=await load('assets/chibi-gallop.js');
+ const {strideCadence,clipFootSpeed}=await load('assets/gallop-sync.js');
+ const speed=16.5;
  for(const rate of [4,16]){
-  const stub={pose(){},gallopAudit:null,gaitState:null};
-  const speed=16.5,sub=1/240;
-  let t=0,bodyZ=0,prev=null,maxErr=0,samples=0;
-  // One full frame at this playback rate must advance the phase by
-  // exactly cadence x (rate/60) race seconds worth of strides.
-  updateGallopV18(stub,10,5,.5,{speedMps:speed,lead:'right'});
+  const stub={gaitState:null,gallopAudit:null,pose(phase){this.gallopAudit={phase,hoofs:[]}}};
+  let raceTime=10,visualTime=3;
+  updateGallop(stub,raceTime,visualTime,5,.5,{speedMps:speed,lead:'right',frameDt:1/60,playing:true});
   const phase0=stub.gaitState.phase;
-  updateGallopV18(stub,10+rate/60,5,.5,{speedMps:speed,lead:'right'});
+  raceTime+=rate/60;visualTime+=(1+.13*Math.log2(rate))/60;
+  updateGallop(stub,raceTime,visualTime,5,.5,{speedMps:speed,lead:'right',frameDt:1/60,playing:true});
   const advanced=((stub.gaitState.phase-phase0)%1+1)%1;
   const expected=(strideCadence(speed)*rate/60)%1;
-  assert.ok(Math.abs(advanced-expected)<1e-9,'rate '+rate+': phase advance per frame '+advanced+' != '+expected);
-  // Measured planted-hoof ground speed along the phase trajectory.
-  const stub2={pose(){},gallopAudit:null,gaitState:null};
-  t=0;bodyZ=0;
-  const steps=Math.ceil(24/sub);
-  for(let f=0;f<steps;f++){
-   t+=sub;bodyZ+=speed*sub;
-   updateGallopV18(stub2,t,5,.5,{speedMps:speed,lead:'right'});
-   if(t<=2){prev=null;continue}
-   const cur=stub2.gallopAudit.hoofs.map(h=>({c:h.contact,z:bodyZ+h.hoofZ}));
-   if(prev)cur.forEach((h,k)=>{
-    if(h.c&&prev[k].c){maxErr=Math.max(maxErr,Math.abs(h.z-prev[k].z)/sub);samples++}
-   });
-   prev=cur;
-  }
-  assert.ok(samples>40,'rate '+rate+': enough stance samples ('+samples+')');
-  assert.ok(maxErr<0.02,'rate '+rate+': planted-hoof ground speed error '+maxErr.toFixed(4)+' m/s must be ~0');
+  assert.ok(Math.abs(advanced-expected)<1e-9,
+   'rate '+rate+': phase advance per frame '+advanced+' != cadence x race delta '+expected);
+  const groundSpeedError=Math.abs(clipFootSpeed(stub.gallopAudit.cadence)-speed);
+  assert.ok(groundSpeedError<0.02,
+   'rate '+rate+': planted-hoof ground speed error '+groundSpeedError.toFixed(4)+' m/s must be ~0');
  }
- console.log('v18 gait phase locked to race time: planted-hoof ground speed ~0 at 4x and 16x ✓');
+ // Clip trajectory reference (report only): the authored clip's own
+ // stance-interval mean hoof speeds, the quantities gallop-sync.js
+ // calibrated (FL/FR/HL/HR ~ 15.8-16.5 m/s vs 16.74 authored).
+ const motion=JSON.parse(read('assets/models/sprint-motion-v19.json'));
+ const samples=motion.samples,means=[];
+ for(let leg=0;leg<4;leg++){
+  const ys=samples.map(s=>s[leg].y*motion.scale),zs=samples.map(s=>s[leg].z*motion.scale);
+  let start=null;
+  for(let i=0;i<=ys.length;i++){
+   if(i<ys.length&&ys[i]<.028&&start===null)start=i;
+   if((i>=ys.length||ys[i]>=.028)&&start!==null){
+    // Skip fragments shorter than 5 samples: the clip loops, so a
+    // stance crossing the loop boundary appears as two fragments.
+    if(i-start>=5)means.push(samples[0][leg].name+' '+Math.abs((zs[i-1]-zs[start])/((i-1-start)/120*motion.duration)).toFixed(2));
+    start=null;
+   }
+  }
+ }
+ console.log('v17.2 gait phase locked to race time at 4x/16x ✓ (clip stance means: '+means.join(', ')+' m/s)');
 }

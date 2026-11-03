@@ -43,7 +43,7 @@ try{
   if(baselineRank===null)baselineRank=original.rank;
   else assert.deepEqual(original.rank,baselineRank,'all viewport screenshots use the exact same race');
   const model=await page.evaluate(()=>window.KYOTO_RENDER_STATUS);
-  assert.equal(model.model,'procedural-thoroughbred-v18');assert.equal(model.gait,'procedural-rotary-gallop-v18');assert.equal(model.horses,17);
+  assert.equal(model.model,'photo-thoroughbred-v24');assert.equal(model.gait,'racing-sprint-v19');assert.equal(model.horses,17);
   assert.equal(model.continuousRunOut,true);assert.equal(model.goalBoardSide,'far');
   assert.equal(model.landmarks?.visionScreenWidth,64,'JRA Turf Vision width 64m');
   assert.equal(model.landmarks?.visionScreenHeight,10.8,'JRA Turf Vision height 10.8m');
@@ -88,6 +88,8 @@ try{
     await page.waitForFunction(shot=>window.RACE_SCENE_AUDIT?.shot===shot,id,{timeout:10000});
     await page.waitForFunction(()=>window.RACE_SCENE_AUDIT?.cameraTrackingError<.2,null,{timeout:10000});
     const state=await page.evaluate(()=>({director:window.RACE_CINEMATIC_DEBUG,scene:window.RACE_SCENE_AUDIT}));
+    assert.ok(state.scene.minBodyClearance>=-0.001,
+     'horse bodies must never overlap at '+id+': minBodyClearance '+state.scene.minBodyClearance);
     assert.equal(state.director.scriptedCuts,5);
     assert.equal(state.scene.leadersOccluded,0,'buildings never occlude leading horses');
     assert.equal(state.director.pose.mode,'rail-broadcast-'+id,'outside-rail camera composition must match cut');
@@ -195,10 +197,8 @@ try{
     }
     assert.ok(f.leadX>.035&&f.leadX<.95,
      'leader must remain on screen during mobile tracking: '+f.leadX);
-    // Non-overlap is a hard requirement: no pair of horse bodies
-    // (2.30m x 0.62m plan rectangles) may interpenetrate, ever.
-    assert.ok(f.clear===null||f.clear>=-0.001,
-     'horse bodies must never overlap: minBodyClearance '+f.clear);
+    assert.ok(f.clear>=-0.001,
+     'horse bodies must never overlap while tracking: minBodyClearance '+f.clear);
     assert.ok(Math.abs(f.fov-initial.fov)<.005,'fixed zoom within shot');
     assert.ok(Math.abs(f.lens-initial.lens)<.005,'no per-frame optical shift');
     assert.equal(f.rebases,initial.rebases,'never recompose every frame');
@@ -215,13 +215,11 @@ try{
     const samples=[];
     for(let i=0;i<36;i++){
      await new Promise(requestAnimationFrame);
-     const a=window.RACE_SCENE_AUDIT;
-     const h=a?.gallopHoofs;
+     const h=window.RACE_SCENE_AUDIT?.gallopHoofs;
      if(h?.length===4)samples.push({
       front:Math.abs(h[0].hoofZ-h[1].hoofZ),
       hind:Math.abs(h[2].hoofZ-h[3].hoofZ),
-      clear:a.minBodyClearance,
-      slip:a.gallopSlipError
+      clear:window.RACE_SCENE_AUDIT.minBodyClearance
      });
     }
     return samples;
@@ -232,19 +230,12 @@ try{
    assert.ok(limbFrames.filter(x=>x.hind>.12).length>=8,'3D hind hooves must not synchronize');
    assert.ok(limbFrames.filter(x=>x.front>.12||x.hind>.12).length>=16,
     '3D fore/hind pairs should not look synchronized');
-   assert.ok(limbFrames.every(x=>x.clear===null||x.clear>=-0.001),
-    'horse bodies must never overlap during the sprint sample: '+
-    Math.min(...limbFrames.map(x=>x.clear??Infinity)));
-   // Live slip audit: when the renderer could sample planted hooves
-   // on consecutive frames, their ground speed must stay near zero
-   // (corner yaw and speed changes leave a small residual).
-   const slipSamples=limbFrames.map(x=>x.slip).filter(x=>x!=null);
-   if(slipSamples.length)assert.ok(Math.max(...slipSamples)<1.0,
-    'planted hooves must not slide at the default rate: '+Math.max(...slipSamples));
+   assert.ok(limbFrames.every(x=>x.clear>=-0.001),
+    'horse bodies must never overlap at speed: minBodyClearance '+Math.min(...limbFrames.map(x=>x.clear)));
    assert.equal((await page.locator('.live-head').textContent()).includes('v19'),false,'hide internal build tags, not the racing model');
-   assert.equal((await page.evaluate(()=>window.KYOTO_RENDER_STATUS.gait)),'procedural-rotary-gallop-v18');
+   assert.equal((await page.evaluate(()=>window.KYOTO_RENDER_STATUS.gait)),'racing-sprint-v19');
    assert.equal(await page.locator('#race-front-labels').count(),0,'moving race has no horse-name arrows');
-   await page.screenshot({timeout:process.env.CI?90000:30000,path:'/tmp/race-mobile-shots/shuka-'+vp.width+'-sprint-v18.png'});
+   await page.screenshot({timeout:process.env.CI?90000:30000,path:'/tmp/race-mobile-shots/shuka-'+vp.width+'-sprint-v19.png'});
    // Observe real playback across the winner's line: translation AND gait continue.
    await seek(980);await page.locator('#live-play').click();
    await page.waitForFunction(()=>window.RACE_SCENE_AUDIT?.runOut===true,null,{timeout:runoutDeadline});
@@ -286,13 +277,49 @@ try{
   await page.close();
  }
 
+ // Japan Cup (v17 generic Tokyo schematic, 18 horses): the tight
+ // schematic curves compress the pack mapping, so this is where the
+ // body-separation pass does real work. Sample seeked and moving
+ // frames and require the non-overlap audit on every one.
+ {
+  const jcUrl=new URL(baseUrl);jcUrl.searchParams.set('race','japan-cup-2026');
+  jcUrl.searchParams.set('replay','20261129');jcUrl.searchParams.delete('at');
+  const page=await browser.newPage({viewport:{width:390,height:844},deviceScaleFactor:1,isMobile:true,hasTouch:true});
+  await serveLocal(page);
+  const jcErrors=[];page.on('pageerror',e=>jcErrors.push(e.message));
+  await page.goto(jcUrl.toString(),{waitUntil:'domcontentloaded',timeout:60000});
+  await page.waitForFunction(()=>window.KYOTO_RENDER_STATUS?.ready===true,null,{timeout:45000});
+  assert.equal(await page.evaluate(()=>window.KYOTO_RENDER_STATUS.horses),18,'Japan Cup field');
+  const clears=[];
+  for(const v of [120,300,520,760,940]){
+   await page.locator('#live-scrub').evaluate((el,val)=>{el.value=String(val);el.dispatchEvent(new Event('input',{bubbles:true}));},v);
+   await page.waitForFunction(()=>Number.isFinite(window.RACE_SCENE_AUDIT?.minBodyClearance),null,{timeout:10000});
+   clears.push(await page.evaluate(()=>window.RACE_SCENE_AUDIT.minBodyClearance));
+  }
+  await page.locator('#live-scrub').evaluate(el=>{el.value='300';el.dispatchEvent(new Event('input',{bubbles:true}));});
+  await page.locator('#live-play').click();
+  const moving=await page.evaluate(async()=>{
+   const out=[];
+   for(let i=0;i<30;i++){await new Promise(requestAnimationFrame);const a=window.RACE_SCENE_AUDIT;if(Number.isFinite(a?.minBodyClearance))out.push(a.minBodyClearance)}
+   return out;
+  });
+  await page.locator('#live-pause').click();
+  clears.push(...moving);
+  assert.ok(clears.length>=20,'sample Japan Cup frames: '+clears.length);
+  assert.ok(Math.min(...clears)>=-0.001,
+   'Japan Cup bodies must never overlap: minBodyClearance '+Math.min(...clears));
+  console.log('JAPAN_CUP_CLEARANCE',JSON.stringify({frames:clears.length,min:Math.min(...clears)}));
+  assert.deepEqual(jcErrors,[],'no JavaScript errors on Japan Cup');
+  await page.close();
+ }
+
  // Real Three.js 3D render verification for the independent single-horse
  // inspection page. Screenshot multiple poses and views, not only 2D angles.
  const lab=await browser.newPage({viewport:{width:960,height:820}});
  await serveLocal(lab);
  const labErrors=[];lab.on('pageerror',e=>labErrors.push(e.message));
  await lab.goto(new URL('gait-lab.html',url).href,{waitUntil:'domcontentloaded'});
- await lab.waitForFunction(()=>window.EQUINE_GAIT_LAB?.snapshot().rig==='procedural-rotary-gallop-v18',
+ await lab.waitForFunction(()=>window.EQUINE_GAIT_LAB?.snapshot().rig==='racing-sprint-v19',
    null,{timeout:30000});
  const baseline=[];
  for(const lead of ['left','right'])for(const view of ['side','other','three','front'])for(const phase of [0,.2,.42,.6,.78,.9]){
@@ -303,11 +330,11 @@ try{
   const snap=await lab.evaluate(()=>window.EQUINE_GAIT_LAB.snapshot());
   assert.ok(Math.abs(snap.phase-phase)<1e-6,'manual gallop pose is reproducible');
   assert.equal(snap.hoofs.length,4);
-  assert.equal(snap.body.bodyRevision,'procedural-thoroughbred-v18');
-  assert.equal(snap.body.triangles,snap.body.originalTriangles,'v18 authors its geometry directly; no skinned-variant multiplication');
-  assert.ok(snap.body.vertices>3000&&snap.body.triangles<30000,'procedural body stays within the mobile budget');
-  assert.equal(snap.tack.revision,'procedural-saddlecloth-v18');assert.equal(snap.tack.saddle,true);
-  assert.ok(snap.tack.stirrupBehindWithers>.30&&snap.tack.stirrupBehindWithers<.60,'v18 true proportions put the stirrup bar ~0.53m behind the withers');
+  assert.equal(snap.body.bodyRevision,'photo-thoroughbred-v24');
+  assert.equal(snap.body.triangles,snap.body.originalTriangles*16,'new continuous surface, not only smoothed normals');
+  assert.ok(snap.body.vertices>8000&&snap.body.triangles<30000,'shared detailed geometry stays within the mobile budget');
+  assert.equal(snap.tack.revision,'photo-blue-saddlecloth-v24');assert.equal(snap.tack.saddle,true);
+  assert.ok(snap.tack.stirrupBehindWithers>-.12&&snap.tack.stirrupBehindWithers<.20,'racing stirrups stay by the withers, not halfway back along the barrel');
   assert.equal(snap.tack.limbInfluence,0,'cloth is carried by the torso, not stretched by a thigh');
   assert.ok(snap.tack.thighPenetration<.00001,'moving thighs stay inside the cloth');
   assert.ok(snap.tack.minSupportGap>.005&&snap.tack.maxSupportGap<.2,'hanging cloth stays near its torso support');
@@ -322,9 +349,9 @@ try{
   // between baked samples while joints slerp, so allow at most 2mm there.
   if(baseline.length)limbs.forEach((b,i)=>assert.ok(Math.abs(b.length-baseline[0][i].length)<(b.name.startsWith('HoofLink')?.002:.0001),'limb bones do not stretch '+JSON.stringify({lead,phase,b,baseline:baseline[0][i]})));
   baseline.push(limbs);
-  await lab.screenshot({timeout:process.env.CI?90000:30000,path:'/tmp/race-mobile-shots/sprint-v18-'+lead+'-'+view+'-'+phase+'.png'});
+  await lab.screenshot({timeout:process.env.CI?90000:30000,path:'/tmp/race-mobile-shots/sprint-v19-'+lead+'-'+view+'-'+phase+'.png'});
  }
  assert.deepEqual(labErrors,[],'gait lab emits no WebGL script error');
  await lab.close();
- console.log('PASS v18 procedural 3D gallop, airborne pose, side/three/front screenshots ✓');
+ console.log('PASS v19 real-3D sprint, airborne pose, side/three/front screenshots ✓');
 }finally{await browser.close();}

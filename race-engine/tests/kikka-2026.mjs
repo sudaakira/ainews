@@ -6,7 +6,7 @@ const read=p=>readFileSync(resolve(root,p),'utf8');
 const moduleURL=p=>'data:text/javascript;base64,'+Buffer.from(read(p).replace(/from ['"](\.[^'"]+)['"]/g,(_,spec)=>"from '"+moduleURL(relative(root,resolve(root,dirname(p),spec.split('?')[0])))+"'")).toString('base64');
 const load=p=>import(moduleURL(p));
 const [{default:c},{createFactors},{createRegression},{createSimulator},{KYOTO_OUTER_3000:course,kyotoOuterPath:path,kyotoOuterHeight:height},{courseShotCuts,chooseRaceShot,raceCameraPose,followLockedCameraPose}]=await Promise.all([
- load('races/kikka-20261023.js'),load('core/factors.js'),load('core/regression.js'),load('core/simulator.js'),load('assets/kyoto-outer-3000.js'),load('assets/camera-v18.js')
+ load('races/kikka-20261023.js'),load('core/factors.js'),load('core/regression.js'),load('core/simulator.js'),load('assets/kyoto-outer-3000.js'),load('assets/race-shotlist.js')
 ]);
 assert.equal(c.horses.length,18);assert.equal(c.provisionalDraw,false);
 // Preserve the prior snapshot checks below and verify the active Oct24 update.

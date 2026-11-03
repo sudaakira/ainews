@@ -429,10 +429,12 @@ import {jockeyCap} from './core/jockey-caps.js?v=cap-v1';
    m.root.scale.setScalar(1);
    m.root.rotation.y=Math.atan2(motion.dx,motion.dz);
    if(metricTrack){const slope=(metricHeight(p+.0005)-metricHeight(p-.0005))/(distance*.001);m.root.rotation.x=-Math.atan(slope);}
-   // Articulated four-leg gallop, driven by smooth screen time.
-   // The same playback clock drives limbs before and after the finish.
+   // Articulated four-leg gallop. The same playback clock drives limbs
+   // before and after the finish.
    const visualTime=LIVE.visualTime;
-   // Track-based cadence without visual strobing at 16x playback.
+   // v17.2: the stride phase is locked to the race clock inside
+   // updateGallop (phase advance = race-clock delta x cadence), so the
+   // legs cycle at the true rate at 4x-16x instead of gliding.
    const speedMps=motion.speed;
    const cornerLead=config.direction==='左'?'left':'right';
    const straightLead=cornerLead==='left'?'right':'left';
@@ -442,6 +444,100 @@ import {jockeyCap} from './core/jockey-caps.js?v=cap-v1';
    updateGallop(m,clock,visualTime,h.no,Math.min(1,clock/LIVE.duration),{speedMps,lead,frameDt,playing:LIVE.playing});
    // No floating head numbers: genuine saddlecloth number/name on the flanks.
   }
+  // Non-overlap, enforced on body extents (v17.2 port from the v18
+  // experiment, kept at the user's direction): each horse occupies an
+  // oriented plan-view rectangle of 2.30m (torso, chest to pelvis) by
+  // 0.62m. A final separation pass just before drawing pushes apart
+  // any pair whose rectangles intersect, along the axis of least
+  // penetration. pack-v1 already guarantees >=1.0m of corridor
+  // clearance, so on pack-planned races (Kyoto) this never fires and
+  // the rendered positions stay identical to the pack states; on
+  // generic schematic courses (e.g. Tokyo for the Japan Cup, whose
+  // tight schematic curves compress the pack mapping, and whose pack
+  // can even place two horses on identical states) it does real work.
+  // The worst pairwise clearance is audited every frame as
+  // minBodyClearance (negative would mean visible interpenetration).
+  const BODY_LEN=2.30,BODY_WID=.62;
+  const rectOf=m=>({x:m.root.position.x,z:m.root.position.z,rot:m.root.rotation.y});
+  const frameOfRot=rot=>({fx:Math.sin(rot),fz:Math.cos(rot),lx:Math.cos(rot),lz:-Math.sin(rot)});
+  const relInRot=(P,Q,rot)=>{
+   const f=frameOfRot(rot),dx=Q.x-P.x,dz=Q.z-P.z;
+   return {long:dx*f.fx+dz*f.fz,lat:dx*f.lx+dz*f.lz,frame:f};
+  };
+  // Strict clearance over BOTH heading frames; also reports the
+  // winning frame's least-penetration axis for a separating push.
+  const rectClearanceInfo=(P,Q)=>{
+   let worst=Infinity,info=null;
+   for(const [A,B,rev] of [[P,Q,false],[Q,P,true]]){
+    const r=relInRot(A,B,A.rot),lg=Math.abs(r.long)-BODY_LEN,ag=Math.abs(r.lat)-BODY_WID;
+    const c=(lg<0&&ag<0)?-Math.min(-lg,-ag):Math.hypot(Math.max(lg,0),Math.max(ag,0));
+    if(c<worst){
+     worst=c;
+     const latAxis=-ag<=-lg;
+     info={rev,ax:latAxis?r.frame.lx:r.frame.fx,az:latAxis?r.frame.lz:r.frame.fz,
+      s:(latAxis?r.lat:r.long)>=0?1:-1};
+    }
+   }
+   return {c:worst,info};
+  };
+  const sepDeltas=models.map(()=>({x:0,z:0}));
+  const sepPos=i=>({x:models[i].root.position.x+sepDeltas[i].x,
+   z:models[i].root.position.z+sepDeltas[i].z,rot:models[i].root.rotation.y});
+  const avgRot=(a,b)=>Math.atan2(Math.sin(a)+Math.sin(b),Math.cos(a)+Math.cos(b));
+  // Phase 1: relaxation rounds, ONE push per pair in the pair's
+  // averaged heading frame. (Testing both frames independently — the
+  // v18 form — fails on this renderer's generic courses: an in-file
+  // pair whose lateral offsets carry opposite signs in the two frames
+  // receives two nearly cancelling pushes and never separates. The
+  // averaged frame cannot cancel itself; the strict audit below
+  // still checks both frames.)
+  for(let round=0;round<60;round++){
+   let roundPushed=false;
+   for(let i=0;i<models.length;i++)for(let j=i+1;j<models.length;j++){
+    const A=sepPos(i),B=sepPos(j),r=relInRot(A,B,avgRot(A.rot,B.rot));
+    const lg=Math.abs(r.long)-BODY_LEN,ag=Math.abs(r.lat)-BODY_WID;
+    if(lg<0&&ag<0){
+     roundPushed=true;
+     if(-ag<=-lg){
+      const push=-ag/2,s=r.lat>0?1:r.lat<0?-1:1;
+      sepDeltas[i].x-=r.frame.lx*s*push;sepDeltas[i].z-=r.frame.lz*s*push;
+      sepDeltas[j].x+=r.frame.lx*s*push;sepDeltas[j].z+=r.frame.lz*s*push;
+     }else{
+      const push=-lg/2,s=r.long>0?1:r.long<0?-1:1;
+      sepDeltas[i].x-=r.frame.fx*s*push;sepDeltas[i].z-=r.frame.fz*s*push;
+      sepDeltas[j].x+=r.frame.fx*s*push;sepDeltas[j].z+=r.frame.fz*s*push;
+     }
+    }
+   }
+   if(!roundPushed)break;
+  }
+  // Phase 2: strict finisher sweeps. Every pair still below a small
+  // positive margin (by the strict both-frames metric) is pushed
+  // apart along its winning frame's least-penetration axis — one
+  // push per pair, applied immediately (Gauss-Seidel), so cluster
+  // residuals that ping-pong under a worst-pair-only rule settle.
+  for(let k=0;k<400;k++){
+   let any=false;
+   for(let i=0;i<models.length;i++)for(let j=i+1;j<models.length;j++){
+    const {c,info}=rectClearanceInfo(sepPos(i),sepPos(j));
+    if(c<.002){
+     any=true;
+     const half=Math.min(.6,(-c+.004)/2);
+     const pi=info.rev?j:i,pj=info.rev?i:j;
+     sepDeltas[pi].x-=info.ax*info.s*half;sepDeltas[pi].z-=info.az*info.s*half;
+     sepDeltas[pj].x+=info.ax*info.s*half;sepDeltas[pj].z+=info.az*info.s*half;
+    }
+   }
+   if(!any)break;
+  }
+  let bodySeparationFired=false;
+  models.forEach((m,i)=>{
+   const dl=sepDeltas[i];
+   if(dl.x||dl.z){bodySeparationFired=true;m.root.position.x+=dl.x;m.root.position.z+=dl.z}
+  });
+  let minBodyClearance=Infinity;
+  for(let i=0;i<models.length;i++)for(let j=i+1;j<models.length;j++)
+   minBodyClearance=Math.min(minBodyClearance,rectClearanceInfo(rectOf(models[i]),rectOf(models[j])).c);
   updateGates(clock);
   if(kyotoLandmarks)kyotoLandmarks.update(clock,order);
   // Remove the start stalls after the first seconds; restore on replay.
@@ -557,6 +653,7 @@ import {jockeyCap} from './core/jockey-caps.js?v=cap-v1';
    goalBoardVisible:!!goalRig?.visible,goalInFrame,goalScreen,leadersOccluded,
    shot:shotDirection?.shot,goalSide:'far',
    runOut:clock>LIVE.duration,clock,visualTime:LIVE.visualTime,
+   minBodyClearance:Number.isFinite(minBodyClearance)?minBodyClearance:null,bodySeparationFired,
    positions:models.map(m=>({x:m.root.position.x,y:m.root.position.y,z:m.root.position.z})),
    packVersion:api.pack.version,
    packStates:order.map(h=>({no:h.no,p:h.p,lane:h.lane,x:h.x,z:h.z,dx:h.dx,dz:h.dz,speed:h.speed})),
