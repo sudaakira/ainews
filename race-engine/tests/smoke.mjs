@@ -443,7 +443,10 @@ assert.doesNotMatch(cinemaJS,/SIM\.simulate|LOOP\.evaluate|horseProgress\s*=|sco
 assert.doesNotMatch(render,/photoHorseProgress|photoVisualTime|photo\.active/,'obsolete automatic freezes removed');
 assert.match(render,/continuousRunOut:true/);
 assert.match(render,/goalBehindHorses/);
-assert.match(render,/offsetPoint\(1,half\+6,0\)/);
+// v17.3: the generic finish monument moved to the infield side
+// (infieldSign) — at +lane on left circuits it stood between the
+// finish camera and the horses. See docs/rebuild-v17.md v17.3 note.
+assert.match(render,/offsetPoint\(1,infieldSign\*\(half\+6\),0\)/,'generic finish monument on the infield side');
 assert.match(read('assets/kyoto-goal-board.js'),/offsetPoint\(1,half\+3\.7,0\)/);
 assert.match(read('assets/kyoto-goal-board.js'),/for\(const sign of \[1\]\)/,'no near-side goal pole');
 assert.match(render,/Math\.max\(0,t-1\)\*routeLength\*W/,'render path extends beyond goal');

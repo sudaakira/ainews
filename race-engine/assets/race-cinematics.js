@@ -13,7 +13,20 @@ export function createRaceCinematics({THREE,scene,stage,models,config,capFor,pat
  // Original simplified course furniture, soft colored grandstand and hedge rows.
  // Geometry belongs to this app; no game assets or logos are embedded.
  if(config.courseView!=='kyoto-1400-outer'){
-  const stadium=new THREE.Group();stadium.position.set(-35,0,(config.venue==='京都'&&[2000,3000].includes(config.distance))||config.courseView==='hanshin-2200-inner-b'?path(1).z+105:150);scene.add(stadium);
+  const stadium=new THREE.Group();
+  if((config.venue==='京都'&&[2000,3000].includes(config.distance))||config.courseView==='hanshin-2200-inner-b'){
+   stadium.position.set(-35,0,path(1).z+105);
+  }else{
+   // Generic venues: anchor the stand outside the home (finish)
+   // straight from the course's own bounds. The old absolute z=150
+   // fell inside the infield once generic courses became true-scale.
+   let mnx=1e9,mxx=-1e9,mnz=1e9,mxz=-1e9;
+   for(let i=0;i<=60;i++){const q=path(i/60);
+    if(q.x<mnx)mnx=q.x;if(q.x>mxx)mxx=q.x;if(q.z<mnz)mnz=q.z;if(q.z>mxz)mxz=q.z;}
+   const fz=path(1).z,cz=(mnz+mxz)/2;
+   stadium.position.set((mnx+mxx)/2,0,fz+(fz>=cz?1:-1)*120);
+  }
+  scene.add(stadium);
   const material=c=>new THREE.MeshToonMaterial({color:c});
   const concrete=material(0xe8eee4),seat=material(0x92b6bb),glass=material(0x59939e),roof=material(0xf8f7e4);
   const box=(w,h,d,m,x,y,z)=>{const mesh=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),m);mesh.position.set(x,y,z);mesh.userData.cameraOccluder=true;stadium.add(mesh);};
@@ -43,8 +56,12 @@ export function createRaceCinematics({THREE,scene,stage,models,config,capFor,pat
   }
   stadium.add(crowd);
   const hedge=new THREE.InstancedMesh(new THREE.SphereGeometry(1,7,5),material(0x3b8052),90);
+  // Hedges belong on the infield side: at +19 on a left circuit they
+  // sat between the camera (lane +31) and the horses, looming as
+  // foreground blobs in the start and straight shots.
+  const hedgeLane=19*(config.direction==='左'?-1:1);
   for(let i=0;i<90;i++){
-   const p=path(i/90),lane=19;
+   const p=path(i/90),lane=hedgeLane;
    dummy.position.set(p.x-p.dz*lane,p.y+.8,p.z+p.dx*lane);
    dummy.scale.set(1.5,.9,1.4);dummy.updateMatrix();hedge.setMatrixAt(i,dummy.matrix);
   }

@@ -290,16 +290,27 @@ if(isKyotoOuter3000){
 }
 const routeLength=route.getTotalLength();
 const routeAt=d=>route.getPointAtLength(config.direction==='左'?routeLength-d:d);
+// World scale of the generic diagram route (metres per SVG unit).
+// The pack planner, the gait and the cameras all work in metres, so the
+// generic mapping must be true-scale like the metric Kyoto/Hanshin
+// paths: one race distance mapped onto the diagram exactly. The old
+// fixed .245 shrank a 2400m race to a ~366m miniature — measured
+// ground speed ~2.5 m/s with the gait cadence clamped at its minimum
+// and stance hooves skating ~6.6 m/s, and the pack compressed ~6.6x
+// longitudinally (min pairwise centre distance 0.53m), so the
+// renderer's body-separation pass had to shove horses apart on ~92%
+// of frames. kyoto-1400-outer keeps .245: its dedicated scenery
+// module is authored in diagram scale.
+const genericScale=config?.courseView==='kyoto-1400-outer'?.245:distance/routeLength;
 // The map, camera and horse models consume the same lateral trajectory.
-// Non-Kyoto courses retain their existing explicitly schematic scale.
 function packPath(p){
  if(isKyotoOuter3000)return kyotoOuterPath(p);
  if(isKyotoInner)return kyotoPath(p);
  const s=Math.max(0,Math.min(1,p))*routeLength,q=routeAt(s);
  const a=routeAt(Math.max(0,s-2)),b=routeAt(Math.min(routeLength,s+2));
  const len=Math.max(.001,Math.hypot(b.x-a.x,b.y-a.y)),dx=(b.x-a.x)/len,dz=(b.y-a.y)/len;
- const runOut=Math.max(0,p-1)*routeLength*.245;
- return {x:(q.x-430)*.245+dx*runOut,z:(q.y-277)*.245+dz*runOut,y:0,dx,dz};
+ const runOut=Math.max(0,p-1)*routeLength*genericScale;
+ return {x:(q.x-430)*genericScale+dx*runOut,z:(q.y-277)*genericScale+dz*runOut,y:0,dx,dz};
 }
 let pack=null,replayProgress=null;
 // Race markers show jockey CAP colour, not the race-silk colour.
@@ -372,7 +383,7 @@ function drawLive(){
   let p=horseProgress(h.no,LIVE.clock),dist=routeLength*Math.min(1,p);
   let pos=routeAt(dist),prev=routeAt(Math.max(0,dist-1)),next=routeAt(Math.min(routeLength,dist+1));
   let dx=next.x-prev.x,dy=next.y-prev.y,len=Math.max(.1,Math.hypot(dx,dy));
-  let lateral=horseState(h.no,LIVE.clock).lane*(isKyotoOuter3000?.82:isKyotoInner?1.1:1/.245), x=pos.x-dy/len*lateral,y=pos.y+dx/len*lateral;
+  let lateral=horseState(h.no,LIVE.clock).lane*(isKyotoOuter3000?.82:isKyotoInner?1.1:1/genericScale), x=pos.x-dy/len*lateral,y=pos.y+dx/len*lateral;
   if(p>1){x+=dx/len*(p-1)*routeLength;y+=dy/len*(p-1)*routeLength;}
   let g=el('horse-'+h.no);g.setAttribute('transform','translate('+x.toFixed(1)+' '+(y+Math.sin(LIVE.visualTime*11+h.no)*1.2).toFixed(1)+')');
   g.setAttribute('opacity',active.has(h.no)?'1':'.9');

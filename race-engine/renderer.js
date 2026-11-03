@@ -31,6 +31,17 @@ import {jockeyCap} from './core/jockey-caps.js?v=cap-v1';
  const metricTrack=metricKyoto||metricHanshin;
  const courseProfile=metricHanshin?HANSHIN_INNER_B:outer3000?KYOTO_OUTER_3000:KYOTO_INNER;
  const metricPath=metricHanshin?hanshinPath:outer3000?kyotoOuterPath:kyotoPath,metricHeight=metricHanshin?hanshinHeight:outer3000?kyotoOuterHeight:kyotoHeight;
+ // Metres per SVG unit for the generic diagram route (see app.js
+ // genericScale): one race distance maps onto the diagram exactly,
+ // so generic courses are true-scale like the metric paths.
+ // kyoto-1400-outer keeps the diagram scale its dedicated scenery
+ // module was authored in.
+ const W=config.courseView==='kyoto-1400-outer'?.245:distance/routeLength;
+ // Infield side in offsetPoint lane terms: +lane for right circuits,
+ // -lane for left circuits. Course furniture belongs on the infield;
+ // placing it at +lane unconditionally put it between the broadcast
+ // camera and the horses on left circuits (e.g. Tokyo).
+ const infieldSign=config.direction==='左'?-1:1;
  const capFor=h=>jockeyCap(h,config,horse=>window.SWAN_FACTORS.frame(horse));
  const scene=new THREE.Scene();scene.background=new THREE.Color(0x9dd8f0);
  // v25 natural light: linear distance fog + a gradient sky dome replace
@@ -73,9 +84,23 @@ import {jockeyCap} from './core/jockey-caps.js?v=cap-v1';
   }else if(!metricKyoto){
    // Stylized generic scenery; not a mapped reproduction of any track.
    const stand=new THREE.Mesh(new THREE.BoxGeometry(165,16,24),mat(0xc4d9df));
-   stand.position.set(-10,8,240);scene.add(stand);
    const roof=new THREE.Mesh(new THREE.BoxGeometry(173,1.4,30),mat(0xe7f1ef));
-   roof.position.set(-10,17,240);scene.add(roof);
+   if(metricHanshin){
+    stand.position.set(-10,8,240);roof.position.set(-10,17,240);
+   }else{
+    // Anchor the stand outside the home (finish) straight, derived
+    // from the route's own world bounds: at the true-scale mapping
+    // the old absolute z=240 landed on the course itself.
+    let mnx=1e9,mxx=-1e9,mnz=1e9,mxz=-1e9;
+    for(let i=0;i<=200;i++){const q=route.getPointAtLength(routeLength*i/200);
+     const wx=(q.x-430)*W,wz=(q.y-277)*W;
+     if(wx<mnx)mnx=wx;if(wx>mxx)mxx=wx;if(wz<mnz)mnz=wz;if(wz>mxz)mxz=wz;}
+    const fsp=route.getPointAtLength(config.direction==='左'?0:routeLength);
+    const finishZ=(fsp.y-277)*W,centerZ=(mnz+mxz)/2,outZ=finishZ>=centerZ?1:-1;
+    const standX=(mnx+mxx)/2,standZ=finishZ+outZ*55;
+    stand.position.set(standX,8,standZ);roof.position.set(standX,17,standZ);
+   }
+   scene.add(stand);scene.add(roof);
   }
   venueReady=true;
  }catch(e){
@@ -121,7 +146,6 @@ import {jockeyCap} from './core/jockey-caps.js?v=cap-v1';
  const lawnMap=grassMap.clone();lawnMap.needsUpdate=true;lawnMap.repeat.set(14,10);
  const ground=new THREE.Mesh(new THREE.PlaneGeometry(1600,1300),new THREE.MeshStandardMaterial({map:lawnMap,color:0xa9cd87,roughness:1}));
  ground.rotation.x=-Math.PI/2;ground.position.y=-.32;ground.receiveShadow=true;scene.add(ground);
- const W=.245;
  function heightAt(t){
   const smooth=x=>{x=Math.max(0,Math.min(1,x));return x*x*(3-2*x)};
   if(config.courseView==='tokyo-2000'){
@@ -326,9 +350,14 @@ import {jockeyCap} from './core/jockey-caps.js?v=cap-v1';
   finish.rotation.x=-Math.PI/2;finish.rotation.z=Math.atan2(q.dz,q.dx)+Math.PI/2;finish.position.copy(end);finish.position.y+=.03;scene.add(finish);
  }else{
   // Kyoto-inspired freestanding finish monument on the infield side, not a banner over the track.
+  // Infield side only: at +lane on a left circuit the monument stood
+  // between the finish camera (lane +31) and the horses, its uprights
+  // crossing the frame and the back of its sign filling the top of
+  // the finish shot. The extra PI for left circuits turns the printed
+  // face toward the track and the cameras.
   goalRig=new THREE.Group();
-  goalRig.position.copy(offsetPoint(1,half+6,0));
-  const goalDir=path(1);goalRig.rotation.y=Math.atan2(goalDir.dx,goalDir.dz)+Math.PI/2;scene.add(goalRig);
+  goalRig.position.copy(offsetPoint(1,infieldSign*(half+6),0));
+  const goalDir=path(1);goalRig.rotation.y=Math.atan2(goalDir.dx,goalDir.dz)+Math.PI/2+(infieldSign<0?Math.PI:0);scene.add(goalRig);
   const ivory=mat(0xf4f5ed),teal=mat(0x16786d),bronze=mat(0xc2a76a);
   // A single rounded horseshoe-shaped finish tower: two uprights and an open arch.
   for(const side of [-1,1]){
@@ -354,11 +383,11 @@ import {jockeyCap} from './core/jockey-caps.js?v=cap-v1';
   // Matching thin white finish-line poles stay beyond the running lanes.
   const finishGeo=new THREE.PlaneGeometry(half*2,1.0),finishMat=new THREE.MeshBasicMaterial({color:0xf2f5f3,side:THREE.DoubleSide});
   const finish=new THREE.Mesh(finishGeo,finishMat);finish.rotation.x=-Math.PI/2;finish.rotation.z=0;finish.position.copy(end);finish.position.y+=.05;scene.add(finish);
-  for(let side of [1]){let p=offsetPoint(1,side*(half+.8),.0);let pole=new THREE.Mesh(new THREE.CylinderGeometry(.15,.15,5,8),mat(0xf7f7f0));pole.position.copy(p);pole.position.y+=2.5;scene.add(pole)}
+  for(let side of [infieldSign]){let p=offsetPoint(1,side*(half+.8),.0);let pole=new THREE.Mesh(new THREE.CylinderGeometry(.15,.15,5,8),mat(0xf7f7f0));pole.position.copy(p);pole.position.y+=2.5;scene.add(pole)}
  }
  // Correct JRA-style red/white posts with round numbered plaques (2=200m).
  const {createJRAFurlongPosts}=await import("./assets/jra-furlong-posts.js?v=geo-v6");
- const furlongPosts=createJRAFurlongPosts({THREE,scene,offsetPoint,distance,half});
+ const furlongPosts=createJRAFurlongPosts({THREE,scene,offsetPoint,distance,half,side:infieldSign});
  // Cinematic director replaces manual angle selection for every race.
  const {createRaceCinematics}=await import("./assets/race-cinematics.js?v=retro-flow-v1-camera-v29-takarazuka");
  const cinematics=createRaceCinematics({THREE,scene,stage,models,config,capFor,path,route,routeLength});

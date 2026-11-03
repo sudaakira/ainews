@@ -5,7 +5,7 @@
  * Position follows the course model's progress (diagram only, not survey).
  * Visual-only: no alterations to results or speed.
  */
-export function createJRAFurlongPosts({THREE,scene,offsetPoint,distance,half}){
+export function createJRAFurlongPosts({THREE,scene,offsetPoint,distance,half,side=1}){
  const red=new THREE.MeshLambertMaterial({color:0xc6222b});
  const white=new THREE.MeshLambertMaterial({color:0xfffcf3});
  const dark=new THREE.MeshLambertMaterial({color:0x394d49});
@@ -14,7 +14,10 @@ export function createJRAFurlongPosts({THREE,scene,offsetPoint,distance,half}){
  const created=[];
  for(let meters=200;meters<distance;meters+=200){
   const t=1-meters/distance,group=new THREE.Group();
-  group.position.copy(offsetPoint(t,half+2.8,0));
+  // Infield side (side=-1 on left circuits): at +lane on a left
+  // circuit the posts stood on the camera side of the home straight,
+  // repeatedly crossing the straight/finish shots.
+  group.position.copy(offsetPoint(t,side*(half+2.8),0));
   const pole=new THREE.Mesh(poleGeom,white);pole.position.y=1.3;group.add(pole);
   for(let j=0;j<7;j++){
    const stripe=new THREE.Mesh(unit,j%2===0?red:white);
