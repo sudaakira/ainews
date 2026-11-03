@@ -24,6 +24,15 @@ export function createRaceCinematics({THREE,scene,stage,models,config,capFor,pat
   }
   box(218,.6,39,roof,0,15,2);
   for(let x=-98;x<=98;x+=28)box(.65,11,.65,concrete,x,8.5,12);
+  // Fascia sign on the track-facing side, so the stand reads as a
+  // racecourse grandstand rather than a plain tiered block.
+  const signCanvas=document.createElement('canvas');signCanvas.width=1024;signCanvas.height=64;
+  const sg=signCanvas.getContext('2d');sg.fillStyle='#1d3a4a';sg.fillRect(0,0,1024,64);
+  sg.fillStyle='#f2f5ec';sg.textAlign='center';sg.textBaseline='middle';
+  sg.font='bold 40px sans-serif';sg.fillText((config.venue||'')+'競馬場',512,34);
+  const signTex=new THREE.CanvasTexture(signCanvas);signTex.colorSpace=THREE.SRGBColorSpace;
+  const sign=new THREE.Mesh(new THREE.PlaneGeometry(120,7.5),new THREE.MeshBasicMaterial({map:signTex}));
+  sign.position.set(0,13.4,-13.4);sign.rotation.y=Math.PI;stadium.add(sign);
   const crowd=new THREE.InstancedMesh(new THREE.SphereGeometry(.4,5,4),material(0xffffff),360);
   const dummy=new THREE.Object3D(),palette=[0xe8eee8,0xe59d74,0x8ea9d2,0xf3ce76,0xbb91ac];
   for(let i=0;i<360;i++){
@@ -43,7 +52,7 @@ export function createRaceCinematics({THREE,scene,stage,models,config,capFor,pat
  }
  // A small amount of grass kicked up by the hooves, without luminous trails.
  const perHorse=3,chips=new THREE.InstancedMesh(new THREE.PlaneGeometry(.11,.20),
-  new THREE.MeshBasicMaterial({color:0x93c15b,transparent:true,opacity:.7,side:THREE.DoubleSide,depthWrite:false}),models.length*perHorse);
+  new THREE.MeshBasicMaterial({color:0x7fae54,transparent:true,opacity:.5,side:THREE.DoubleSide,depthWrite:false}),models.length*perHorse);
  chips.frustumCulled=false;scene.add(chips);const dummy=new THREE.Object3D();
  let lastShot='',lastMode='';
  let previousClock=0;

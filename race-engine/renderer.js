@@ -32,17 +32,37 @@ import {jockeyCap} from './core/jockey-caps.js?v=cap-v1';
  const courseProfile=metricHanshin?HANSHIN_INNER_B:outer3000?KYOTO_OUTER_3000:KYOTO_INNER;
  const metricPath=metricHanshin?hanshinPath:outer3000?kyotoOuterPath:kyotoPath,metricHeight=metricHanshin?hanshinHeight:outer3000?kyotoOuterHeight:kyotoHeight;
  const capFor=h=>jockeyCap(h,config,horse=>window.SWAN_FACTORS.frame(horse));
- const scene=new THREE.Scene();scene.background=new THREE.Color(0x9dd8f0);scene.fog=new THREE.FogExp2(0xc5e7ef,.00055);
+ const scene=new THREE.Scene();scene.background=new THREE.Color(0x9dd8f0);
+ // v25 natural light: linear distance fog + a gradient sky dome replace
+ // the exponential fog that washed the far course to a single tint.
+ scene.fog=new THREE.Fog(0xd7ecf3,220,1500);
  const camera=new THREE.PerspectiveCamera(50,1,.1,2200);
  const renderer=new THREE.WebGLRenderer({antialias:true,powerPreference:'default',alpha:false,preserveDrawingBuffer:false});
  // Fewer GPU pixels on phones preserve frame rate when all up to 18 animated horses are visible.
  renderer.setPixelRatio(Math.min(window.devicePixelRatio||1,window.innerWidth<800?1.2:1.8)); // Restore sharp full-resolution 3D.
  renderer.outputColorSpace=THREE.SRGBColorSpace;
- renderer.toneMapping=THREE.NoToneMapping;
- renderer.toneMappingExposure=1.05;
+ // Filmic tone mapping unifies the previously mixed flat-lit materials;
+ // light levels below are raised to compensate for its roll-off.
+ renderer.toneMapping=THREE.ACESFilmicToneMapping;
+ renderer.toneMappingExposure=1.12;
+ // One soft shadow cascade following the pack: enough for grounding
+ // without a second light or a full-course shadow map on phones.
+ renderer.shadowMap.enabled=true;
+ renderer.shadowMap.type=THREE.PCFSoftShadowMap;
  stage.appendChild(renderer.domElement);
- scene.add(new THREE.HemisphereLight(0xffffff,0x627e45,1.65));
- const sun=new THREE.DirectionalLight(0xfff4da,2.0);sun.position.set(-80,130,50);scene.add(sun);
+ const skyDome=new THREE.Mesh(new THREE.SphereGeometry(1750,24,12),new THREE.ShaderMaterial({
+  side:THREE.BackSide,depthWrite:false,fog:false,
+  uniforms:{top:{value:new THREE.Color(0x74b9e6)},mid:{value:new THREE.Color(0xbfe3f2)},low:{value:new THREE.Color(0xe8f3e9)}},
+  vertexShader:'varying vec3 vP;void main(){vP=position;gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.0);}',
+  fragmentShader:'varying vec3 vP;uniform vec3 top,mid,low;void main(){float h=normalize(vP).y;vec3 c=h>.12?mix(mid,top,smoothstep(.12,.65,h)):mix(low,mid,smoothstep(-.06,.12,h));gl_FragColor=vec4(c,1.0);}'}));
+ scene.add(skyDome);
+ scene.add(new THREE.HemisphereLight(0xffffff,0x627e45,1.8));
+ const sun=new THREE.DirectionalLight(0xfff4da,2.4);sun.position.set(-80,130,50);
+ sun.castShadow=true;
+ sun.shadow.mapSize.set(window.innerWidth<800?1024:2048,window.innerWidth<800?1024:2048);
+ Object.assign(sun.shadow.camera,{left:-62,right:62,top:62,bottom:-62,near:20,far:340});
+ sun.shadow.bias=-0.0004;sun.shadow.normalBias=.03;
+ scene.add(sun);scene.add(sun.target);
  const mat=(c,rough=.83)=>new THREE.MeshStandardMaterial({color:c,roughness:rough,metalness:0});
  // Wait for venue geometry before the first render; do not silently show the old empty turf.
  let venueReady=false;
@@ -73,8 +93,11 @@ import {jockeyCap} from './core/jockey-caps.js?v=cap-v1';
   const rand=()=>{seed=(Math.imul(seed,1664525)+1013904223)>>>0;return seed/4294967296};
   g.fillStyle='#64a844';g.fillRect(0,0,512,512);
   for(let y=0;y<512;y+=64){
-   g.fillStyle=((y/64)%2===0)?'rgba(18,50,16,.14)':'rgba(162,197,105,.11)';
+   // Stronger alternating mowing bands: the track UV runs these rows
+   // across the course, so the stripes read at broadcast distance.
+   g.fillStyle=((y/64)%2===0)?'rgba(16,46,14,.21)':'rgba(170,205,110,.16)';
    g.fillRect(0,y,512,64);
+   g.fillStyle='rgba(255,255,240,.06)';g.fillRect(0,y,512,2);
   }
   for(let i=0;i<6000;i++){
    const x=rand()*512,y=rand()*512;
@@ -97,7 +120,7 @@ import {jockeyCap} from './core/jockey-caps.js?v=cap-v1';
  const turfAlt=turf,white=mat(0xf1f2e8),darkRail=mat(0xcad8d2),soil=mat(0x786748);
  const lawnMap=grassMap.clone();lawnMap.needsUpdate=true;lawnMap.repeat.set(14,10);
  const ground=new THREE.Mesh(new THREE.PlaneGeometry(1600,1300),new THREE.MeshStandardMaterial({map:lawnMap,color:0xa9cd87,roughness:1}));
- ground.rotation.x=-Math.PI/2;ground.position.y=-.32;scene.add(ground);
+ ground.rotation.x=-Math.PI/2;ground.position.y=-.32;ground.receiveShadow=true;scene.add(ground);
  const W=.245;
  function heightAt(t){
   const smooth=x=>{x=Math.max(0,Math.min(1,x));return x*x*(3-2*x)};
@@ -129,7 +152,7 @@ import {jockeyCap} from './core/jockey-caps.js?v=cap-v1';
  for(let i=0;i<=count;i++){let t=trackAt(i/count);for(let side of [-1,1]){let p=offsetPoint(t,side*half,.015);verts.push(p.x,p.y,p.z);uv.push(side===-1?0:1,t*20)}}
  for(let i=0;i<count;i++){let k=i*2;idx.push(k,k+1,k+2,k+1,k+3,k+2)}
  let geo=new THREE.BufferGeometry();geo.setAttribute('position',new THREE.Float32BufferAttribute(verts,3));geo.setAttribute('uv',new THREE.Float32BufferAttribute(uv,2));geo.setIndex(idx);geo.computeVertexNormals();
- const track=new THREE.Mesh(geo,turfAlt);track.material.side=THREE.DoubleSide;scene.add(track);
+ const track=new THREE.Mesh(geo,turfAlt);track.material.side=THREE.DoubleSide;track.receiveShadow=true;scene.add(track);
  if(metricHanshin){
   // The 2200m starting spur joins the home straight at the inner 4C exit.
   const end=(courseProfile.startBeforeGoal-courseProfile.straight)/distance;
@@ -149,7 +172,7 @@ import {jockeyCap} from './core/jockey-caps.js?v=cap-v1';
     v.push(q.x,q.y,q.z);uv.push(side===-1?0:1,i/20);
    }}
    for(let i=0;i<800;i++){const k=i*2;ix.push(k,k+1,k+2,k+1,k+3,k+2)}
-   const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.Float32BufferAttribute(v,3));g.setAttribute('uv',new THREE.Float32BufferAttribute(uv,2));g.setIndex(ix);g.computeVertexNormals();scene.add(new THREE.Mesh(g,material));
+   const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.Float32BufferAttribute(v,3));g.setAttribute('uv',new THREE.Float32BufferAttribute(uv,2));g.setIndex(ix);g.computeVertexNormals();const ribbonMesh=new THREE.Mesh(g,material);ribbonMesh.receiveShadow=true;scene.add(ribbonMesh);
   };
   ribbon(()=>0,75,turf);
   ribbon(()=>40,22,new THREE.MeshLambertMaterial({color:0xc5a77d,side:THREE.DoubleSide}),.96);
@@ -188,6 +211,9 @@ import {jockeyCap} from './core/jockey-caps.js?v=cap-v1';
  for(let lane of [-half-.8,half+.8]){
   let pts=[];for(let i=0;i<=count;i++)pts.push(offsetPoint(trackAt(i/count),lane,.75));
   tube(pts,.10,white);
+  // Lower second rail line, as on real JRA running rails.
+  let lowerPts=[];for(let i=0;i<=count;i+=4)lowerPts.push(offsetPoint(trackAt(i/count),lane,.42));
+  tube(lowerPts,.05,white);
   for(let i=0;i<=count;i+=9){let p=offsetPoint(trackAt(i/count),lane,.1);let post=new THREE.Mesh(new THREE.CylinderGeometry(.065,.075,.8,6),darkRail);post.position.copy(p).add(new THREE.Vector3(0,.33,0));scene.add(post)}
  }
  for(let lane of []){
@@ -208,6 +234,8 @@ import {jockeyCap} from './core/jockey-caps.js?v=cap-v1';
   }
   horseV3Ready=models.length===HS.length&&models.every(m=>m.artDirection==='photo-thoroughbred-v24');
   if(!horseV3Ready)throw new Error('アニメ馬モデルと出走'+HS.length+'頭の整合性を確認できませんでした');
+  // Real shadow map is on: keep the painted blob only as faint contact shade.
+  for(const m of models)m.shadowDim=.45;
  }catch(e){
   modelError=String(e?.stack||e);
   console.error("Horse model loading failed",e);
@@ -269,8 +297,11 @@ import {jockeyCap} from './core/jockey-caps.js?v=cap-v1';
  }
  // At the stalls, scale the chibi runners slightly down to fit; blend back to normal as they accelerate.
  function updateGates(clock){
-  const opening=Math.max(0,Math.min(1,clock/.65));
-  const swing=opening*1.48;
+  // Faster snap with an eased settle: real gates spring open in about
+  // half a second and overshoot a fraction before resting on the stop.
+  const opening=Math.max(0,Math.min(1,clock/.5));
+  const eased=1-Math.pow(1-opening,3);
+  const swing=1.48*eased*(1+.05*Math.sin(opening*Math.PI));
   for(const door of gateDoors)door.hinge.rotation.y=-door.side*swing;
  }
  // Authentic-inspired 2023 Kyoto "KYOTO" turf finish marker (green
@@ -349,6 +380,7 @@ import {jockeyCap} from './core/jockey-caps.js?v=cap-v1';
  let lastDrawClock=NaN,lastDrawVisual=NaN,lastDrawW=0,lastDrawH=0,settledFrames=0,renderSerial=0;
  const smoothLook=new THREE.Vector3();
  let smoothFov=50,smoothLensShift=0;
+ let cutBlend=null;const blendPos=new THREE.Vector3(),blendLook=new THREE.Vector3();
  function animate(now){
   requestAnimationFrame(animate);
   if(document.hidden)return;
@@ -423,9 +455,28 @@ import {jockeyCap} from './core/jockey-caps.js?v=cap-v1';
   const clockJump=Number.isFinite(lastCamClock)&&
    (Math.abs(clock-lastCamClock)>Math.max(1.4,frameDt*rate*4)||clock<lastCamClock-.001);
   lastCamClock=clock;
+  // Cut transitions blend over ~0.38s of wall time instead of teleporting:
+  // the outgoing pose eases into the incoming dolly pose (position, look,
+  // focal length and optical shift together) while the race keeps moving.
+  // Seeks, resets and the first frame still snap exactly.
+  if(shotDirection?.cut&&!first&&!clockJump&&LIVE.playing&&!cutBlend){
+   cutBlend={t:0,fromPos:camera.position.clone(),fromLook:smoothLook.clone(),fromFov:smoothFov,fromShift:smoothLensShift};
+  }
+  if(cutBlend){
+   cutBlend.t+=frameDt;
+   const u=Math.min(1,cutBlend.t/.38),e=u*u*(3-2*u);
+   if(e>=1)cutBlend=null;
+   else{
+    blendPos.copy(desired);desired.lerpVectors(cutBlend.fromPos,blendPos,e);
+    blendLook.copy(look);look.lerpVectors(cutBlend.fromLook,blendLook,e);
+    shotDirection.fov=cutBlend.fromFov+(shotDirection.fov-cutBlend.fromFov)*e;
+    shotDirection.lensShiftX=cutBlend.fromShift+(shotDirection.lensShiftX-cutBlend.fromShift)*e;
+   }
+  }
   // Seeking/paused states render their requested position exactly; live
   // footage moves with frame-rate-independent filters for no micro-jitters.
-  const snap=first||shotDirection?.cut||clockJump||!LIVE.playing;
+  const snap=first||clockJump||!LIVE.playing;
+  if(snap)cutBlend=null;
   // Following at 8x requires a near-real-time dolly. The old 15.2/s
   // filter lagged ~8m and pushed the winner OFF the left edge on iPhone.
   // The new course-relative pose is smooth, so it can be followed closely.
@@ -447,6 +498,10 @@ import {jockeyCap} from './core/jockey-caps.js?v=cap-v1';
   camera.projectionMatrixInverse.copy(camera.projectionMatrix).invert();
   camera.lookAt(smoothLook);
   camera.updateMatrixWorld();
+  // Keep the single shadow cascade centred on the framed pack.
+  sun.position.set(smoothLook.x-60,smoothLook.y+110,smoothLook.z+38);
+  sun.target.position.copy(smoothLook);sun.target.updateMatrixWorld();
+  skyDome.position.copy(camera.position);
   // Verify the opening camera actually frames every projected horse body.
   if(shotDirection?.shot==='start'||shotDirection?.shot==='third-turn'){
    let inside=0;const projected=new THREE.Vector3();

@@ -118,20 +118,40 @@ export function createRaceHorse(T,scene,h,silkHex,frameCapHex='#89929b',frameCap
  const shadow=makeShadow(1.15,2.9),footShadows=Array.from({length:4},()=>makeShadow(.26,.30));
  const localPoint=(bone,out=new T.Vector3())=>{bone.getWorldPosition(out);return out.applyMatrix4(inverse)};
  const joint=(a,b,l1,l2,pole)=>{const d=b.clone().sub(a),len=Math.max(.0001,d.length());d.divideScalar(len);const along=Math.min(l1,(l1*l1-l2*l2+len*len)/(2*len));const normal=pole.clone().addScaledVector(d,-pole.dot(d)).normalize();return a.clone().addScaledVector(d,along).addScaledVector(normal,Math.sqrt(Math.max(0,l1*l1-along*along)))};
- const model={root,anim,asset,rider,shadow,gallopRig:'racing-sprint-v19',artDirection:'photo-thoroughbred-v24',bodyAudit:()=>({...coat.geometry.userData,vertices:coat.geometry.attributes.position.count}),gaitState:null};
+ const model={root,anim,asset,rider,shadow,shadowMeshes:[shadow,...footShadows],shadowDim:1,gallopRig:'racing-sprint-v19',artDirection:'photo-thoroughbred-v24',bodyAudit:()=>({...coat.geometry.userData,vertices:coat.geometry.attributes.position.count}),gaitState:null};
+ // Real shadow-map grounding (renderer enables the map): every visible
+ // horse surface casts; the soft blob remains as a dim contact shade.
+ asset.traverse(o=>{if(o.isMesh||o.isSkinnedMesh)o.castShadow=true});
+ rider.traverse(o=>{if(o.isMesh)o.castShadow=true});
  model.showEquipment=visible=>{rider.visible=saddle.visible=visible;for(const l of limbs)for(const key of ['stirrup','rein','strap'])l[key].visible=visible;for(const name of ['FittedSaddlecloth','RacingSaddleAndGirth','SaddlePiping'])asset.getObjectByName(name).visible=visible};
- model.pose=(phase,active,rightWeight,sprint=0)=>{
+ model.pose=(phase,active,rightWeight,sprint=0,secondary=null)=>{
   actions.left.setEffectiveWeight(active*(1-rightWeight));actions.right.setEffectiveWeight(active*rightWeight);actions.idle.setEffectiveWeight(1-active);
   actions.left.time=actions.right.time=phase*source.motion.duration;actions.idle.time=0;mixer.update(0);
-  asset.position.y=floorOffset(phase)*active;root.updateMatrixWorld(true);inverse.copy(root.matrixWorld).invert();
+  asset.position.y=floorOffset(phase)*active;
+  // Secondary motion (gallop-sync.js): the whole body breathes over the
+  // stride — bob and pitch about the ground contact, a counter-nod of
+  // neck/head against the pitch, and a lagged tail sway. The mane is
+  // skinned to the neck bones, so it follows the nod for free.
+  const sec=secondary||{bob:0,pitch:0,headNod:0,tailSway:0,tailSwayLag:0,drive:0};
+  anim.position.y=(sec.bob||0)*active;
+  anim.rotation.x=(sec.pitch||0)*active;
+  if(bones.Neck3)bones.Neck3.rotation.x+=(sec.headNod||0)*.55*active;
+  if(bones.Head)bones.Head.rotation.x+=(sec.headNod||0)*.45*active;
+  if(bones.Tail1)bones.Tail1.rotation.y+=(sec.tailSway||0)*.5*active;
+  if(bones.Tail3)bones.Tail3.rotation.y+=(sec.tailSwayLag||0)*.4*active;
+  root.updateMatrixWorld(true);inverse.copy(root.matrixWorld).invert();
   const aft=localPoint(bones.Torso),fore=localPoint(bones.Torso3);
   const pitch=-Math.atan2(fore.y-aft.y,fore.z-aft.z);saddle.position.copy(tack.seatPoint().applyMatrix4(inverse));saddle.rotation.x=pitch;
   const sy=saddle.position.y,sz=saddle.position.z;
   // Racing seat absorbs the back's movement; boots follow the stirrups while
   // knees/elbows articulate. The rider is not a rigid bobbing statuette.
   const hipY=sy+.22-(sy-1.49)*.56*active;
-  const hip=new T.Vector3(0,hipY,sz-.16);
-  const shoulder=new T.Vector3(0,hipY+.02+.31*(1-active),sz+.40+.035*sprint);
+  // The rider's push (drive) peaks as the horse extends: shoulders and
+  // seat travel a few centimetres forward over the stride, then recover.
+  // Deliberately understated — no raised whip arm, no statue-like pump.
+  const drive=(sec.drive||0)*active;
+  const hip=new T.Vector3(0,hipY,sz-.16+drive*.022);
+  const shoulder=new T.Vector3(0,hipY+.02+.31*(1-active)-drive*.012,sz+.40+.035*sprint+drive*.052);
   pelvis.position.copy(hip);connect(torso,hip,shoulder);torso.scale.y*=.55;
   head.position.copy(shoulder).add(new T.Vector3(0,.11,.13));head.rotation.x=-pitch*.18;connect(neck,shoulder.clone().add(new T.Vector3(0,.01,.04)),head.position.clone().add(new T.Vector3(0,-.075,-.02)));
   const mouth=bones.Head.localToWorld(source.mouth.clone()).applyMatrix4(inverse);
@@ -153,8 +173,9 @@ export function createRaceHorse(T,scene,h,silkHex,frameCapHex='#89929b',frameCap
   const sampled=interpolateFeet(phase),byName=Object.fromEntries(sampled.map(p=>[p.name,p]));
   const hoofs=sampled.map((p,i)=>{const mirrored=byName[p.name[0]+(p.name[1]==='L'?'R':'L')];const mix=(a,b)=>a+(b-a)*rightWeight;return {name:p.name,front:p.name[0]==='F',side:p.name[1]==='L'?1:-1,hoofX:p.x*SCALE,hoofY:mix(p.y,mirrored.y)*SCALE+asset.position.y,hoofZ:mix(p.z,mirrored.z)*SCALE,contact:active>.95&&mix(p.y,mirrored.y)*SCALE+asset.position.y<.028}});
   const flight=active>.95&&hoofs.every(p=>p.hoofY>.035);
-  shadow.material.opacity=flight?.64:.88;
-  hoofs.forEach((f,i)=>{const m=footShadows[i];m.position.set(f.hoofX,.008,f.hoofZ);m.material.opacity=active*Math.max(0,.85-f.hoofY*3.5)});
+  const dim=model.shadowDim??1;
+  shadow.material.opacity=(flight?.64:.88)*dim;
+  hoofs.forEach((f,i)=>{const m=footShadows[i];m.position.set(f.hoofX,.008,f.hoofZ);m.material.opacity=active*Math.max(0,.85-f.hoofY*3.5)*dim});
   root.updateMatrixWorld(true);
   tack.updateContact(root,bones);
   model.gallopAudit={phase,lead:rightWeight*2-1,flight,noHoofContact:flight,hoofs,sampledFrom:'constructed-racing-sprint-v19'};

@@ -48,7 +48,7 @@ export function createKyotoGoalBoard({THREE,scene,offsetPoint,path,half}){
  const ctx=canvas.getContext('2d');
  ctx.fillStyle='#f5f7ef';ctx.fillRect(0,0,256,768);
  ctx.fillStyle='#1b5747';ctx.textAlign='center';ctx.textBaseline='middle';
- ctx.font='500 107px Georgia,serif';ctx.fillText('K',128,102);
+ ctx.font='700 104px sans-serif';ctx.fillText('K',128,102);
  ctx.fillText('Y',128,222);ctx.fillText('O',128,343);
  ctx.fillText('T',128,464);ctx.fillText('O',128,587);
  const tex=new THREE.CanvasTexture(canvas);tex.colorSpace=THREE.SRGBColorSpace;

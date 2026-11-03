@@ -100,6 +100,9 @@ export function buildKyotoLandmarks(THREE,scene,{raceName='秋華賞'}={}){
  landmarks.turfVision=frameGroup;
  let lastKey='';
  function update(clock,order=[]){
+  // Sun glitter on the pond breathes slowly; the screen redraw below
+  // stays on its cheaper 1.5s cadence.
+  shimmerMat.opacity=.15+.09*(0.5+0.5*Math.sin((Number(clock)||0)*1.6));
   const key=Math.floor((Number(clock)||0)/1.5)+'/'+order.slice(0,5).map(x=>x.no).join(',');
   if(key===lastKey)return;
   lastKey=key;
@@ -112,7 +115,8 @@ export function buildKyotoLandmarks(THREE,scene,{raceName='秋華賞'}={}){
   ctx.fillStyle='#ffffff';ctx.font='bold 56px sans-serif';
   ctx.fillText(raceName,370,84);
   ctx.font='29px sans-serif';ctx.fillStyle='#a9cbd2';
-  ctx.fillText('京都競馬場  芝 2000m',375,134);
+  const elapsed=Math.max(0,Number(clock)||0),clockText=Math.floor(elapsed/60)+':'+(elapsed%60).toFixed(1).padStart(4,'0');
+  ctx.fillText('京都競馬場  芝 2000m   '+clockText,375,134);
   ctx.fillStyle='#1c5060';ctx.fillRect(20,174,1494,62);
   ctx.font='bold 30px sans-serif';ctx.fillStyle='#effff7';ctx.fillText('LEAD',35,216);
   for(let i=0;i<5;i++){

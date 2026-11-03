@@ -55,8 +55,14 @@ export function rebuildThoroughbred(T,geometry,scale=.46){
   if(y>.21&&y<.86){const joint=.010*gauss(y,front?.54:.61,.075);x+=side*joint*gauss(ax,axis,.09)*lower}
   positions.push(x/scale,y/scale,z/scale);
   // Bay coat darkens naturally at crest, ventral line and distal limbs.
+  // v25 shading pass (vertex colours only, silhouette unchanged): a soft
+  // top-light along the back/withers and a deeper girth groove make the
+  // shoulder and quarter musculature read under the scene's flat light.
   const darkLeg=(1-smooth(y,.35,.87))*.31,back=.13*gauss(y,1.63,.12)*gauss(z,0,.8),warm=.06*barrel;
-  const shade=1-darkLeg-back+warm;colors.push(v.c[0]*shade,v.c[1]*shade,v.c[2]*shade);
+  const topLight=.055*gauss(y,1.68,.10)*gauss(z,-.05,.85);
+  const girthGroove=-.045*gauss(z,.30,.10)*gauss(y,1.10,.30);
+  const muscleShade=.030*scapula+.022*glute;
+  const shade=1-darkLeg-back+warm+topLight+girthGroove+muscleShade;colors.push(v.c[0]*shade,v.c[1]*shade,v.c[2]*shade);
   const weights=[...v.w].sort((a,b)=>b[1]-a[1]).slice(0,4),total=weights.reduce((s,p)=>s+p[1],0);while(weights.length<4)weights.push([0,0]);skinIndices.push(...weights.map(p=>p[0]));skinWeights.push(...weights.map(p=>p[1]/total));
  }
  const result=new T.BufferGeometry();result.setAttribute('position',new T.Float32BufferAttribute(positions,3));result.setAttribute('color',new T.Float32BufferAttribute(colors,3));result.setAttribute('skinIndex',new T.Uint16BufferAttribute(skinIndices,4));result.setAttribute('skinWeight',new T.Float32BufferAttribute(skinWeights,4));result.setAttribute('uv',new T.Float32BufferAttribute(new Float32Array(vertices.length*2),2));result.setIndex(faces.flat());result.computeVertexNormals();result.computeBoundingSphere();

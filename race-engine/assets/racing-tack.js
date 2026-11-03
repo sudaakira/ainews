@@ -85,9 +85,9 @@ export function createRacingTack(T,coat,prepared,horse){
   c.fillStyle='#29209b';c.fillRect(0,row,1024,512);
   c.fillStyle='#fff';c.textAlign='center';c.font='900 360px RaceCloth';
   c.save();c.translate(numberX,row+375);c.scale(1.42,1);c.fillText(String(horse.no),0,0,545);c.restore();
-  c.font='900 105px RaceCloth, sans-serif';c.fillText(horse.name,numberX,row+488,600);
+  c.font='900 118px RaceCloth, sans-serif';c.fillText(horse.name,numberX,row+484,620);
  }
- const texture=new T.CanvasTexture(cv);texture.colorSpace=T.SRGBColorSpace;texture.anisotropy=8;
+ const texture=new T.CanvasTexture(cv);texture.colorSpace=T.SRGBColorSpace;texture.anisotropy=16;
  const make=(geometry,material,name)=>{const m=new T.SkinnedMesh(geometry,material);m.name=name;m.position.copy(coat.position);m.quaternion.copy(coat.quaternion);m.scale.copy(coat.scale);m.bind(coat.skeleton,coat.bindMatrix);m.frustumCulled=false;coat.parent.add(m);return m};
  const cloth=make(prepared.cloth.geo,new T.MeshStandardMaterial({map:texture,roughness:1,side:T.DoubleSide}),'FittedSaddlecloth');
  // The lower cloth is driven by the back, but must drape OUTSIDE a flexing
