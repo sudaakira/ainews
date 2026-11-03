@@ -41,15 +41,26 @@ export function clipFootSpeed(cadence){return cadence*GALLOP_SYNC.authoredStride
 /**
  * Secondary motion derived from the stride phase. Amplitudes are in
  * metres (bob) and radians (pitch / headNod / tailSway); drive is a
- * 0..1 rider-push pulse. The body rises into the gathered suspension
- * (clip flight interval .78–1.00) and settles over the hind stance;
- * the head counter-nods against the pitch, the tail streams with a
- * lagged sway, and the rider's push peaks as the horse extends.
+ * 0..1 rider-push pulse. The head counter-nods against the pitch, the
+ * tail streams with a lagged sway, and the rider's push peaks as the
+ * horse extends.
+ *
+ * Ground safety (rebuild-v17.1): the v19 clip already bakes the true
+ * stance settle and body pitch, and its lowest hoof rides only ~6mm
+ * above the turf. Any added downward bob or centre-pivot pitch pushes
+ * a planted hoof through the ground (measured -34mm before this fix).
+ * So the added bob is lift-only: the body rises up to ~26mm into the
+ * gathered suspension (clip flight interval .78-1.00) and returns to
+ * the baked height over stance, never below it. The added pitch is
+ * halved and its bob includes a |pitch| x 1.35m compensation lift, so
+ * the dropping end of the pitch can never pass the baked hoof line
+ * either; the rising end simply lifts a little more.
  */
 export function secondaryMotion(phase){
  const p=((phase%1)+1)%1;
- const bob=.030*Math.sin(TAU*(p-.60))+.008*Math.sin(2*TAU*(p-.60));
- const pitch=.021*Math.sin(TAU*(p-.47))+.006*Math.sin(2*TAU*(p-.30));
+ const pitch=.012*Math.sin(TAU*(p-.47))+.003*Math.sin(2*TAU*(p-.30));
+ const flightLift=.026*Math.pow(Math.max(0,Math.sin(TAU*(p-.60))),1.5);
+ const bob=flightLift+1.35*Math.abs(pitch);
  const headNod=.052*Math.sin(TAU*(p-.74));
  const tailSway=.11*Math.sin(TAU*(p-.28));
  const tailSwayLag=.13*Math.sin(TAU*(p-.36));
